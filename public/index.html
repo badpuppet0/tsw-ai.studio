@@ -363,15 +363,936 @@ html.glass-panels .phead button:hover { background: rgba(255,255,255,.08); }
 .f input[type=color] { width: 3.2rem; height: 2.4rem; padding: 0; border: 1px solid var(--edge); border-radius: 8px; background: var(--void); cursor: pointer; }
 .f input[type=range] { width: 100%; accent-color: var(--blue); }
 .vidnote { color: #e6d49a; font-size: .82rem; min-height: 1.1rem; margin-top: .4rem; }
+
+/* ===================== Left Vertical Sidebar Navigation ===================== */
+:root {
+  --sb-w-expanded: 232px;
+  --sb-w-collapsed: 60px;
+  --sb-width: var(--sb-w-expanded);
+}
+body.sidebar-collapsed {
+  --sb-width: var(--sb-w-collapsed);
+}
+
+#sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--sb-width);
+  background: #060911;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  padding: .75rem .6rem;
+  transition: width .22s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* Sidebar Top Controls */
+.sb-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .85rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  min-height: 2.4rem;
+}
+.sb-icon-btn {
+  background: none;
+  border: 0;
+  color: var(--steel);
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all .15s ease;
+  flex: none;
+}
+.sb-icon-btn:hover:not(:disabled) {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+.sb-icon-btn:disabled {
+  opacity: .3;
+  cursor: default;
+}
+.sb-icon-btn svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+.sb-nav-group {
+  display: flex;
+  align-items: center;
+  gap: .15rem;
+}
+body.sidebar-collapsed .sb-nav-group {
+  display: none;
+}
+body.sidebar-collapsed .sb-top-bar {
+  justify-content: center;
+  border-bottom-color: transparent;
+  margin-bottom: .4rem;
+}
+
+/* + New Tab Button */
+.sb-newtab-btn {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--ink);
+  font: inherit;
+  font-size: .88rem;
+  font-weight: 500;
+  padding: .5rem .75rem;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-bottom: .75rem;
+  transition: all .15s ease;
+  width: 100%;
+}
+.sb-newtab-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+  border-color: rgba(90, 162, 255, 0.35);
+}
+.sb-newtab-btn svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: none;
+  color: var(--steel);
+}
+body.sidebar-collapsed .sb-newtab-btn {
+  padding: 0;
+  width: 2.4rem;
+  height: 2.4rem;
+  justify-content: center;
+  margin: 0 auto .75rem;
+  border-radius: 10px;
+}
+body.sidebar-collapsed .sb-newtab-btn .sb-label {
+  display: none;
+}
+
+/* Tabs List Section */
+.sb-tabs-section {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+}
+.sb-tab {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .55rem .75rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all .15s ease;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--steel);
+  font-size: .88rem;
+  font-weight: 500;
+  position: relative;
+  outline: 0;
+}
+.sb-tab:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+}
+/* Active Tab styling matching user screenshot (light pill tab) */
+.sb-tab.active {
+  background: #cbfbe2;
+  color: #064e3b;
+  font-weight: 600;
+}
+.sb-tab.active .sb-tab-icon {
+  color: #064e3b;
+}
+.sb-tab.active .sb-tab-close {
+  color: #064e3b;
+  opacity: .75;
+}
+.sb-tab.active .sb-tab-close:hover {
+  opacity: 1;
+  background: rgba(6, 78, 59, 0.15);
+}
+.sb-tab-icon {
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: none;
+}
+.sb-tab-icon svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+.sb-tab-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sb-tab-close {
+  background: none;
+  border: 0;
+  color: inherit;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 1.3rem;
+  height: 1.3rem;
+  display: grid;
+  place-items: center;
+  opacity: .5;
+  transition: opacity .15s, background .15s;
+  padding: 0;
+  flex: none;
+}
+.sb-tab-close:hover {
+  opacity: 1;
+}
+
+body.sidebar-collapsed .sb-tab {
+  padding: 0;
+  width: 2.4rem;
+  height: 2.4rem;
+  justify-content: center;
+  border-radius: 12px;
+  margin: 0 auto;
+}
+body.sidebar-collapsed .sb-tab .sb-tab-label,
+body.sidebar-collapsed .sb-tab .sb-tab-close {
+  display: none;
+}
+
+/* Spacer */
+.sb-spacer {
+  flex: 1;
+  min-height: 1rem;
+}
+
+/* Bottom Navigation Items Menu */
+.sb-menu {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: .6rem;
+}
+.sb-menu-item {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  padding: .5rem .7rem;
+  border-radius: 10px;
+  background: none;
+  border: 0;
+  color: var(--steel);
+  font: inherit;
+  font-size: .88rem;
+  cursor: pointer;
+  transition: all .15s ease;
+  width: 100%;
+  text-align: left;
+  outline: 0;
+  position: static !important;
+}
+.sb-menu-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+.sb-menu-item.active {
+  color: var(--blue-hi);
+  background: rgba(90, 162, 255, 0.12);
+}
+.sb-menu-icon {
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  flex: none;
+  color: inherit;
+}
+.sb-menu-icon svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+.sb-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sb-soon-badge {
+  font-size: .65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #60a5fa;
+  background: rgba(96, 165, 250, 0.15);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  padding: .1rem .4rem;
+  border-radius: 6px;
+  letter-spacing: .02em;
+}
+
+body.sidebar-collapsed .sb-menu-item {
+  padding: 0;
+  width: 2.4rem;
+  height: 2.4rem;
+  justify-content: center;
+  margin: 0 auto;
+}
+body.sidebar-collapsed .sb-menu-item .sb-label,
+body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
+  display: none;
+}
+
+/* Layout offsets for main areas based on sidebar */
+#home {
+  margin-left: var(--sb-width);
+  width: calc(100% - var(--sb-width));
+  transition: margin-left .22s cubic-bezier(0.4, 0, 0.2, 1), width .22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#browse {
+  left: var(--sb-width);
+  width: calc(100% - var(--sb-width));
+  transition: left .22s cubic-bezier(0.4, 0, 0.2, 1), width .22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#game-tab {
+  left: var(--sb-width);
+  width: calc(100% - var(--sb-width));
+  transition: left .22s cubic-bezier(0.4, 0, 0.2, 1), width .22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Chat Room Modal Styles */
+.chat-panel {
+  width: min(44rem, 100%);
+  height: min(34rem, 85vh);
+  background: #090e1a;
+  border: 1px solid rgba(90, 162, 255, 0.3);
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.chat-soon-pill {
+  font-size: .72rem;
+  font-weight: 600;
+  color: #60a5fa;
+  background: rgba(96, 165, 250, 0.14);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  border-radius: 999px;
+  padding: .15rem .6rem;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+.chat-layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+.chat-channels-pane {
+  width: 12rem;
+  background: rgba(3, 7, 18, 0.55);
+  border-right: 1px solid var(--edge);
+  padding: .85rem .6rem;
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+}
+.chat-pane-title {
+  font-size: .75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--steel);
+  letter-spacing: .05em;
+  padding: .3rem .5rem .5rem;
+}
+.chat-channel-item {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .45rem .65rem;
+  border-radius: 8px;
+  font-size: .86rem;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.chat-channel-item:hover, .chat-channel-item.active {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+.chat-channel-item.active {
+  background: rgba(90, 162, 255, 0.12);
+  color: var(--blue-hi);
+  font-weight: 500;
+}
+.ch-hash { color: var(--steel); font-weight: 700; }
+.ch-lock { font-size: .75rem; margin-left: auto; opacity: .6; }
+
+.chat-messages-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: rgba(11, 15, 26, 0.4);
+}
+.chat-empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+.chat-soon-bubble {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: rgba(90, 162, 255, 0.14);
+  border: 1px solid rgba(90, 162, 255, 0.35);
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  margin-bottom: .85rem;
+  color: var(--blue-hi);
+}
+.chat-empty-state h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: .4rem;
+}
+.chat-empty-state p {
+  font-size: .88rem;
+  color: #94a3b8;
+  max-width: 25rem;
+  line-height: 1.5;
+  margin-bottom: 1.1rem;
+}
+.chat-preview-feed {
+  width: 100%;
+  max-width: 26rem;
+  display: flex;
+  flex-direction: column;
+  gap: .65rem;
+  background: rgba(2, 6, 23, 0.65);
+  border: 1px solid var(--edge);
+  border-radius: 12px;
+  padding: .85rem;
+  text-align: left;
+  margin-bottom: 1rem;
+}
+.mock-msg {
+  display: flex;
+  gap: .65rem;
+  font-size: .84rem;
+}
+.mock-av {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  display: grid;
+  place-items: center;
+  flex: none;
+  font-size: 1.1rem;
+}
+.mock-author {
+  display: block;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: .15rem;
+}
+.mock-time {
+  font-size: .72rem;
+  font-weight: 400;
+  color: var(--steel);
+  margin-left: .35rem;
+}
+.mock-msg p {
+  color: #94a3b8;
+  font-size: .82rem;
+  margin: 0;
+  line-height: 1.35;
+}
+.chat-mock-input-box {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  width: 100%;
+  max-width: 26rem;
+  background: rgba(2, 6, 23, 0.7);
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  padding: .35rem .45rem .35rem 1rem;
+}
+.chat-mock-input-box input {
+  flex: 1;
+  background: none;
+  border: 0;
+  color: var(--steel);
+  font: inherit;
+  font-size: .84rem;
+  outline: 0;
+  cursor: not-allowed;
+}
+.chat-mock-input-box button {
+  background: #1e293b;
+  color: #64748b;
+  border: 0;
+  border-radius: 999px;
+  padding: .4rem .9rem;
+  font: inherit;
+  font-size: .82rem;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --sb-w-expanded: 200px;
+    --sb-w-collapsed: 50px;
+  }
+  .chat-channels-pane { display: none; }
+}
+
+/* Clean Modern Profiles & Auth Styles */
+.prof-cloud-badge { display: inline-flex; align-items: center; gap: .35rem; font-size: .72rem; font-weight: 500; color: #34d399; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.28); border-radius: 999px; padding: .15rem .6rem; }
+.dot-live { width: .45rem; height: .45rem; border-radius: 50%; background: #34d399; box-shadow: 0 0 8px #34d399; animation: pulse 2s infinite; }
+
+.prof-panel { width: min(32rem, 100%); background: #0b0f19; border: 1px solid rgba(90, 162, 255, 0.3); border-radius: 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+
+.auth-hero { text-align: center; padding: .6rem 0 1.2rem; }
+.auth-avatar-icon { width: 52px; height: 52px; border-radius: 50%; background: rgba(90, 162, 255, 0.12); border: 1px solid rgba(90, 162, 255, 0.3); display: grid; place-items: center; margin: 0 auto .8rem; color: var(--blue-hi); }
+.auth-avatar-icon svg { width: 26px; height: 26px; }
+.auth-title { font-size: 1.25rem; font-weight: 600; color: #fff; margin-bottom: .25rem; }
+.auth-sub { font-size: .86rem; color: var(--steel); max-width: 22rem; margin: 0 auto; line-height: 1.45; }
+
+.auth-tabs-row { display: flex; gap: .35rem; background: rgba(2, 6, 23, 0.7); border: 1px solid var(--edge); padding: .25rem; border-radius: 10px; margin-bottom: 1rem; }
+.auth-tab-btn { flex: 1; background: none; border: 0; color: var(--steel); font: inherit; font-size: .88rem; font-weight: 500; padding: .45rem; border-radius: 8px; cursor: pointer; transition: all .15s; text-align: center; }
+.auth-tab-btn.on { background: var(--blue); color: #03101f; font-weight: 600; }
+
+.auth-form-clean label { display: block; font-size: .82rem; color: var(--steel); margin: .7rem 0 .25rem; }
+.auth-form-clean label:first-child { margin-top: 0; }
+.auth-form-clean input { width: 100%; background: var(--void); border: 1px solid var(--edge); color: var(--ink); border-radius: 10px; padding: .6rem .8rem; font: inherit; outline: 0; transition: border-color .15s; }
+.auth-form-clean input:focus { border-color: var(--blue-dim); }
+.auth-main-btn { width: 100%; padding: .65rem 1.2rem; margin-top: 1rem; font-size: .95rem; font-weight: 600; }
+
+.guest-notice-box { margin-top: 1.2rem; padding: .75rem .9rem; background: rgba(255,255,255,0.02); border: 1px solid var(--edge); border-radius: 10px; display: flex; align-items: center; justify-content: space-between; }
+.guest-notice-text span { display: block; font-size: .84rem; font-weight: 500; color: #cbd5e1; }
+.guest-notice-text small { color: var(--steel); font-size: .76rem; }
+
+/* Member Clean View */
+.member-bar-clean { display: flex; align-items: center; justify-content: space-between; padding: .85rem 1rem; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(90, 162, 255, 0.3); border-radius: 12px; margin-bottom: 1.2rem; }
+.member-info-clean { display: flex; align-items: center; gap: .75rem; }
+.member-avatar-clean { width: 2.4rem; height: 2.4rem; border-radius: 10px; background: rgba(90, 162, 255, 0.15); border: 1px solid rgba(90, 162, 255, 0.3); display: grid; place-items: center; font-size: 1.3rem; }
+.member-user-clean { font-weight: 600; font-size: 1rem; color: #fff; }
+.member-sync-tag { font-size: .72rem; color: #34d399; display: flex; align-items: center; gap: .35rem; margin-top: .1rem; }
+.member-logout-btn { padding: .35rem .85rem; font-size: .8rem; margin: 0; }
+.member-logout-btn:hover { border-color: #f87171; color: #f87171; }
+
+.prof-section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .6rem; }
+.prof-section-head h4 { font-size: .92rem; font-weight: 600; color: #e2e8f0; }
+
+.prof-cards-list { display: flex; flex-direction: column; gap: .55rem; max-height: 15rem; overflow-y: auto; padding-right: .2rem; }
+.prof-item { display: flex; align-items: center; gap: .85rem; padding: .7rem .85rem; background: rgba(15, 23, 42, 0.55); border: 1px solid var(--edge); border-radius: 12px; transition: all .15s ease; }
+.prof-item.active { background: rgba(90, 162, 255, 0.08); border-color: rgba(90, 162, 255, 0.45); }
+.prof-item-avatar { width: 2.2rem; height: 2.2rem; border-radius: 10px; background: rgba(255,255,255,0.06); display: grid; place-items: center; font-size: 1.25rem; flex: none; }
+.prof-item-body { flex: 1; min-width: 0; }
+.prof-item-name-row { display: flex; align-items: center; gap: .45rem; }
+.prof-item-name { font-weight: 600; font-size: .92rem; color: #fff; }
+.prof-item-badge { font-size: .65rem; color: #34d399; border: 1px solid rgba(52, 211, 153, 0.4); border-radius: 999px; padding: .08rem .45rem; }
+.prof-item-bio { font-size: .78rem; color: var(--steel); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prof-item-actions { display: flex; align-items: center; gap: .35rem; }
+.prof-btn-sm { background: rgba(255, 255, 255, 0.06); border: 1px solid var(--edge); color: var(--ink); font: inherit; font-size: .78rem; border-radius: 8px; padding: .3rem .6rem; cursor: pointer; }
+.prof-btn-sm:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+.prof-btn-sm.primary-sm { background: var(--blue); color: #03101f; font-weight: 500; border-color: transparent; }
+.prof-btn-sm.del:hover { color: #f87171; border-color: rgba(248, 113, 113, 0.4); }
+
+.add-prof-toggle-btn { width: 100%; text-align: center; padding: .55rem; font-size: .86rem; border-style: dashed; margin-top: .4rem; }
+.add-prof-toggle-btn:hover { border-color: var(--blue-dim); color: #fff; }
+
+.prof-quick-create { background: rgba(11, 15, 25, 0.7); border: 1px solid var(--edge); border-radius: 12px; padding: .85rem 1rem; margin-top: .6rem; }
+.avatar-picker-mini { display: flex; gap: .45rem; margin-top: .3rem; }
+.avatar-opt { width: 2.2rem; height: 2.2rem; border-radius: 8px; border: 1px solid var(--edge); background: rgba(255,255,255,0.04); font-size: 1.15rem; cursor: pointer; display: grid; place-items: center; transition: all .15s; }
+.avatar-opt:hover, .avatar-opt.on { border-color: var(--blue); background: rgba(255,255,255,0.12); transform: scale(1.08); }
+
+/* Welcome Popup Modal */
+.welcome-panel {
+  width: min(30rem, 100%);
+  background: linear-gradient(180deg, #0f172a 0%, #0a0e1c 100%);
+  border: 1px solid rgba(90, 162, 255, 0.45);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(90, 162, 255, 0.18);
+  border-radius: 20px;
+  padding: 1.75rem 1.6rem;
+  text-align: center;
+  animation: popIn .25s cubic-bezier(.16, 1, .3, 1);
+}
+@keyframes popIn {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.welcome-glow-icon {
+  width: 58px; height: 58px; border-radius: 18px; margin: 0 auto 1.1rem;
+  background: linear-gradient(135deg, rgba(90, 162, 255, 0.25), rgba(56, 189, 248, 0.35));
+  border: 1px solid rgba(90, 162, 255, 0.5);
+  display: grid; place-items: center; color: var(--blue-hi);
+  box-shadow: 0 0 24px rgba(90, 162, 255, 0.35);
+}
+.welcome-glow-icon svg { width: 30px; height: 30px; }
+.welcome-title { font-size: 1.4rem; font-weight: 700; color: #fff; margin-bottom: .6rem; letter-spacing: -0.01em; }
+.welcome-highlight {
+  font-size: 1.02rem; line-height: 1.55; color: #e2e8f0; margin: .4rem 0 1.2rem;
+  background: rgba(90, 162, 255, 0.08); border: 1px solid rgba(90, 162, 255, 0.2);
+  border-radius: 12px; padding: .9rem 1.1rem; font-weight: 500;
+}
+.welcome-features-list { display: flex; flex-direction: column; gap: .55rem; text-align: left; margin-bottom: 1.4rem; }
+.welcome-feature-item {
+  display: flex; align-items: center; gap: .75rem; font-size: .88rem; color: #94a3b8;
+  background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: .55rem .85rem; border-radius: 10px;
+}
+.wf-icon { font-size: 1.1rem; flex: none; }
+.welcome-btn { width: 100%; padding: .75rem 1.5rem; font-size: .98rem; font-weight: 600; }
 </style>
 </head>
 <body>
 <div id="splash" aria-hidden="true"><div class="sp-mark">TSW<b>v2</b></div><div class="sp-bar"><i></i></div></div>
 <video id="bgvid" muted loop playsinline preload="auto" aria-hidden="true" hidden></video>
 <canvas id="sky" aria-hidden="true"></canvas>
-<button class="cog" id="cog" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
-<button class="cog log" id="logbtn" aria-label="Change log" title="Change log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg></button>
-<button class="cog games" id="gamesbtn" aria-label="Games" title="Games"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 10v5M4.5 12.5h5"/><circle cx="16" cy="11.5" r=".7"/><circle cx="18.5" cy="13.5" r=".7"/></svg></button>
+<!-- Left Vertical Sidebar Navigation (Arc/Edge Style with Tabs & Bottom Menu) -->
+<aside id="sidebar" aria-label="Sidebar Navigation">
+  <div class="sb-top-bar">
+    <button class="sb-icon-btn sb-toggle" id="sb-toggle-btn" title="Toggle Sidebar" aria-label="Toggle Sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="3"/>
+        <path d="M9 3v18"/>
+      </svg>
+    </button>
+    <div class="sb-nav-group">
+      <button class="sb-icon-btn" id="sb-btn-back" title="Back" aria-label="Back" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+      </button>
+      <button class="sb-icon-btn" id="sb-btn-fwd" title="Forward" aria-label="Forward" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+      <button class="sb-icon-btn" id="sb-btn-reload" title="Reload" aria-label="Reload">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <button class="sb-newtab-btn" id="sb-btn-newtab" title="New Tab" aria-label="New Tab">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 5v14M5 12h14"/>
+    </svg>
+    <span class="sb-label">New Tab</span>
+  </button>
+
+  <div class="sb-tabs-section" id="sb-tabs-list">
+    <!-- Active Tab pill (Home tab by default) -->
+    <div class="sb-tab active" id="sb-tab-home" role="button" tabindex="0" title="Home">
+      <div class="sb-tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </div>
+      <span class="sb-tab-label">Home</span>
+      <button class="sb-tab-close" id="sb-tab-home-close" title="Reset Search" aria-label="Reset Search">&times;</button>
+    </div>
+
+    <!-- Dynamic tab for current web page / proxy browsing (hidden when on home) -->
+    <div class="sb-tab" id="sb-tab-browse" role="button" tabindex="0" title="Active Web Page" hidden>
+      <div class="sb-tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+      </div>
+      <span class="sb-tab-label" id="sb-browse-tab-title">Web Proxy</span>
+      <button class="sb-tab-close" id="sb-tab-browse-close" title="Close Tab" aria-label="Close Tab">&times;</button>
+    </div>
+
+    <!-- Dynamic tab for Cork7 games (hidden when not in games) -->
+    <div class="sb-tab" id="sb-tab-game" role="button" tabindex="0" title="Cork7 Games" hidden>
+      <div class="sb-tab-icon">🎮</div>
+      <span class="sb-tab-label">Cork7 Games</span>
+      <button class="sb-tab-close" id="sb-tab-game-close" title="Exit Game" aria-label="Exit Game">&times;</button>
+    </div>
+  </div>
+
+  <div class="sb-spacer"></div>
+
+  <!-- Bottom Navigation Menu Items -->
+  <nav class="sb-menu" aria-label="Side Navigation Menu">
+    <!-- Chat (Coming Soon) -->
+    <button class="sb-menu-item" id="sb-chat-btn" title="Chat Rooms (Coming Soon)" type="button">
+      <span class="sb-menu-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </span>
+      <span class="sb-label">Chat</span>
+      <span class="sb-soon-badge">Soon</span>
+    </button>
+
+    <!-- Cork7 Games -->
+    <button class="sb-menu-item" id="gamesbtn" title="Cork7 Games" type="button">
+      <span class="sb-menu-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="7" width="20" height="11" rx="5"/>
+          <path d="M7 10v5M4.5 12.5h5"/>
+          <circle cx="16" cy="11.5" r=".7"/>
+          <circle cx="18.5" cy="13.5" r=".7"/>
+        </svg>
+      </span>
+      <span class="sb-label">Games</span>
+    </button>
+
+    <!-- Update Log -->
+    <button class="sb-menu-item" id="logbtn" title="Change Log & Updates" type="button">
+      <span class="sb-menu-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+      </span>
+      <span class="sb-label">Update Log</span>
+    </button>
+
+    <!-- Account / Profiles (Cloud SQL) -->
+    <button class="sb-menu-item" id="profbtn" title="Account & Profiles (Cloud SQL)" type="button">
+      <span class="sb-menu-icon" id="prof-btn-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </span>
+      <span class="sb-label" id="prof-btn-name">Sign In</span>
+    </button>
+
+    <!-- Settings -->
+    <button class="sb-menu-item" id="cog" title="Settings" type="button">
+      <span class="sb-menu-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>
+        </svg>
+      </span>
+      <span class="sb-label">Settings</span>
+    </button>
+  </nav>
+</aside>
+
+<!-- Chat Room Modal (Coming Soon) -->
+<div class="overlay" id="chat-modal" hidden role="dialog" aria-modal="true" aria-labelledby="chat-h">
+  <div class="panel chat-panel">
+    <div class="phead">
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <h2 id="chat-h">TSW Member Chat</h2>
+        <span class="chat-soon-pill">Coming Soon</span>
+      </div>
+      <button data-close aria-label="Close">&times;</button>
+    </div>
+    <div class="chat-layout">
+      <div class="chat-channels-pane">
+        <div class="chat-pane-title">Channels</div>
+        <div class="chat-channel-item active"><span class="ch-hash">#</span> general <span class="ch-lock">🔒</span></div>
+        <div class="chat-channel-item"><span class="ch-hash">#</span> gaming-cork7 <span class="ch-lock">🔒</span></div>
+        <div class="chat-channel-item"><span class="ch-hash">#</span> proxies-speed <span class="ch-lock">🔒</span></div>
+        <div class="chat-channel-item"><span class="ch-hash">#</span> announcements <span class="ch-lock">🔒</span></div>
+      </div>
+      <div class="chat-messages-pane">
+        <div class="chat-empty-state">
+          <div class="chat-soon-bubble">💬</div>
+          <h3>Member Chat Rooms Coming Soon</h3>
+          <p>Real-time chat rooms and channels are in active development for TSW v2 members. Now that your Cloud SQL data is securely stored, member chat infrastructure is rolling out next.</p>
+          <div class="chat-preview-feed">
+            <div class="mock-msg">
+              <span class="mock-av">🤖</span>
+              <div>
+                <b class="mock-author">TSW System <span class="mock-time">Preview</span></b>
+                <p>Welcome! Real-time WebSockets and member chat rooms are being prepared.</p>
+              </div>
+            </div>
+            <div class="mock-msg">
+              <span class="mock-av">👨‍🚀</span>
+              <div>
+                <b class="mock-author">Voyager <span class="mock-time">Beta</span></b>
+                <p>Can't wait to chat with other unblocked players!</p>
+              </div>
+            </div>
+          </div>
+          <div class="chat-mock-input-box">
+            <input type="text" placeholder="Chat is coming soon for members... (Under Construction)" disabled>
+            <button type="button" disabled>Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Welcome / Member Account Created Popup -->
+<div class="overlay" id="welcome-modal" hidden role="dialog" aria-modal="true" aria-labelledby="welcome-t">
+  <div class="panel welcome-panel">
+    <div class="welcome-glow-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+    </div>
+    <h2 id="welcome-t" class="welcome-title">Welcome to TSW v2!</h2>
+    <p class="welcome-highlight">now your data is stored and more things like chat rooms and whatnot are coming soon for our members.</p>
+    <div class="welcome-features-list">
+      <div class="welcome-feature-item">
+        <span class="wf-icon">🔒</span>
+        <span>Secure Cloud SQL cloud storage for your custom shortcuts & settings</span>
+      </div>
+      <div class="welcome-feature-item">
+        <span class="wf-icon">💬</span>
+        <span>Chat rooms and interactive member spaces (in active development)</span>
+      </div>
+      <div class="welcome-feature-item">
+        <span class="wf-icon">🪐</span>
+        <span>Seamless multi-profile switching across all browsers & devices</span>
+      </div>
+    </div>
+    <button type="button" class="primary welcome-btn" id="welcome-dismiss-btn">Got It, Let's Explore</button>
+  </div>
+</div>
+
+<div class="overlay" id="profiles-modal" hidden>
+  <div class="panel prof-panel" role="dialog" aria-modal="true" aria-labelledby="pm-h">
+    <div class="phead">
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <h2 id="pm-h">Account & Profiles</h2>
+        <span class="prof-cloud-badge"><span class="dot-live"></span> Cloud SQL</span>
+      </div>
+      <button data-close aria-label="Close">&times;</button>
+    </div>
+    
+    <div class="pbody" style="padding:1.2rem">
+      <!-- Signed-out View (Default) -->
+      <div id="view-signed-out">
+        <div class="auth-hero">
+          <div class="auth-avatar-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="7" r="4"/>
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            </svg>
+          </div>
+          <h3 class="auth-title">Sign In to TSW v2</h3>
+          <p class="auth-sub">Save your shortcuts, profiles, and settings permanently in Cloud SQL.</p>
+        </div>
+
+        <div class="auth-tabs-row">
+          <button type="button" class="auth-tab-btn on" id="tab-login-btn">Log In</button>
+          <button type="button" class="auth-tab-btn" id="tab-signup-btn">Sign Up</button>
+        </div>
+
+        <form class="f auth-form-clean" id="auth-form" autocomplete="off">
+          <label for="auth-username" id="auth-user-label">Username</label>
+          <input id="auth-username" type="text" placeholder="Enter your username" required minlength="3">
+          
+          <div id="auth-email-wrap" hidden>
+            <label for="auth-email">Email (optional)</label>
+            <input id="auth-email" type="text" placeholder="you@example.com">
+          </div>
+
+          <label for="auth-password">Password</label>
+          <input id="auth-password" type="password" placeholder="Enter your password" required minlength="4">
+
+          <p class="err" id="auth-err" role="alert"></p>
+
+          <button class="primary auth-main-btn" type="submit" id="auth-submit-btn">Log In</button>
+        </form>
+
+        <div class="guest-notice-box">
+          <div class="guest-notice-text">
+            <span>Browsing as Guest</span>
+            <small>Local changes remain on this browser until you sign in.</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Signed-in Member View -->
+      <div id="view-signed-in" hidden>
+        <div class="member-bar-clean">
+          <div class="member-info-clean">
+            <div class="member-avatar-clean" id="member-avatar">👨‍🚀</div>
+            <div>
+              <div class="member-user-clean" id="member-username">Voyager</div>
+              <div class="member-sync-tag"><span class="dot-live"></span> Cloud SQL Active</div>
+            </div>
+          </div>
+          <button type="button" class="plain member-logout-btn" id="auth-logout-btn">Log Out</button>
+        </div>
+
+        <div class="prof-section-head">
+          <h4>Your Cloud Profiles</h4>
+          <span class="hint" id="pm-profiles-count">1 profile</span>
+        </div>
+
+        <div class="prof-cards-list" id="pm-list">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Add Profile Expandable -->
+        <div style="margin-top:1rem">
+          <button type="button" class="plain add-prof-toggle-btn" id="pm-toggle-create">+ Add Profile</button>
+          
+          <form class="f prof-quick-create" id="pm-create-form" hidden autocomplete="off">
+            <label for="pm-new-name">New Profile Name</label>
+            <input id="pm-new-name" type="text" maxlength="24" placeholder="e.g. Work, Gaming" required>
+
+            <label style="margin-top:.6rem">Choose Avatar</label>
+            <div class="avatar-picker-mini" id="pm-avatar-picker">
+              <button type="button" class="avatar-opt on" data-av="astronaut">👨‍🚀</button>
+              <button type="button" class="avatar-opt" data-av="rocket">🚀</button>
+              <button type="button" class="avatar-opt" data-av="star">⭐</button>
+              <button type="button" class="avatar-opt" data-av="planet">🪐</button>
+              <button type="button" class="avatar-opt" data-av="gamepad">🎮</button>
+            </div>
+
+            <p class="err" id="pm-create-err" role="alert"></p>
+            <div class="row" style="margin-top:.8rem">
+              <button class="primary" type="submit" id="pm-create-submit">Save Profile</button>
+              <button class="plain" type="button" id="pm-cancel-create">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" hidden></div>
 
 <div class="status" id="status" data-s="check" role="button" tabindex="0" title="Server info" aria-label="Server status. Open server info">
@@ -500,8 +1421,11 @@ html.glass-panels .phead button:hover { background: rgba(255,255,255,.08); }
 
 <div class="overlay" id="log" hidden>
   <div class="panel" role="dialog" aria-modal="true" aria-labelledby="log-title">
-    <div class="phead"><h2 id="log-title">Change log</h2><button id="log-close" aria-label="Close">&times;</button></div>
-    <div class="tabs"><button class="on" data-tab="updates">Updates</button><button data-tab="credits">Credits</button></div>
+    <div class="phead"><h2 id="log-title">Change Log</h2><button id="log-close" aria-label="Close">&times;</button></div>
+    <div class="tabs">
+      <button class="on" data-tab="updates">Updates</button>
+      <button data-tab="credits">Credits</button>
+    </div>
     <div class="pbody" id="tab-updates">
       <h3>TSW v2 1.4<span>Video and more backgrounds</span></h3>
       <p class="date">October 2026</p>
@@ -509,57 +1433,40 @@ html.glass-panels .phead button:hover { background: rgba(255,255,255,.08); }
         <li>Video background: use a video from the site or one from your own device.</li>
         <li>Custom background color and updated panel styles.</li>
         <li>Accent color picker and a clock and date on the homepage.</li>
-        <li>A short loading animation when TSW v2 opens.</li>
-        <li>Server status now keeps a history of recent checks.</li>
-        <li>Games tab now has shortcuts to game sites.</li>
-        <li>Cleaner Credits with links to every project, and a source code link.</li>
-        <li>Faster loading with file compression and caching.</li>
       </ul>
-      <h3 class="older">TSW v2 1.3<span>Backgrounds and polish</span></h3>
+      <h3 class="older">TSW v2 1.3<span>Offline and diagnostics</span></h3>
       <p class="date">October 2026</p>
       <ul>
-        <li>New interactive ice waves background, chosen in Settings. More backgrounds are coming soon.</li>
-        <li>Seasonal effects: snow in winter and bats around Halloween.</li>
-        <li>Click a star to make it shine.</li>
-        <li>Friendly messages explaining why a site did not load.</li>
-        <li>Open in new tab, a spinning reload button, and a new look for the 404 page.</li>
-        <li>Brave and Startpage search, and a Report a broken site link.</li>
-        <li>Bigger touch targets on phones, and TSW v2 can be installed as an app.</li>
+        <li>Shows helpful messages when a site will not load, with actions to fix or report it.</li>
+        <li>Works offline if the site has been opened before.</li>
+        <li>Install TSW v2 as an app on your phone, tablet, or computer.</li>
       </ul>
-      <h3 class="older">TSW v2 1.2<span>Rockets and server info</span></h3>
+      <h3 class="older">TSW v2 1.2<span>Games and settings</span></h3>
       <p class="date">October 2026</p>
       <ul>
-        <li>Tiny rockets now fly across the sky between the shooting stars, and stars sometimes shine.</li>
-        <li>New Games tab in the top right. It is coming soon.</li>
-        <li>Click the server status to see response time, proxy ping, and the server IP address.</li>
-        <li>Browser options in Settings, starting with Tor browser (coming soon).</li>
-        <li>Slightly bigger buttons in the top right.</li>
+        <li>Games menu with shortcuts to popular web games.</li>
+        <li>Settings menu: choose a search engine, tab title, tab icon, and seasonal effects.</li>
+        <li>Server status indicator with response time, ping, and history.</li>
       </ul>
-      <h3 class="older">TSW v2 1.1<span>Settings and shortcuts</span></h3>
+      <h3 class="older">TSW v2 1.0 - 1.1<span>Launch</span></h3>
       <p class="date">October 2026</p>
       <ul>
-        <li>Settings now work: choose a search engine, turn stars and shooting stars on or off, and change the tab title and icon.</li>
-        <li>Add your own shortcuts with the + button. They are saved in your browser.</li>
-        <li>A waking-up screen shows while the server starts back up.</li>
-      </ul>
-      <h3 class="older">TSW v2 1.0<span>Site launch</span></h3>
-      <p class="date">October 2026</p>
-      <ul>
-        <li>TSW v2 goes live with a real web proxy built on the Scramjet engine.</li>
-        <li>Search bar and address bar, with back, forward, reload and home.</li>
-        <li>Shortcuts for TikTok, Instagram and GeForce NOW.</li>
-        <li>Server status in the bottom left corner.</li>
+        <li>Search bar and address bar with DuckDuckGo by default.</li>
+        <li>Custom shortcuts on the homepage.</li>
+        <li>Interactive starfield background with shooting stars.</li>
       </ul>
     </div>
     <div class="pbody" id="tab-credits" hidden>
-      <h3 class="made">Made by Alex Dalbey</h3>
-      <p class="date">Built with</p>
+      <h3 class="made">Built with Open Web Technologies</h3>
+      <p class="date">Core Projects & Proxies</p>
       <ul class="credits">
         <li><a href="https://github.com/MercuryWorkshop/scramjet" target="_blank" rel="noopener noreferrer">Scramjet</a><span>The web proxy engine, by Mercury Workshop. MIT license.</span></li>
         <li><a href="https://github.com/MercuryWorkshop/Scramjet-App" target="_blank" rel="noopener noreferrer">Scramjet-App</a><span>The server this site is built on, by Mercury Workshop. AGPL-3.0 license.</span></li>
         <li><a href="https://github.com/MercuryWorkshop/libcurl-transport" target="_blank" rel="noopener noreferrer">libcurl-transport</a><span>Carries proxied traffic, by Mercury Workshop.</span></li>
         <li><a href="https://www.npmjs.com/package/@mercuryworkshop/bare-mux" target="_blank" rel="noopener noreferrer">bare-mux</a><span>Connects the proxy to its transport, by Mercury Workshop.</span></li>
         <li><a href="https://www.npmjs.com/package/@mercuryworkshop/wisp-js" target="_blank" rel="noopener noreferrer">wisp-js</a><span>The proxy's WebSocket server, by Mercury Workshop.</span></li>
+        <li><a href="https://cloud.google.com/sql" target="_blank" rel="noopener noreferrer">Google Cloud SQL</a><span>Managed PostgreSQL database for persistent profiles.</span></li>
+        <li><a href="https://cork7.com" target="_blank" rel="noopener noreferrer">Cork7</a><span>Unblocked games platform.</span></li>
         <li><a href="https://fastify.dev" target="_blank" rel="noopener noreferrer">Fastify</a><span>The web server framework.</span></li>
       </ul>
       <h4 class="subh">Source code</h4>
@@ -580,9 +1487,7 @@ html.glass-panels .phead button:hover { background: rgba(255,255,255,.08); }
       </button>
     </form>
     <nav class="links" id="links" aria-label="Shortcuts">
-      <button type="button" data-url="https://www.tiktok.com">TikTok</button>
-      <button type="button" data-url="https://www.instagram.com">Instagram</button>
-      <button type="button" data-url="https://play.geforcenow.com">GeForce NOW</button>
+      <!-- Loaded dynamically from active Cloud SQL profile -->
     </nav>
     <p class="msg" id="home-msg" role="status"></p>
   </div>
@@ -591,6 +1496,7 @@ html.glass-panels .phead button:hover { background: rgba(255,255,255,.08); }
 
 <section id="browse" hidden>
   <div class="bar">
+    <button id="btn-toggle-sb" title="Toggle Sidebar" aria-label="Toggle Sidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 3v18"/></svg></button>
     <button id="btn-home" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg></button>
     <button id="btn-back" title="Back" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
     <button id="btn-fwd" title="Forward" aria-label="Forward"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
@@ -609,11 +1515,13 @@ html.glass-panels .phead button:hover { background: rgba(255,255,255,.08); }
       <button class="plain" type="button" id="diag-tab">Open in new tab</button>
       <a class="plain" id="diag-report" href="https://docs.google.com/forms/d/e/1FAIpQLScupiUZuqQsngFai_QPQRWn06LpuZy3VGZOEyIUY0DAZ0qJxw/viewform" target="_blank" rel="noopener noreferrer">Report this site</a>
     </div>
+  </div>
 </section>
 
 <section id="game-tab" hidden>
   <div class="game-bar">
     <div class="game-title-wrap">
+      <button class="game-act-btn" id="btn-game-toggle-sb" type="button" title="Toggle Sidebar" aria-label="Toggle Sidebar" style="padding:.32rem .55rem"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 3v18"/></svg></button>
       <span class="game-badge"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 10v5M4.5 12.5h5"/><circle cx="16" cy="11.5" r=".7"/><circle cx="18.5" cy="13.5" r=".7"/></svg> Cork7</span>
       <span class="game-site-pill">cork7.com</span>
       <span id="game-status-pill" class="game-status-pill">Ready</span>
@@ -677,18 +1585,22 @@ var store = {
     stars = [];
     for (var i = 0; i < n; i++) {
       var roll = Math.random();
-      var layer = roll < 0.55 ? 0 : (roll < 0.85 ? 1 : 2);
+      // 3 depth layers for clean 3D horizontal side-to-side perspective
+      var layer = roll < 0.60 ? 0 : (roll < 0.88 ? 1 : 2);
       var r, pFac, hasSpike = false;
       if (layer === 0) {
+        // Distant stars
         r = Math.random() * 0.45 + 0.4;
-        pFac = 0.003;
+        pFac = 0.008;
       } else if (layer === 1) {
-        r = Math.random() * 0.7 + 0.8;
-        pFac = 0.009;
+        // Mid-depth stars
+        r = Math.random() * 0.65 + 0.75;
+        pFac = 0.024;
       } else {
-        r = Math.random() * 1.2 + 1.5;
-        pFac = 0.022;
-        if (Math.random() < 0.35) hasSpike = true;
+        // Foreground 3D stars (prominent side-to-side motion)
+        r = Math.random() * 1.1 + 1.4;
+        pFac = 0.056;
+        if (Math.random() < 0.42) hasSpike = true;
       }
       var sx = Math.random() * w, sy = Math.random() * h;
       stars.push({
@@ -703,27 +1615,6 @@ var store = {
         p: Math.random() * 6.28,
         c: COLORS[Math.floor(Math.random() * COLORS.length)]
       });
-    }
-
-    // Deep cosmic nebulae dust clouds
-    nebulae = [
-      { x: w * 0.25, y: h * 0.28, r: Math.min(w, h) * 0.52, c: '99, 102, 241', a: 0.065, s: 0.0004 },
-      { x: w * 0.78, y: h * 0.35, r: Math.min(w, h) * 0.55, c: '56, 189, 248', a: 0.055, s: 0.0003 },
-      { x: w * 0.52, y: h * 0.72, r: Math.min(w, h) * 0.58, c: '168, 85, 247', a: 0.06, s: 0.00035 },
-      { x: w * 0.88, y: h * 0.82, r: Math.min(w, h) * 0.42, c: '236, 72, 153', a: 0.04, s: 0.0005 }
-    ];
-
-    // Constellation lines linking nearby bright stars
-    constellations = [];
-    var brights = stars.filter(function (s) { return s.layer >= 1; });
-    for (var b1 = 0; b1 < brights.length && constellations.length < 24; b1++) {
-      for (var b2 = b1 + 1; b2 < brights.length && constellations.length < 24; b2++) {
-        var cdx = brights[b1].bx - brights[b2].bx, cdy = brights[b1].by - brights[b2].by;
-        var dist = Math.sqrt(cdx * cdx + cdy * cdy);
-        if (dist > 50 && dist < 130 && Math.random() < 0.28) {
-          constellations.push({ a: brights[b1], b: brights[b2], maxDist: 130 });
-        }
-      }
     }
 
     seeded = ''; bgSeeded = '';
@@ -821,25 +1712,6 @@ var store = {
       bgGrad.addColorStop(0.5, '#060913');
       bgGrad.addColorStop(1, '#020307');
       g.fillStyle = bgGrad; g.fillRect(0, 0, w, h);
-
-      if (!still && nebulae.length) {
-        var prevComp = g.globalCompositeOperation;
-        g.globalCompositeOperation = 'screen';
-        for (var ni = 0; ni < nebulae.length; ni++) {
-          var neb = nebulae[ni];
-          var pulse = Math.sin(t * neb.s + ni * 1.5) * 0.18 + 0.82;
-          var nrad = neb.r * pulse;
-          var nx = neb.x + Math.sin(t * neb.s * 0.8) * 22;
-          var ny = neb.y + Math.cos(t * neb.s * 0.7) * 16;
-          var ng = g.createRadialGradient(nx, ny, 0, nx, ny, nrad);
-          ng.addColorStop(0, 'rgba(' + neb.c + ',' + (neb.a * pulse) + ')');
-          ng.addColorStop(0.45, 'rgba(' + neb.c + ',' + (neb.a * 0.42 * pulse) + ')');
-          ng.addColorStop(1, 'rgba(' + neb.c + ',0)');
-          g.fillStyle = ng;
-          g.beginPath(); g.arc(nx, ny, nrad, 0, 6.2832); g.fill();
-        }
-        g.globalCompositeOperation = prevComp;
-      }
     }
   }
   function showStar(bg, s, i) {
@@ -979,37 +1851,19 @@ var store = {
     if (o.bg !== bgSeeded) { bgSeeded = o.bg; seedBg(o.bg); }
     if (o.stars) {
       // Smooth mouse parallax easing
-      curMouseX += (mouseX - curMouseX) * 0.04;
-      curMouseY += (mouseY - curMouseY) * 0.04;
+      curMouseX += (mouseX - curMouseX) * 0.05;
+      curMouseY += (mouseY - curMouseY) * 0.05;
       var pX = (curMouseX - w * 0.5);
-      var pY = (curMouseY - h * 0.5);
+      var pY = (curMouseY - h * 0.5) * 0.22;
 
-      // Subtle celestial constellation lines between nearby stars
-      if (constellations.length && !still && (o.bg === 'stars' || !o.bg)) {
-        g.lineWidth = 0.8;
-        for (var ci = 0; ci < constellations.length; ci++) {
-          var con = constellations[ci];
-          var sx1 = con.a.bx + pX * con.a.pFac, sy1 = con.a.by + pY * con.a.pFac;
-          var sx2 = con.b.bx + pX * con.b.pFac, sy2 = con.b.by + pY * con.b.pFac;
-          var cdx = sx1 - sx2, cdy = sy1 - sy2;
-          var cdist = Math.sqrt(cdx * cdx + cdy * cdy);
-          if (cdist < con.maxDist) {
-            var calpha = (1 - cdist / con.maxDist) * 0.16 * (0.8 + 0.2 * Math.sin(t * 0.0012 + ci));
-            g.strokeStyle = 'rgba(147, 197, 253, ' + calpha + ')';
-            g.beginPath();
-            g.moveTo(sx1, sy1);
-            g.lineTo(sx2, sy2);
-            g.stroke();
-          }
-        }
-      }
-
-      // Draw stars with multi-layer parallax, glowing halos, and diffraction spikes
+      // Draw stars with 3D side-to-side parallax depth
       for (i = 0; i < stars.length; i++) {
         var s = stars[i];
         if (!showStar(o.bg, s, i)) continue;
         var offX = s.bx + pX * s.pFac;
         var offY = s.by + pY * s.pFac;
+        if (offX < -15) offX += w + 30;
+        else if (offX > w + 15) offX -= (w + 30);
         s.x = offX; s.y = offY;
 
         var tw = still ? 1 : 0.75 + 0.25 * Math.sin(t / 1000 * s.s + s.p);
@@ -1409,8 +2263,10 @@ var STATUS_NOTICE = '';
   panel.querySelectorAll('.tabs button').forEach(function (b) {
     b.addEventListener('click', function () {
       panel.querySelectorAll('.tabs button').forEach(function (x) { x.classList.toggle('on', x === b); });
-      document.getElementById('tab-updates').hidden = b.dataset.tab !== 'updates';
-      document.getElementById('tab-credits').hidden = b.dataset.tab !== 'credits';
+      var up = document.getElementById('tab-updates');
+      var cr = document.getElementById('tab-credits');
+      if (up) up.hidden = b.dataset.tab !== 'updates';
+      if (cr) cr.hidden = b.dataset.tab !== 'credits';
     });
   });
 })();
@@ -1623,60 +2479,518 @@ $('game-exit').addEventListener('click', exitCork7);
 $('game-reload').addEventListener('click', reloadCork7);
 $('game-fullscreen').addEventListener('click', toggleGameFullscreen);
 
-['settings', 'addlink', 'games', 'info'].forEach(function (id) {
+['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal'].forEach(function (id) {
   var el = $(id);
-  el.addEventListener('click', function (ev) { if (ev.target === el || ev.target.closest('[data-close]')) el.hidden = true; });
+  if (el) {
+    el.addEventListener('click', function (ev) { if (ev.target === el || ev.target.closest('[data-close]')) el.hidden = true; });
+  }
 });
+var welcomeDismissBtn = $('welcome-dismiss-btn');
+if (welcomeDismissBtn) {
+  welcomeDismissBtn.addEventListener('click', function () {
+    var wm = $('welcome-modal');
+    if (wm) wm.hidden = true;
+  });
+}
 document.addEventListener('keydown', function (ev) {
   if (ev.key === 'Escape') {
     if (!$('game-tab').hidden && !document.fullscreenElement) {
       exitCork7();
     }
-    ['settings', 'addlink', 'games', 'info'].forEach(function (id) { $(id).hidden = true; });
+    ['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal'].forEach(function (id) { var el = $(id); if (el) el.hidden = true; });
   }
 });
 
-/* ===================== your own shortcuts ===================== */
+/* ===================== Cloud SQL User Profiles & Authentication ===================== */
 (function () {
-  var links = $('links'), MAX = 8;
+  var AVATARS = {
+    astronaut: '👨‍🚀',
+    rocket: '🚀',
+    star: '⭐',
+    planet: '🪐',
+    gamepad: '🎮',
+    lightning: '⚡',
+    crystal: '🔮',
+    shield: '🛡️',
+    fire: '🔥',
+    ghost: '👻'
+  };
+
+  var AUTH_TOKEN_KEY = 'tsw.auth_token';
+  var authToken = store.get(AUTH_TOKEN_KEY, '');
+  var currentUser = null;
+
+  // Client ID for local browser isolation fallback
+  var CID_KEY = 'tsw.client_id';
+  var clientId = store.get(CID_KEY, '');
+  if (!clientId) {
+    clientId = 'user_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+    store.set(CID_KEY, clientId);
+  }
+
+  var profiles = [];
+  var activeProfile = null;
+  var links = $('links'), MAX = 10;
   var plus = document.createElement('button');
   plus.type = 'button'; plus.id = 'add-link'; plus.textContent = '+'; plus.title = 'Add a shortcut'; plus.setAttribute('aria-label', 'Add a shortcut');
-  function list() { var l = store.get('tsw.links', []); return Array.isArray(l) ? l : []; }
-  function render() {
+
+  var modal = $('profiles-modal');
+  var profBtn = $('profbtn');
+  var btnName = $('prof-btn-name');
+  var viewSignedOut = $('view-signed-out');
+  var viewSignedIn = $('view-signed-in');
+  var memberUsername = $('member-username');
+  var authForm = $('auth-form');
+  var tabLogin = $('tab-login-btn');
+  var tabSignup = $('tab-signup-btn');
+  var authSubmitBtn = $('auth-submit-btn');
+  var authEmailWrap = $('auth-email-wrap');
+  var authUserLabel = $('auth-user-label');
+  var authErr = $('auth-err');
+  var authMode = 'login'; // 'login' or 'signup'
+
+  var toggleCreateBtn = $('pm-toggle-create');
+  var createForm = $('pm-create-form');
+  var cancelCreateBtn = $('pm-cancel-create');
+
+  function getAvatarEmoji(name) {
+    return AVATARS[name] || AVATARS.astronaut;
+  }
+
+  function api(endpoint, method, body) {
+    var headers = {
+      'Content-Type': 'application/json',
+      'x-client-id': clientId
+    };
+    if (authToken) {
+      headers['Authorization'] = 'Bearer ' + authToken;
+    }
+    var opts = {
+      method: method || 'GET',
+      headers: headers
+    };
+    if (body) opts.body = JSON.stringify(body);
+    return fetch(endpoint, opts).then(function (res) {
+      return res.json().then(function (data) {
+        if (!res.ok) {
+          throw new Error((data && data.error) ? data.error : ('API error: ' + res.status));
+        }
+        return data;
+      });
+    });
+  }
+
+  function parseJSON(str, def) {
+    if (typeof str === 'object' && str !== null) return str;
+    try { return JSON.parse(str); } catch (e) { return def; }
+  }
+
+  function updateAuthUI() {
+    if (currentUser) {
+      if (viewSignedOut) viewSignedOut.hidden = true;
+      if (viewSignedIn) viewSignedIn.hidden = false;
+      if (memberUsername) memberUsername.textContent = '@' + currentUser.username;
+      if (btnName) btnName.textContent = currentUser.username;
+    } else {
+      if (viewSignedOut) viewSignedOut.hidden = false;
+      if (viewSignedIn) viewSignedIn.hidden = true;
+      if (btnName) btnName.textContent = 'Sign In';
+    }
+  }
+
+  function setAuthMode(mode) {
+    authMode = mode;
+    if (authErr) authErr.textContent = '';
+    if (mode === 'signup') {
+      tabSignup.classList.add('on');
+      tabLogin.classList.remove('on');
+      authEmailWrap.hidden = false;
+      authSubmitBtn.textContent = 'Create Account & Save Data';
+      authUserLabel.textContent = 'Choose Username';
+    } else {
+      tabLogin.classList.add('on');
+      tabSignup.classList.remove('on');
+      authEmailWrap.hidden = true;
+      authSubmitBtn.textContent = 'Sign In';
+      authUserLabel.textContent = 'Username';
+    }
+  }
+
+  if (tabLogin && tabSignup) {
+    tabLogin.addEventListener('click', function () { setAuthMode('login'); });
+    tabSignup.addEventListener('click', function () { setAuthMode('signup'); });
+  }
+
+  // Handle Log In / Sign Up form submit
+  if (authForm) {
+    authForm.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var uInput = $('auth-username');
+      var pInput = $('auth-password');
+      var eInput = $('auth-email');
+      var username = (uInput.value || '').trim();
+      var password = pInput.value || '';
+      var email = (eInput && eInput.value) ? eInput.value.trim() : '';
+
+      if (!username || !password) {
+        if (authErr) authErr.textContent = 'Please enter both username and password';
+        return;
+      }
+      if (authErr) authErr.textContent = '';
+      authSubmitBtn.disabled = true;
+
+      var endpoint = (authMode === 'signup') ? '/api/auth/signup' : '/api/auth/login';
+      var payload = { username: username, password: password };
+      if (authMode === 'signup' && email) payload.email = email;
+
+      api(endpoint, 'POST', payload).then(function (res) {
+        authSubmitBtn.disabled = false;
+        if (res.success && res.token) {
+          authToken = res.token;
+          store.set(AUTH_TOKEN_KEY, res.token);
+          currentUser = res.user;
+          uInput.value = '';
+          pInput.value = '';
+          if (eInput) eInput.value = '';
+          updateAuthUI();
+
+          // If new account was created, show requested celebratory popup!
+          if (authMode === 'signup' || res.isNewAccount) {
+            modal.hidden = true;
+            var welcomeModal = $('welcome-modal');
+            if (welcomeModal) welcomeModal.hidden = false;
+          }
+
+          loadProfiles();
+        } else {
+          if (authErr) authErr.textContent = res.error || 'Authentication failed';
+        }
+      }).catch(function (err) {
+        authSubmitBtn.disabled = false;
+        if (authErr) authErr.textContent = err.message || 'Error communicating with Cloud SQL';
+      });
+    });
+  }
+
+  // Handle Logout (defaults back to signed out)
+  var logoutBtn = $('auth-logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function () {
+      authToken = '';
+      store.remove(AUTH_TOKEN_KEY);
+      currentUser = null;
+      updateAuthUI();
+      loadProfiles();
+    });
+  }
+
+  // Toggle Add Profile Section in Member View
+  if (toggleCreateBtn && createForm) {
+    toggleCreateBtn.addEventListener('click', function () {
+      createForm.hidden = false;
+      toggleCreateBtn.hidden = true;
+      var nameIn = $('pm-new-name');
+      if (nameIn) nameIn.focus();
+    });
+  }
+  if (cancelCreateBtn && createForm) {
+    cancelCreateBtn.addEventListener('click', function () {
+      createForm.hidden = true;
+      toggleCreateBtn.hidden = false;
+      var errEl = $('pm-create-err');
+      if (errEl) errEl.textContent = '';
+    });
+  }
+
+  function applyActiveProfile(prof) {
+    if (!prof) return;
+    activeProfile = prof;
+    store.set('tsw.active_profile_id', prof.id);
+
+    // Keep accent color to normal blue
+    document.documentElement.style.setProperty('--blue', '#5aa2ff');
+    document.documentElement.style.setProperty('--blue-hi', '#7cb5ff');
+    document.documentElement.style.setProperty('--blue-dim', '#2a4f86');
+
+    // Update Top-Bar profile button label if signed in
+    if (currentUser) {
+      if (btnName) btnName.textContent = currentUser.username;
+    } else {
+      if (btnName) btnName.textContent = 'Sign In';
+    }
+
+    var shortcuts = parseJSON(prof.shortcuts, []);
+    renderShortcuts(shortcuts);
+  }
+
+  function renderShortcuts(list) {
     links.querySelectorAll('.custom, #add-link').forEach(function (n) { n.remove(); });
-    var l = list();
-    l.forEach(function (item, i) {
+    (list || []).forEach(function (item, i) {
       var chip = document.createElement('span'); chip.className = 'chip custom';
       var b = document.createElement('button'); b.type = 'button'; b.textContent = item.name; b.setAttribute('data-url', item.url);
       var x = document.createElement('button'); x.type = 'button'; x.className = 'x'; x.textContent = '×';
       x.setAttribute('aria-label', 'Remove ' + item.name); x.setAttribute('data-remove', i);
       chip.appendChild(b); chip.appendChild(x); links.appendChild(chip);
     });
-    if (l.length < MAX) links.appendChild(plus);
+    if ((list || []).length < MAX) links.appendChild(plus);
   }
+
+  function renderModalList() {
+    var container = $('pm-list');
+    if (!container) return;
+    container.innerHTML = '';
+    if ($('pm-profiles-count')) {
+      $('pm-profiles-count').textContent = profiles.length + ' ' + (profiles.length === 1 ? 'profile' : 'profiles');
+    }
+
+    profiles.forEach(function (p) {
+      var isActive = activeProfile && activeProfile.id === p.id;
+      var card = document.createElement('div');
+      card.className = 'prof-item' + (isActive ? ' active' : '');
+
+      var sc = parseJSON(p.shortcuts, []);
+
+      card.innerHTML =
+        '<div class="prof-item-avatar">' + getAvatarEmoji(p.avatar) + '</div>' +
+        '<div class="prof-item-body">' +
+          '<div class="prof-item-name-row">' +
+            '<span class="prof-item-name">' + escapeHtml(p.name) + '</span>' +
+            (isActive ? '<span class="prof-item-badge">Active</span>' : '') +
+          '</div>' +
+          '<div class="prof-item-bio">' + escapeHtml(sc.length + ' shortcuts saved') + '</div>' +
+        '</div>' +
+        '<div class="prof-item-actions">' +
+          (!isActive ? '<button type="button" class="prof-btn-sm primary-sm" data-switch="' + p.id + '">Switch</button>' : '') +
+          '<button type="button" class="prof-btn-sm" data-edit="' + p.id + '">Rename</button>' +
+          (profiles.length > 1 ? '<button type="button" class="prof-btn-sm del" data-del="' + p.id + '" title="Delete Profile">&times;</button>' : '') +
+        '</div>';
+      container.appendChild(card);
+    });
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function checkAuth() {
+    if (!authToken) {
+      currentUser = null;
+      updateAuthUI();
+      return Promise.resolve();
+    }
+    return api('/api/auth/me').then(function (res) {
+      if (res && res.authenticated && res.user) {
+        currentUser = res.user;
+      } else {
+        authToken = '';
+        store.remove(AUTH_TOKEN_KEY);
+        currentUser = null;
+      }
+      updateAuthUI();
+    }).catch(function () {
+      currentUser = null;
+      updateAuthUI();
+    });
+  }
+
+  function loadProfiles() {
+    return api('/api/profiles').then(function (data) {
+      if (data && data.success && Array.isArray(data.profiles)) {
+        profiles = data.profiles;
+        var savedId = store.get('tsw.active_profile_id', null);
+        var found = profiles.find(function (p) { return p.id === savedId; }) ||
+                    profiles.find(function (p) { return p.isDefault; }) ||
+                    profiles[0];
+        applyActiveProfile(found);
+        renderModalList();
+      }
+    }).catch(function (err) {
+      console.error('Failed to load profiles from Cloud SQL:', err);
+    });
+  }
+
+  function switchProfile(id) {
+    var target = profiles.find(function (p) { return p.id === id; });
+    if (!target) return;
+    applyActiveProfile(target);
+    renderModalList();
+    // Persist default state in Cloud SQL
+    api('/api/profiles/' + id, 'PUT', { isDefault: true }).catch(function () {});
+  }
+
+  function saveActiveShortcuts(newList) {
+    if (!activeProfile) return;
+    activeProfile.shortcuts = JSON.stringify(newList);
+    renderShortcuts(newList);
+    // Save to Cloud SQL database
+    api('/api/profiles/' + activeProfile.id, 'PUT', {
+      shortcuts: JSON.stringify(newList)
+    }).catch(function (err) {
+      console.error('Failed to save shortcuts to Cloud SQL:', err);
+    });
+  }
+
+  // Open modal on user-pill click
+  profBtn.addEventListener('click', function () {
+    renderModalList();
+    modal.hidden = false;
+  });
+
+  // Profile modal click delegates (Switch, Rename, Delete)
+  var listContainer = $('pm-list');
+  if (listContainer) {
+    listContainer.addEventListener('click', function (ev) {
+      var sw = ev.target.closest('[data-switch]');
+      if (sw) {
+        var id = parseInt(sw.getAttribute('data-switch'), 10);
+        switchProfile(id);
+        return;
+      }
+      var del = ev.target.closest('[data-del]');
+      if (del) {
+        var did = parseInt(del.getAttribute('data-del'), 10);
+        if (confirm('Delete this profile and its saved shortcuts from Cloud SQL?')) {
+          api('/api/profiles/' + did, 'DELETE').then(function () {
+            profiles = profiles.filter(function (p) { return p.id !== did; });
+            if (activeProfile && activeProfile.id === did) {
+              applyActiveProfile(profiles[0]);
+            }
+            renderModalList();
+          });
+        }
+        return;
+      }
+      var ed = ev.target.closest('[data-edit]');
+      if (ed) {
+        var eid = parseInt(ed.getAttribute('data-edit'), 10);
+        var p = profiles.find(function (x) { return x.id === eid; });
+        if (p) {
+          var newName = prompt('Edit profile name:', p.name);
+          if (newName && newName.trim()) {
+            api('/api/profiles/' + eid, 'PUT', {
+              name: newName.trim()
+            }).then(function (res) {
+              if (res.success && res.profile) {
+                p.name = res.profile.name;
+                if (activeProfile && activeProfile.id === eid) {
+                  applyActiveProfile(p);
+                }
+                renderModalList();
+              }
+            });
+          }
+        }
+        return;
+      }
+    });
+  }
+
+  // Avatar picker mini selection
+  var curAvatar = 'astronaut';
+  var avPicker = $('pm-avatar-picker');
+  if (avPicker) {
+    avPicker.addEventListener('click', function (ev) {
+      var b = ev.target.closest('.avatar-opt');
+      if (!b) return;
+      avPicker.querySelectorAll('.avatar-opt').forEach(function (x) { x.classList.toggle('on', x === b); });
+      curAvatar = b.getAttribute('data-av') || 'astronaut';
+    });
+  }
+
+  // Create Profile Form Submit (compact & clean)
+  if (createForm) {
+    createForm.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var errEl = $('pm-create-err');
+      var nameInput = $('pm-new-name');
+      var submitBtn = $('pm-create-submit');
+
+      var name = nameInput.value.trim();
+      if (!name) {
+        if (errEl) errEl.textContent = 'Please enter a profile name';
+        return;
+      }
+      if (errEl) errEl.textContent = '';
+      if (submitBtn) submitBtn.disabled = true;
+
+      var starterShortcuts = [
+        { name: 'TikTok', url: 'https://www.tiktok.com' },
+        { name: 'Instagram', url: 'https://www.instagram.com' },
+        { name: 'GeForce NOW', url: 'https://play.geforcenow.com' },
+        { name: 'Cork7', url: 'https://cork7.com' }
+      ];
+
+      api('/api/profiles', 'POST', {
+        name: name,
+        avatar: curAvatar,
+        themeColor: '#5aa2ff',
+        shortcuts: JSON.stringify(starterShortcuts),
+        preferences: JSON.stringify({ bg: 'stars' }),
+        isDefault: true
+      }).then(function (res) {
+        if (submitBtn) submitBtn.disabled = false;
+        if (res.success && res.profile) {
+          nameInput.value = '';
+          createForm.hidden = true;
+          toggleCreateBtn.hidden = false;
+          profiles.push(res.profile);
+          applyActiveProfile(res.profile);
+          renderModalList();
+        } else {
+          if (errEl) errEl.textContent = res.error || 'Failed to save profile';
+        }
+      }).catch(function (err) {
+        if (submitBtn) submitBtn.disabled = false;
+        if (errEl) errEl.textContent = 'Network or database error. Please retry.';
+      });
+    });
+  }
+
+  // Shortcut URL normalization and home shortcuts management
   function norm(t) {
     t = t.trim(); if (!t) return '';
     if (!/^https?:\/\//i.test(t)) t = 'https://' + t;
     try { var u = new URL(t); return u.hostname.indexOf('.') > 0 ? u.href : ''; } catch (e) { return ''; }
   }
+
   plus.addEventListener('click', function () {
     $('al-name').value = ''; $('al-url').value = ''; $('al-err').textContent = '';
     $('addlink').hidden = false; $('al-name').focus();
   });
+
   links.addEventListener('click', function (ev) {
     var x = ev.target.closest('button[data-remove]');
-    if (!x) return;
-    var l = list(); l.splice(parseInt(x.getAttribute('data-remove'), 10), 1); store.set('tsw.links', l); render();
+    if (!x || !activeProfile) return;
+    var currentList = parseJSON(activeProfile.shortcuts, []);
+    var idx = parseInt(x.getAttribute('data-remove'), 10);
+    currentList.splice(idx, 1);
+    saveActiveShortcuts(currentList);
   });
+
   $('al-form').addEventListener('submit', function (ev) {
     ev.preventDefault();
+    if (!activeProfile) return;
     var url = norm($('al-url').value);
     if (!url) { $('al-err').textContent = 'Enter a web address like youtube.com.'; return; }
     var name = $('al-name').value.trim() || new URL(url).hostname.replace(/^www\./, '');
-    var l = list(); l.push({ name: name, url: url }); store.set('tsw.links', l);
-    $('addlink').hidden = true; render();
+    var currentList = parseJSON(activeProfile.shortcuts, []);
+    currentList.push({ name: name, url: url });
+    saveActiveShortcuts(currentList);
+    $('addlink').hidden = true;
   });
-  render();
+
+  // Initial load: check auth then load Cloud SQL profiles
+  checkAuth().then(function () {
+    loadProfiles();
+  });
+
+  window.TSWProfiles = {
+    load: loadProfiles,
+    switch: switchProfile,
+    getActive: function () { return activeProfile; },
+    getUser: function () { return currentUser; }
+  };
 })();
 
 /* ===================== navigation UI ===================== */

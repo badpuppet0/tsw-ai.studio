@@ -8,6 +8,18 @@ import fastifyStatic from "@fastify/static";
 import { scramjetPath } from "@mercuryworkshop/scramjet/path";
 import { libcurlPath } from "@mercuryworkshop/libcurl-transport";
 import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
+import {
+	getOrCreateUser,
+	getUserProfiles,
+	createProfile,
+	updateProfile,
+	deleteProfile,
+	signUpUser,
+	loginUser,
+	verifySessionToken,
+	getUserById
+} from "./db/users.ts";
+import { verifyAuth } from "./middleware/auth.ts";
 
 const publicPath = fileURLToPath(new URL("../public/", import.meta.url));
 
@@ -82,6 +94,195 @@ fastify.get("/api/info", async (req, reply) => {
 		uptime: Math.round(process.uptime()),
 		ip: await serverIp(),
 	};
+});
+
+async function resolveUserId(req) {
+	const authHeader = req.headers.authorization;
+	if (authHeader) {
+		const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
+		const session = verifySessionToken(token);
+		if (session && session.userId) return session.userId;
+
+		const verified = await verifyAuth(authHeader);
+		if (verified && verified.dbUserId) return verified.dbUserId;
+	}
+	const clientId = (req.headers["x-client-id"] || "default-voyager").toString().slice(0, 64);
+	const u = await getOrCreateUser(clientId, `${clientId}@scramjet.local`);
+	return u.id;
+}
+
+// Authentication API (Sign Up, Login, Me)
+fastify.post("/api/auth/signup", async (req, reply) => {
+	try {
+		const body = req.body || {};
+		const username = (body.username || "").trim();
+		const password = body.password || "";
+		const email = (body.email || "").trim();
+
+		if (!username || !password) {
+			reply.code(400);
+			return { success: false, error: "Username and password are required" };
+		}
+
+		const result = await signUpUser(username, password, email);
+		return { success: true, ...result };
+	} catch (err) {
+		req.log.error(err);
+		reply.code(400);
+		return { success: false, error: err.message || "Failed to create account" };
+	}
+});
+
+fastify.post("/api/auth/login", async (req, reply) => {
+	try {
+		const body = req.body || {};
+		const username = (body.username || "").trim();
+		const password = body.password || "";
+
+		if (!username || !password) {
+			reply.code(400);
+			return { success: false, error: "Username and password are required" };
+		}
+
+		const result = await loginUser(username, password);
+		return { success: true, ...result };
+	} catch (err) {
+		req.log.error(err);
+		reply.code(401);
+		return { success: false, error: err.message || "Invalid credentials" };
+	}
+});
+
+fastify.get("/api/auth/me", async (req, reply) => {
+	reply.header("Cache-Control", "no-store");
+	try {
+		const authHeader = req.headers.authorization;
+		if (authHeader) {
+			const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
+			const session = verifySessionToken(token);
+			if (session) {
+				const user = await getUserById(session.userId);
+				if (user) {
+					const profiles = await getUserProfiles(user.id);
+					return {
+						success: true,
+						authenticated: true,
+						user: { id: user.id, username: user.username, email: user.email },
+						profiles,
+						activeProfile: profiles.find(p => p.isDefault) || profiles[0]
+					};
+				}
+			}
+		}
+		return { success: true, authenticated: false };
+	} catch (err) {
+		req.log.error(err);
+		return { success: false, authenticated: false };
+	}
+});
+
+// Cloud SQL Profiles API
+fastify.get("/api/profiles", async (req, reply) => {
+	reply.header("Cache-Control", "no-store");
+	try {
+		const userId = await resolveUserId(req);
+		let list = await getUserProfiles(userId);
+		if (list.length === 0) {
+			const initial = await createProfile(userId, {
+				name: "Voyager",
+				avatar: "astronaut",
+				themeColor: "#5aa2ff",
+				bio: "Curator of the cosmos",
+				shortcuts: JSON.stringify([
+					{ name: "TikTok", url: "https://www.tiktok.com" },
+					{ name: "Instagram", url: "https://www.instagram.com" },
+					{ name: "GeForce NOW", url: "https://play.geforcenow.com" },
+					{ name: "Cork7", url: "https://cork7.com" }
+				]),
+				preferences: JSON.stringify({
+					searchEngine: "https://www.google.com/search?q=",
+					stars: true,
+					shoot: true,
+					bg: "stars"
+				}),
+				isDefault: true
+			});
+			list = [initial];
+		}
+		return { success: true, profiles: list };
+	} catch (err) {
+		req.log.error(err);
+		reply.code(500);
+		return { success: false, error: "Database operation failed" };
+	}
+});
+
+fastify.post("/api/profiles", async (req, reply) => {
+	try {
+		const userId = await resolveUserId(req);
+		const body = req.body || {};
+		if (!body.name || !body.name.trim()) {
+			reply.code(400);
+			return { success: false, error: "Profile name is required" };
+		}
+		const profile = await createProfile(userId, {
+			name: body.name.trim(),
+			avatar: body.avatar || "astronaut",
+			themeColor: body.themeColor || "#5aa2ff",
+			bio: body.bio || "",
+			shortcuts: body.shortcuts,
+			preferences: body.preferences,
+			isDefault: !!body.isDefault
+		});
+		return { success: true, profile };
+	} catch (err) {
+		req.log.error(err);
+		reply.code(500);
+		return { success: false, error: "Failed to create profile" };
+	}
+});
+
+fastify.put("/api/profiles/:id", async (req, reply) => {
+	try {
+		const userId = await resolveUserId(req);
+		const profileId = parseInt(req.params.id, 10);
+		if (isNaN(profileId)) {
+			reply.code(400);
+			return { success: false, error: "Invalid profile ID" };
+		}
+		const body = req.body || {};
+		const updated = await updateProfile(profileId, userId, body);
+		if (!updated) {
+			reply.code(404);
+			return { success: false, error: "Profile not found" };
+		}
+		return { success: true, profile: updated };
+	} catch (err) {
+		req.log.error(err);
+		reply.code(500);
+		return { success: false, error: "Failed to update profile" };
+	}
+});
+
+fastify.delete("/api/profiles/:id", async (req, reply) => {
+	try {
+		const userId = await resolveUserId(req);
+		const profileId = parseInt(req.params.id, 10);
+		if (isNaN(profileId)) {
+			reply.code(400);
+			return { success: false, error: "Invalid profile ID" };
+		}
+		const deleted = await deleteProfile(profileId, userId);
+		if (!deleted) {
+			reply.code(404);
+			return { success: false, error: "Profile not found" };
+		}
+		return { success: true, deletedId: profileId };
+	} catch (err) {
+		req.log.error(err);
+		reply.code(500);
+		return { success: false, error: "Failed to delete profile" };
+	}
 });
 
 fastify.setNotFoundHandler((res, reply) => {
