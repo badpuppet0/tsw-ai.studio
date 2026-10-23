@@ -17,7 +17,15 @@ import {
 	signUpUser,
 	loginUser,
 	verifySessionToken,
-	getUserById
+	getUserById,
+	searchUsers,
+	addFriend,
+	removeFriend,
+	getFriendsList,
+	getDirectMessages,
+	sendDirectMessage,
+	getPublicMessages,
+	sendPublicMessage
 } from "./db/users.ts";
 import { verifyAuth } from "./middleware/auth.ts";
 
@@ -282,6 +290,151 @@ fastify.delete("/api/profiles/:id", async (req, reply) => {
 		req.log.error(err);
 		reply.code(500);
 		return { success: false, error: "Failed to delete profile" };
+	}
+});
+
+// Helper for authenticated user in chat and friends
+async function getAuthUserId(req, reply) {
+	const authHeader = req.headers.authorization;
+	if (!authHeader) {
+		reply.code(401);
+		throw new Error("Authentication required. Please sign in.");
+	}
+	const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
+	const session = verifySessionToken(token);
+	if (!session || !session.userId) {
+		reply.code(401);
+		throw new Error("Session expired or invalid. Please sign in again.");
+	}
+	return session.userId;
+}
+
+// Friends & Chat API Routes
+fastify.get("/api/users/search", async (req, reply) => {
+	reply.header("Cache-Control", "no-store");
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const q = (req.query?.q || "").toString();
+		const results = await searchUsers(q, userId);
+		return { success: true, users: results };
+	} catch (err) {
+		reply.code(err.message.includes("Authentication") ? 401 : 400);
+		return { success: false, error: err.message };
+	}
+});
+
+fastify.get("/api/friends", async (req, reply) => {
+	reply.header("Cache-Control", "no-store");
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const list = await getFriendsList(userId);
+		return { success: true, friends: list };
+	} catch (err) {
+		reply.code(err.message.includes("Authentication") ? 401 : 400);
+		return { success: false, error: err.message };
+	}
+});
+
+fastify.post("/api/friends", async (req, reply) => {
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const body = req.body || {};
+		const username = (body.username || "").trim();
+		if (!username) {
+			reply.code(400);
+			return { success: false, error: "Please enter a username to add" };
+		}
+		const friend = await addFriend(userId, username);
+		return { success: true, friend };
+	} catch (err) {
+		reply.code(err.message.includes("not found") ? 404 : 400);
+		return { success: false, error: err.message };
+	}
+});
+
+fastify.delete("/api/friends/:friendId", async (req, reply) => {
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const friendId = parseInt(req.params.friendId, 10);
+		if (isNaN(friendId)) {
+			reply.code(400);
+			return { success: false, error: "Invalid friend ID" };
+		}
+		await removeFriend(userId, friendId);
+		return { success: true };
+	} catch (err) {
+		reply.code(400);
+		return { success: false, error: err.message };
+	}
+});
+
+fastify.get("/api/messages/:friendId", async (req, reply) => {
+	reply.header("Cache-Control", "no-store");
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const friendId = parseInt(req.params.friendId, 10);
+		if (isNaN(friendId)) {
+			reply.code(400);
+			return { success: false, error: "Invalid friend ID" };
+		}
+		const messages = await getDirectMessages(userId, friendId);
+		return { success: true, messages };
+	} catch (err) {
+		reply.code(400);
+		return { success: false, error: err.message };
+	}
+});
+
+fastify.post("/api/messages/:friendId", async (req, reply) => {
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const friendId = parseInt(req.params.friendId, 10);
+		const body = req.body || {};
+		const content = (body.content || "").trim();
+		if (isNaN(friendId)) {
+			reply.code(400);
+			return { success: false, error: "Invalid friend ID" };
+		}
+		if (!content) {
+			reply.code(400);
+			return { success: false, error: "Message cannot be empty" };
+		}
+		const message = await sendDirectMessage(userId, friendId, content);
+		return { success: true, message };
+	} catch (err) {
+		reply.code(400);
+		return { success: false, error: err.message };
+	}
+});
+
+// Public Channels API Routes (chat-1, chat-2, announcements)
+fastify.get("/api/public-messages/:channel", async (req, reply) => {
+	reply.header("Cache-Control", "no-store");
+	try {
+		const channel = (req.params.channel || "chat-1").toString();
+		const messages = await getPublicMessages(channel);
+		return { success: true, channel, messages };
+	} catch (err) {
+		reply.code(400);
+		return { success: false, error: err.message };
+	}
+});
+
+fastify.post("/api/public-messages/:channel", async (req, reply) => {
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const channel = (req.params.channel || "chat-1").toString();
+		const body = req.body || {};
+		const content = (body.content || "").trim();
+		if (!content) {
+			reply.code(400);
+			return { success: false, error: "Message cannot be empty" };
+		}
+		const message = await sendPublicMessage(channel, userId, content);
+		return { success: true, message };
+	} catch (err) {
+		reply.code(err.message.includes("Authentication") ? 401 : 400);
+		return { success: false, error: err.message };
 	}
 });
 

@@ -46,8 +46,9 @@ html, body { height: 100%; background: var(--void); color: var(--ink); overflow:
 .go:hover { background: var(--blue-hi); }
 .go svg { width: 1.1rem; height: 1.1rem; }
 .msg { min-height: 1.5rem; margin-top: 1rem; color: #e59a9a; font-size: .9rem; }
-.note { position: fixed; left: 0; right: 0; bottom: max(.9rem, env(safe-area-inset-bottom)); text-align: center;
-  color: #454d60; font-size: .8rem; z-index: 1; padding: 0 1rem; }
+.note { position: fixed; left: var(--sb-width); right: 0; bottom: max(.9rem, env(safe-area-inset-bottom)); text-align: center;
+  color: #454d60; font-size: .8rem; z-index: 1; padding: 0 1rem; transition: left .22s cubic-bezier(0.4, 0, 0.2, 1); }
+
 
 .links { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem; margin-top: 1.2rem; }
 .links > button, .chip { background: rgba(11,14,23,.82); border: 1px solid var(--edge); color: var(--ink); font: inherit;
@@ -677,192 +678,540 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   transition: left .22s cubic-bezier(0.4, 0, 0.2, 1), width .22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Chat Room Modal Styles */
-.chat-panel {
-  width: min(44rem, 100%);
-  height: min(34rem, 85vh);
-  background: #090e1a;
-  border: 1px solid rgba(90, 162, 255, 0.3);
-  border-radius: 18px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.7);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+/* Discord Link Note (Bottom Right) */
+.discord-note {
+  position: fixed;
+  right: max(1.2rem, env(safe-area-inset-right));
+  bottom: max(.9rem, env(safe-area-inset-bottom));
+  font-size: .8rem;
+  z-index: 2;
+  margin: 0;
+  text-align: right;
+  line-height: 1.4;
 }
-.chat-soon-pill {
-  font-size: .72rem;
-  font-weight: 600;
-  color: #60a5fa;
-  background: rgba(96, 165, 250, 0.14);
-  border: 1px solid rgba(96, 165, 250, 0.35);
+.discord-note a {
+  color: #6f84ad;
+  text-decoration: underline;
+  transition: color .15s;
+}
+.discord-note a:hover {
+  color: #9ac4ff;
+}
+@media (max-width: 640px) {
+  .discord-note {
+    bottom: 4.8rem;
+    right: 1rem;
+  }
+}
+
+/* Chat Mode Switcher Tabs */
+.chat-mode-tabs {
+  display: inline-flex;
+  background: rgba(2, 6, 23, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: .2rem;
   border-radius: 999px;
-  padding: .15rem .6rem;
-  text-transform: uppercase;
-  letter-spacing: .03em;
-}
-.chat-layout {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-}
-.chat-channels-pane {
-  width: 12rem;
-  background: rgba(3, 7, 18, 0.55);
-  border-right: 1px solid var(--edge);
-  padding: .85rem .6rem;
-  display: flex;
-  flex-direction: column;
   gap: .25rem;
 }
-.chat-pane-title {
-  font-size: .75rem;
-  font-weight: 600;
-  text-transform: uppercase;
+.chat-mode-tab {
+  background: none;
+  border: 0;
   color: var(--steel);
-  letter-spacing: .05em;
-  padding: .3rem .5rem .5rem;
-}
-.chat-channel-item {
-  display: flex;
-  align-items: center;
-  gap: .45rem;
-  padding: .45rem .65rem;
-  border-radius: 8px;
-  font-size: .86rem;
-  color: #94a3b8;
+  font: inherit;
+  font-size: .8rem;
+  font-weight: 500;
+  padding: .3rem .75rem;
+  border-radius: 999px;
   cursor: pointer;
   transition: all .15s ease;
 }
-.chat-channel-item:hover, .chat-channel-item.active {
-  background: rgba(255, 255, 255, 0.05);
+.chat-mode-tab:hover {
   color: #fff;
 }
-.chat-channel-item.active {
-  background: rgba(90, 162, 255, 0.12);
-  color: var(--blue-hi);
-  font-weight: 500;
+.chat-mode-tab.on {
+  background: var(--blue);
+  color: #03101f;
+  font-weight: 600;
 }
-.ch-hash { color: var(--steel); font-weight: 700; }
-.ch-lock { font-size: .75rem; margin-left: auto; opacity: .6; }
 
-.chat-messages-pane {
-  flex: 1;
+/* Public Channels in Sidebar */
+.chat-public-channels-list {
   display: flex;
   flex-direction: column;
-  min-width: 0;
-  background: rgba(11, 15, 26, 0.4);
-}
-.chat-empty-state {
+  gap: .4rem;
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 1.5rem;
   overflow-y: auto;
 }
-.chat-soon-bubble {
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  background: rgba(90, 162, 255, 0.14);
-  border: 1px solid rgba(90, 162, 255, 0.35);
-  display: grid;
-  place-items: center;
-  font-size: 1.5rem;
-  margin-bottom: .85rem;
-  color: var(--blue-hi);
-}
-.chat-empty-state h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: .4rem;
-}
-.chat-empty-state p {
-  font-size: .88rem;
-  color: #94a3b8;
-  max-width: 25rem;
-  line-height: 1.5;
-  margin-bottom: 1.1rem;
-}
-.chat-preview-feed {
-  width: 100%;
-  max-width: 26rem;
+.public-channel-item {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: .65rem;
-  background: rgba(2, 6, 23, 0.65);
-  border: 1px solid var(--edge);
-  border-radius: 12px;
-  padding: .85rem;
-  text-align: left;
-  margin-bottom: 1rem;
+  padding: .6rem .75rem;
+  border-radius: 10px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all .15s ease;
 }
-.mock-msg {
-  display: flex;
-  gap: .65rem;
-  font-size: .84rem;
+.public-channel-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
 }
-.mock-av {
+.public-channel-item.active {
+  background: rgba(90, 162, 255, 0.12);
+  border-color: rgba(90, 162, 255, 0.45);
+}
+.public-channel-icon {
   width: 2rem;
   height: 2rem;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.05);
   display: grid;
   place-items: center;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--blue-hi);
   flex: none;
-  font-size: 1.1rem;
 }
-.mock-author {
-  display: block;
+.public-channel-meta {
+  flex: 1;
+  min-width: 0;
+}
+.public-channel-name {
   font-weight: 600;
+  font-size: .88rem;
+  color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+.public-channel-desc {
+  font-size: .73rem;
+  color: #64748b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.public-readonly-badge {
+  font-size: .62rem;
+  color: #eab308;
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  padding: .05rem .35rem;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+/* Public Message Feed & Rows */
+.public-feed-box {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .85rem;
+}
+.public-msg-row {
+  display: flex;
+  gap: .75rem;
+  align-items: flex-start;
+  padding: .35rem 0;
+}
+.public-msg-av {
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  display: grid;
+  place-items: center;
+  font-size: 1.15rem;
+  flex: none;
+}
+.public-msg-content-wrap {
+  flex: 1;
+  min-width: 0;
+}
+.public-msg-header {
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+  margin-bottom: .2rem;
+}
+.public-msg-author {
+  font-weight: 600;
+  font-size: .88rem;
+  color: #f8fafc;
+}
+.public-msg-time {
+  font-size: .7rem;
+  color: #64748b;
+}
+.public-msg-text {
+  font-size: .88rem;
+  line-height: 1.45;
   color: #e2e8f0;
-  margin-bottom: .15rem;
+  word-break: break-word;
 }
-.mock-time {
-  font-size: .72rem;
-  font-weight: 400;
-  color: var(--steel);
-  margin-left: .35rem;
-}
-.mock-msg p {
-  color: #94a3b8;
-  font-size: .82rem;
-  margin: 0;
-  line-height: 1.35;
-}
-.chat-mock-input-box {
+.public-retention-notice {
   display: flex;
   align-items: center;
   gap: .5rem;
-  width: 100%;
-  max-width: 26rem;
-  background: rgba(2, 6, 23, 0.7);
-  border: 1px solid var(--edge);
-  border-radius: 999px;
-  padding: .35rem .45rem .35rem 1rem;
+  font-size: .74rem;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  padding: .45rem .75rem;
+  border-radius: 8px;
+  margin-bottom: .6rem;
 }
-.chat-mock-input-box input {
+.public-locked-bar {
+  padding: .75rem 1.1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(2, 6, 23, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  font-size: .82rem;
+  color: #94a3b8;
+}
+
+/* Friends & Direct Messages Modal Styles */
+.chat-panel {
+  width: min(52rem, 95vw);
+  height: min(38rem, 85vh);
+  background: #0b0f19;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.chat-head-user {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+}
+.chat-head-avatar {
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+}
+.chat-layout {
+  display: flex;
   flex: 1;
-  background: none;
-  border: 0;
-  color: var(--steel);
-  font: inherit;
-  font-size: .84rem;
-  outline: 0;
-  cursor: not-allowed;
+  min-height: 0;
 }
-.chat-mock-input-box button {
-  background: #1e293b;
-  color: #64748b;
-  border: 0;
-  border-radius: 999px;
-  padding: .4rem .9rem;
+.chat-sidebar {
+  width: 16rem;
+  background: #070a12;
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  display: flex;
+  flex-direction: column;
+  padding: .85rem .75rem;
+  gap: .65rem;
+}
+.chat-add-friend-box {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+}
+.chat-add-friend-form {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+.chat-add-friend-input {
+  flex: 1;
+  min-width: 0;
+  background: #0f1523;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: .45rem .6rem;
+  border-radius: 8px;
   font: inherit;
   font-size: .82rem;
-  cursor: not-allowed;
+  outline: 0;
+}
+.chat-add-friend-input:focus {
+  border-color: var(--blue);
+}
+.chat-add-friend-btn {
+  background: var(--blue);
+  color: #03101f;
+  border: 0;
+  font: inherit;
+  font-size: .8rem;
+  font-weight: 600;
+  padding: .45rem .75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  flex: none;
+}
+.chat-add-status {
+  font-size: .75rem;
+  min-height: 1rem;
+  color: #94a3b8;
+  word-break: break-word;
+}
+.chat-add-status.ok {
+  color: #34d399;
+}
+.chat-add-status.err {
+  color: #f87171;
+}
+.chat-sidebar-section-title {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  color: #64748b;
+  text-transform: uppercase;
+  padding: .2rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.chat-friends-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+}
+.chat-friend-item {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .5rem .6rem;
+  border-radius: 8px;
+  background: none;
+  border: 0;
+  color: #cbd5e1;
+  font: inherit;
+  font-size: .85rem;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: all .15s ease;
+}
+.chat-friend-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+.chat-friend-item.active {
+  background: rgba(90, 162, 255, 0.16);
+  color: #fff;
+}
+.chat-friend-av {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  display: grid;
+  place-items: center;
+  font-size: 1.15rem;
+  position: relative;
+  flex: none;
+}
+.chat-status-dot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: .55rem;
+  height: .55rem;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #070a12;
+}
+.chat-friend-meta {
+  flex: 1;
+  min-width: 0;
+}
+.chat-friend-name {
+  display: block;
+  font-weight: 500;
+  color: #f1f5f9;
+  font-size: .86rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-friend-snippet {
+  display: block;
+  font-size: .75rem;
+  color: #64748b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-friend-del {
+  background: none;
+  border: 0;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0 .25rem;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.chat-friend-item:hover .chat-friend-del {
+  opacity: 1;
+}
+.chat-friend-del:hover {
+  color: #ef4444;
+}
+
+/* Conversation Area */
+.chat-convo-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: #0b0f19;
+}
+.chat-convo-head {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .85rem 1.1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.015);
+}
+.chat-convo-head-name {
+  font-weight: 600;
+  font-size: .95rem;
+  color: #fff;
+}
+.chat-convo-head-sub {
+  font-size: .75rem;
+  color: #22c55e;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+.chat-feed-box {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .65rem;
+}
+.chat-bubble {
+  display: flex;
+  flex-direction: column;
+  max-width: 75%;
+  font-size: .88rem;
+}
+.chat-bubble.mine {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+.chat-bubble.theirs {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+.chat-bubble-body {
+  padding: .55rem .85rem;
+  border-radius: 14px;
+  line-height: 1.42;
+  word-break: break-word;
+}
+.chat-bubble.mine .chat-bubble-body {
+  background: #2563eb;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.chat-bubble.theirs .chat-bubble-body {
+  background: #1e293b;
+  color: #e2e8f0;
+  border-bottom-left-radius: 4px;
+}
+.chat-bubble-time {
+  font-size: .68rem;
+  color: #64748b;
+  margin-top: .2rem;
+  padding: 0 .2rem;
+}
+
+.chat-input-bar {
+  padding: .75rem 1.1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(2, 6, 23, 0.5);
+}
+.chat-input-form {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  background: #0f1523;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: .35rem .45rem .35rem .9rem;
+}
+.chat-input-form:focus-within {
+  border-color: var(--blue);
+}
+.chat-input-form input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: 0;
+  color: #fff;
+  font: inherit;
+  font-size: .88rem;
+  outline: 0;
+}
+.chat-input-form button {
+  background: var(--blue);
+  color: #03101f;
+  border: 0;
+  font: inherit;
+  font-weight: 600;
+  font-size: .82rem;
+  padding: .45rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  flex: none;
+}
+.chat-input-form button:hover {
+  background: var(--blue-hi);
+}
+
+.chat-blank-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1.5rem;
+  color: #64748b;
+}
+.chat-blank-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  display: grid;
+  place-items: center;
+  font-size: 1.6rem;
+  margin-bottom: .8rem;
+}
+.chat-blank-state h4 {
+  color: #e2e8f0;
+  font-size: 1.05rem;
+  margin-bottom: .35rem;
+}
+.chat-blank-state p {
+  font-size: .85rem;
+  max-width: 22rem;
+  line-height: 1.45;
+  color: #94a3b8;
 }
 
 @media (max-width: 640px) {
@@ -870,69 +1219,275 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
     --sb-w-expanded: 200px;
     --sb-w-collapsed: 50px;
   }
-  .chat-channels-pane { display: none; }
+  .chat-sidebar { width: 10rem; }
 }
 
-/* Clean Modern Profiles & Auth Styles */
-.prof-cloud-badge { display: inline-flex; align-items: center; gap: .35rem; font-size: .72rem; font-weight: 500; color: #34d399; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.28); border-radius: 999px; padding: .15rem .6rem; }
-.dot-live { width: .45rem; height: .45rem; border-radius: 50%; background: #34d399; box-shadow: 0 0 8px #34d399; animation: pulse 2s infinite; }
-
-.prof-panel { width: min(32rem, 100%); background: #0b0f19; border: 1px solid rgba(90, 162, 255, 0.3); border-radius: 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
-
-.auth-hero { text-align: center; padding: .6rem 0 1.2rem; }
-.auth-avatar-icon { width: 52px; height: 52px; border-radius: 50%; background: rgba(90, 162, 255, 0.12); border: 1px solid rgba(90, 162, 255, 0.3); display: grid; place-items: center; margin: 0 auto .8rem; color: var(--blue-hi); }
-.auth-avatar-icon svg { width: 26px; height: 26px; }
-.auth-title { font-size: 1.25rem; font-weight: 600; color: #fff; margin-bottom: .25rem; }
-.auth-sub { font-size: .86rem; color: var(--steel); max-width: 22rem; margin: 0 auto; line-height: 1.45; }
-
-.auth-tabs-row { display: flex; gap: .35rem; background: rgba(2, 6, 23, 0.7); border: 1px solid var(--edge); padding: .25rem; border-radius: 10px; margin-bottom: 1rem; }
-.auth-tab-btn { flex: 1; background: none; border: 0; color: var(--steel); font: inherit; font-size: .88rem; font-weight: 500; padding: .45rem; border-radius: 8px; cursor: pointer; transition: all .15s; text-align: center; }
-.auth-tab-btn.on { background: var(--blue); color: #03101f; font-weight: 600; }
-
-.auth-form-clean label { display: block; font-size: .82rem; color: var(--steel); margin: .7rem 0 .25rem; }
+/* Clean, Human-Designed Non-AI Auth Styles */
+.prof-panel {
+  width: min(29rem, 100%);
+  background: #0d121f;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.65);
+}
+.auth-tabs-row {
+  display: flex;
+  gap: .35rem;
+  background: rgba(2, 6, 23, 0.7);
+  border: 1px solid var(--edge);
+  padding: .25rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+.auth-tab-btn {
+  flex: 1;
+  background: none;
+  border: 0;
+  color: var(--steel);
+  font: inherit;
+  font-size: .88rem;
+  font-weight: 500;
+  padding: .45rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .15s;
+  text-align: center;
+}
+.auth-tab-btn.on {
+  background: var(--blue);
+  color: #03101f;
+  font-weight: 600;
+}
+.auth-form-clean label {
+  display: block;
+  font-size: .82rem;
+  color: #94a3b8;
+  margin: .7rem 0 .25rem;
+}
 .auth-form-clean label:first-child { margin-top: 0; }
-.auth-form-clean input { width: 100%; background: var(--void); border: 1px solid var(--edge); color: var(--ink); border-radius: 10px; padding: .6rem .8rem; font: inherit; outline: 0; transition: border-color .15s; }
-.auth-form-clean input:focus { border-color: var(--blue-dim); }
-.auth-main-btn { width: 100%; padding: .65rem 1.2rem; margin-top: 1rem; font-size: .95rem; font-weight: 600; }
+.auth-form-clean input {
+  width: 100%;
+  background: #080c14;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-radius: 8px;
+  padding: .6rem .8rem;
+  font: inherit;
+  outline: 0;
+  transition: border-color .15s;
+}
+.auth-form-clean input:focus {
+  border-color: var(--blue);
+}
+.auth-main-btn {
+  width: 100%;
+  padding: .65rem 1.2rem;
+  margin-top: 1rem;
+  font-size: .92rem;
+  font-weight: 600;
+}
+.guest-notice-box {
+  margin-top: 1.1rem;
+  padding: .65rem .85rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  font-size: .8rem;
+  color: #94a3b8;
+}
 
-.guest-notice-box { margin-top: 1.2rem; padding: .75rem .9rem; background: rgba(255,255,255,0.02); border: 1px solid var(--edge); border-radius: 10px; display: flex; align-items: center; justify-content: space-between; }
-.guest-notice-text span { display: block; font-size: .84rem; font-weight: 500; color: #cbd5e1; }
-.guest-notice-text small { color: var(--steel); font-size: .76rem; }
+/* Member Signed-In Card */
+.member-bar-clean {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .85rem 1rem;
+  background: #080c14;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  margin-bottom: 1.2rem;
+}
+.member-info-clean {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+.member-avatar-clean {
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  display: grid;
+  place-items: center;
+  font-size: 1.25rem;
+}
+.member-user-clean {
+  font-weight: 600;
+  font-size: .95rem;
+  color: #fff;
+}
+.member-sync-tag {
+  font-size: .72rem;
+  color: #22c55e;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  margin-top: .1rem;
+}
+.member-logout-btn {
+  padding: .4rem .9rem;
+  font-size: .8rem;
+  font-weight: 500;
+  margin: 0;
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.3);
+}
+.member-logout-btn:hover {
+  background: rgba(248, 113, 113, 0.12);
+  border-color: #f87171;
+  color: #fff;
+}
+.prof-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: .6rem;
+}
+.prof-section-head h4 {
+  font-size: .9rem;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+.prof-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  max-height: 14rem;
+  overflow-y: auto;
+  padding-right: .2rem;
+}
+.prof-item {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .65rem .8rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  transition: all .15s ease;
+}
+.prof-item.active {
+  background: rgba(90, 162, 255, 0.12);
+  border-color: rgba(90, 162, 255, 0.45);
+}
+.prof-item-avatar {
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.06);
+  display: grid;
+  place-items: center;
+  font-size: 1.2rem;
+  flex: none;
+}
+.prof-item-body {
+  flex: 1;
+  min-width: 0;
+}
+.prof-item-name-row {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+}
+.prof-item-name {
+  font-weight: 600;
+  font-size: .9rem;
+  color: #fff;
+}
+.prof-item-badge {
+  font-size: .65rem;
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  border-radius: 999px;
+  padding: .05rem .45rem;
+}
+.prof-item-bio {
+  font-size: .76rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.prof-item-actions {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+.prof-btn-sm {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font: inherit;
+  font-size: .78rem;
+  border-radius: 6px;
+  padding: .28rem .55rem;
+  cursor: pointer;
+}
+.prof-btn-sm:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+.prof-btn-sm.primary-sm {
+  background: var(--blue);
+  color: #03101f;
+  font-weight: 500;
+  border-color: transparent;
+}
+.prof-btn-sm.del:hover {
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.4);
+}
+.add-prof-toggle-btn {
+  width: 100%;
+  text-align: center;
+  padding: .5rem;
+  font-size: .84rem;
+  border-style: dashed;
+  margin-top: .4rem;
+}
+.add-prof-toggle-btn:hover {
+  border-color: var(--blue);
+  color: #fff;
+}
+.prof-quick-create {
+  background: #080c14;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: .8rem .9rem;
+  margin-top: .5rem;
+}
+.avatar-picker-mini {
+  display: flex;
+  gap: .45rem;
+  margin-top: .3rem;
+}
+.avatar-opt {
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 1.15rem;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all .15s;
+}
+.avatar-opt:hover, .avatar-opt.on {
+  border-color: var(--blue);
+  background: rgba(255, 255, 255, 0.12);
+}
 
-/* Member Clean View */
-.member-bar-clean { display: flex; align-items: center; justify-content: space-between; padding: .85rem 1rem; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(90, 162, 255, 0.3); border-radius: 12px; margin-bottom: 1.2rem; }
-.member-info-clean { display: flex; align-items: center; gap: .75rem; }
-.member-avatar-clean { width: 2.4rem; height: 2.4rem; border-radius: 10px; background: rgba(90, 162, 255, 0.15); border: 1px solid rgba(90, 162, 255, 0.3); display: grid; place-items: center; font-size: 1.3rem; }
-.member-user-clean { font-weight: 600; font-size: 1rem; color: #fff; }
-.member-sync-tag { font-size: .72rem; color: #34d399; display: flex; align-items: center; gap: .35rem; margin-top: .1rem; }
-.member-logout-btn { padding: .35rem .85rem; font-size: .8rem; margin: 0; }
-.member-logout-btn:hover { border-color: #f87171; color: #f87171; }
-
-.prof-section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .6rem; }
-.prof-section-head h4 { font-size: .92rem; font-weight: 600; color: #e2e8f0; }
-
-.prof-cards-list { display: flex; flex-direction: column; gap: .55rem; max-height: 15rem; overflow-y: auto; padding-right: .2rem; }
-.prof-item { display: flex; align-items: center; gap: .85rem; padding: .7rem .85rem; background: rgba(15, 23, 42, 0.55); border: 1px solid var(--edge); border-radius: 12px; transition: all .15s ease; }
-.prof-item.active { background: rgba(90, 162, 255, 0.08); border-color: rgba(90, 162, 255, 0.45); }
-.prof-item-avatar { width: 2.2rem; height: 2.2rem; border-radius: 10px; background: rgba(255,255,255,0.06); display: grid; place-items: center; font-size: 1.25rem; flex: none; }
-.prof-item-body { flex: 1; min-width: 0; }
-.prof-item-name-row { display: flex; align-items: center; gap: .45rem; }
-.prof-item-name { font-weight: 600; font-size: .92rem; color: #fff; }
-.prof-item-badge { font-size: .65rem; color: #34d399; border: 1px solid rgba(52, 211, 153, 0.4); border-radius: 999px; padding: .08rem .45rem; }
-.prof-item-bio { font-size: .78rem; color: var(--steel); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.prof-item-actions { display: flex; align-items: center; gap: .35rem; }
-.prof-btn-sm { background: rgba(255, 255, 255, 0.06); border: 1px solid var(--edge); color: var(--ink); font: inherit; font-size: .78rem; border-radius: 8px; padding: .3rem .6rem; cursor: pointer; }
-.prof-btn-sm:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
-.prof-btn-sm.primary-sm { background: var(--blue); color: #03101f; font-weight: 500; border-color: transparent; }
-.prof-btn-sm.del:hover { color: #f87171; border-color: rgba(248, 113, 113, 0.4); }
-
-.add-prof-toggle-btn { width: 100%; text-align: center; padding: .55rem; font-size: .86rem; border-style: dashed; margin-top: .4rem; }
-.add-prof-toggle-btn:hover { border-color: var(--blue-dim); color: #fff; }
-
-.prof-quick-create { background: rgba(11, 15, 25, 0.7); border: 1px solid var(--edge); border-radius: 12px; padding: .85rem 1rem; margin-top: .6rem; }
-.avatar-picker-mini { display: flex; gap: .45rem; margin-top: .3rem; }
-.avatar-opt { width: 2.2rem; height: 2.2rem; border-radius: 8px; border: 1px solid var(--edge); background: rgba(255,255,255,0.04); font-size: 1.15rem; cursor: pointer; display: grid; place-items: center; transition: all .15s; }
-.avatar-opt:hover, .avatar-opt.on { border-color: var(--blue); background: rgba(255,255,255,0.12); transform: scale(1.08); }
 
 /* Welcome Popup Modal */
 .welcome-panel {
@@ -1009,7 +1564,7 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 5v14M5 12h14"/>
     </svg>
-    <span class="sb-label">New Tab</span>
+    <span class="sb-label">🛠️ New Tab 🛠️</span>
   </button>
 
   <div class="sb-tabs-section" id="sb-tabs-list">
@@ -1024,20 +1579,20 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
       <span class="sb-tab-label">Home</span>
       <button class="sb-tab-close" id="sb-tab-home-close" title="Reset Search" aria-label="Reset Search">&times;</button>
     </div>
+  </div>
 
   <div class="sb-spacer"></div>
 
   <!-- Bottom Navigation Menu Items -->
   <nav class="sb-menu" aria-label="Side Navigation Menu">
-    <!-- Chat (Coming Soon) -->
-    <button class="sb-menu-item" id="sb-chat-btn" title="Chat Rooms (Coming Soon)" type="button">
+    <!-- Friends & Chat -->
+    <button class="sb-menu-item" id="sb-chat-btn" title="Friends & Messages" type="button">
       <span class="sb-menu-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
       </span>
-      <span class="sb-label">Chat</span>
-      <span class="sb-soon-badge">Soon</span>
+      <span class="sb-label">Chat & Friends</span>
     </button>
 
     <!-- Cork7 Games -->
@@ -1090,51 +1645,143 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   </nav>
 </aside>
 
-<!-- Chat Room Modal (Coming Soon) -->
+<!-- Friends & Direct Messages Modal (Functional) -->
 <div class="overlay" id="chat-modal" hidden role="dialog" aria-modal="true" aria-labelledby="chat-h">
   <div class="panel chat-panel">
     <div class="phead">
-      <div style="display:flex;align-items:center;gap:.6rem">
-        <h2 id="chat-h">TSW Member Chat</h2>
-        <span class="chat-soon-pill">Coming Soon</span>
+      <div style="display:flex;align-items:center;gap:.85rem;flex-wrap:wrap">
+        <h2 id="chat-h" style="font-size:1.05rem;">Chat</h2>
+        <div class="chat-mode-tabs" id="chat-mode-tabs">
+          <button type="button" class="chat-mode-tab on" id="chat-tab-dms">💬 DMs</button>
+          <button type="button" class="chat-mode-tab" id="chat-tab-public">🌐 Public Channels</button>
+        </div>
       </div>
       <button data-close aria-label="Close">&times;</button>
     </div>
+    
     <div class="chat-layout">
-      <div class="chat-channels-pane">
-        <div class="chat-pane-title">Channels</div>
-        <div class="chat-channel-item active"><span class="ch-hash">#</span> general <span class="ch-lock">🔒</span></div>
-        <div class="chat-channel-item"><span class="ch-hash">#</span> gaming-cork7 <span class="ch-lock">🔒</span></div>
-        <div class="chat-channel-item"><span class="ch-hash">#</span> proxies-speed <span class="ch-lock">🔒</span></div>
-        <div class="chat-channel-item"><span class="ch-hash">#</span> announcements <span class="ch-lock">🔒</span></div>
-      </div>
-      <div class="chat-messages-pane">
-        <div class="chat-empty-state">
-          <div class="chat-soon-bubble">💬</div>
-          <h3>Member Chat Rooms Coming Soon</h3>
-          <p>Real-time chat rooms and channels are in active development for TSW v2 members. Now that your Cloud SQL data is securely stored, member chat infrastructure is rolling out next.</p>
-          <div class="chat-preview-feed">
-            <div class="mock-msg">
-              <span class="mock-av">🤖</span>
-              <div>
-                <b class="mock-author">TSW System <span class="mock-time">Preview</span></b>
-                <p>Welcome! Real-time WebSockets and member chat rooms are being prepared.</p>
-              </div>
-            </div>
-            <div class="mock-msg">
-              <span class="mock-av">👨‍🚀</span>
-              <div>
-                <b class="mock-author">Voyager <span class="mock-time">Beta</span></b>
-                <p>Can't wait to chat with other unblocked players!</p>
-              </div>
+      <!-- Left Sidebar for DMs -->
+      <aside class="chat-sidebar" id="chat-sidebar-dms">
+        <div class="chat-add-friend-box">
+          <form class="chat-add-friend-form" id="chat-add-friend-form" autocomplete="off">
+            <input class="chat-add-friend-input" id="chat-add-friend-input" type="text" placeholder="Add friend by username..." maxlength="30" required>
+            <button class="chat-add-friend-btn" id="chat-add-friend-btn" type="submit">+ Add</button>
+          </form>
+          <div class="chat-add-status" id="chat-add-status"></div>
+        </div>
+
+        <div class="chat-sidebar-section-title">
+          <span>Active Friends</span>
+          <span id="chat-friends-count">0</span>
+        </div>
+
+        <div class="chat-friends-list" id="chat-friends-list">
+          <!-- Populated by JavaScript -->
+        </div>
+      </aside>
+
+      <!-- Left Sidebar for Public Channels -->
+      <aside class="chat-sidebar" id="chat-sidebar-public" style="display:none;">
+        <div class="chat-sidebar-section-title">
+          <span>Public Rooms</span>
+          <span style="font-size:.68rem;color:#38bdf8;">7-day reset</span>
+        </div>
+
+        <div class="chat-public-channels-list">
+          <div class="public-channel-item active" data-channel="chat-1" id="channel-item-chat-1" role="button" tabindex="0">
+            <div class="public-channel-icon">#</div>
+            <div class="public-channel-meta">
+              <div class="public-channel-name">chat-1</div>
+              <div class="public-channel-desc">Main public discussion</div>
             </div>
           </div>
-          <div class="chat-mock-input-box">
-            <input type="text" placeholder="Chat is coming soon for members... (Under Construction)" disabled>
-            <button type="button" disabled>Send</button>
+
+          <div class="public-channel-item" data-channel="chat-2" id="channel-item-chat-2" role="button" tabindex="0">
+            <div class="public-channel-icon">#</div>
+            <div class="public-channel-meta">
+              <div class="public-channel-name">chat-2</div>
+              <div class="public-channel-desc">Gaming & casual talk</div>
+            </div>
+          </div>
+
+          <div class="public-channel-item" data-channel="announcements" id="channel-item-announcements" role="button" tabindex="0">
+            <div class="public-channel-icon" style="color:#eab308;">📢</div>
+            <div class="public-channel-meta">
+              <div class="public-channel-name">announcements <span class="public-readonly-badge">Read-only</span></div>
+              <div class="public-channel-desc">Official updates & news</div>
+            </div>
           </div>
         </div>
-      </div>
+      </aside>
+
+      <!-- Right Pane: Active Direct Messages -->
+      <main class="chat-convo-pane" id="chat-convo-pane">
+        <!-- Blank State (No friend selected or signed out) -->
+        <div class="chat-blank-state" id="chat-blank-state">
+          <div class="chat-blank-icon">💬</div>
+          <h4 id="chat-blank-title">Your Private Messages</h4>
+          <p id="chat-blank-desc">Select a friend from the left or enter a username above to start private direct messages.</p>
+          <button type="button" class="primary" id="chat-sign-in-prompt-btn" style="margin-top:1.1rem;display:none;">Sign In</button>
+        </div>
+
+        <!-- Active DM Conversation View -->
+        <div id="chat-active-convo" style="display:none;flex-direction:column;height:100%;width:100%;">
+          <div class="chat-convo-head">
+            <div class="chat-friend-av" id="convo-friend-avatar">👨‍🚀</div>
+            <div>
+              <div class="chat-convo-head-name" id="convo-friend-username">@friend</div>
+              <div class="chat-convo-head-sub"><span style="width:.45rem;height:.45rem;border-radius:50%;background:#22c55e;display:inline-block;"></span> Active now</div>
+            </div>
+          </div>
+
+          <div class="chat-feed-box" id="chat-feed-box">
+            <!-- Messages rendered dynamically -->
+          </div>
+
+          <div class="chat-input-bar">
+            <form class="chat-input-form" id="chat-message-form" autocomplete="off">
+              <input id="chat-message-input" type="text" placeholder="Message friend..." maxlength="1000" required>
+              <button type="submit" id="chat-message-send-btn">Send</button>
+            </form>
+          </div>
+        </div>
+      </main>
+
+      <!-- Right Pane: Public Channel Conversation -->
+      <main class="chat-convo-pane" id="chat-public-pane" style="display:none;">
+        <div class="chat-convo-head" style="justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <div class="public-channel-icon" id="public-header-icon" style="width:2.2rem;height:2.2rem;font-size:1.15rem;">#</div>
+            <div>
+              <div class="chat-convo-head-name" id="public-header-title"># chat-1</div>
+              <div class="chat-convo-head-sub" id="public-header-sub" style="color:#94a3b8;">Public channel for all members</div>
+            </div>
+          </div>
+          <span class="public-retention-pill">⏳ Auto-deletes after 7 days</span>
+        </div>
+
+        <div class="public-feed-box" id="public-feed-box">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Input Bar for chat-1 & chat-2 -->
+        <div class="chat-input-bar" id="public-input-bar">
+          <form class="chat-input-form" id="public-message-form" autocomplete="off">
+            <input id="public-message-input" type="text" placeholder="Message #chat-1..." maxlength="1000" required>
+            <button type="submit" id="public-message-send-btn">Send</button>
+          </form>
+          <div id="public-guest-prompt" style="display:none;text-align:center;padding:.3rem 0;">
+            <span style="font-size:.84rem;color:#94a3b8;margin-right:.8rem;">Sign in to send messages in public channels</span>
+            <button type="button" class="primary" id="public-sign-in-btn" style="padding:.35rem .9rem;font-size:.8rem;">Sign In</button>
+          </div>
+        </div>
+
+        <!-- Locked Banner for Announcements -->
+        <div class="public-locked-bar" id="public-locked-bar" style="display:none;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#eab308;flex:none;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span><b>Announcements</b> is a read-only channel. Anyone with an account can chat in <b>#chat-1</b> and <b>#chat-2</b>.</span>
+        </div>
+      </main>
     </div>
   </div>
 </div>
@@ -1180,16 +1827,11 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
     <div class="pbody" style="padding:1.2rem">
       <!-- Signed-out View (Default) -->
       <div id="view-signed-out">
-        <div class="auth-hero">
-          <div class="auth-avatar-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="7" r="4"/>
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            </svg>
-          </div>
-          <h3 class="auth-title">Sign In to TSW v2</h3>
-          <p class="auth-sub">Save your shortcuts, profiles, and settings permanently in Cloud SQL.</p>
+        <div style="margin-bottom:1rem;text-align:center;">
+          <h3 style="font-size:1.15rem;font-weight:600;color:#fff;">Account Access</h3>
+          <p style="font-size:.84rem;color:#94a3b8;margin-top:.25rem;">Sign in to save profiles and message your friends.</p>
         </div>
+
 
         <div class="auth-tabs-row">
           <button type="button" class="auth-tab-btn on" id="tab-login-btn">Log In</button>
@@ -1231,7 +1873,8 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
               <div class="member-sync-tag"><span class="dot-live"></span> Cloud SQL Active</div>
             </div>
           </div>
-          <button type="button" class="plain member-logout-btn" id="auth-logout-btn">Log Out</button>
+          <button type="button" class="plain member-logout-btn" id="auth-logout-btn">Sign Out</button>
+
         </div>
 
         <div class="prof-section-head">
@@ -1436,7 +2079,7 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
       </ul>
     </div>
     <div class="pbody" id="tab-credits" hidden>
-      <h3 class="made">Built with Open Web Technologies</h3>
+      <h3 class="made">Built By Alex Dalbey</h3>
       <p class="date">Core Projects & Proxies</p>
       <ul class="credits">
         <li><a href="https://github.com/MercuryWorkshop/scramjet" target="_blank" rel="noopener noreferrer">Scramjet</a><span>The web proxy engine, by Mercury Workshop. MIT license.</span></li>
@@ -1471,6 +2114,7 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
     <p class="msg" id="home-msg" role="status"></p>
   </div>
   <p class="note">Some sites block proxies and won't load. <a href="https://docs.google.com/forms/d/e/1FAIpQLScupiUZuqQsngFai_QPQRWn06LpuZy3VGZOEyIUY0DAZ0qJxw/viewform" target="_blank" rel="noopener noreferrer">Report a broken site</a></p>
+  <p class="discord-note"><a href="https://discord.gg/r9QaPbyJx5" target="_blank" rel="noopener noreferrer">join our discord now</a></p>
 </main>
 
 <section id="browse" hidden>
@@ -1527,6 +2171,7 @@ var store = {
   set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
   del: function (k) { try { localStorage.removeItem(k); } catch (e) {} }
 };
+store.remove = store.del;
 /* ===================== backgrounds, seasons, rockets ===================== */
 (function () {
   var c = $('sky'), g = c.getContext('2d');
@@ -2458,10 +3103,17 @@ $('game-exit').addEventListener('click', exitCork7);
 $('game-reload').addEventListener('click', reloadCork7);
 $('game-fullscreen').addEventListener('click', toggleGameFullscreen);
 
-['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal'].forEach(function (id) {
+['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log'].forEach(function (id) {
   var el = $(id);
   if (el) {
-    el.addEventListener('click', function (ev) { if (ev.target === el || ev.target.closest('[data-close]')) el.hidden = true; });
+    el.addEventListener('click', function (ev) {
+      if (ev.target === el || ev.target.closest('[data-close]')) {
+        el.hidden = true;
+        if (id === 'chat-modal' && window.TSWChat && window.TSWChat.stopPolling) {
+          window.TSWChat.stopPolling();
+        }
+      }
+    });
   }
 });
 var welcomeDismissBtn = $('welcome-dismiss-btn');
@@ -2476,7 +3128,15 @@ document.addEventListener('keydown', function (ev) {
     if (!$('game-tab').hidden && !document.fullscreenElement) {
       exitCork7();
     }
-    ['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal'].forEach(function (id) { var el = $(id); if (el) el.hidden = true; });
+    ['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log'].forEach(function (id) {
+      var el = $(id);
+      if (el) {
+        el.hidden = true;
+        if (id === 'chat-modal' && window.TSWChat && window.TSWChat.stopPolling) {
+          window.TSWChat.stopPolling();
+        }
+      }
+    });
   }
 });
 
@@ -2641,6 +3301,7 @@ document.addEventListener('keydown', function (ev) {
           }
 
           loadProfiles();
+          if (window.TSWChat && window.TSWChat.refresh) window.TSWChat.refresh();
         } else {
           if (authErr) authErr.textContent = res.error || 'Authentication failed';
         }
@@ -2660,6 +3321,7 @@ document.addEventListener('keydown', function (ev) {
       currentUser = null;
       updateAuthUI();
       loadProfiles();
+      if (window.TSWChat && window.TSWChat.refresh) window.TSWChat.refresh();
     });
   }
 
@@ -2968,7 +3630,11 @@ document.addEventListener('keydown', function (ev) {
     load: loadProfiles,
     switch: switchProfile,
     getActive: function () { return activeProfile; },
-    getUser: function () { return currentUser; }
+    getUser: function () { return currentUser; },
+    getToken: function () { return authToken; },
+    api: api,
+    getAvatarEmoji: getAvatarEmoji,
+    checkAuth: checkAuth
   };
 })();
 
@@ -3062,8 +3728,15 @@ document.addEventListener('keydown', function (ev) {
   }
   function setNav() {
     var e = window.TSWEngine;
-    bBack.disabled = !(e && e.back); bFwd.disabled = !(e && e.forward); bRel.disabled = !(e && e.reload);
+    var canBack = !!(e && e.back);
+    var canFwd = !!(e && e.forward);
+    var canRel = !!(e && e.reload);
+    bBack.disabled = !canBack; bFwd.disabled = !canFwd; bRel.disabled = !canRel;
     document.getElementById('btn-newtab').disabled = !e;
+    var sbB = $('sb-btn-back'), sbF = $('sb-btn-fwd'), sbR = $('sb-btn-reload');
+    if (sbB) sbB.disabled = !canBack;
+    if (sbF) sbF.disabled = !canFwd;
+    if (sbR) sbR.disabled = false;
   }
   function open(text) {
     var url = toUrl(text);
@@ -3088,9 +3761,11 @@ document.addEventListener('keydown', function (ev) {
     });
   }
   function goHome() {
+    if (typeof exitCork7 === 'function') exitCork7();
     browse.hidden = true; home.hidden = false; view.innerHTML = ''; loading(false); hideDiag(); clearTimeout(slowTimer);
     homeInput.value = ''; homeMsg.textContent = ''; if (online()) homeInput.focus();
   }
+  window.TSWGoHome = goHome;
 
   var field = document.querySelector('.field'), toast = document.getElementById('toast'), toastTimer;
   function online() { return !!window.TSWEngine; }   /* the search bar switches on by itself once /engine.js defines TSWEngine */
@@ -3138,6 +3813,706 @@ document.addEventListener('keydown', function (ev) {
     if (online()) open(goParam); else down();
   }
   window.TSWOpen = function (u) { if (!online()) { down(); return; } open(u); };
+})();
+
+/* ===================== Sidebar Toggle, Controls & Navigation ===================== */
+(function () {
+  var SB_COLLAPSED_KEY = 'tsw.sb_collapsed';
+  function setSidebarCollapsed(collapsed) {
+    document.body.classList.toggle('sidebar-collapsed', !!collapsed);
+    store.set(SB_COLLAPSED_KEY, !!collapsed);
+  }
+  function toggleSidebar() {
+    var isCollapsed = document.body.classList.contains('sidebar-collapsed');
+    setSidebarCollapsed(!isCollapsed);
+  }
+
+  // Restore saved collapsed state
+  if (store.get(SB_COLLAPSED_KEY, false)) {
+    document.body.classList.add('sidebar-collapsed');
+  }
+
+  // Sidebar toggle buttons in sidebar header, browse bar, and cork7 game bar
+  ['sb-toggle-btn', 'btn-toggle-sb', 'btn-game-toggle-sb'].forEach(function (id) {
+    var b = $(id);
+    if (b) b.addEventListener('click', toggleSidebar);
+  });
+
+  // Working New Tab Button: clicking it resets view and takes user home
+  var newTabBtn = $('sb-btn-newtab');
+  if (newTabBtn) {
+    newTabBtn.addEventListener('click', function () {
+      if (window.TSWGoHome) window.TSWGoHome();
+    });
+  }
+
+  // Home tab in sidebar
+  var tabHome = $('sb-tab-home');
+  if (tabHome) {
+    tabHome.addEventListener('click', function () {
+      if (window.TSWGoHome) window.TSWGoHome();
+    });
+  }
+
+  var tabHomeClose = $('sb-tab-home-close');
+  if (tabHomeClose) {
+    tabHomeClose.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      var hi = $('home-input');
+      if (hi) { hi.value = ''; hi.focus(); }
+      var hm = $('home-msg');
+      if (hm) hm.textContent = '';
+    });
+  }
+
+  // Sidebar navigation controls
+  var sbBack = $('sb-btn-back'), sbFwd = $('sb-btn-fwd'), sbRel = $('sb-btn-reload');
+  if (sbBack) sbBack.addEventListener('click', function () {
+    var b = $('btn-back'); if (b && !b.disabled) b.click();
+  });
+  if (sbFwd) sbFwd.addEventListener('click', function () {
+    var f = $('btn-fwd'); if (f && !f.disabled) f.click();
+  });
+  if (sbRel) sbRel.addEventListener('click', function () {
+    if (!$('game-tab').hidden) {
+      var gr = $('game-reload'); if (gr) gr.click();
+    } else if (!$('browse').hidden) {
+      var br = $('btn-reload'); if (br) br.click();
+    } else {
+      location.reload();
+    }
+  });
+
+  // Open Chat Modal from Sidebar
+  var chatBtn = $('sb-chat-btn');
+  if (chatBtn) {
+    chatBtn.addEventListener('click', function () {
+      if (window.TSWChat && window.TSWChat.open) {
+        window.TSWChat.open();
+      } else {
+        var cm = $('chat-modal');
+        if (cm) cm.hidden = false;
+      }
+    });
+  }
+})();
+
+/* ===================== Friends List, DMs & Public Channels ===================== */
+(function () {
+  var chatModal = $('chat-modal');
+  var tabDmsBtn = $('chat-tab-dms');
+  var tabPublicBtn = $('chat-tab-public');
+  var sidebarDms = $('chat-sidebar-dms');
+  var sidebarPublic = $('chat-sidebar-public');
+  var convoPaneDms = $('chat-convo-pane');
+  var convoPanePublic = $('chat-public-pane');
+
+  // DM Elements
+  var friendsListEl = $('chat-friends-list');
+  var friendsCountEl = $('chat-friends-count');
+  var blankStateEl = $('chat-blank-state');
+  var blankTitleEl = $('chat-blank-title');
+  var blankDescEl = $('chat-blank-desc');
+  var signInPromptBtn = $('chat-sign-in-prompt-btn');
+  var activeConvoEl = $('chat-active-convo');
+  var convoFriendAvEl = $('convo-friend-avatar');
+  var convoFriendUserEl = $('convo-friend-username');
+  var chatFeedBox = $('chat-feed-box');
+  var messageForm = $('chat-message-form');
+  var messageInput = $('chat-message-input');
+  var addFriendForm = $('chat-add-friend-form');
+  var addFriendInput = $('chat-add-friend-input');
+  var addFriendBtn = $('chat-add-friend-btn');
+  var addStatusEl = $('chat-add-status');
+
+  // Public Channels Elements
+  var publicHeaderIcon = $('public-header-icon');
+  var publicHeaderTitle = $('public-header-title');
+  var publicHeaderSub = $('public-header-sub');
+  var publicFeedBox = $('public-feed-box');
+  var publicInputBar = $('public-input-bar');
+  var publicMessageForm = $('public-message-form');
+  var publicMessageInput = $('public-message-input');
+  var publicMessageSendBtn = $('public-message-send-btn');
+  var publicGuestPrompt = $('public-guest-prompt');
+  var publicSignInBtn = $('public-sign-in-btn');
+  var publicLockedBar = $('public-locked-bar');
+
+  var currentMode = 'dms'; // 'dms' | 'public'
+  var activePublicChannel = 'chat-1'; // 'chat-1' | 'chat-2' | 'announcements'
+  var friends = [];
+  var selectedFriend = null;
+  var pollTimer = null;
+  var lastDmCount = 0;
+  var lastPublicCount = 0;
+
+  var PUBLIC_CHANNELS_CONFIG = {
+    'chat-1': {
+      title: '# chat-1',
+      icon: '#',
+      sub: 'Main public room for all members · 7-day retention',
+      readonly: false
+    },
+    'chat-2': {
+      title: '# chat-2',
+      icon: '#',
+      sub: 'Gaming & casual discussions · 7-day retention',
+      readonly: false
+    },
+    'announcements': {
+      title: '📢 announcements',
+      icon: '📢',
+      sub: 'Official updates and announcements · Read-only',
+      readonly: true
+    }
+  };
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function getAvatar(av) {
+    if (window.TSWProfiles && window.TSWProfiles.getAvatarEmoji) {
+      return window.TSWProfiles.getAvatarEmoji(av);
+    }
+    return '👨‍🚀';
+  }
+
+  function formatTime(isoStr) {
+    if (!isoStr) return '';
+    try {
+      var d = new Date(isoStr);
+      var today = new Date();
+      var isToday = d.toDateString() === today.toDateString();
+      var timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      if (isToday) return timeStr;
+      return d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + timeStr;
+    } catch (e) {
+      return '';
+    }
+  }
+
+  function getCurrentUser() {
+    return window.TSWProfiles ? window.TSWProfiles.getUser() : null;
+  }
+
+  function api(endpoint, method, body) {
+    if (window.TSWProfiles && window.TSWProfiles.api) {
+      return window.TSWProfiles.api(endpoint, method, body);
+    }
+    return fetch(endpoint, {
+      method: method || 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined
+    }).then(function (r) { return r.json(); });
+  }
+
+  /* ---------------- Mode Switcher (DMs vs Public) ---------------- */
+  function switchMode(mode) {
+    currentMode = mode;
+    if (mode === 'public') {
+      if (tabPublicBtn) tabPublicBtn.classList.add('on');
+      if (tabDmsBtn) tabDmsBtn.classList.remove('on');
+      if (sidebarDms) sidebarDms.style.display = 'none';
+      if (sidebarPublic) sidebarPublic.style.display = 'flex';
+      if (convoPaneDms) convoPaneDms.style.display = 'none';
+      if (convoPanePublic) convoPanePublic.style.display = 'flex';
+      selectPublicChannel(activePublicChannel);
+    } else {
+      if (tabDmsBtn) tabDmsBtn.classList.add('on');
+      if (tabPublicBtn) tabPublicBtn.classList.remove('on');
+      if (sidebarDms) sidebarDms.style.display = 'flex';
+      if (sidebarPublic) sidebarPublic.style.display = 'none';
+      if (convoPaneDms) convoPaneDms.style.display = 'flex';
+      if (convoPanePublic) convoPanePublic.style.display = 'none';
+      var user = getCurrentUser();
+      if (!user) {
+        renderSignedOutState();
+      } else {
+        renderSignedInEmpty();
+        loadFriendsList();
+      }
+    }
+  }
+
+  if (tabDmsBtn) tabDmsBtn.addEventListener('click', function () { switchMode('dms'); });
+  if (tabPublicBtn) tabPublicBtn.addEventListener('click', function () { switchMode('public'); });
+
+  /* ---------------- Public Channels Logic ---------------- */
+  function selectPublicChannel(channel) {
+    activePublicChannel = channel;
+    var cfg = PUBLIC_CHANNELS_CONFIG[channel] || PUBLIC_CHANNELS_CONFIG['chat-1'];
+
+    // Update active class in sidebar
+    if (sidebarPublic) {
+      sidebarPublic.querySelectorAll('.public-channel-item').forEach(function (el) {
+        el.classList.toggle('active', el.getAttribute('data-channel') === channel);
+      });
+    }
+
+    // Update header
+    if (publicHeaderIcon) {
+      publicHeaderIcon.textContent = cfg.icon;
+      publicHeaderIcon.style.color = (channel === 'announcements') ? '#eab308' : 'var(--blue-hi)';
+    }
+    if (publicHeaderTitle) publicHeaderTitle.textContent = cfg.title;
+    if (publicHeaderSub) publicHeaderSub.textContent = cfg.sub;
+
+    // Update input area state
+    var user = getCurrentUser();
+    if (cfg.readonly) {
+      // Announcements: read-only
+      if (publicInputBar) publicInputBar.style.display = 'none';
+      if (publicLockedBar) publicLockedBar.style.display = 'flex';
+    } else {
+      // chat-1 or chat-2
+      if (publicLockedBar) publicLockedBar.style.display = 'none';
+      if (publicInputBar) publicInputBar.style.display = 'block';
+
+      if (user) {
+        if (publicMessageForm) publicMessageForm.style.display = 'flex';
+        if (publicGuestPrompt) publicGuestPrompt.style.display = 'none';
+        if (publicMessageInput) {
+          publicMessageInput.placeholder = 'Message #' + channel + ' (cleared after 7 days)...';
+          publicMessageInput.focus();
+        }
+      } else {
+        if (publicMessageForm) publicMessageForm.style.display = 'none';
+        if (publicGuestPrompt) publicGuestPrompt.style.display = 'block';
+      }
+    }
+
+    loadPublicMessages(channel, true);
+  }
+
+  function renderPublicMessages(messages, scrollBottom) {
+    if (!publicFeedBox) return;
+    publicFeedBox.innerHTML = '';
+
+    // Notice pill at top of channel
+    var notice = document.createElement('div');
+    notice.className = 'public-retention-notice';
+    notice.innerHTML = '<span style="font-size:.9rem">⏳</span> <span><b>7-Day Ephemeral Retention:</b> Messages in this channel automatically delete after 7 days. Anyone with an account can chat in #chat-1 and #chat-2!</span>';
+    publicFeedBox.appendChild(notice);
+
+    if (!messages || messages.length === 0) {
+      var emptyEl = document.createElement('div');
+      emptyEl.style.cssText = 'margin:auto;text-align:center;color:#64748b;font-size:.85rem;padding:2rem 1rem;';
+      emptyEl.textContent = 'No messages in this channel yet. Be the first to start the conversation!';
+      publicFeedBox.appendChild(emptyEl);
+      return;
+    }
+
+    messages.forEach(function (m) {
+      var row = document.createElement('div');
+      row.className = 'public-msg-row';
+
+      var isTSW = m.username && (m.username === 'TSW' || m.username.includes('Official'));
+      var badgeHtml = isTSW ? '<span class="public-msg-badge admin">OFFICIAL</span>' : '';
+
+      row.innerHTML =
+        '<div class="public-msg-av">' + getAvatar(m.avatar) + '</div>' +
+        '<div class="public-msg-content-wrap">' +
+          '<div class="public-msg-header">' +
+            '<span class="public-msg-author">@' + escapeHtml(m.username) + '</span>' +
+            badgeHtml +
+            '<span class="public-msg-time">' + formatTime(m.createdAt) + '</span>' +
+          '</div>' +
+          '<div class="public-msg-text">' + escapeHtml(m.content) + '</div>' +
+        '</div>';
+
+      publicFeedBox.appendChild(row);
+    });
+
+    if (scrollBottom) {
+      publicFeedBox.scrollTop = publicFeedBox.scrollHeight;
+    }
+  }
+
+  function loadPublicMessages(channel, shouldScroll) {
+    return api('/api/public-messages/' + channel, 'GET').then(function (res) {
+      if (res && res.success && Array.isArray(res.messages)) {
+        var countChanged = res.messages.length !== lastPublicCount;
+        lastPublicCount = res.messages.length;
+        renderPublicMessages(res.messages, shouldScroll || countChanged);
+      }
+    }).catch(function (err) {
+      console.warn('Public messages fetch error:', err);
+    });
+  }
+
+  // Sidebar Public Channels item click
+  if (sidebarPublic) {
+    sidebarPublic.addEventListener('click', function (ev) {
+      var item = ev.target.closest('.public-channel-item');
+      if (item) {
+        var ch = item.getAttribute('data-channel');
+        if (ch) selectPublicChannel(ch);
+      }
+    });
+  }
+
+  // Public Channel Message Submit
+  if (publicMessageForm) {
+    publicMessageForm.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var user = getCurrentUser();
+      if (!user) {
+        if (chatModal) chatModal.hidden = true;
+        var pm = $('profiles-modal');
+        if (pm) pm.hidden = false;
+        return;
+      }
+
+      var text = (publicMessageInput.value || '').trim();
+      if (!text) return;
+
+      var currentChannel = activePublicChannel;
+      publicMessageInput.value = '';
+
+      // Optimistically append bubble immediately
+      var tempMsg = {
+        id: 'tmp_' + Date.now(),
+        channel: currentChannel,
+        userId: user.id,
+        username: user.username,
+        avatar: (window.TSWProfiles && window.TSWProfiles.getActive()) ? window.TSWProfiles.getActive().avatar : 'astronaut',
+        content: text,
+        createdAt: new Date().toISOString()
+      };
+
+      var row = document.createElement('div');
+      row.className = 'public-msg-row';
+      row.innerHTML =
+        '<div class="public-msg-av">' + getAvatar(tempMsg.avatar) + '</div>' +
+        '<div class="public-msg-content-wrap">' +
+          '<div class="public-msg-header">' +
+            '<span class="public-msg-author">@' + escapeHtml(tempMsg.username) + '</span>' +
+            '<span class="public-msg-time">' + formatTime(tempMsg.createdAt) + '</span>' +
+          '</div>' +
+          '<div class="public-msg-text">' + escapeHtml(tempMsg.content) + '</div>' +
+        '</div>';
+      publicFeedBox.appendChild(row);
+      publicFeedBox.scrollTop = publicFeedBox.scrollHeight;
+
+      api('/api/public-messages/' + currentChannel, 'POST', { content: text }).then(function (res) {
+        if (!res.success && res.error) {
+          alert(res.error);
+        }
+      }).catch(function (err) {
+        console.error('Failed to post public message:', err);
+      });
+    });
+  }
+
+  // Sign in button in public channels
+  if (publicSignInBtn) {
+    publicSignInBtn.addEventListener('click', function () {
+      if (chatModal) chatModal.hidden = true;
+      var pm = $('profiles-modal');
+      if (pm) pm.hidden = false;
+    });
+  }
+
+  /* ---------------- Direct Messages (DMs) Logic ---------------- */
+  function openChat() {
+    if (chatModal) chatModal.hidden = false;
+    switchMode(currentMode);
+    startPolling();
+  }
+
+  function renderSignedOutState() {
+    selectedFriend = null;
+    friends = [];
+    if (friendsCountEl) friendsCountEl.textContent = '0';
+    if (friendsListEl) {
+      friendsListEl.innerHTML = '<div style="padding:1.4rem 1rem;text-align:center;color:#64748b;font-size:.82rem;">Sign in to see your active friends list and send private DMs.</div>';
+    }
+    if (blankStateEl) {
+      blankStateEl.style.display = 'flex';
+      if (blankTitleEl) blankTitleEl.textContent = 'Sign In to Message Friends';
+      if (blankDescEl) blankDescEl.textContent = 'Sign into your account to add friends, see who is online, and chat in private direct messages.';
+      if (signInPromptBtn) signInPromptBtn.style.display = 'inline-block';
+    }
+    if (activeConvoEl) activeConvoEl.style.display = 'none';
+  }
+
+  function renderSignedInEmpty() {
+    if (signInPromptBtn) signInPromptBtn.style.display = 'none';
+    if (!selectedFriend) {
+      if (blankStateEl) {
+        blankStateEl.style.display = 'flex';
+        if (blankTitleEl) blankTitleEl.textContent = 'Your Private Messages';
+        if (blankDescEl) blankDescEl.textContent = 'Select a friend from the left or enter a username above to start private direct messages.';
+      }
+      if (activeConvoEl) activeConvoEl.style.display = 'none';
+    }
+  }
+
+  function renderFriendsList() {
+    if (!friendsListEl) return;
+    if (friendsCountEl) friendsCountEl.textContent = String(friends.length);
+
+    if (friends.length === 0) {
+      friendsListEl.innerHTML = '<div style="padding:1.4rem 1rem;text-align:center;color:#64748b;font-size:.82rem;">No friends added yet. Type a username above and click <b>+ Add</b>!</div>';
+      return;
+    }
+
+    friendsListEl.innerHTML = '';
+    friends.forEach(function (f) {
+      var isSel = selectedFriend && selectedFriend.friendId === f.friendId;
+      var item = document.createElement('div');
+      item.className = 'chat-friend-item' + (isSel ? ' active' : '');
+      item.setAttribute('data-fid', String(f.friendId));
+
+      var snippet = f.lastMessage ? escapeHtml(f.lastMessage) : (f.isOnline ? 'Online now' : 'Click to chat');
+
+      item.innerHTML =
+        '<div class="chat-friend-av">' + getAvatar(f.avatar) +
+          '<span class="chat-status-dot" style="background:' + (f.isOnline ? '#22c55e' : '#64748b') + '"></span>' +
+        '</div>' +
+        '<div class="chat-friend-meta">' +
+          '<span class="chat-friend-name">@' + escapeHtml(f.username) + '</span>' +
+          '<span class="chat-friend-snippet">' + snippet + '</span>' +
+        '</div>' +
+        '<button class="chat-friend-del" data-del-fid="' + f.friendId + '" title="Remove friend">&times;</button>';
+
+      friendsListEl.appendChild(item);
+    });
+  }
+
+  function loadFriendsList() {
+    var user = getCurrentUser();
+    if (!user) return Promise.resolve();
+
+    return api('/api/friends', 'GET').then(function (res) {
+      if (res && res.success && Array.isArray(res.friends)) {
+        friends = res.friends;
+        renderFriendsList();
+        if (selectedFriend) {
+          var updated = friends.find(function (f) { return f.friendId === selectedFriend.friendId; });
+          if (updated) selectedFriend = updated;
+        }
+      }
+    }).catch(function (err) {
+      console.warn('Friends list fetch error:', err);
+    });
+  }
+
+  function selectFriend(friend) {
+    selectedFriend = friend;
+    renderFriendsList();
+
+    if (blankStateEl) blankStateEl.style.display = 'none';
+    if (activeConvoEl) activeConvoEl.style.display = 'flex';
+
+    if (convoFriendAvEl) convoFriendAvEl.textContent = getAvatar(friend.avatar);
+    if (convoFriendUserEl) convoFriendUserEl.textContent = '@' + friend.username;
+
+    loadMessages(friend.friendId, true);
+    if (messageInput) {
+      messageInput.focus();
+    }
+  }
+
+  function renderMessages(messages, scrollBottom) {
+    if (!chatFeedBox) return;
+    var user = getCurrentUser();
+    var myId = user ? user.id : null;
+
+    chatFeedBox.innerHTML = '';
+    if (!messages || messages.length === 0) {
+      chatFeedBox.innerHTML = '<div style="margin:auto;text-align:center;color:#64748b;font-size:.85rem;">No messages yet. Send a message to start chatting!</div>';
+      return;
+    }
+
+    messages.forEach(function (m) {
+      var isMine = myId !== null && m.senderId === myId;
+      var bubble = document.createElement('div');
+      bubble.className = 'chat-bubble ' + (isMine ? 'mine' : 'theirs');
+      bubble.innerHTML =
+        '<div class="chat-bubble-body">' + escapeHtml(m.content) + '</div>' +
+        '<div class="chat-bubble-time">' + formatTime(m.createdAt) + '</div>';
+      chatFeedBox.appendChild(bubble);
+    });
+
+    if (scrollBottom) {
+      chatFeedBox.scrollTop = chatFeedBox.scrollHeight;
+    }
+  }
+
+  function loadMessages(friendId, shouldScroll) {
+    return api('/api/messages/' + friendId, 'GET').then(function (res) {
+      if (res && res.success && Array.isArray(res.messages)) {
+        var countChanged = res.messages.length !== lastDmCount;
+        lastDmCount = res.messages.length;
+        renderMessages(res.messages, shouldScroll || countChanged);
+      }
+    }).catch(function (err) {
+      console.warn('Messages fetch error:', err);
+    });
+  }
+
+  function startPolling() {
+    stopPolling();
+    pollTimer = setInterval(function () {
+      if (chatModal && !chatModal.hidden) {
+        if (currentMode === 'public') {
+          loadPublicMessages(activePublicChannel, false);
+        } else {
+          var user = getCurrentUser();
+          if (user) {
+            loadFriendsList();
+            if (selectedFriend) {
+              loadMessages(selectedFriend.friendId, false);
+            }
+          }
+        }
+      } else {
+        stopPolling();
+      }
+    }, 2500);
+  }
+
+  function stopPolling() {
+    if (pollTimer) {
+      clearInterval(pollTimer);
+      pollTimer = null;
+    }
+  }
+
+  // Handle Add Friend Form
+  if (addFriendForm) {
+    addFriendForm.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var user = getCurrentUser();
+      if (!user) {
+        if (addStatusEl) addStatusEl.innerHTML = '<span style="color:#f87171">Sign in first to add friends</span>';
+        if (chatModal) chatModal.hidden = true;
+        var pm = $('profiles-modal');
+        if (pm) pm.hidden = false;
+        return;
+      }
+
+      var targetUsername = (addFriendInput.value || '').trim();
+      if (!targetUsername) return;
+
+      if (addStatusEl) addStatusEl.innerHTML = '<span style="color:#94a3b8">Adding friend…</span>';
+      if (addFriendBtn) addFriendBtn.disabled = true;
+
+      api('/api/friends', 'POST', { username: targetUsername }).then(function (res) {
+        if (addFriendBtn) addFriendBtn.disabled = false;
+        if (res.success && res.friend) {
+          addFriendInput.value = '';
+          if (addStatusEl) {
+            addStatusEl.innerHTML = '<span style="color:#22c55e">✓ Added @' + escapeHtml(res.friend.username) + '!</span>';
+            setTimeout(function () { if (addStatusEl) addStatusEl.textContent = ''; }, 3500);
+          }
+          loadFriendsList().then(function () {
+            selectFriend(res.friend);
+          });
+        } else {
+          if (addStatusEl) addStatusEl.innerHTML = '<span style="color:#f87171">' + escapeHtml(res.error || 'User not found') + '</span>';
+        }
+      }).catch(function (err) {
+        if (addFriendBtn) addFriendBtn.disabled = false;
+        if (addStatusEl) addStatusEl.innerHTML = '<span style="color:#f87171">' + escapeHtml(err.message || 'Error adding friend') + '</span>';
+      });
+    });
+  }
+
+  // Handle Friends List Click Delegates (Select & Remove)
+  if (friendsListEl) {
+    friendsListEl.addEventListener('click', function (ev) {
+      var delBtn = ev.target.closest('[data-del-fid]');
+      if (delBtn) {
+        ev.stopPropagation();
+        var fid = parseInt(delBtn.getAttribute('data-del-fid'), 10);
+        if (confirm('Remove this friend?')) {
+          api('/api/friends/' + fid, 'DELETE').then(function () {
+            if (selectedFriend && selectedFriend.friendId === fid) {
+              selectedFriend = null;
+              renderSignedInEmpty();
+            }
+            loadFriendsList();
+          });
+        }
+        return;
+      }
+
+      var item = ev.target.closest('.chat-friend-item');
+      if (item) {
+        var targetFid = parseInt(item.getAttribute('data-fid'), 10);
+        var f = friends.find(function (x) { return x.friendId === targetFid; });
+        if (f) selectFriend(f);
+      }
+    });
+  }
+
+  // Handle Send Direct Message Form
+  if (messageForm) {
+    messageForm.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      if (!selectedFriend) return;
+      var text = (messageInput.value || '').trim();
+      if (!text) return;
+
+      var currentFriendId = selectedFriend.friendId;
+      messageInput.value = '';
+
+      // Optimistically append bubble immediately
+      var user = getCurrentUser();
+      var tempMsg = {
+        senderId: user ? user.id : -1,
+        content: text,
+        createdAt: new Date().toISOString()
+      };
+      var bubble = document.createElement('div');
+      bubble.className = 'chat-bubble mine';
+      bubble.innerHTML =
+        '<div class="chat-bubble-body">' + escapeHtml(tempMsg.content) + '</div>' +
+        '<div class="chat-bubble-time">' + formatTime(tempMsg.createdAt) + '</div>';
+      chatFeedBox.appendChild(bubble);
+      chatFeedBox.scrollTop = chatFeedBox.scrollHeight;
+
+      api('/api/messages/' + currentFriendId, 'POST', { content: text }).then(function (res) {
+        if (res.success) {
+          selectedFriend.lastMessage = text;
+          renderFriendsList();
+        }
+      }).catch(function (err) {
+        console.error('Failed to send message:', err);
+      });
+    });
+  }
+
+  // Sign In Prompt Button inside Blank State
+  if (signInPromptBtn) {
+    signInPromptBtn.addEventListener('click', function () {
+      if (chatModal) chatModal.hidden = true;
+      var pm = $('profiles-modal');
+      if (pm) pm.hidden = false;
+    });
+  }
+
+  window.TSWChat = {
+    open: openChat,
+    refresh: function () {
+      if (currentMode === 'public') {
+        selectPublicChannel(activePublicChannel);
+      } else {
+        var user = getCurrentUser();
+        if (!user) {
+          renderSignedOutState();
+        } else {
+          renderSignedInEmpty();
+          loadFriendsList();
+        }
+      }
+    },
+    stopPolling: stopPolling
+  };
 })();
 </script>
 </body>
