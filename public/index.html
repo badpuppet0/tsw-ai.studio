@@ -1526,7 +1526,12 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
 }
 .wf-icon { font-size: 1.1rem; flex: none; }
 .welcome-btn { width: 100%; padding: .75rem 1.5rem; font-size: .98rem; font-weight: 600; }
-</style>
+/* Chat DMs / Public tab spacing */
+.chat-mode-tabs { display: inline-flex; align-items: center; gap: .25rem; padding: .2rem; flex: none; }
+.chat-mode-tabs .chat-mode-tab { width: auto; height: auto; min-width: 0; padding: .35rem .95rem; font-size: .8rem; line-height: 1.2; white-space: nowrap; border-radius: 999px; }
+.chat-mode-tabs .chat-mode-tab:hover { background: none; color: #fff; }
+.chat-mode-tabs .chat-mode-tab.on, .chat-mode-tabs .chat-mode-tab.on:hover { background: var(--blue); color: #03101f; }
+@media (pointer: coarse) { .chat-mode-tabs .chat-mode-tab { padding: .6rem 1.1rem; } }</style>
 </head>
 <body>
 <div id="splash" aria-hidden="true"><div class="sp-mark">TSW<b>v2</b></div><div class="sp-bar"><i></i></div></div>
