@@ -433,9 +433,9 @@ html.glass-panels .phead button:hover { background: rgba(255,255,255,.08); }
 .bar .addr { flex: 1; min-width: 0; background: var(--void); border: 1px solid var(--edge); color: var(--ink);
   border-radius: 999px; padding: .4rem .9rem; font: inherit; font-size: .92rem; outline: 0; }
 .bar .addr:focus { border-color: var(--blue-dim); }
-.load { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: var(--blue); opacity: 0; }
-.load.on { opacity: 1; animation: load 8s cubic-bezier(.1,.6,.2,1) forwards; }
-@keyframes load { to { width: 92%; } }
+.load { position: absolute; left: 0; bottom: -1px; height: 2px; width: 35%; background: var(--blue); opacity: 0; }
+.load.on { opacity: 1; animation: load 1.8s ease-in-out infinite alternate; }
+@keyframes load { from { transform: translateX(-15%); } to { transform: translateX(210%); } }
 #view { flex: 1; min-height: 0; position: relative; }
 #view iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #fff; }
 .fail { position: absolute; inset: 0; display: grid; place-items: center; padding: 1.5rem; text-align: center; }
@@ -2271,7 +2271,11 @@ html[data-theme="light"] .discord-note a:hover {
 .chat-mode-tabs .chat-mode-tab { width: auto; height: auto; min-width: 0; padding: .35rem .95rem; font-size: .8rem; line-height: 1.2; white-space: nowrap; border-radius: 999px; }
 .chat-mode-tabs .chat-mode-tab:hover { background: none; color: #fff; }
 .chat-mode-tabs .chat-mode-tab.on, .chat-mode-tabs .chat-mode-tab.on:hover { background: var(--blue); color: #03101f; }
-@media (pointer: coarse) { .chat-mode-tabs .chat-mode-tab { padding: .6rem 1.1rem; } }</style>
+@media (pointer: coarse) { .chat-mode-tabs .chat-mode-tab { padding: .6rem 1.1rem; } }
+.settings-group { margin: 1.25rem 0 .2rem; padding-top: .85rem; border-top: 1px solid var(--edge); color: var(--blue-hi); font-size: .78rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.settings-group:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+html.reduced-motion *, html.reduced-motion *::before, html.reduced-motion *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .001ms !important; }
+</style>
 </head>
 <body>
 <div id="splash" aria-hidden="true"><div class="sp-mark">TSW<b>v2</b></div><div class="sp-bar"><i></i></div></div>
@@ -2691,10 +2695,12 @@ html[data-theme="light"] .discord-note a:hover {
   <div class="panel" role="dialog" aria-modal="true" aria-labelledby="set-h">
     <div class="phead"><h2 id="set-h">Settings</h2><button data-close aria-label="Close">&times;</button></div>
     <div class="pbody f">
+      <h3 class="settings-group">Shortcuts &amp; browsing</h3>
       <label for="set-engine">Search engine</label>
       <select id="set-engine"><option value="ddg">DuckDuckGo</option><option value="google">Google</option><option value="bing">Bing</option><option value="brave">Brave</option><option value="startpage">Startpage</option><option disabled>Tor (coming soon)</option></select>
       <p class="hint">Google may ask you to prove you are not a robot.</p>
 
+      <h3 class="settings-group">Wallpaper</h3>
       <label for="set-bg">Background</label>
       <select id="set-bg"><option value="stars">Stars</option><option value="solid">Custom</option><option value="video">Video</option><option value="ice">Ice waves</option><option value="aurora">Aurora Flow</option><option value="mesh">TSW Liquid Mesh (interactive)</option></select>
       <p class="hint">Ice waves react to your mouse or finger. On the stars background, click a star to make it shine.</p>
@@ -2712,6 +2718,7 @@ html[data-theme="light"] .discord-note a:hover {
       <p class="vidnote" id="vid-note" role="status"></p>
       <p class="hint">Your own video stays on this device and is only used by you. Short loops work best.</p>
 
+      <h3 class="settings-group">Appearance</h3>
       <label for="set-panel">Panel menu type</label>
       <select id="set-panel"><option value="standard">Standard (default)</option><option value="glass">Glass style</option></select>
       <p class="hint">Changes the look of popup menus, including Settings.</p>
@@ -2719,12 +2726,16 @@ html[data-theme="light"] .discord-note a:hover {
       <label for="set-theme">Theme mode</label>
       <select id="set-theme"><option value="dark">Dark (default)</option><option value="light">Light mode</option></select>
 
+      <h3 class="settings-group">Motion &amp; sound</h3>
+      <label class="check"><input type="checkbox" id="set-reduced-motion"> Reduce motion and animations</label>
+      <p class="hint">Turns down moving backgrounds and interface animations.</p>
       <label class="check"><input type="checkbox" id="set-rain"> Ambient rain sound (off by default)</label>
       <div id="rain-vol-wrap" style="display:none;margin-top:.4rem">
         <label for="set-rain-vol">Rain volume</label>
         <input type="range" id="set-rain-vol" min="5" max="100" value="40">
       </div>
 
+      <h3 class="settings-group">Interface options</h3>
       <label for="set-accent">Accent color</label>
       <select id="set-accent"><option value="blue">Blue</option><option value="green">Green</option><option value="pink">Pink</option><option value="orange">Orange</option><option value="violet">Violet</option></select>
       <label for="set-clock">Clock</label>
@@ -2983,7 +2994,7 @@ html[data-theme="light"] .discord-note a:hover {
     <button id="btn-reload" title="Reload" aria-label="Reload"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg></button>
     <button id="btn-newtab" title="Open in new tab" aria-label="Open in new tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></button>
     <input class="addr" id="addr" type="text" inputmode="url" autocapitalize="off" spellcheck="false" aria-label="Address">
-    <div class="load" id="load"></div>
+    <div class="load" id="load" role="progressbar" aria-label="Page loading" aria-valuemin="0" aria-valuemax="100"></div>
   </div>
   <div id="view"></div>
   <div class="diag" id="diag" hidden role="status">
@@ -3491,20 +3502,23 @@ store.remove = store.del;
 
   /* ---- TSW Liquid Mesh: cursor-reactive flowing brand colors ---- */
   function drawMesh(t) {
-    var tt = still ? 0 : t;
+    var reduced = still || document.documentElement.classList.contains('reduced-motion');
+    var tt = reduced ? 0 : t;
     var cx = curMouseX || w * .5, cy = curMouseY || h * .5;
+    var mx = cx - w * .5, my = cy - h * .5;
     var minDim = Math.min(w, h);
-    var radius = Math.max(210, minDim * .52);
+    var radius = Math.max(230, minDim * .58);
+    /* Broad, overlapping color fields keep the mesh soft instead of neon. */
     var blobs = [
-      { x: w * .18 + Math.sin(tt * .00019) * w * .10 + (cx - w * .5) * .20,
-        y: h * .30 + Math.cos(tt * .00023) * h * .10 + (cy - h * .5) * .17,
-        r: radius * 1.05, c: '90,162,255', a: .27 },
-      { x: w * .77 + Math.cos(tt * .00016 + 1.5) * w * .12 + (cx - w * .5) * .27,
-        y: h * .68 + Math.sin(tt * .00021 + 1.5) * h * .13 + (cy - h * .5) * .22,
-        r: radius * 1.12, c: '80,95,255', a: .24 },
-      { x: w * .54 + Math.sin(tt * .00013 + 3) * w * .13 + (cx - w * .5) * .34,
-        y: h * .16 + Math.cos(tt * .00018 + 3) * h * .12 + (cy - h * .5) * .26,
-        r: radius * .82, c: '30,210,255', a: .19 }
+      { x: w * .20 + Math.sin(tt * .00015) * w * .075 + mx * .12,
+        y: h * .34 + Math.cos(tt * .00018) * h * .075 + my * .10,
+        r: radius * 1.12, c: '90,162,255', a: .22 },
+      { x: w * .76 + Math.cos(tt * .00013 + 1.5) * w * .085 + mx * .16,
+        y: h * .68 + Math.sin(tt * .00016 + 1.5) * h * .09 + my * .13,
+        r: radius * 1.18, c: '91,86,220', a: .19 },
+      { x: w * .52 + Math.sin(tt * .00011 + 3) * w * .09 + mx * .20,
+        y: h * .18 + Math.cos(tt * .00014 + 3) * h * .08 + my * .15,
+        r: radius * .92, c: '30,190,230', a: .16 }
     ];
     g.save();
     g.globalCompositeOperation = 'screen';
@@ -3516,10 +3530,10 @@ store.remove = store.del;
       g.fillStyle = gr;
       g.fillRect(0, 0, w, h);
     });
-    if (mouseX > 0 && mouseY > 0) {
-      var spot = g.createRadialGradient(cx, cy, 0, cx, cy, radius * .68);
-      spot.addColorStop(0, 'rgba(90,162,255,0.16)');
-      spot.addColorStop(.45, 'rgba(70,115,255,0.08)');
+    if (!reduced && mouseX > 0 && mouseY > 0) {
+      var spot = g.createRadialGradient(cx, cy, 0, cx, cy, radius * .62);
+      spot.addColorStop(0, 'rgba(90,162,255,0.10)');
+      spot.addColorStop(.45, 'rgba(70,115,255,0.045)');
       spot.addColorStop(1, 'rgba(5,8,22,0)');
       g.fillStyle = spot;
       g.fillRect(0, 0, w, h);
@@ -3604,8 +3618,8 @@ store.remove = store.del;
 
   function frame(t) {
     var o = opt(), se = still ? '' : seasonOf(o), i;
-    curMouseX += (mouseX - curMouseX) * 0.05;
-    curMouseY += (mouseY - curMouseY) * 0.05;
+    curMouseX += (mouseX - curMouseX) * 0.035;
+    curMouseY += (mouseY - curMouseY) * 0.035;
     var pX = (curMouseX - w * 0.5);
     var pY = (curMouseY - h * 0.5) * 0.22;
 
@@ -4058,7 +4072,7 @@ var STATUS_NOTICE = '';
     blank: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E"
   };
   var D = { engine: 'ddg', stars: true, shoot: true, title: '', icon: 'default', bg: 'stars', season: 'auto', solid: '#0a0f1c',
-            vsrc: 'site', vbright: 60, accent: 'blue', clock: '12', panel: 'standard', theme: 'dark', rain: false, rainVol: 40 };
+            vsrc: 'site', vbright: 60, accent: 'blue', clock: '12', panel: 'standard', theme: 'dark', rain: false, rainVol: 40, reducedMotion: false };
   var cfg = {};
   Object.keys(D).forEach(function (k) { cfg[k] = store.get('tsw.' + k, D[k]); });
   if (!ENGINES[cfg.engine]) cfg.engine = 'ddg';
@@ -4151,6 +4165,7 @@ var STATUS_NOTICE = '';
     var c = ACCENTS[cfg.accent], root = document.documentElement.style;
     root.setProperty('--blue', c); root.setProperty('--blue-dim', mix(c, '#000000', .45)); root.setProperty('--blue-hi', mix(c, '#ffffff', .25));
     document.documentElement.classList.toggle('glass-panels', cfg.panel === 'glass');
+    document.documentElement.classList.toggle('reduced-motion', !!cfg.reducedMotion);
     document.documentElement.setAttribute('data-theme', cfg.theme || 'dark');
     window.TSWSky = { stars: !!cfg.stars, shoot: !!cfg.shoot, bg: cfg.bg, season: cfg.season, solid: cfg.solid,
                       vsrc: cfg.vsrc, vbright: cfg.vbright, accent: c };
@@ -4175,6 +4190,7 @@ var STATUS_NOTICE = '';
     $('set-title').value = cfg.title; $('set-icon').value = cfg.icon; $('set-solid').value = cfg.solid;
     $('set-vsrc').value = cfg.vsrc; $('set-vbright').value = cfg.vbright; $('set-accent').value = cfg.accent; $('set-clock').value = cfg.clock; $('set-panel').value = cfg.panel;
     if ($('set-theme')) $('set-theme').value = cfg.theme || 'dark';
+    if ($('set-reduced-motion')) $('set-reduced-motion').checked = !!cfg.reducedMotion;
     if ($('set-rain')) $('set-rain').checked = !!cfg.rain;
     if ($('set-rain-vol')) $('set-rain-vol').value = cfg.rainVol || 40;
     var rWrap = $('rain-vol-wrap');
@@ -4182,6 +4198,9 @@ var STATUS_NOTICE = '';
   }
 
   $('set-engine').addEventListener('change', function () { put('engine', this.value); });
+  if ($('set-reduced-motion')) {
+    $('set-reduced-motion').addEventListener('change', function () { put('reducedMotion', this.checked); });
+  }
   if ($('set-theme')) {
     $('set-theme').addEventListener('change', function () { put('theme', this.value); });
   }
