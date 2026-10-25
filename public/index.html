@@ -600,12 +600,26 @@ html.glass-panels .phead button:hover { background: rgba(255,255,255,.08); }
   border-radius: 8px;
   margin: 0;
 }
-.game-library-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.65rem; }
-.game-library-card { width:100%; min-width:0; font:inherit; color:inherit; }
-.game-library-card .cork-card-left { text-align:left; }
-.game-library-card .cork-title { display:inline-block; }
-.game-library-card .cork-desc { display:inline-block; }
-@media(max-width:600px){.game-library-grid{grid-template-columns:1fr;}}
+/* Game library inspired by a real arcade catalog */
+#games .games-modal-panel { width:min(1240px,96vw); max-width:none; max-height:90vh; display:flex; flex-direction:column; overflow:hidden; }
+#games .phead { flex:none; }
+#games .pbody { overflow-y:auto; min-height:0; }
+.game-library-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:12px; }
+.game-library-card { display:flex; flex-direction:column; align-items:stretch; justify-content:flex-start; gap:0; width:100%; min-width:0; min-height:0; padding:0; overflow:hidden; color:inherit; font:inherit; text-align:left; border-radius:12px; background:rgba(18,13,29,.94); border:1px solid rgba(167,139,250,.24); position:relative; }
+.game-library-card:hover { transform:translateY(-2px); border-color:rgba(192,132,252,.65); }
+.game-cover-wrap { width:100%; aspect-ratio:1 / 1; background:#171323; overflow:hidden; position:relative; }
+.game-cover { display:block; width:100%; height:100%; object-fit:cover; transition:transform .2s ease; }
+.game-library-card:hover .game-cover { transform:scale(1.04); }
+.game-cover-fallback { display:flex; width:100%; height:100%; align-items:center; justify-content:center; font-size:3rem; background:linear-gradient(145deg,#28203b,#10101c); }
+.game-card-star { position:absolute; top:8px; right:8px; z-index:2; border:1px solid rgba(255,255,255,.18); background:rgba(10,7,17,.78); color:#eee; border-radius:6px; width:32px; height:32px; cursor:pointer; font-size:18px; }
+.game-card-star[aria-pressed="true"] { color:#facc15; }
+.game-card-title { display:block; min-height:48px; padding:10px 11px; font-size:.88rem; line-height:1.3; font-weight:600; overflow-wrap:anywhere; }
+.game-library-card .cork-card-left,.game-library-card .cork-title,.game-library-card .cork-desc { display:none; }
+#game-tab .game-bar { width:min(1240px,94vw); }
+#game-tab #game-view { width:min(1240px,94vw); height:min(76vh,820px); }
+@media(max-width:1050px){.game-library-grid{grid-template-columns:repeat(4,minmax(0,1fr));}}
+@media(max-width:680px){#games .games-modal-panel{width:96vw;max-height:92vh}.game-library-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.game-card-title{font-size:.82rem;min-height:44px;padding:8px}#game-tab #game-view{height:66vh;}}
+
 .game-item-play-btn {
   flex: none;
   font-size: .8rem;
@@ -2810,23 +2824,35 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
     <div class="phead">
       <div style="display:flex;align-items:center;gap:.6rem;">
         <span style="font-size:1.2rem;">🎮</span>
-        <div><h2 id="gm-h" style="margin:0;font-size:1.05rem;font-weight:600;">Games</h2><div style="font-size:.78rem;color:var(--steel);margin-top:.15rem;">Pick a game to open it in the mini player.</div></div>
+        <div><h2 id="gm-h" style="margin:0;font-size:1.05rem;font-weight:600;">Games</h2><div style="font-size:.78rem;color:var(--steel);margin-top:.15rem;">Arcade • Pick a game to play</div></div>
       </div>
       <button data-close aria-label="Close">&times;</button>
     </div>
     <div class="pbody" style="padding:1rem;">
-      <input id="game-library-search" type="search" placeholder="Search games..." aria-label="Search games" style="width:100%;box-sizing:border-box;margin-bottom:.8rem;">
+      <input id="game-library-search" type="search" placeholder="Search games..." aria-label="Search games" style="width:100%;box-sizing:border-box;margin-bottom:.9rem;">
       <div class="game-library-grid" id="game-library-grid">
-        <button class="cork-single-card game-library-card" data-game-title="2048" data-game-url="https://www.crazygames.com/embed/2048" data-game-domain="CrazyGames"><span class="cork-card-left"><span class="cork-icon-badge">🔢</span><span><span class="cork-title">2048</span><br><span class="cork-desc">Slide tiles and combine numbers.</span></span></span><span class="primary cork-play-btn">Play</span></button>
-        <button class="cork-single-card game-library-card" data-game-title="Moto X3M" data-game-url="https://www.crazygames.com/embed/moto-x3m" data-game-domain="CrazyGames"><span class="cork-card-left"><span class="cork-icon-badge">🏍️</span><span><span class="cork-title">Moto X3M</span><br><span class="cork-desc">Race through obstacle courses.</span></span></span><span class="primary cork-play-btn">Play</span></button>
-        <button class="cork-single-card game-library-card" data-game-title="Shell Shockers" data-game-url="https://shellshock.io" data-game-domain="Shell Shockers"><span class="cork-card-left"><span class="cork-icon-badge">🥚</span><span><span class="cork-title">Shell Shockers</span><br><span class="cork-desc">Multiplayer egg battle game.</span></span></span><span class="primary cork-play-btn">Play</span></button>
-        <button class="cork-single-card game-library-card" data-game-title="Drift Hunters" data-game-url="https://www.crazygames.com/embed/drift-hunters" data-game-domain="CrazyGames"><span class="cork-card-left"><span class="cork-icon-badge">🚗</span><span><span class="cork-title">Drift Hunters</span><br><span class="cork-desc">Tune cars and drift around tracks.</span></span></span><span class="primary cork-play-btn">Play</span></button>
-        <button class="cork-single-card game-library-card" data-game-title="Little Alchemy 2" data-game-url="https://www.crazygames.com/embed/little-alchemy-2" data-game-domain="CrazyGames"><span class="cork-card-left"><span class="cork-icon-badge">🧪</span><span><span class="cork-title">Little Alchemy 2</span><br><span class="cork-desc">Combine items to discover new things.</span></span></span><span class="primary cork-play-btn">Play</span></button>
-        <button class="cork-single-card game-library-card" data-game-title="Slope" data-game-url="https://www.crazygames.com/embed/slope" data-game-domain="CrazyGames"><span class="cork-card-left"><span class="cork-icon-badge">🔴</span><span><span class="cork-title">Slope</span><br><span class="cork-desc">Keep the ball on the fast track.</span></span></span><span class="primary cork-play-btn">Play</span></button>
-        <button class="cork-single-card game-library-card" data-game-title="Cork7 Arcade" data-game-url="https://cork7.com" data-game-domain="Cork7"><span class="cork-card-left"><span class="cork-icon-badge">🕹️</span><span><span class="cork-title">Cork7 Arcade</span><br><span class="cork-desc">Browse a large collection of web games.</span></span></span><span class="primary cork-play-btn">Play</span></button>
-        <button class="cork-single-card game-library-card" data-game-title="Poki" data-game-url="https://poki.com" data-game-domain="Poki"><span class="cork-card-left"><span class="cork-icon-badge">🎯</span><span><span class="cork-title">Poki</span><br><span class="cork-desc">Explore a large game collection.</span></span></span><span class="primary cork-play-btn">Play</span></button>
+        <button class="game-library-card" data-game-title="Tung Tung Horror" data-game-url="https://www.crazygames.com/embed/tung-tung-sahur-horror" data-game-domain="CrazyGames" data-cover="https://images.crazygames.com/tung-tung-horror/20250522000000/1x1.jpg"><span class="game-cover-wrap"><img class="game-cover" loading="lazy" src="https://images.crazygames.com/tung-tung-horror/20250522000000/1x1.jpg" alt="Tung Tung Horror cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="game-cover-fallback" style="display:none">👻</span></span><span class="game-card-title">Tung Tung Horror</span><button class="game-card-star" type="button" aria-label="Favorite Tung Tung Horror" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="Quake III Arena" data-game-url="https://www.crazygames.com" data-game-domain="CrazyGames" data-cover=""><span class="game-cover-wrap"><span class="game-cover-fallback">🔫</span></span><span class="game-card-title">Quake III Arena</span><button class="game-card-star" type="button" aria-label="Favorite Quake III Arena" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="Running Fred" data-game-url="https://www.crazygames.com/embed/running-fred" data-game-domain="CrazyGames" data-cover="https://images.crazygames.com/running-fred/20251202000000/1x1.jpg"><span class="game-cover-wrap"><img class="game-cover" loading="lazy" src="https://images.crazygames.com/running-fred/20251202000000/1x1.jpg" alt="Running Fred cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="game-cover-fallback" style="display:none">🏃</span></span><span class="game-card-title">Running Fred</span><button class="game-card-star" type="button" aria-label="Favorite Running Fred" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="Buckshot Roulette" data-game-url="https://www.crazygames.com" data-game-domain="CrazyGames" data-cover=""><span class="game-cover-wrap"><span class="game-cover-fallback">🎯</span></span><span class="game-card-title">Buckshot Roulette</span><button class="game-card-star" type="button" aria-label="Favorite Buckshot Roulette" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="Bad Ice Cream 2" data-game-url="https://www.coolmathgames.com/0-bad-ice-cream-2" data-game-domain="Coolmath Games" data-cover=""><span class="game-cover-wrap"><span class="game-cover-fallback">🍦</span></span><span class="game-card-title">Bad Ice Cream 2</span><button class="game-card-star" type="button" aria-label="Favorite Bad Ice Cream 2" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="Do NOT Take This Cat Home" data-game-url="https://www.crazygames.com" data-game-domain="CrazyGames" data-cover=""><span class="game-cover-wrap"><span class="game-cover-fallback">🐈‍⬛</span></span><span class="game-card-title">Do NOT Take This Cat Home</span><button class="game-card-star" type="button" aria-label="Favorite Do NOT Take This Cat Home" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="Taisei Project" data-game-url="https://taisei-project.org/" data-game-domain="Taisei Project" data-cover=""><span class="game-cover-wrap"><span class="game-cover-fallback">🌙</span></span><span class="game-card-title">Taisei Project</span><button class="game-card-star" type="button" aria-label="Favorite Taisei Project" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="Time Shooter 2" data-game-url="https://www.crazygames.com/embed/time-shooter-2" data-game-domain="CrazyGames" data-cover=""><span class="game-cover-wrap"><span class="game-cover-fallback">🔫</span></span><span class="game-card-title">Time Shooter 2</span><button class="game-card-star" type="button" aria-label="Favorite Time Shooter 2" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="Jedi Knight: Dark Forces II" data-game-url="https://www.crazygames.com" data-game-domain="Web Game" data-cover=""><span class="game-cover-wrap"><span class="game-cover-fallback">⚔️</span></span><span class="game-card-title">Jedi Knight: Dark Forces II</span><button class="game-card-star" type="button" aria-label="Favorite Jedi Knight: Dark Forces II" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="Fruit Ninja" data-game-url="https://www.crazygames.com/embed/fruit-ninja" data-game-domain="CrazyGames" data-cover=""><span class="game-cover-wrap"><span class="game-cover-fallback">🍉</span></span><span class="game-card-title">Fruit Ninja</span><button class="game-card-star" type="button" aria-label="Favorite Fruit Ninja" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="Halloween 2016" data-game-url="https://www.crazygames.com" data-game-domain="Web Game" data-cover=""><span class="game-cover-wrap"><span class="game-cover-fallback">🎃</span></span><span class="game-card-title">Halloween 2016</span><button class="game-card-star" type="button" aria-label="Favorite Halloween 2016" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="Milkman Karlson" data-game-url="https://www.crazygames.com/embed/milkman-karlson" data-game-domain="CrazyGames" data-cover=""><span class="game-cover-wrap"><span class="game-cover-fallback">🥛</span></span><span class="game-card-title">Milkman Karlson</span><button class="game-card-star" type="button" aria-label="Favorite Milkman Karlson" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="1v1.LOL" data-game-url="https://1v1.lol/" data-game-domain="1v1.LOL" data-cover=""><span class="game-cover-wrap"><span class="game-cover-fallback">🔴</span></span><span class="game-card-title">1v1.LOL</span><button class="game-card-star" type="button" aria-label="Favorite 1v1.LOL" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="Basketball FRVR" data-game-url="https://basketball.frvr.com/" data-game-domain="FRVR" data-cover=""><span class="game-cover-wrap"><span class="game-cover-fallback">🏀</span></span><span class="game-card-title">Basketball FRVR</span><button class="game-card-star" type="button" aria-label="Favorite Basketball FRVR" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="Phantasy Star IV" data-game-url="https://www.crazygames.com" data-game-domain="Web Game" data-cover=""><span class="game-cover-wrap"><span class="game-cover-fallback">🧙</span></span><span class="game-card-title">Phantasy Star IV</span><button class="game-card-star" type="button" aria-label="Favorite Phantasy Star IV" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="Donkey Kong 64" data-game-url="https://www.crazygames.com" data-game-domain="Web Game" data-cover=""><span class="game-cover-wrap"><span class="game-cover-fallback">🦍</span></span><span class="game-card-title">Donkey Kong 64</span><button class="game-card-star" type="button" aria-label="Favorite Donkey Kong 64" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="Getaway Shooter" data-game-url="https://www.crazygames.com/embed/getaway-shootout" data-game-domain="CrazyGames" data-cover=""><span class="game-cover-wrap"><span class="game-cover-fallback">🚙</span></span><span class="game-card-title">Getaway Shooter</span><button class="game-card-star" type="button" aria-label="Favorite Getaway Shooter" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="Papa's Hotdoggeria" data-game-url="https://www.coolmathgames.com/0-papas-hot-doggeria" data-game-domain="Coolmath Games" data-cover=""><span class="game-cover-wrap"><span class="game-cover-fallback">🌭</span></span><span class="game-card-title">Papa's Hotdoggeria</span><button class="game-card-star" type="button" aria-label="Favorite Papa's Hotdoggeria" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="Slope" data-game-url="https://www.crazygames.com/embed/slope" data-game-domain="CrazyGames" data-cover=""><span class="game-cover-wrap"><span class="game-cover-fallback">🔴</span></span><span class="game-card-title">Slope</span><button class="game-card-star" type="button" aria-label="Favorite Slope" aria-pressed="false">☆</button></button>
+        <button class="game-library-card" data-game-title="2048" data-game-url="https://www.crazygames.com/embed/2048" data-game-domain="CrazyGames" data-cover=""><span class="game-cover-wrap"><span class="game-cover-fallback">🔢</span></span><span class="game-card-title">2048</span><button class="game-card-star" type="button" aria-label="Favorite 2048" aria-pressed="false">☆</button></button>
       </div>
-      <p class="hint" style="margin:.8rem 0 0;">Some game providers block embedding. If one won't load, try another game or open the provider directly.</p>
+      <p class="hint" style="margin:.9rem 0 0;">Some games only allow play on their original site. If one doesn't load in the player, try another.</p>
     </div>
   </div>
 </div>
@@ -4343,6 +4369,37 @@ var STATUS_NOTICE = '';
 
 /* ===================== Cork7 Dedicated Game Tab ===================== */
 var tswCurrentGame = { title: 'Cork7 Arcade', url: 'https://cork7.com', domain: 'Cork7' };
+function loadGameFavorites() { try { return JSON.parse(localStorage.getItem('tsw.gameFavorites') || '[]'); } catch(e) { return []; } }
+function saveGameFavorites(items) { try { localStorage.setItem('tsw.gameFavorites', JSON.stringify(items)); } catch(e) {} }
+function initGameLibrary() {
+  var grid = $('game-library-grid'), search = $('game-library-search');
+  if (!grid || grid.dataset.ready) return;
+  grid.dataset.ready = '1';
+  grid.querySelectorAll('.game-library-card').forEach(function(card) {
+    var img = card.querySelector('img.game-cover');
+    var url = card.getAttribute('data-cover');
+    if (img && url) { img.addEventListener('error', function(){ img.style.display='none'; var fb=img.nextElementSibling; if(fb) fb.style.display='flex'; }); }
+    var star = card.querySelector('.game-card-star');
+    if (star) {
+      var title = card.getAttribute('data-game-title');
+      var favs = loadGameFavorites();
+      star.setAttribute('aria-pressed', favs.indexOf(title) >= 0 ? 'true' : 'false');
+      star.textContent = favs.indexOf(title) >= 0 ? '★' : '☆';
+      star.addEventListener('click', function(ev) {
+        ev.preventDefault(); ev.stopPropagation();
+        var list = loadGameFavorites(), idx = list.indexOf(title);
+        if (idx >= 0) list.splice(idx,1); else list.push(title);
+        saveGameFavorites(list);
+        star.setAttribute('aria-pressed', idx >= 0 ? 'false' : 'true');
+        star.textContent = idx >= 0 ? '☆' : '★';
+      });
+    }
+  });
+  if (search) search.addEventListener('input', function() {
+    var q = search.value.toLowerCase().trim();
+    grid.querySelectorAll('[data-game-url]').forEach(function(card) { card.hidden = !card.textContent.toLowerCase().includes(q); });
+  });
+}
 function openEmbeddedGame(title, url, domain) {
   ['settings', 'addlink', 'games', 'info', 'log', 'gta-modal'].forEach(function (id) {
     var el = $(id); if (el) el.hidden = true;
@@ -4425,17 +4482,12 @@ if (gamesModalEl) {
     var gameCard = ev.target.closest('[data-game-url]');
     if (gameCard) {
       ev.stopPropagation();
+      initGameLibrary();
       gamesModalEl.hidden = true;
       openEmbeddedGame(gameCard.getAttribute('data-game-title'), gameCard.getAttribute('data-game-url'), gameCard.getAttribute('data-game-domain'));
     }
   });
-  var gameSearch = $('game-library-search');
-  if (gameSearch) gameSearch.addEventListener('input', function () {
-    var q = gameSearch.value.toLowerCase().trim();
-    gamesModalEl.querySelectorAll('[data-game-url]').forEach(function (card) {
-      card.hidden = !card.textContent.toLowerCase().includes(q);
-    });
-  });
+  if (gamesBtnEl) gamesBtnEl.addEventListener('click', initGameLibrary);
 }
 $('game-exit').addEventListener('click', exitCork7);
 $('game-reload').addEventListener('click', reloadCork7);
