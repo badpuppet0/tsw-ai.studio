@@ -600,6 +600,12 @@ html.glass-panels .phead button:hover { background: rgba(255,255,255,.08); }
   border-radius: 8px;
   margin: 0;
 }
+.game-library-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.65rem; }
+.game-library-card { width:100%; min-width:0; font:inherit; color:inherit; }
+.game-library-card .cork-card-left { text-align:left; }
+.game-library-card .cork-title { display:inline-block; }
+.game-library-card .cork-desc { display:inline-block; }
+@media(max-width:600px){.game-library-grid{grid-template-columns:1fr;}}
 .game-item-play-btn {
   flex: none;
   font-size: .8rem;
@@ -2804,25 +2810,26 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
     <div class="phead">
       <div style="display:flex;align-items:center;gap:.6rem;">
         <span style="font-size:1.2rem;">🎮</span>
-        <h2 id="gm-h" style="margin:0;font-size:1.05rem;font-weight:600;">Games</h2>
+        <div><h2 id="gm-h" style="margin:0;font-size:1.05rem;font-weight:600;">Games</h2><div style="font-size:.78rem;color:var(--steel);margin-top:.15rem;">Pick a game to open it in the mini player.</div></div>
       </div>
       <button data-close aria-label="Close">&times;</button>
     </div>
-    <div class="pbody" style="padding:1.15rem;">
-      <div class="cork-single-card" id="launch-cork7" role="button" tabindex="0">
-        <div class="cork-card-left">
-          <div class="cork-icon-badge">🕹️</div>
-          <div>
-            <div class="cork-title">Cork7 Arcade</div>
-            <div class="cork-desc">Play hundreds of free web games without downloads or restrictions.</div>
-          </div>
-        </div>
-        <button class="primary cork-play-btn" type="button" id="cork-play-btn">Play</button>
+    <div class="pbody" style="padding:1rem;">
+      <input id="game-library-search" type="search" placeholder="Search games..." aria-label="Search games" style="width:100%;box-sizing:border-box;margin-bottom:.8rem;">
+      <div class="game-library-grid" id="game-library-grid">
+        <button class="cork-single-card game-library-card" data-game-title="2048" data-game-url="https://www.crazygames.com/embed/2048" data-game-domain="CrazyGames"><span class="cork-card-left"><span class="cork-icon-badge">🔢</span><span><span class="cork-title">2048</span><br><span class="cork-desc">Slide tiles and combine numbers.</span></span></span><span class="primary cork-play-btn">Play</span></button>
+        <button class="cork-single-card game-library-card" data-game-title="Moto X3M" data-game-url="https://www.crazygames.com/embed/moto-x3m" data-game-domain="CrazyGames"><span class="cork-card-left"><span class="cork-icon-badge">🏍️</span><span><span class="cork-title">Moto X3M</span><br><span class="cork-desc">Race through obstacle courses.</span></span></span><span class="primary cork-play-btn">Play</span></button>
+        <button class="cork-single-card game-library-card" data-game-title="Shell Shockers" data-game-url="https://shellshock.io" data-game-domain="Shell Shockers"><span class="cork-card-left"><span class="cork-icon-badge">🥚</span><span><span class="cork-title">Shell Shockers</span><br><span class="cork-desc">Multiplayer egg battle game.</span></span></span><span class="primary cork-play-btn">Play</span></button>
+        <button class="cork-single-card game-library-card" data-game-title="Drift Hunters" data-game-url="https://www.crazygames.com/embed/drift-hunters" data-game-domain="CrazyGames"><span class="cork-card-left"><span class="cork-icon-badge">🚗</span><span><span class="cork-title">Drift Hunters</span><br><span class="cork-desc">Tune cars and drift around tracks.</span></span></span><span class="primary cork-play-btn">Play</span></button>
+        <button class="cork-single-card game-library-card" data-game-title="Little Alchemy 2" data-game-url="https://www.crazygames.com/embed/little-alchemy-2" data-game-domain="CrazyGames"><span class="cork-card-left"><span class="cork-icon-badge">🧪</span><span><span class="cork-title">Little Alchemy 2</span><br><span class="cork-desc">Combine items to discover new things.</span></span></span><span class="primary cork-play-btn">Play</span></button>
+        <button class="cork-single-card game-library-card" data-game-title="Slope" data-game-url="https://www.crazygames.com/embed/slope" data-game-domain="CrazyGames"><span class="cork-card-left"><span class="cork-icon-badge">🔴</span><span><span class="cork-title">Slope</span><br><span class="cork-desc">Keep the ball on the fast track.</span></span></span><span class="primary cork-play-btn">Play</span></button>
+        <button class="cork-single-card game-library-card" data-game-title="Cork7 Arcade" data-game-url="https://cork7.com" data-game-domain="Cork7"><span class="cork-card-left"><span class="cork-icon-badge">🕹️</span><span><span class="cork-title">Cork7 Arcade</span><br><span class="cork-desc">Browse a large collection of web games.</span></span></span><span class="primary cork-play-btn">Play</span></button>
+        <button class="cork-single-card game-library-card" data-game-title="Poki" data-game-url="https://poki.com" data-game-domain="Poki"><span class="cork-card-left"><span class="cork-icon-badge">🎯</span><span><span class="cork-title">Poki</span><br><span class="cork-desc">Explore a large game collection.</span></span></span><span class="primary cork-play-btn">Play</span></button>
       </div>
+      <p class="hint" style="margin:.8rem 0 0;">Some game providers block embedding. If one won't load, try another game or open the provider directly.</p>
     </div>
   </div>
 </div>
-
 <div class="overlay" id="info" hidden>
   <div class="panel" role="dialog" aria-modal="true" aria-labelledby="info-h">
     <div class="phead"><h2 id="info-h">Server info</h2><button data-close aria-label="Close">&times;</button></div>
@@ -4335,49 +4342,42 @@ var STATUS_NOTICE = '';
 })();
 
 /* ===================== Cork7 Dedicated Game Tab ===================== */
-function openCork7() {
+var tswCurrentGame = { title: 'Cork7 Arcade', url: 'https://cork7.com', domain: 'Cork7' };
+function openEmbeddedGame(title, url, domain) {
   ['settings', 'addlink', 'games', 'info', 'log', 'gta-modal'].forEach(function (id) {
     var el = $(id); if (el) el.hidden = true;
   });
-  if (typeof window.TSWMarkActiveTabAsGame === 'function') {
-    window.TSWMarkActiveTabAsGame('Cork7 Arcade', 'https://cork7.com');
-  }
-  // Keep the site visible behind the dimmed game overlay.
+  tswCurrentGame = { title: title, url: url, domain: domain || new URL(url).hostname };
+  if (typeof window.TSWMarkActiveTabAsGame === 'function') window.TSWMarkActiveTabAsGame(title, url);
   $('game-tab').hidden = false;
   var gView = $('game-view'), pill = $('game-status-pill');
+  var titleEl = $('game-tab').querySelector('.game-badge');
+  var domainEl = $('game-tab').querySelector('.game-site-pill');
+  if (titleEl) titleEl.textContent = title;
+  if (domainEl) domainEl.textContent = domain || new URL(url).hostname;
+  var reloadBtn = $('game-reload');
+  if (reloadBtn) reloadBtn.title = 'Reload ' + title;
   if (pill) pill.textContent = 'Loading…';
   gView.innerHTML = '';
-
-  var corkUrl = 'https://cork7.com';
   var e = window.TSWEngine;
-
   function createDirectFrame() {
     gView.innerHTML = '';
     var ifr = document.createElement('iframe');
-    ifr.src = corkUrl;
+    ifr.src = url;
     ifr.setAttribute('allow', 'fullscreen; autoplay; gamepad');
     ifr.setAttribute('loading', 'eager');
-    ifr.addEventListener('load', function () {
-      if (pill) pill.textContent = 'Active';
-    });
+    ifr.setAttribute('referrerpolicy', 'no-referrer');
+    ifr.addEventListener('load', function () { if (pill) pill.textContent = 'Loaded'; });
     gView.appendChild(ifr);
   }
-
   if (e && e.open) {
     Promise.resolve(e.ready).then(function () {
-      try {
-        e.open(corkUrl, gView);
-        if (pill) pill.textContent = 'Active';
-      } catch (err) {
-        createDirectFrame();
-      }
-    }).catch(function () {
-      createDirectFrame();
-    });
-  } else {
-    createDirectFrame();
-  }
+      try { e.open(url, gView); if (pill) pill.textContent = 'Opening…'; }
+      catch (err) { createDirectFrame(); }
+    }).catch(createDirectFrame);
+  } else createDirectFrame();
 }
+function openCork7() { openEmbeddedGame('Cork7 Arcade', 'https://cork7.com', 'Cork7'); }
 
 function exitCork7() {
   $('game-tab').hidden = true;
@@ -4391,20 +4391,12 @@ function exitCork7() {
 }
 
 function reloadCork7() {
-  var gView = $('game-view');
-  var ifr = gView.querySelector('iframe');
-  var pill = $('game-status-pill');
+  var gView = $('game-view'), ifr = gView.querySelector('iframe'), pill = $('game-status-pill');
   if (pill) pill.textContent = 'Reloading…';
   if (ifr) {
-    try {
-      ifr.src = ifr.src;
-      setTimeout(function () { if (pill) pill.textContent = 'Active'; }, 800);
-    } catch (e) {
-      openCork7();
-    }
-  } else {
-    openCork7();
-  }
+    try { ifr.src = ifr.src; setTimeout(function () { if (pill) pill.textContent = 'Loaded'; }, 900); }
+    catch (e) { openEmbeddedGame(tswCurrentGame.title, tswCurrentGame.url, tswCurrentGame.domain); }
+  } else openEmbeddedGame(tswCurrentGame.title, tswCurrentGame.url, tswCurrentGame.domain);
 }
 
 function toggleGameFullscreen() {
@@ -4430,13 +4422,19 @@ if (gamesBtnEl) {
 var gamesModalEl = $('games');
 if (gamesModalEl) {
   gamesModalEl.addEventListener('click', function (ev) {
-    var corkTarget = ev.target.closest('#launch-cork7, #cork-play-btn, .cork-single-card');
-    if (corkTarget) {
+    var gameCard = ev.target.closest('[data-game-url]');
+    if (gameCard) {
       ev.stopPropagation();
       gamesModalEl.hidden = true;
-      openCork7();
-      return;
+      openEmbeddedGame(gameCard.getAttribute('data-game-title'), gameCard.getAttribute('data-game-url'), gameCard.getAttribute('data-game-domain'));
     }
+  });
+  var gameSearch = $('game-library-search');
+  if (gameSearch) gameSearch.addEventListener('input', function () {
+    var q = gameSearch.value.toLowerCase().trim();
+    gamesModalEl.querySelectorAll('[data-game-url]').forEach(function (card) {
+      card.hidden = !card.textContent.toLowerCase().includes(q);
+    });
   });
 }
 $('game-exit').addEventListener('click', exitCork7);
