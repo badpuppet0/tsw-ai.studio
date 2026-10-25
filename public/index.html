@@ -608,11 +608,47 @@ html.glass-panels .phead button:hover { background: rgba(255,255,255,.08); }
   margin-top: 0;
 }
 
-/* Dedicated Non-Browser Game Tab */
+/* In-site mini game window */
 #game-tab {
-  position: fixed; inset: 0; z-index: 3; display: flex; flex-direction: column; background: #030712;
+  position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 5vh 4vw;
+  box-sizing: border-box; background: rgba(5, 4, 12, .68);
+  -webkit-backdrop-filter: blur(9px); backdrop-filter: blur(9px);
 }
 #game-tab[hidden] { display: none; }
+#game-tab .game-bar,
+#game-tab #game-view {
+  width: min(1050px, 92vw); box-sizing: border-box;
+}
+#game-tab .game-bar {
+  height: 49px; min-height: 49px; flex: none; border: 1px solid rgba(167, 139, 250, .24);
+  border-radius: 10px 10px 0 0; box-shadow: 0 18px 55px rgba(0,0,0,.5);
+}
+#game-tab #game-view {
+  height: min(68vh, 650px); min-height: 220px; flex: none;
+  border: 1px solid rgba(167, 139, 250, .24); border-top: 0;
+  border-radius: 0 0 10px 10px; overflow: hidden;
+  box-shadow: 0 18px 55px rgba(0,0,0,.5);
+}
+#game-tab #game-view iframe { border-radius: 0 0 10px 10px; }
+#game-tab:fullscreen {
+  padding: 0; background: #030712; backdrop-filter: none;
+  align-items: stretch; justify-content: stretch;
+}
+#game-tab:fullscreen .game-bar,
+#game-tab:fullscreen #game-view { width: 100%; max-width: none; }
+#game-tab:fullscreen #game-view { height: auto; flex: 1; min-height: 0; border-radius: 0; }
+@media (max-width: 650px) {
+  #game-tab { padding: 8vh 3vw; }
+  #game-tab .game-bar { width: 94vw; padding: 0 .5rem; }
+  #game-tab .game-title-wrap { gap: .35rem; min-width: 0; }
+  #game-tab .game-badge { font-size: .75rem; padding: .2rem .4rem; }
+  #game-tab .game-site-pill, #game-tab #game-status-pill,
+  #game-tab #btn-game-toggle-sb { display: none; }
+  #game-tab .game-actions { gap: .25rem; }
+  #game-tab .game-act-btn { padding: .32rem .45rem; font-size: .72rem; }
+  #game-tab #game-view { width: 94vw; height: 62vh; min-height: 220px; }
+}
 .game-bar {
   height: 48px; flex: none; display: flex; align-items: center; justify-content: space-between;
   padding: 0 .9rem; background: rgba(10, 15, 26, 0.95); backdrop-filter: blur(16px);
@@ -4306,8 +4342,7 @@ function openCork7() {
   if (typeof window.TSWMarkActiveTabAsGame === 'function') {
     window.TSWMarkActiveTabAsGame('Cork7 Arcade', 'https://cork7.com');
   }
-  $('home').hidden = true;
-  $('browse').hidden = true;
+  // Keep the site visible behind the dimmed game overlay.
   $('game-tab').hidden = false;
   var gView = $('game-view'), pill = $('game-status-pill');
   if (pill) pill.textContent = 'Loading…';
@@ -4348,8 +4383,6 @@ function exitCork7() {
   $('game-tab').hidden = true;
   if (typeof window.TSWExitGameTab === 'function') {
     window.TSWExitGameTab();
-  } else {
-    $('home').hidden = false;
   }
   $('game-view').innerHTML = '';
   if (document.fullscreenElement) {
