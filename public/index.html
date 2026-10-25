@@ -2275,6 +2275,7 @@ html[data-theme="light"] .discord-note a:hover {
 .settings-group { margin: 1.25rem 0 .2rem; padding-top: .85rem; border-top: 1px solid var(--edge); color: var(--blue-hi); font-size: .78rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
 .settings-group:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
 html.reduced-motion *, html.reduced-motion *::before, html.reduced-motion *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .001ms !important; }
+html.reduced-motion .load.on { animation: none !important; width: 92%; transform: none; }
 </style>
 </head>
 <body>
@@ -3617,6 +3618,7 @@ store.remove = store.del;
   }
 
   function frame(t) {
+    still = matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.classList.contains('reduced-motion');
     var o = opt(), se = still ? '' : seasonOf(o), i;
     curMouseX += (mouseX - curMouseX) * 0.035;
     curMouseY += (mouseY - curMouseY) * 0.035;
@@ -5249,10 +5251,10 @@ document.addEventListener('keydown', function (ev) {
 
   var MSG = {
     blocked: ['This site is probably blocking proxies', 'Sites with bot checks, logins, or video streaming often refuse traffic that comes from a server. Nothing is wrong with TSW v2. Try another site, or search for what you need instead.'],
-    unreachable: ['TSW v2 couldn\u2019t reach this site', 'The address may have a typo, the site may be down, or it may refuse connections from this server. Check the address and try again.'],
+    unreachable: ['Couldn’t reach this site', 'Check the address for typos. The site may be offline or may not allow proxy connections. You can retry or open a different site.'],
     secure: ['A secure connection problem', 'The site\u2019s security check didn\u2019t go through the proxy. Reloading sometimes helps, but some sites will not work here.'],
-    server: ['TSW v2\u2019s server is having trouble', 'The proxy server looks down or is waking up. Wait a minute, then reload.'],
-    slow: ['This is taking a while', 'Heavy sites can load slowly on the free server. You can keep waiting, reload, or try another site.'],
+    server: ['TSW is waking up or having trouble', 'The proxy server may be starting after being idle. Give it a moment, then retry. If it still fails, check the server status and try again later.'],
+    slow: ['This is taking longer than usual', 'The site may be large or the proxy may be slow to respond. You can keep waiting, reload the page, or try another site.'],
     error: ['Something went wrong loading this site', 'The proxy returned an error page. Reload once, and if it keeps happening, this is likely a site TSW v2 can\u2019t handle.'],
     popup: ['Your browser blocked the new tab', 'Allow pop-ups for this site, or copy the address and paste it into a new tab.']
   };
