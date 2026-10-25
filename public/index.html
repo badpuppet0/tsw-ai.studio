@@ -3506,7 +3506,7 @@ store.remove = store.del;
     var reduced = still || document.documentElement.classList.contains('reduced-motion');
     var tt = reduced ? 0 : t;
     var cx = curMouseX || w * .5, cy = curMouseY || h * .5;
-    var mx = cx - w * .5, my = cy - h * .5;
+    var mx = reduced ? 0 : cx - w * .5, my = reduced ? 0 : cy - h * .5;
     var minDim = Math.min(w, h);
     var radius = Math.max(230, minDim * .58);
     /* Broad, overlapping color fields keep the mesh soft instead of neon. */
