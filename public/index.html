@@ -2696,7 +2696,7 @@ html[data-theme="light"] .discord-note a:hover {
       <p class="hint">Google may ask you to prove you are not a robot.</p>
 
       <label for="set-bg">Background</label>
-      <select id="set-bg"><option value="stars">Stars</option><option value="solid">Custom</option><option value="video">Video</option><option value="ice">Ice waves</option></select>
+      <select id="set-bg"><option value="stars">Stars</option><option value="solid">Custom</option><option value="video">Video</option><option value="ice">Ice waves</option><option value="aurora">Aurora Flow (interactive)</option></select>
       <p class="hint">Ice waves react to your mouse or finger. On the stars background, click a star to make it shine.</p>
       <label for="set-solid">Custom background color</label>
       <input type="color" id="set-solid" value="#0a0f1c">
@@ -3042,7 +3042,7 @@ store.remove = store.del;
   var w = 0, h = 0, dpr = 1, next = 0, nextShine = 1500, lastRipple = 0, lastX = 0, lastY = 0, seeded = '', bgSeeded = '';
   var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var COLORS = ['#ffffff', '#ffffff', '#ffffff', '#e0f2fe', '#bae6fd', '#7dd3fc', '#38bdf8', '#c084fc', '#fde047', '#fed7aa', '#fca5a5'];
-  var BGS = ['stars', 'solid', 'video', 'ice'];
+  var BGS = ['stars', 'solid', 'video', 'ice', 'aurora'];
   var GRADS = {
     ice: [[0, '#020711'], [1, '#07203a']], aurora: [[0, '#01040a'], [1, '#06102a']], rain: [[0, '#0a111e'], [1, '#162033']],
     city: [[0, '#05060f'], [.65, '#1b1236'], [1, '#4a2250']], ocean: [[0, '#03060f'], [.55, '#0b1834'], [.5501, '#08162c'], [1, '#020711']]
@@ -3467,13 +3467,23 @@ store.remove = store.del;
     [{ c: '60,255,170', y: .36, a: .20, s: .00022, p: 0 }, { c: '90,230,200', y: .46, a: .15, s: .00031, p: 2 },
      { c: '160,110,255', y: .40, a: .17, s: .00026, p: 4 }, { c: '120,255,160', y: .52, a: .12, s: .00019, p: 1 }].forEach(function (b) {
       for (var x = 0; x <= w; x += 8) {
-        var n = Math.sin(x * .004 + tt * b.s * 6 + b.p) * .5 + Math.sin(x * .0095 - tt * b.s * 4 + b.p * 2) * .3 + Math.sin(x * .0021 + tt * b.s * 2) * .2;
+        var cursorPull = mouseX ? (mouseX / Math.max(w, 1) - .5) * .9 : 0;
+        var cursorLift = mouseY ? (mouseY / Math.max(h, 1) - .5) * .18 : 0;
+        var n = Math.sin(x * .004 + tt * b.s * 6 + b.p + cursorPull) * .5 + Math.sin(x * .0095 - tt * b.s * 4 + b.p * 2 + cursorPull * 1.7) * .3 + Math.sin(x * .0021 + tt * b.s * 2 + cursorLift) * .2;
         var rim = h * b.y + n * h * .10, ht = h * (.20 + .10 * Math.sin(x * .006 + tt * b.s * 5 + b.p * 3));
         var gr = g.createLinearGradient(0, rim - ht, 0, rim);
         gr.addColorStop(0, 'rgba(' + b.c + ',0)'); gr.addColorStop(.85, 'rgba(' + b.c + ',' + b.a + ')'); gr.addColorStop(1, 'rgba(' + b.c + ',' + (b.a * 1.5) + ')');
         g.fillStyle = gr; g.fillRect(x, rim - ht, 9, ht);
       }
     });
+    // Soft light follows the pointer, making the aurora respond as you move around.
+    if (!still && mouseX > 0 && mouseY > 0) {
+      var glow = g.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, Math.max(150, Math.min(w, h) * .32));
+      glow.addColorStop(0, 'rgba(90,255,205,0.12)');
+      glow.addColorStop(.45, 'rgba(115,105,255,0.07)');
+      glow.addColorStop(1, 'rgba(90,255,205,0)');
+      g.fillStyle = glow; g.fillRect(0, 0, w, h);
+    }
     g.globalCompositeOperation = prev;
   }
 
@@ -3998,7 +4008,7 @@ var STATUS_NOTICE = '';
   var ENGINES = { ddg: 'https://duckduckgo.com/?q=', google: 'https://www.google.com/search?q=', bing: 'https://www.bing.com/search?q=',
                   brave: 'https://search.brave.com/search?q=', startpage: 'https://www.startpage.com/sp/search?query=' };
   var ACCENTS = { blue: '#5aa2ff', green: '#46d38a', pink: '#ff6fb1', orange: '#ff9a4d', violet: '#a78bfa' };
-  var BGS = ['stars', 'solid', 'video', 'ice'];
+  var BGS = ['stars', 'solid', 'video', 'ice', 'aurora'];
   var ICONS = {
     "default": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2305070f'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%235aa2ff'/%3E%3C/svg%3E",
     doc: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M8 3h11l6 6v20H8z' fill='%23dfe5f0'/%3E%3Cpath d='M19 3v6h6z' fill='%23aab4c9'/%3E%3C/svg%3E",
