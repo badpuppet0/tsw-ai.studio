@@ -2696,7 +2696,7 @@ html[data-theme="light"] .discord-note a:hover {
       <p class="hint">Google may ask you to prove you are not a robot.</p>
 
       <label for="set-bg">Background</label>
-      <select id="set-bg"><option value="stars">Stars</option><option value="solid">Custom</option><option value="video">Video</option><option value="ice">Ice waves</option><option value="aurora">Aurora Flow (interactive)</option></select>
+      <select id="set-bg"><option value="stars">Stars</option><option value="solid">Custom</option><option value="video">Video</option><option value="ice">Ice waves</option><option value="aurora">Aurora Flow</option><option value="mesh">TSW Liquid Mesh (interactive)</option></select>
       <p class="hint">Ice waves react to your mouse or finger. On the stars background, click a star to make it shine.</p>
       <label for="set-solid">Custom background color</label>
       <input type="color" id="set-solid" value="#0a0f1c">
@@ -3042,7 +3042,7 @@ store.remove = store.del;
   var w = 0, h = 0, dpr = 1, next = 0, nextShine = 1500, lastRipple = 0, lastX = 0, lastY = 0, seeded = '', bgSeeded = '';
   var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var COLORS = ['#ffffff', '#ffffff', '#ffffff', '#e0f2fe', '#bae6fd', '#7dd3fc', '#38bdf8', '#c084fc', '#fde047', '#fed7aa', '#fca5a5'];
-  var BGS = ['stars', 'solid', 'video', 'ice', 'aurora'];
+  var BGS = ['stars', 'solid', 'video', 'ice', 'aurora', 'mesh'];
   var GRADS = {
     ice: [[0, '#020711'], [1, '#07203a']], aurora: [[0, '#01040a'], [1, '#06102a']], rain: [[0, '#0a111e'], [1, '#162033']],
     city: [[0, '#05060f'], [.65, '#1b1236'], [1, '#4a2250']], ocean: [[0, '#03060f'], [.55, '#0b1834'], [.5501, '#08162c'], [1, '#020711']]
@@ -3191,6 +3191,8 @@ store.remove = store.del;
       g.fillStyle = gr; g.fillRect(0, 0, w, h);
     } else if (o.bg === 'solid') {
       g.fillStyle = o.solid; g.fillRect(0, 0, w, h);
+    } else if (o.bg === 'mesh') {
+      g.fillStyle = '#050816'; g.fillRect(0, 0, w, h);
     } else if (o.bg === 'stars') {
       // Deep cosmic space void matching user reference image
       g.fillStyle = '#020308';
@@ -3487,6 +3489,44 @@ store.remove = store.del;
     g.globalCompositeOperation = prev;
   }
 
+  /* ---- TSW Liquid Mesh: cursor-reactive flowing brand colors ---- */
+  function drawMesh(t) {
+    var tt = still ? 0 : t;
+    var cx = curMouseX || w * .5, cy = curMouseY || h * .5;
+    var minDim = Math.min(w, h);
+    var radius = Math.max(210, minDim * .52);
+    var blobs = [
+      { x: w * .18 + Math.sin(tt * .00019) * w * .10 + (cx - w * .5) * .20,
+        y: h * .30 + Math.cos(tt * .00023) * h * .10 + (cy - h * .5) * .17,
+        r: radius * 1.05, c: '90,162,255', a: .27 },
+      { x: w * .77 + Math.cos(tt * .00016 + 1.5) * w * .12 + (cx - w * .5) * .27,
+        y: h * .68 + Math.sin(tt * .00021 + 1.5) * h * .13 + (cy - h * .5) * .22,
+        r: radius * 1.12, c: '80,95,255', a: .24 },
+      { x: w * .54 + Math.sin(tt * .00013 + 3) * w * .13 + (cx - w * .5) * .34,
+        y: h * .16 + Math.cos(tt * .00018 + 3) * h * .12 + (cy - h * .5) * .26,
+        r: radius * .82, c: '30,210,255', a: .19 }
+    ];
+    g.save();
+    g.globalCompositeOperation = 'screen';
+    blobs.forEach(function (b) {
+      var gr = g.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+      gr.addColorStop(0, 'rgba(' + b.c + ',' + b.a + ')');
+      gr.addColorStop(.42, 'rgba(' + b.c + ',' + (b.a * .62) + ')');
+      gr.addColorStop(1, 'rgba(' + b.c + ',0)');
+      g.fillStyle = gr;
+      g.fillRect(0, 0, w, h);
+    });
+    if (mouseX > 0 && mouseY > 0) {
+      var spot = g.createRadialGradient(cx, cy, 0, cx, cy, radius * .68);
+      spot.addColorStop(0, 'rgba(90,162,255,0.16)');
+      spot.addColorStop(.45, 'rgba(70,115,255,0.08)');
+      spot.addColorStop(1, 'rgba(5,8,22,0)');
+      g.fillStyle = spot;
+      g.fillRect(0, 0, w, h);
+    }
+    g.restore();
+  }
+
   /* ---- rain on glass: soft lights behind sliding drops ---- */
   function drawRain(t) {
     var i, d;
@@ -3619,6 +3659,7 @@ store.remove = store.del;
     }
     if (o.bg === 'ice') drawWaves(t);
     else if (o.bg === 'aurora') drawAurora(t);
+    else if (o.bg === 'mesh') drawMesh(t);
     else if (o.bg === 'rain') drawRain(t);
     else if (o.bg === 'city') drawCity(t);
     else if (o.bg === 'ocean') drawOcean(t);
@@ -3721,6 +3762,7 @@ store.remove = store.del;
     if (still || !$('browse').hidden || !$('game-tab').hidden || interactive(ev.target)) return;
     var o = opt();
     if (o.bg === 'ice') { ripples.push({ x: ev.clientX, y: ev.clientY, a: 42, age: 0 }); if (ripples.length > 14) ripples.shift(); return; }
+    if (o.bg === 'mesh' || o.bg === 'aurora') return;
     var best = null, bd = 2500, i;   /* nearest visible star within 50px */
     for (i = 0; i < stars.length; i++) {
       if (!showStar(o.bg, stars[i], i)) continue;
@@ -4008,7 +4050,7 @@ var STATUS_NOTICE = '';
   var ENGINES = { ddg: 'https://duckduckgo.com/?q=', google: 'https://www.google.com/search?q=', bing: 'https://www.bing.com/search?q=',
                   brave: 'https://search.brave.com/search?q=', startpage: 'https://www.startpage.com/sp/search?query=' };
   var ACCENTS = { blue: '#5aa2ff', green: '#46d38a', pink: '#ff6fb1', orange: '#ff9a4d', violet: '#a78bfa' };
-  var BGS = ['stars', 'solid', 'video', 'ice', 'aurora'];
+  var BGS = ['stars', 'solid', 'video', 'ice', 'aurora', 'mesh'];
   var ICONS = {
     "default": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2305070f'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%235aa2ff'/%3E%3C/svg%3E",
     doc: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M8 3h11l6 6v20H8z' fill='%23dfe5f0'/%3E%3Cpath d='M19 3v6h6z' fill='%23aab4c9'/%3E%3C/svg%3E",
