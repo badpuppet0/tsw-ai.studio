@@ -22,10 +22,17 @@ import {
 	addFriend,
 	removeFriend,
 	getFriendsList,
+	getIncomingFriendRequests,
+	acceptFriendRequest,
+	declineFriendRequest,
 	getDirectMessages,
 	sendDirectMessage,
+	deleteDirectMessage,
+	editDirectMessage,
 	getPublicMessages,
-	sendPublicMessage
+	sendPublicMessage,
+	deletePublicMessage,
+	editPublicMessage
 } from "./db/users.ts";
 import { verifyAuth } from "./middleware/auth.ts";
 
@@ -101,6 +108,62 @@ fastify.get("/api/info", async (req, reply) => {
 		time: Date.now(),
 		uptime: Math.round(process.uptime()),
 		ip: await serverIp(),
+	};
+});
+
+fastify.get("/api/geo", async (req, reply) => {
+	reply.header("Cache-Control", "no-store");
+	const forwarded = req.headers["x-forwarded-for"];
+	const rawIp = forwarded ? forwarded.split(",")[0].trim() : req.ip;
+	// Clean IPv6-mapped IPv4 e.g. ::ffff:1.2.3.4
+	const clientIp = rawIp ? rawIp.replace(/^::ffff:/, "") : "";
+
+	// Try ipwho.is with client IP if public, otherwise default query
+	const queryUrl = (clientIp && !clientIp.startsWith("127.") && !clientIp.startsWith("10.") && !clientIp.startsWith("192.168."))
+		? `https://ipwho.is/${clientIp}`
+		: "https://ipwho.is/";
+
+	try {
+		const res = await fetch(queryUrl, { signal: AbortSignal.timeout(3500) });
+		const data = await res.json();
+		if (data && data.success !== false && typeof data.latitude === "number" && typeof data.longitude === "number") {
+			return {
+				success: true,
+				ip: data.ip || clientIp,
+				city: data.city || "",
+				region: data.region || "",
+				country: data.country || "",
+				latitude: data.latitude,
+				longitude: data.longitude,
+				timezone: data.timezone?.id || Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York",
+			};
+		}
+	} catch (e) {}
+
+	// Fallback to ipapi.co
+	try {
+		const res2 = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(3500) });
+		const data2 = await res2.json();
+		if (data2 && typeof data2.latitude === "number" && typeof data2.longitude === "number") {
+			return {
+				success: true,
+				ip: data2.ip || clientIp,
+				city: data2.city || "",
+				region: data2.region || "",
+				country: data2.country_name || "",
+				latitude: data2.latitude,
+				longitude: data2.longitude,
+				timezone: data2.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York",
+			};
+		}
+	} catch (e2) {}
+
+	return {
+		success: false,
+		latitude: 40.7128,
+		longitude: -74.0060,
+		timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York",
+		city: "",
 	};
 });
 
@@ -434,6 +497,124 @@ fastify.post("/api/public-messages/:channel", async (req, reply) => {
 		return { success: true, message };
 	} catch (err) {
 		reply.code(err.message.includes("Authentication") ? 401 : 400);
+		return { success: false, error: err.message };
+	}
+});
+
+// Friend Requests API Routes
+fastify.get("/api/friends/requests", async (req, reply) => {
+	reply.header("Cache-Control", "no-store");
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const requests = await getIncomingFriendRequests(userId);
+		return { success: true, requests };
+	} catch (err) {
+		reply.code(400);
+		return { success: false, error: err.message };
+	}
+});
+
+fastify.post("/api/friends/accept/:requesterId", async (req, reply) => {
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const requesterId = parseInt(req.params.requesterId, 10);
+		if (isNaN(requesterId)) {
+			reply.code(400);
+			return { success: false, error: "Invalid requester ID" };
+		}
+		const result = await acceptFriendRequest(userId, requesterId);
+		return { success: true, ...result };
+	} catch (err) {
+		reply.code(400);
+		return { success: false, error: err.message };
+	}
+});
+
+fastify.post("/api/friends/decline/:requesterId", async (req, reply) => {
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const requesterId = parseInt(req.params.requesterId, 10);
+		if (isNaN(requesterId)) {
+			reply.code(400);
+			return { success: false, error: "Invalid requester ID" };
+		}
+		const result = await declineFriendRequest(userId, requesterId);
+		return { success: true, ...result };
+	} catch (err) {
+		reply.code(400);
+		return { success: false, error: err.message };
+	}
+});
+
+// Direct Message edit and delete
+fastify.delete("/api/messages/:id", async (req, reply) => {
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const messageId = parseInt(req.params.id, 10);
+		if (isNaN(messageId)) {
+			reply.code(400);
+			return { success: false, error: "Invalid message ID" };
+		}
+		const result = await deleteDirectMessage(userId, messageId);
+		return { success: true, ...result };
+	} catch (err) {
+		reply.code(400);
+		return { success: false, error: err.message };
+	}
+});
+
+fastify.put("/api/messages/:id", async (req, reply) => {
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const messageId = parseInt(req.params.id, 10);
+		const body = req.body || {};
+		const content = (body.content || "").trim();
+		if (isNaN(messageId) || !content) {
+			reply.code(400);
+			return { success: false, error: "Invalid message ID or empty content" };
+		}
+		const result = await editDirectMessage(userId, messageId, content);
+		return { success: true, ...result };
+	} catch (err) {
+		reply.code(400);
+		return { success: false, error: err.message };
+	}
+});
+
+// Public Message edit and delete
+fastify.delete("/api/public-messages/:id", async (req, reply) => {
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const messageId = parseInt(req.params.id, 10);
+		if (isNaN(messageId)) {
+			reply.code(400);
+			return { success: false, error: "Invalid message ID" };
+		}
+		const user = await getUserById(userId);
+		const username = (user?.username || "").toLowerCase();
+		const isAdmin = username.includes("admin") || username.includes("tsw");
+		const result = await deletePublicMessage(userId, messageId, isAdmin);
+		return { success: true, ...result };
+	} catch (err) {
+		reply.code(400);
+		return { success: false, error: err.message };
+	}
+});
+
+fastify.put("/api/public-messages/:id", async (req, reply) => {
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const messageId = parseInt(req.params.id, 10);
+		const body = req.body || {};
+		const content = (body.content || "").trim();
+		if (isNaN(messageId) || !content) {
+			reply.code(400);
+			return { success: false, error: "Invalid message ID or empty content" };
+		}
+		const result = await editPublicMessage(userId, messageId, content);
+		return { success: true, ...result };
+	} catch (err) {
+		reply.code(400);
 		return { success: false, error: err.message };
 	}
 });

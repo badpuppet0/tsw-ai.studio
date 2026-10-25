@@ -86,12 +86,17 @@ export async function signUpUser(username: string, password: string, email?: str
   const user = inserted[0];
   if (!user) throw new Error('Failed to create account.');
 
-  // Create initial member profile
   const starterShortcuts = [
+    { name: 'YouTube', url: 'https://www.youtube.com' },
     { name: 'TikTok', url: 'https://www.tiktok.com' },
+    { name: 'Geforce Now', url: 'https://play.geforcenow.com' },
+    { name: 'Roblox', url: 'https://www.roblox.com' },
+    { name: 'Twitch', url: 'https://www.twitch.tv' },
+    { name: 'Snapchat', url: 'https://www.snapchat.com' },
     { name: 'Instagram', url: 'https://www.instagram.com' },
-    { name: 'GeForce NOW', url: 'https://play.geforcenow.com' },
-    { name: 'Cork7', url: 'https://cork7.com' }
+    { name: 'Discord', url: 'https://discord.com/app' },
+    { name: 'GTA 5', url: 'gta5://options' },
+    { name: 'Movies', url: 'https://sflix.to' }
   ];
 
   const initialProfile = await db.insert(profiles).values({
@@ -193,10 +198,16 @@ export async function getOrCreateUser(uid: string, email: string) {
         themeColor: '#5aa2ff',
         bio: 'Explorer of the cosmos',
         shortcuts: JSON.stringify([
+          { name: 'YouTube', url: 'https://www.youtube.com' },
           { name: 'TikTok', url: 'https://www.tiktok.com' },
+          { name: 'Geforce Now', url: 'https://play.geforcenow.com' },
+          { name: 'Roblox', url: 'https://www.roblox.com' },
+          { name: 'Twitch', url: 'https://www.twitch.tv' },
+          { name: 'Snapchat', url: 'https://www.snapchat.com' },
           { name: 'Instagram', url: 'https://www.instagram.com' },
-          { name: 'GeForce NOW', url: 'https://play.geforcenow.com' },
-          { name: 'Cork7', url: 'https://cork7.com' }
+          { name: 'Discord', url: 'https://discord.com/app' },
+          { name: 'GTA 5', url: 'gta5://options' },
+          { name: 'Movies', url: 'https://sflix.to' }
         ]),
         preferences: JSON.stringify({
           searchEngine: 'https://www.google.com/search?q=',
@@ -332,6 +343,21 @@ export async function searchUsers(searchTerm: string, currentUserId: number) {
   }));
 }
 
+const PROFANITY_LIST = [
+  'fuck', 'shit', 'bitch', 'asshole', 'cunt', 'dick', 'pussy', 'whore', 'slut',
+  'fag', 'faggot', 'nigger', 'nigga', 'retard', 'cock', 'bastard', 'nazi', 'hitler'
+];
+
+export function filterProfanity(text: string): string {
+  if (!text) return '';
+  let res = text;
+  for (const word of PROFANITY_LIST) {
+    const regex = new RegExp(`\\b${word}\\b|\\b${word}s\\b|\\b${word}ing\\b|\\b${word}ed\\b`, 'gi');
+    res = res.replace(regex, (match) => '*'.repeat(match.length));
+  }
+  return res;
+}
+
 export async function addFriend(userId: number, targetUsername: string) {
   await ensureChatTables();
   const cleanTarget = targetUsername.trim().replace(/^@/, '');
@@ -344,26 +370,105 @@ export async function addFriend(userId: number, targetUsername: string) {
     throw new Error('You cannot add yourself as a friend');
   }
 
-  // Insert mutual friendship so both can chat immediately
+  // Check if existing friendship or request exists
+  const existingRows = await db.select().from(friends).where(
+    sql`(${friends.userId} = ${userId} AND ${friends.friendId} = ${targetUser.id}) OR (${friends.userId} = ${targetUser.id} AND ${friends.friendId} = ${userId})`
+  );
+
+  const existingFromMe = existingRows.find(r => r.userId === userId);
+  const existingToMe = existingRows.find(r => r.userId === targetUser.id);
+
+  if (existingFromMe && existingFromMe.status === 'accepted') {
+    return {
+      id: targetUser.id,
+      friendId: targetUser.id,
+      username: targetUser.username,
+      status: 'accepted',
+      isPending: false,
+      message: `You are already friends with @${targetUser.username}!`,
+    };
+  }
+
+  // If the target already sent us a request, approve it automatically!
+  if (existingToMe && existingToMe.status === 'pending') {
+    await db.execute(sql`
+      INSERT INTO friends (user_id, friend_id, status)
+      VALUES (${userId}, ${targetUser.id}, 'accepted')
+      ON CONFLICT (user_id, friend_id) DO UPDATE SET status = 'accepted';
+    `);
+    await db.execute(sql`
+      INSERT INTO friends (user_id, friend_id, status)
+      VALUES (${targetUser.id}, ${userId}, 'accepted')
+      ON CONFLICT (user_id, friend_id) DO UPDATE SET status = 'accepted';
+    `);
+    return {
+      id: targetUser.id,
+      friendId: targetUser.id,
+      username: targetUser.username,
+      status: 'accepted',
+      isPending: false,
+      message: `Accepted mutual friend request with @${targetUser.username}!`,
+    };
+  }
+
+  // Otherwise create a pending friend request requiring their approval
   await db.execute(sql`
     INSERT INTO friends (user_id, friend_id, status)
-    VALUES (${userId}, ${targetUser.id}, 'accepted')
-    ON CONFLICT (user_id, friend_id) DO UPDATE SET status = 'accepted';
-  `);
-  await db.execute(sql`
-    INSERT INTO friends (user_id, friend_id, status)
-    VALUES (${targetUser.id}, ${userId}, 'accepted')
-    ON CONFLICT (user_id, friend_id) DO UPDATE SET status = 'accepted';
+    VALUES (${userId}, ${targetUser.id}, 'pending')
+    ON CONFLICT (user_id, friend_id) DO UPDATE SET status = 'pending';
   `);
 
   return {
     id: targetUser.id,
     friendId: targetUser.id,
     username: targetUser.username,
-    avatar: 'astronaut',
-    isOnline: true,
-    online: true,
+    status: 'pending',
+    isPending: true,
+    message: `Friend request sent to @${targetUser.username}. Awaiting approval!`,
   };
+}
+
+export async function getIncomingFriendRequests(userId: number) {
+  await ensureChatTables();
+  const res = await db.execute(sql`
+    SELECT f.id, f.user_id as "requesterId", u.username, f.created_at as "createdAt"
+    FROM friends f
+    JOIN users u ON u.id = f.user_id
+    WHERE f.friend_id = ${userId} AND f.status = 'pending'
+    ORDER BY f.created_at DESC;
+  `);
+
+  return (res.rows || []).map((r: any) => ({
+    id: r.id,
+    requesterId: r.requesterId,
+    username: r.username || 'User',
+    createdAt: r.createdAt,
+  }));
+}
+
+export async function acceptFriendRequest(userId: number, requesterId: number) {
+  await ensureChatTables();
+  // Mark both records as accepted
+  await db.execute(sql`
+    INSERT INTO friends (user_id, friend_id, status)
+    VALUES (${userId}, ${requesterId}, 'accepted')
+    ON CONFLICT (user_id, friend_id) DO UPDATE SET status = 'accepted';
+  `);
+  await db.execute(sql`
+    INSERT INTO friends (user_id, friend_id, status)
+    VALUES (${requesterId}, ${userId}, 'accepted')
+    ON CONFLICT (user_id, friend_id) DO UPDATE SET status = 'accepted';
+  `);
+  const reqUser = await getUserById(requesterId);
+  return { success: true, friend: reqUser };
+}
+
+export async function declineFriendRequest(userId: number, requesterId: number) {
+  await ensureChatTables();
+  await db.delete(friends).where(
+    sql`${friends.userId} = ${requesterId} AND ${friends.friendId} = ${userId} AND ${friends.status} = 'pending'`
+  );
+  return { success: true };
 }
 
 export async function removeFriend(userId: number, friendId: number) {
@@ -394,7 +499,7 @@ export async function getFriendsList(userId: number) {
     FROM friends f
     JOIN users u ON u.id = f.friend_id
     LEFT JOIN profiles p ON p.user_id = u.id AND p.is_default = true
-    WHERE f.user_id = ${userId}
+    WHERE f.user_id = ${userId} AND f.status = 'accepted'
     ORDER BY "lastMessageTime" DESC NULLS LAST, u.username ASC
   `);
 
@@ -428,7 +533,7 @@ export async function getDirectMessages(userId: number, friendId: number) {
 
 export async function sendDirectMessage(senderId: number, receiverId: number, content: string) {
   await ensureChatTables();
-  const clean = content.trim();
+  const clean = filterProfanity(content.trim());
   if (!clean) throw new Error('Message content cannot be empty');
 
   const rec = await getUserById(receiverId);
@@ -449,6 +554,24 @@ export async function sendDirectMessage(senderId: number, receiverId: number, co
     createdAt: msg.createdAt,
     isMe: true,
   };
+}
+
+export async function deleteDirectMessage(userId: number, messageId: number) {
+  await ensureChatTables();
+  await db.delete(messages).where(
+    and(eq(messages.id, messageId), eq(messages.senderId, userId))
+  );
+  return { success: true };
+}
+
+export async function editDirectMessage(userId: number, messageId: number, content: string) {
+  await ensureChatTables();
+  const clean = filterProfanity(content.trim());
+  if (!clean) throw new Error('Content cannot be empty');
+  await db.update(messages).set({ content: clean }).where(
+    and(eq(messages.id, messageId), eq(messages.senderId, userId))
+  );
+  return { success: true, content: clean };
 }
 
 export async function getPublicMessages(channel: string) {
@@ -520,7 +643,7 @@ export async function getPublicMessages(channel: string) {
 
 export async function sendPublicMessage(channel: string, userId: number, content: string) {
   const cleanChannel = ['chat-1', 'chat-2', 'announcements'].includes(channel) ? channel : 'chat-1';
-  const cleanContent = (content || '').trim();
+  const cleanContent = filterProfanity((content || '').trim());
   if (!cleanContent) {
     throw new Error('Message content cannot be empty');
   }
@@ -555,5 +678,25 @@ export async function sendPublicMessage(channel: string, userId: number, content
     content: msg.content,
     createdAt: msg.createdAt,
   };
+}
+
+export async function deletePublicMessage(userId: number, messageId: number, isAdmin: boolean) {
+  if (isAdmin) {
+    await db.delete(publicMessages).where(eq(publicMessages.id, messageId));
+  } else {
+    await db.delete(publicMessages).where(
+      and(eq(publicMessages.id, messageId), eq(publicMessages.userId, userId))
+    );
+  }
+  return { success: true };
+}
+
+export async function editPublicMessage(userId: number, messageId: number, content: string) {
+  const clean = filterProfanity((content || '').trim());
+  if (!clean) throw new Error('Message content cannot be empty');
+  await db.update(publicMessages).set({ content: clean }).where(
+    and(eq(publicMessages.id, messageId), eq(publicMessages.userId, userId))
+  );
+  return { success: true, content: clean };
 }
 
