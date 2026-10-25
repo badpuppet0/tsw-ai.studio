@@ -5062,9 +5062,9 @@ document.addEventListener('keydown', function (ev) {
       if (opt) {
         var gtaUrl = opt.getAttribute('data-gta-url');
         gtaModalEl.hidden = true;
-        if (typeof window.TSWOpen === 'function') {
-          window.TSWOpen(gtaUrl);
-        }
+        // Launch GTA mirrors in a real browser tab so they are not trapped inside the proxy iframe.
+        // The destination URL stays unchanged; branding the address itself requires a TSW-hosted proxy route.
+        window.open(gtaUrl, '_blank', 'noopener,noreferrer');
       }
     });
   }
