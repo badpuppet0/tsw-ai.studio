@@ -446,6 +446,16 @@ html.glass-panels .phead button:hover { background: rgba(255,255,255,.08); }
 
 @media (max-width: 480px) { #btn-fwd, #btn-newtab { display: none; } }
 @media (prefers-reduced-motion: reduce) { .shake, .status .dot, .spin { animation: none; } .load.on { animation-duration: 0s; width: 92%; } }
+/* Smooth, restrained page and tab transitions. */
+@keyframes tswPageEnter { from { opacity:0; transform:translateY(7px) scale(.997); filter:blur(2px); } to { opacity:1; transform:translateY(0) scale(1); filter:blur(0); } }
+#home, #browse, #game-tab, .web-tab-view { animation:tswPageEnter .28s cubic-bezier(.2,.75,.25,1) both; }
+#sidebar, .sb-tab, .sb-icon-btn, button, .game-act-btn, .shortcut, .card { transition-duration:.2s; transition-timing-function:cubic-bezier(.2,.75,.25,1); }
+#sky { transition:opacity .6s ease; }
+body.sidebar-collapsed #sidebar { box-shadow:8px 0 30px rgba(0,0,0,.14); }
+@media (prefers-reduced-motion:reduce) {
+ #home,#browse,#game-tab,.web-tab-view { animation:none!important; }
+ #sidebar, .sb-tab, .sb-icon-btn, button, .game-act-btn, .shortcut, .card, #sky { transition:none!important; }
+}
 
 /* ---- v1.2 additions ---- */
 .cog { width: 3rem; height: 3rem; }
@@ -3235,6 +3245,21 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
 <script src="engine.js"></script>
 
 <script>
+
+/* Basic casual-inspection deterrents only; browser tools cannot be securely disabled. */
+(function(){
+  document.addEventListener('contextmenu',function(e){
+    if (!e.target.closest('input,textarea,[contenteditable="true"]')) e.preventDefault();
+  });
+  document.addEventListener('keydown',function(e){
+    var key=(e.key||'').toLowerCase();
+    if (key==='f12' || (e.ctrlKey && e.shiftKey && ['i','j','c'].includes(key)) ||
+        (e.ctrlKey && key==='u')) {
+      e.preventDefault(); e.stopPropagation();
+    }
+  },true);
+})();
+
 function $(id) { return document.getElementById(id); }
 function escapeHtml(str) {
   if (!str) return '';
@@ -3651,10 +3676,10 @@ store.remove = store.del;
     var tt = still ? 0 : t, i, k, x, pts, y, rp, d, env, wgt;
     for (k = ripples.length - 1; k >= 0; k--) { ripples[k].age++; if (ripples[k].age > 140) ripples.splice(k, 1); }
     for (i = 0; i < 6; i++) {
-      var base = h * (.42 + i * .1), amp = 16 + i * 7, f1 = .0045 - i * .0004, f2 = .011 - i * .0006, sp = .00042 + i * .00009;
+      var base = h * (.38 + i * .105), amp = 24 + i * 10, f1 = .0038 - i * .00032, f2 = .009 - i * .0005, sp = .00078 + i * .00013;
       pts = [];
       for (x = 0; x <= w + 8; x += 8) {
-        y = base + Math.sin(x * f1 + tt * sp * 6 + i) * amp + Math.sin(x * f2 - tt * sp * 9 + i * 2) * amp * .45;
+        y = base + Math.sin(x * f1 + tt * sp * 9 + i) * amp + Math.sin(x * f2 - tt * sp * 13 + i * 2) * amp * .62 + Math.sin(x * .0018 + tt * sp * 4 + i * .7) * amp * .3;
         for (k = 0; k < ripples.length; k++) {
           rp = ripples[k]; d = x - rp.x;
           wgt = Math.exp(-Math.pow(base - rp.y, 2) / (2 * 140 * 140)) * .9 + .25;
@@ -4272,7 +4297,7 @@ var STATUS_NOTICE = '';
     globe: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%235aa2ff' stroke-width='2.5'/%3E%3Cpath d='M4 16h24M16 4c-6 7-6 17 0 24M16 4c6 7 6 17 0 24' fill='none' stroke='%235aa2ff' stroke-width='2'/%3E%3C/svg%3E",
     blank: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E"
   };
-  var D = { engine: 'ddg', stars: true, shoot: true, title: '', icon: 'default', bg: 'mesh', season: 'auto', solid: '#0a0f1c',
+  var D = { engine: 'ddg', stars: false, shoot: false, title: '', icon: 'default', bg: 'ice', season: 'auto', solid: '#0a0f1c',
             vsrc: 'site', vbright: 60, accent: 'blue', clock: '12', panel: 'standard', theme: 'dark', rain: false, rainVol: 40, reducedMotion: false, panicKey: '', panicUrl: '' };
   var cfg = {};
   Object.keys(D).forEach(function (k) { cfg[k] = store.get('tsw.' + k, D[k]); });
@@ -5686,10 +5711,18 @@ document.addEventListener('keydown', function (ev) {
       });
     }
 
+    // Replay a subtle enter animation whenever the visible section changes.
+    var animateOnSwitch = function(el) {
+      if (!el) return;
+      el.style.animation = 'none';
+      void el.offsetWidth;
+      el.style.animation = '';
+    };
     if (tab.isGame) {
       home.hidden = true;
       browse.hidden = true;
       $('game-tab').hidden = false;
+      animateOnSwitch($('game-tab'));
       view.querySelectorAll('.web-tab-view').forEach(function (v) { v.style.display = 'none'; });
       loading(false);
       hideDiag();
@@ -5698,6 +5731,7 @@ document.addEventListener('keydown', function (ev) {
       $('game-tab').hidden = true;
       browse.hidden = true;
       home.hidden = false;
+      animateOnSwitch(home);
       view.querySelectorAll('.web-tab-view').forEach(function (v) { v.style.display = 'none'; });
       loading(false);
       hideDiag();
@@ -5709,7 +5743,9 @@ document.addEventListener('keydown', function (ev) {
       browse.hidden = false;
       view.querySelectorAll('.web-tab-view').forEach(function (v) {
         v.style.display = (v.id === 'view-' + id) ? 'block' : 'none';
+        if (v.id === 'view-' + id) animateOnSwitch(v);
       });
+      animateOnSwitch(browse);
       current = tab.url;
       addr.value = tab.url;
       setNav();
@@ -5995,7 +6031,7 @@ document.addEventListener('keydown', function (ev) {
   // Keep sidebar collapsed by default on phones (< 640px)
   var savedCollapsed = store.get(SB_COLLAPSED_KEY, null);
   var isPhone = window.innerWidth < 640;
-  if (savedCollapsed === true || (savedCollapsed === null && isPhone)) {
+  if (savedCollapsed === null || savedCollapsed === true) {
     document.body.classList.add('sidebar-collapsed');
   }
 
