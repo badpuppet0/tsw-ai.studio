@@ -350,6 +350,11 @@ html, body { height: 100%; background: var(--void); color: var(--ink); overflow:
   display: flex; align-items: center; gap: .55rem; max-width: min(22rem, calc(100vw - 1.8rem));
   background: rgba(11,14,23,.78); border: 1px solid var(--edge); border-radius: 999px; padding: .4rem .85rem .4rem .7rem;
   color: var(--steel); font-size: .82rem; line-height: 1.25; backdrop-filter: blur(6px); }
+#status[data-s="warn"] { left: 50%; bottom: max(.85rem, env(safe-area-inset-bottom)); transform: translateX(-50%);
+  width: max-content; max-width: calc(100vw - 2rem); padding: .48rem .8rem; border-radius: 8px;
+  background: rgba(62, 46, 16, .94); border: 1px solid rgba(245,197,66,.62); color: #ffe3a3;
+  box-shadow: 0 4px 18px rgba(0,0,0,.2); }
+#status[data-s="warn"] .dot { background: #f5c542; box-shadow: 0 0 0 3px rgba(245,197,66,.15); }
 .status svg { width: 1rem; height: 1rem; flex: none; }
 .dot { width: .55rem; height: .55rem; border-radius: 50%; flex: none; background: #6b7488; }
 .status[data-s="up"] .dot { background: #3ddc84; box-shadow: 0 0 0 0 rgba(61,220,132,.5); animation: pulse 2.4s infinite; }
@@ -532,7 +537,8 @@ html.glass-panels .phead button:hover { background: rgba(255,255,255,.08); }
 @keyframes spbar { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
 .hist { display: flex; gap: 2px; align-items: stretch; height: 28px; margin-top: .6rem; }
 .hist i { flex: 1; max-width: 8px; min-width: 3px; border-radius: 2px; background: #3ddc84; opacity: .85; }
-.hist i.bad { background: #ef5350; opacity: 1; }
+ .hist i.bad { background: #ef5350; opacity: 1; }
+.hist i.known-issue { background: #f5c542; opacity: 1; }
 .pbody .credits { list-style: none; padding: 0; margin: 0; }
 .pbody .credits li { display: flex; flex-direction: column; padding: .65rem 0; border-bottom: 1px solid var(--edge); margin: 0; }
 .pbody .credits a { color: var(--ink); font-weight: 500; text-decoration: none; }
@@ -3964,7 +3970,7 @@ var STATUS_NOTICE = 'KNOWN ISSUES FOR ALL SERVERS';
     var l = hist(), recent = l.filter(function (e) { return e.t >= Date.now() - 86400000; });
     bar.innerHTML = '';
     l.slice(-48).forEach(function (e) {
-      var i = document.createElement('i'); i.className = e.ok ? '' : 'bad';
+      var i = document.createElement('i'); i.className = STATUS_NOTICE ? 'known-issue' : (e.ok ? '' : 'bad');
       i.title = new Date(e.t).toLocaleString() + (e.ok ? ' (' + e.ms + ' ms)' : ' (down)'); bar.appendChild(i);
     });
     if (!recent.length) { sum.textContent = 'No checks recorded yet. Checks happen while TSW v2 is open in this browser.'; return; }
