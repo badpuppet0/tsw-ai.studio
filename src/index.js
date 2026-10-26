@@ -405,7 +405,7 @@ fastify.post("/api/ai/chat", async (req, reply) => {
       reply.code(429);
       return { success: false, error: "You've reached the current daily TSW AI limit. Please try again tomorrow or use a shorter prompt." };
     }
-    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent", {
+    const requestGemini = async (model) => fetch("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent", {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
       body: JSON.stringify({
@@ -415,14 +415,24 @@ fastify.post("/api/ai/chat", async (req, reply) => {
       }),
       signal: AbortSignal.timeout(30000)
     });
+    // Retry transient overloads, then fall back to a lighter model if Flash is busy.
+    let response = await requestGemini("gemini-3.8-flash");
+    if (response.status === 503 || response.status === 500) {
+      await new Promise(resolve => setTimeout(resolve, 900));
+      response = await requestGemini("gemini-3.8-flash");
+    }
+    if (response.status === 503 || response.status === 500 || response.status === 429) {
+      req.log.warn({ status: response.status }, "Primary Gemini model unavailable; trying Flash-Lite fallback");
+      response = await requestGemini("gemini-3.5-flash-lite");
+    }
     if (response.status === 429) {
       reply.code(429);
-      return { success: false, error: "Gemini API quota or rate limit reached. Check the API quota in Google AI Studio, then try again." };
+      return { success: false, error: "Google's Gemini API quota or rate limit is currently reached for the available models. Check your Google AI Studio usage and try again later." };
     }
     if (response.status === 401 || response.status === 403) {
       req.log.error("Gemini API authentication/configuration failed.");
       reply.code(503);
-      return { success: false, error: "Gemini is temporarily unavailable. The server API key may need to be checked." };
+      return { success: false, error: "TSW AI's Google API key was rejected. Check the key and API access in Google AI Studio." };
     }
     if (!response.ok) {
       let providerMessage = "";
@@ -430,16 +440,16 @@ fastify.post("/api/ai/chat", async (req, reply) => {
         const errorData = await response.json();
         providerMessage = typeof errorData?.error?.message === "string" ? errorData.error.message : "";
       } catch (_) {}
-      req.log.warn({ status: response.status, providerMessage }, "Gemini API request failed");
+      req.log.warn({ status: response.status, providerMessage }, "Gemini API request failed after fallback");
       reply.code(502);
       if (response.status === 404) {
-        return { success: false, error: "The configured Gemini model wasn't found or isn't available to this API key. Check the model access in Google AI Studio." };
+        return { success: false, error: "The Gemini model isn't available to this API key. Check model access in Google AI Studio." };
       }
       if (response.status === 400) {
-        return { success: false, error: "Gemini rejected the request. Check the request format and model settings." };
+        return { success: false, error: "Gemini rejected the request. Check the server logs for the provider's error details." };
       }
       if (response.status === 503 || response.status === 500) {
-        return { success: false, error: "Gemini is temporarily overloaded. Please wait a moment and try again." };
+        return { success: false, error: "Google's Gemini API is overloaded right now, including its fallback model. Please try again in a minute." };
       }
       return { success: false, error: "Gemini API request failed (HTTP " + response.status + "). " + (providerMessage ? providerMessage.slice(0, 220) : "Check the server logs for details.") };
     }
@@ -452,7 +462,7 @@ fastify.post("/api/ai/chat", async (req, reply) => {
     usage.requests += 1;
     usage.chars += prompt.length;
     aiDailyUsage.set(usageKey, usage);
-    return { success: true, reply: answer, model: "Gemini 3.8 Flash", remainingRequests: Math.max(0, 20 - usage.requests) };
+    return { success: true, reply: answer, model: "Gemini (3.8 Flash with Flash-Lite fallback)", remainingRequests: Math.max(0, 20 - usage.requests) };
   } catch (err) {
     if (err.message && err.message.includes("Authentication")) reply.code(401);
     else if (!reply.statusCode || reply.statusCode < 400) reply.code(500);
