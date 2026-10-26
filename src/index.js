@@ -405,7 +405,7 @@ fastify.post("/api/ai/chat", async (req, reply) => {
       reply.code(429);
       return { success: false, error: "You've reached the current daily TSW AI limit. Please try again tomorrow or use a shorter prompt." };
     }
-    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent", {
+    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent", {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
       body: JSON.stringify({
@@ -417,7 +417,7 @@ fastify.post("/api/ai/chat", async (req, reply) => {
     });
     if (response.status === 429) {
       reply.code(429);
-      return { success: false, error: "Gemini has reached its free usage limit right now. Try again later." };
+      return { success: false, error: "Gemini API quota or rate limit reached. Check the API quota in Google AI Studio, then try again." };
     }
     if (response.status === 401 || response.status === 403) {
       req.log.error("Gemini API authentication/configuration failed.");
@@ -425,9 +425,23 @@ fastify.post("/api/ai/chat", async (req, reply) => {
       return { success: false, error: "Gemini is temporarily unavailable. The server API key may need to be checked." };
     }
     if (!response.ok) {
-      req.log.warn({ status: response.status }, "Gemini API request failed");
+      let providerMessage = "";
+      try {
+        const errorData = await response.json();
+        providerMessage = typeof errorData?.error?.message === "string" ? errorData.error.message : "";
+      } catch (_) {}
+      req.log.warn({ status: response.status, providerMessage }, "Gemini API request failed");
       reply.code(502);
-      return { success: false, error: "Gemini couldn't answer right now. Please try again in a little while." };
+      if (response.status === 404) {
+        return { success: false, error: "The configured Gemini model wasn't found or isn't available to this API key. Check the model access in Google AI Studio." };
+      }
+      if (response.status === 400) {
+        return { success: false, error: "Gemini rejected the request. Check the request format and model settings." };
+      }
+      if (response.status === 503 || response.status === 500) {
+        return { success: false, error: "Gemini is temporarily overloaded. Please wait a moment and try again." };
+      }
+      return { success: false, error: "Gemini API request failed (HTTP " + response.status + "). " + (providerMessage ? providerMessage.slice(0, 220) : "Check the server logs for details.") };
     }
     const data = await response.json();
     const answer = (data.candidates?.[0]?.content?.parts || []).map(part => part.text || "").join("").trim();
@@ -438,7 +452,7 @@ fastify.post("/api/ai/chat", async (req, reply) => {
     usage.requests += 1;
     usage.chars += prompt.length;
     aiDailyUsage.set(usageKey, usage);
-    return { success: true, reply: answer, model: "Gemini 2.5 Flash", remainingRequests: Math.max(0, 20 - usage.requests) };
+    return { success: true, reply: answer, model: "Gemini 3.8 Flash", remainingRequests: Math.max(0, 20 - usage.requests) };
   } catch (err) {
     if (err.message && err.message.includes("Authentication")) reply.code(401);
     else if (!reply.statusCode || reply.statusCode < 400) reply.code(500);
