@@ -2758,6 +2758,19 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
       <label for="set-theme">Theme mode</label>
       <select id="set-theme"><option value="dark">Dark (default)</option><option value="light">Light mode</option></select>
 
+      <h3 class="settings-group">Panic button</h3>
+      <label for="set-panic-key">Keyboard bind</label>
+      <select id="set-panic-key">
+        <option value="">Disabled</option>
+        <option value="F1">F1</option><option value="F2">F2</option><option value="F3">F3</option><option value="F4">F4</option>
+        <option value="F6">F6</option><option value="F7">F7</option><option value="F8">F8</option><option value="F9">F9</option>
+        <option value="F10">F10</option><option value="F11">F11</option><option value="F12">F12</option>
+        <option value="Escape">Escape</option>
+      </select>
+      <label for="set-panic-url">Site to open</label>
+      <input id="set-panic-url" type="text" placeholder="https://example.com" autocomplete="url" spellcheck="false">
+      <p class="hint">Press the chosen key to quickly open your selected site in this tab. Only works while TSW is open.</p>
+
       <h3 class="settings-group">Motion &amp; sound</h3>
       <label class="check"><input type="checkbox" id="set-reduced-motion"> Reduce motion and animations</label>
       <p class="hint">Turns down moving backgrounds and interface animations.</p>
@@ -4103,7 +4116,7 @@ var STATUS_NOTICE = 'KNOWN ISSUES FOR ALL SERVERS';
     blank: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E"
   };
   var D = { engine: 'ddg', stars: true, shoot: true, title: '', icon: 'default', bg: 'mesh', season: 'auto', solid: '#0a0f1c',
-            vsrc: 'site', vbright: 60, accent: 'blue', clock: '12', panel: 'standard', theme: 'dark', rain: false, rainVol: 40, reducedMotion: false };
+            vsrc: 'site', vbright: 60, accent: 'blue', clock: '12', panel: 'standard', theme: 'dark', rain: false, rainVol: 40, reducedMotion: false, panicKey: '', panicUrl: '' };
   var cfg = {};
   Object.keys(D).forEach(function (k) { cfg[k] = store.get('tsw.' + k, D[k]); });
   if (!ENGINES[cfg.engine]) cfg.engine = 'ddg';
@@ -4224,9 +4237,32 @@ var STATUS_NOTICE = 'KNOWN ISSUES FOR ALL SERVERS';
     if ($('set-reduced-motion')) $('set-reduced-motion').checked = !!cfg.reducedMotion;
     if ($('set-rain')) $('set-rain').checked = !!cfg.rain;
     if ($('set-rain-vol')) $('set-rain-vol').value = cfg.rainVol || 40;
+    if ($('set-panic-key')) $('set-panic-key').value = cfg.panicKey || '';
+    if ($('set-panic-url')) $('set-panic-url').value = cfg.panicUrl || '';
     var rWrap = $('rain-vol-wrap');
     if (rWrap) rWrap.style.display = cfg.rain ? 'block' : 'none';
   }
+
+  if ($('set-panic-key')) $('set-panic-key').addEventListener('change', function () { put('panicKey', this.value); });
+  if ($('set-panic-url')) $('set-panic-url').addEventListener('change', function () {
+    var raw = this.value.trim(), safe = '';
+    if (raw) {
+      try {
+        var parsed = new URL(/^https?:\/\//i.test(raw) ? raw : 'https://' + raw);
+        if (parsed.protocol === 'http:' || parsed.protocol === 'https:') safe = parsed.href;
+      } catch (e) {}
+      if (!safe) { this.value = cfg.panicUrl || ''; return; }
+    }
+    this.value = safe;
+    put('panicUrl', safe);
+  });
+  addEventListener('keydown', function (ev) {
+    if (!cfg.panicKey || !cfg.panicUrl || ev.repeat || ev.key !== cfg.panicKey) return;
+    var el = ev.target;
+    if (el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))) return;
+    ev.preventDefault();
+    location.assign(cfg.panicUrl);
+  });
 
   $('set-engine').addEventListener('change', function () { put('engine', this.value); });
   if ($('set-reduced-motion')) {
