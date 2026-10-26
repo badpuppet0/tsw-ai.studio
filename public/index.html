@@ -2171,7 +2171,7 @@ body.sidebar-collapsed .sb-menu .status svg {
 }
 
 /* Guided tour: compact, practical walkthrough with a real feature spotlight */
-#tour-modal { background: rgba(3, 7, 14, .48); backdrop-filter: none; }
+#tour-modal { z-index: 10000; background: rgba(3, 7, 14, .48); backdrop-filter: none; }
 #tour-modal .tour-panel {
   position: fixed;
   left: 50%;
@@ -2192,7 +2192,7 @@ body.sidebar-collapsed .sb-menu .status svg {
 .tour-nav { display:flex; align-items:center; justify-content:space-between; gap:.5rem; padding-top:.8rem; border-top:1px solid #2b3641; }
 .tour-progress { height:3px; background:#28333e; margin:-1.15rem -1.25rem 1rem; border-radius:10px 10px 0 0; overflow:hidden; }
 .tour-progress span { display:block; height:100%; width:25%; background:#83baff; transition:width .18s ease; }
-.tour-spotlight { position:relative !important; z-index:10001 !important; outline:2px solid #8fc5ff !important; outline-offset:5px; box-shadow:0 0 0 7px rgba(143,197,255,.13) !important; border-radius:6px; }
+.tour-spotlight { outline:2px solid #8fc5ff !important; outline-offset:3px; box-shadow:0 0 0 4px rgba(143,197,255,.10) !important; border-radius:6px; }
 @media(max-width:600px) { #tour-modal .tour-panel { bottom:max(.75rem,env(safe-area-inset-bottom)); } }
 
 /* Light Mode Overrides */
