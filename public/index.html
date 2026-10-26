@@ -4301,6 +4301,9 @@ var STATUS_NOTICE = '';
             vsrc: 'site', vbright: 60, accent: 'blue', clock: '12', panel: 'standard', theme: 'dark', rain: false, rainVol: 40, reducedMotion: false, panicKey: '', panicUrl: '' };
   var cfg = {};
   Object.keys(D).forEach(function (k) { cfg[k] = store.get('tsw.' + k, D[k]); });
+  // One-time default migration: replace previously saved wallpapers with Ice.
+  cfg.bg = 'ice';
+  store.set('tsw.bg', 'ice');
   if (!ENGINES[cfg.engine]) cfg.engine = 'ddg';
   if (!ICONS[cfg.icon]) cfg.icon = 'default';
   if (BGS.indexOf(cfg.bg) < 0) cfg.bg = 'stars';
