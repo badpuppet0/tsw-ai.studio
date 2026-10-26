@@ -2393,6 +2393,13 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
       <span class="whats-new-dot" id="log-whats-new-dot" title="New updates!"></span>
     </button>
 
+    <!-- Notifications -->
+    <button class="sb-menu-item" id="notifications-btn" title="Notifications" type="button">
+      <span class="sb-menu-icon">🔔</span>
+      <span class="sb-label">Notifications</span>
+      <span id="notifications-count" class="prof-item-badge" hidden>0</span>
+    </button>
+
     <!-- Account / Profiles (Cloud SQL) -->
     <button class="sb-menu-item" id="profbtn" title="Account & Profiles (Cloud SQL)" type="button">
       <span class="sb-menu-icon" id="prof-btn-icon">
@@ -2673,6 +2680,20 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
         </div>
 
         <div class="prof-section-head">
+          <h4>Profile Details</h4>
+        </div>
+        <div class="f" style="margin-bottom:1rem">
+          <label for="profile-display-name">Display Name</label>
+          <input id="profile-display-name" maxlength="32" placeholder="How your name appears">
+          <label for="profile-bio" style="margin-top:.5rem">Short Bio</label>
+          <input id="profile-bio" maxlength="120" placeholder="A little about you">
+          <label for="profile-status" style="margin-top:.5rem">Status</label>
+          <input id="profile-status" maxlength="40" placeholder="e.g. Gaming, Away, Available">
+          <button type="button" class="primary" id="profile-details-save" style="margin-top:.65rem">Save Profile Details</button>
+          <p class="hint" id="profile-details-note">Saved on this device for now. These details are not synced to other users yet.</p>
+        </div>
+
+        <div class="prof-section-head">
           <h4>Your Cloud Profiles</h4>
           <span class="hint" id="pm-profiles-count">1 profile</span>
         </div>
@@ -2876,6 +2897,14 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
         <li><b>Cloud SQL Account Sync</b>: Cloud-synced shortcuts, themes, audio, and settings across all browsers.</li>
         <li><b>Calming Ambient Rain & Live Weather</b>: Procedural Web Audio rain sound (off by default) and live weather on the home screen.</li>
         <li><b>Light Mode & Guided Tour</b>: Clean high-contrast Light Mode theme and step-by-step feature walkthrough.</li>
+      </ul>
+
+      <h3 class="older">TSW v2 1.6<span>Notifications & profiles</span></h3>
+      <p class="date">October 2026</p>
+      <ul>
+        <li>Notification center for friend requests and unread direct messages.</li>
+        <li>Profile details for a display name, short bio, and status.</li>
+        <li>Admin dashboard is being planned separately and is not available yet.</li>
       </ul>
 
       <h3 class="older">TSW v2 1.5<span>Sidebar, Cork7 Arcade & Discord</span></h3>
@@ -4920,6 +4949,39 @@ document.addEventListener('keydown', function (ev) {
     }, 1200);
   }
 
+  // Basic notification center using the chat data already available in this page.
+  var notificationsBtn = $('notifications-btn');
+  var notificationsCount = $('notifications-count');
+  if (notificationsBtn) notificationsBtn.addEventListener('click', function () {
+    if (window.TSWChat && window.TSWChat.open) window.TSWChat.open();
+    else { var cm = $('chat-modal'); if (cm) cm.hidden = false; }
+    var requests = $('chat-requests-section');
+    if (requests) requests.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+
+  // Profile details are device-local until a profile API is added.
+  function profileDetailsKey() { return 'tsw.profile.details.' + (currentUser && currentUser.id ? currentUser.id : 'guest'); }
+  function loadProfileDetails() {
+    var details = {};
+    try { details = JSON.parse(localStorage.getItem(profileDetailsKey()) || '{}') || {}; } catch (e) {}
+    var dn = $('profile-display-name'), bio = $('profile-bio'), status = $('profile-status');
+    if (dn) dn.value = details.displayName || (currentUser ? currentUser.username : '');
+    if (bio) bio.value = details.bio || '';
+    if (status) status.value = details.status || '';
+  }
+  var profileDetailsSave = $('profile-details-save');
+  if (profileDetailsSave) profileDetailsSave.addEventListener('click', function () {
+    var details = {
+      displayName: ($('profile-display-name').value || '').trim().slice(0,32),
+      bio: ($('profile-bio').value || '').trim().slice(0,120),
+      status: ($('profile-status').value || '').trim().slice(0,40)
+    };
+    try { localStorage.setItem(profileDetailsKey(), JSON.stringify(details)); } catch (e) {}
+    var note = $('profile-details-note');
+    if (note) note.textContent = 'Saved on this device. These details are not synced to other users yet.';
+  });
+  if (typeof updateAuthUI === 'function') loadProfileDetails();
+
   // Open modal on user-pill click
   profBtn.addEventListener('click', function () {
     renderModalList();
@@ -6258,6 +6320,16 @@ document.addEventListener('keydown', function (ev) {
     });
   }
 
+  function updateNotificationCount() {
+    var unread = friends.filter(function (f) { return !!f.unread; }).length;
+    var requestCount = friendRequests.length;
+    var count = unread + requestCount;
+    if (notificationsCount) {
+      notificationsCount.textContent = String(count);
+      notificationsCount.hidden = count === 0;
+    }
+  }
+
   function loadFriendRequests() {
     var user = getCurrentUser();
     if (!user) return Promise.resolve();
@@ -6266,6 +6338,7 @@ document.addEventListener('keydown', function (ev) {
       if (res && res.success && Array.isArray(res.requests)) {
         friendRequests = res.requests;
         renderFriendRequests();
+        updateNotificationCount();
       }
     }).catch(function (err) {
       console.warn('Friend requests fetch warning:', err);
@@ -6335,6 +6408,7 @@ document.addEventListener('keydown', function (ev) {
       if (res && res.success && Array.isArray(res.friends)) {
         friends = res.friends;
         renderFriendsList();
+        updateNotificationCount();
         if (selectedFriend) {
           var updated = friends.find(function (f) { return f.friendId === selectedFriend.friendId; });
           if (updated) selectedFriend = updated;
