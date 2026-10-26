@@ -3122,6 +3122,25 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
     <p style="font-size:11px;line-height:1.5;color:var(--muted,#91a0b5);margin:12px 0 0">AI can make mistakes. Don’t use it for emergencies or as a replacement for professional advice.</p>
   </div>
 </section>
+<script>
+/* Make AI navigation independent of the main app script. */
+(function () {
+  var button = document.getElementById('ai-coming-soon-btn');
+  var panel = document.getElementById('ai-coming-soon-panel');
+  var back = document.getElementById('ai-coming-soon-back');
+  if (!button || !panel) return;
+  button.addEventListener('click', function () {
+    panel.hidden = false;
+    panel.style.display = 'block';
+    var prompt = document.getElementById('tsw-ai-prompt');
+    if (prompt) prompt.focus();
+  }, true);
+  if (back) back.addEventListener('click', function () {
+    panel.hidden = true;
+    panel.style.display = 'none';
+  }, true);
+})();
+</script>
 <style>
 #tsw-ai-messages .tsw-ai-message{max-width:88%;padding:12px 15px;border-radius:13px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}
 #tsw-ai-messages .tsw-ai-user{align-self:flex-end;background:rgba(91,132,213,.18);border:1px solid rgba(91,132,213,.22)}
