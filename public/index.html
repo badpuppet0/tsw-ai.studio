@@ -945,6 +945,23 @@ body.sidebar-collapsed .sb-tab .sb-tab-close {
   outline: 0;
   position: static !important;
 }
+.sb-menu-item.ai-coming-soon,
+.sb-menu-item.ai-coming-soon:hover {
+  opacity: .62;
+  cursor: not-allowed;
+  color: var(--steel);
+  background: transparent;
+}
+.ai-soon-pill {
+  display: inline-block;
+  margin-left: .35rem;
+  padding: .1rem .35rem;
+  border: 1px solid rgba(90,162,255,.28);
+  border-radius: 999px;
+  color: #9fc6ff;
+  font-size: .62rem;
+  white-space: nowrap;
+}
 .sb-menu-item:hover {
   background: rgba(255, 255, 255, 0.06);
   color: #fff;
@@ -2356,6 +2373,12 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
 
   <!-- Bottom Navigation Menu Items -->
   <nav class="sb-menu" aria-label="Side Navigation Menu">
+    <!-- AI (coming soon) -->
+    <button class="sb-menu-item ai-coming-soon" id="ai-coming-soon-btn" title="AI — Coming Soon" type="button" disabled aria-disabled="true">
+      <span class="sb-menu-icon">✨</span>
+      <span class="sb-label">AI <span class="ai-soon-pill">Coming Soon</span></span>
+    </button>
+
     <!-- Friends & Chat -->
     <button class="sb-menu-item" id="sb-chat-btn" title="Friends & Messages" type="button">
       <span class="sb-menu-icon">
@@ -2907,6 +2930,13 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
         <li>Admin dashboard is being planned separately and is not available yet.</li>
       </ul>
 
+      <h3>TSW v2 1.8<span>AI coming soon</span></h3>
+      <p class="date">October 2026</p>
+      <ul>
+        <li>Added a disabled AI section placeholder for the upcoming major update.</li>
+        <li>AI features are not available yet; details will be planned separately.</li>
+      </ul>
+
       <h3>TSW v2 1.7<span>Browser reliability & AI planning</span></h3>
       <p class="date">October 2026</p>
       <ul>
@@ -3075,6 +3105,16 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
       <button class="plain" type="button" id="diag-tab">Open in new tab</button>
       <a class="plain" id="diag-report" href="https://docs.google.com/forms/d/e/1FAIpQLScupiUZuqQsngFai_QPQRWn06LpuZy3VGZOEyIUY0DAZ0qJxw/viewform" target="_blank" rel="noopener noreferrer">Report this site</a>
     </div>
+  </div>
+</section>
+
+<section id="ai-coming-soon-panel" hidden style="position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;padding:2rem;background:rgba(5,10,20,.94);text-align:center">
+  <div style="max-width:520px;padding:2rem;border:1px solid rgba(90,162,255,.22);border-radius:20px;background:rgba(16,25,42,.82);box-shadow:0 20px 80px rgba(0,0,0,.3)">
+    <div style="font-size:2.5rem;margin-bottom:.8rem">✨</div>
+    <h1 style="font-size:clamp(1.7rem,5vw,2.5rem);margin:0 0 .7rem">AI</h1>
+    <p style="font-size:1.05rem;color:#aebed2;margin:0">Coming Soon (Major Update ⏰....)</p>
+    <p style="font-size:.85rem;color:#778ba4;margin:1rem 0 0">We're working on something bigger. Check back in a future update.</p>
+    <button type="button" id="ai-coming-soon-back" style="margin-top:1.4rem;padding:.65rem 1rem;border-radius:10px;border:1px solid rgba(90,162,255,.3);background:rgba(90,162,255,.12);color:#dbeafe;cursor:pointer">Back to TSW</button>
   </div>
 </section>
 
@@ -4987,6 +5027,17 @@ document.addEventListener('keydown', function (ev) {
     if (note) note.textContent = 'Saved on this device. These details are not synced to other users yet.';
   });
   if (typeof updateAuthUI === 'function') loadProfileDetails();
+
+  // AI is intentionally disabled until the future major update.
+  var aiComingSoonBtn = $('ai-coming-soon-btn');
+  var aiComingSoonPanel = $('ai-coming-soon-panel');
+  var aiComingSoonBack = $('ai-coming-soon-back');
+  function closeAiComingSoon() {
+    if (aiComingSoonPanel) aiComingSoonPanel.hidden = true;
+    if (aiComingSoonPanel) aiComingSoonPanel.style.display = 'none';
+  }
+  // The sidebar item remains disabled; this handler only supports the back button.
+  if (aiComingSoonBack) aiComingSoonBack.addEventListener('click', closeAiComingSoon);
 
   // Open modal on user-pill click
   profBtn.addEventListener('click', function () {
