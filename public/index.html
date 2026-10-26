@@ -358,6 +358,9 @@ html, body { height: 100%; background: var(--void); color: var(--ink); overflow:
 .status[data-s="up"] { color: #b6c4bd; }
 .status[data-s="warn"] { color: #e6d49a; }
 .status[data-s="down"] { color: #f0b4b4; }
+.status[data-s="warn"] { color: #ffe0a1; background: rgba(120, 72, 10, .2); border-color: rgba(245, 190, 75, .55); }
+.status[data-s="warn"] .dot { background: #f5c542; box-shadow: 0 0 0 3px rgba(245,197,66,.14); }
+#status[data-s="warn"] { border-radius: 8px; padding: .5rem .65rem; }
 @keyframes pulse { 70% { box-shadow: 0 0 0 .45rem rgba(61,220,132,0); } 100% { box-shadow: 0 0 0 0 rgba(61,220,132,0); } }
 @media (max-width: 640px) { .note { bottom: 3.4rem; } }
 
@@ -3916,17 +3919,21 @@ store.remove = store.del;
 /* Set STATUS_NOTICE to a short message to show the yellow "maintenance" state, e.g.
    var STATUS_NOTICE = 'Maintenance tonight. Sites may fail.';
    Set it back to '' to return to green. Red and green are detected automatically. */
-var STATUS_NOTICE = '';
+var STATUS_NOTICE = 'KNOWN ISSUES FOR ALL SERVERS';
 (function () {
   var box = $('status'), text = $('status-text'), wake = $('wake'), wakeText = $('wake-p'), wakeX = $('wake-x');
   var engineOk = null, pingOk = true, lastActive = Date.now(), lastPing = 0, waking = false, wakeId = 0;
   function paint() {
     var st, msg;
-    if (engineOk === false || !pingOk) { st = 'down'; msg = 'Proxy servers down'; }
+    // Keep the site-wide issue notice visible regardless of individual health checks.
+    if (STATUS_NOTICE) { st = 'warn'; msg = STATUS_NOTICE; }
+    else if (engineOk === false || !pingOk) { st = 'down'; msg = 'Proxy servers down'; }
     else if (engineOk === null) { st = 'check'; msg = 'Checking server…'; }
-    else if (STATUS_NOTICE) { st = 'warn'; msg = STATUS_NOTICE; }
     else { st = 'up'; msg = 'Active'; }
-    box.setAttribute('data-s', st); text.textContent = msg;
+    box.setAttribute('data-s', st);
+    text.textContent = msg;
+    box.setAttribute('title', STATUS_NOTICE ? 'Known issues are affecting all servers. Open for server details.' : 'Server info');
+    box.setAttribute('aria-label', STATUS_NOTICE ? 'Alert: known issues for all servers. Open server info.' : 'Server status. Open server info');
   }
   if (window.TSWEngine && window.TSWEngine.ready) {
     Promise.resolve(window.TSWEngine.ready).then(function () { engineOk = true; paint(); },
