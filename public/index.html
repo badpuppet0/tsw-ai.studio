@@ -2170,47 +2170,30 @@ body.sidebar-collapsed .sb-menu .status svg {
   box-sizing: border-box;
 }
 
-/* Guided Tour Modal */
-.tour-panel {
-  width: min(30rem, 95vw);
-  background: #090d16;
-  border: 1px solid rgba(90, 162, 255, 0.4);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(90, 162, 255, 0.2);
-  border-radius: 16px;
-  padding: 1.5rem;
-  animation: popIn .2s ease-out;
+/* Guided tour: compact, practical walkthrough with a real feature spotlight */
+#tour-modal { background: rgba(3, 7, 14, .48); backdrop-filter: none; }
+#tour-modal .tour-panel {
+  position: fixed;
+  left: 50%;
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: min(27rem, calc(100vw - 2rem));
+  padding: 1.15rem 1.25rem 1rem;
+  background: #111820;
+  border: 1px solid #3a4856;
+  border-radius: 10px;
+  box-shadow: 0 14px 45px rgba(0,0,0,.48);
+  animation: tourSlideUp .22s ease-out;
 }
-.tour-step-badge {
-  display: inline-block;
-  font-size: .72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--blue);
-  background: rgba(90, 162, 255, 0.12);
-  border: 1px solid rgba(90, 162, 255, 0.3);
-  padding: .15rem .55rem;
-  border-radius: 999px;
-  margin-bottom: .6rem;
-}
-.tour-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: .5rem;
-}
-.tour-body {
-  font-size: .9rem;
-  line-height: 1.55;
-  color: #cbd5e1;
-  margin-bottom: 1.3rem;
-}
-.tour-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: .75rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
+@keyframes tourSlideUp { from { opacity:0; translate:0 10px; } to { opacity:1; translate:0 0; } }
+.tour-step-badge { display:block; font-size:.72rem; color:#8fc5ff; letter-spacing:.08em; text-transform:uppercase; margin-bottom:.55rem; }
+.tour-title { font-size:1.18rem; font-weight:650; color:#f3f6f9; margin:0 0 .45rem; }
+.tour-body { font-size:.9rem; line-height:1.5; color:#c1cbd5; margin-bottom:1rem; }
+.tour-nav { display:flex; align-items:center; justify-content:space-between; gap:.5rem; padding-top:.8rem; border-top:1px solid #2b3641; }
+.tour-progress { height:3px; background:#28333e; margin:-1.15rem -1.25rem 1rem; border-radius:10px 10px 0 0; overflow:hidden; }
+.tour-progress span { display:block; height:100%; width:25%; background:#83baff; transition:width .18s ease; }
+.tour-spotlight { position:relative !important; z-index:10001 !important; outline:2px solid #8fc5ff !important; outline-offset:5px; box-shadow:0 0 0 7px rgba(143,197,255,.13) !important; border-radius:6px; }
+@media(max-width:600px) { #tour-modal .tour-panel { bottom:max(.75rem,env(safe-area-inset-bottom)); } }
 
 /* Light Mode Overrides */
 html[data-theme="light"] {
@@ -5142,10 +5125,23 @@ document.addEventListener('keydown', function (ev) {
       }
     })
     .catch(function () {
-      var fallbackTz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
+      // If IP lookup is unavailable, ask the browser for the device's actual location.
+      var fallbackTz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
       window.TSWUserGeo = { timezone: fallbackTz };
       if (window.TSWClockRefresh) window.TSWClockRefresh();
-      fetchWeatherForCoords(40.7128, -74.0060, 'NYC');
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+          fetchWeatherForCoords(position.coords.latitude, position.coords.longitude, '');
+        }, function () {
+          if (el) {
+            el.textContent = 'Weather unavailable — location access is off';
+            el.style.display = 'inline-flex';
+          }
+        }, { timeout: 7000, maximumAge: 300000 });
+      } else if (el) {
+        el.textContent = 'Weather unavailable for this location';
+        el.style.display = 'inline-flex';
+      }
     });
 })();
 
@@ -5153,79 +5149,59 @@ document.addEventListener('keydown', function (ev) {
 (function initTour() {
   var tourModal = $('tour-modal');
   if (!tourModal) return;
-  var badge = $('tour-step-badge');
-  var title = $('tour-title');
-  var body = $('tour-body');
-  var prevBtn = $('tour-prev-btn');
-  var nextBtn = $('tour-next-btn');
-  var skipBtn = $('tour-skip-btn');
-
+  var badge = $('tour-step-badge'), title = $('tour-title'), body = $('tour-body');
+  var prevBtn = $('tour-prev-btn'), nextBtn = $('tour-next-btn'), skipBtn = $('tour-skip-btn');
+  var panel = tourModal.querySelector('.tour-panel');
+  if (panel && !panel.querySelector('.tour-progress')) {
+    var progress = document.createElement('div');
+    progress.className = 'tour-progress';
+    progress.innerHTML = '<span></span>';
+    panel.insertBefore(progress, panel.firstChild);
+  }
+  var progressBar = panel && panel.querySelector('.tour-progress span');
   var STEPS = [
-    {
-      badge: 'Step 1 of 4',
-      title: 'Unblocked Fast Web Proxy',
-      body: 'Browse web pages freely with the Scramjet proxy engine. Search with DuckDuckGo or enter any web address directly from your home screen or address bar.'
-    },
-    {
-      badge: 'Step 2 of 4',
-      title: 'Real Vertical Multi-Tabs',
-      body: 'Keep multiple pages open in the sidebar without losing your spot. Each tab maintains its independent browsing history, state, and quick-switching controls.'
-    },
-    {
-      badge: 'Step 3 of 4',
-      title: 'Chat Rooms & Private DMs',
-      body: 'Sign in to add friends with approval, chat in private direct messages with edit & delete, and join public rooms (#chat-1, #chat-2) with 7-day auto-retention.'
-    },
-    {
-      badge: 'Step 4 of 4',
-      title: 'Cork7 Arcade & Calming Audio',
-      body: 'Jump straight into unblocked gaming with the Cork7 arcade, switch on relaxing ambient rain audio in Settings, and choose custom backgrounds.'
-    }
+    { title:'Welcome to TSW v2', body:'A quick look around. This tour points out the useful bits without getting in your way.', target:'#home', label:'The home screen' },
+    { title:'Search or enter a link', body:'Use this box to search the web or type a website address. Your page opens inside the TSW browser.', target:'#home-form', label:'Search and address bar' },
+    { title:'Keep pages open', body:'Open more than one page and switch between them from the browser tabs, so you do not lose what you were doing.', target:'#sidebar', label:'Your browser tabs' },
+    { title:'Local weather', body:'TSW uses your detected location to show the current temperature and conditions. If location lookup fails, allow location access to get local weather.', target:'#home-weather', label:'Weather for your area' },
+    { title:'Make it yours', body:'Open Settings to change the background, theme, accent, tab title, sound, and other options. You can replay this tour from Settings anytime.', target:'#tour-replay-btn', label:'Settings and customisation' }
   ];
-
-  var currentStep = 0;
+  var currentStep = 0, previousTarget = null;
+  function clearSpotlight() {
+    if (previousTarget) previousTarget.classList.remove('tour-spotlight');
+    previousTarget = null;
+  }
   function renderStep() {
     var s = STEPS[currentStep];
-    if (badge) badge.textContent = s.badge;
+    if (badge) badge.textContent = 'QUICK TOUR  /  ' + (currentStep + 1) + ' OF ' + STEPS.length;
     if (title) title.textContent = s.title;
     if (body) body.textContent = s.body;
     if (prevBtn) prevBtn.style.display = currentStep > 0 ? 'inline-block' : 'none';
-    if (nextBtn) nextBtn.textContent = currentStep === STEPS.length - 1 ? 'Get Started' : 'Next';
-  }
-
-  function startTour() {
-    currentStep = 0;
-    renderStep();
-    tourModal.hidden = false;
-  }
-  window.TSWStartTour = startTour;
-
-  if (prevBtn) {
-    prevBtn.addEventListener('click', function () {
-      if (currentStep > 0) { currentStep--; renderStep(); }
-    });
-  }
-  if (nextBtn) {
-    nextBtn.addEventListener('click', function () {
-      if (currentStep < STEPS.length - 1) {
-        currentStep++;
-        renderStep();
-      } else {
-        tourModal.hidden = true;
-        store.set('tsw_tour_done', true);
+    if (nextBtn) nextBtn.textContent = currentStep === STEPS.length - 1 ? 'Finish tour' : 'Next';
+    if (progressBar) progressBar.style.width = (((currentStep + 1) / STEPS.length) * 100) + '%';
+    clearSpotlight();
+    var target = document.querySelector(s.target);
+    if (target && s.target !== '#tour-replay-btn') {
+      if (s.target === '#home-weather' && getComputedStyle(target).display === 'none') {
+        target.style.display = 'inline-flex';
+        target.textContent = 'Checking local weather…';
       }
-    });
+      target.scrollIntoView({ behavior:'smooth', block:'nearest' });
+      target.classList.add('tour-spotlight');
+      previousTarget = target;
+    }
   }
-  if (skipBtn) {
-    skipBtn.addEventListener('click', function () {
-      tourModal.hidden = true;
-      store.set('tsw_tour_done', true);
-    });
+  function finishTour() {
+    clearSpotlight();
+    tourModal.hidden = true;
+    store.set('tsw_tour_done', true);
   }
-
-  if (!store.get('tsw_tour_done', false)) {
-    setTimeout(startTour, 700);
-  }
+  function startTour() { currentStep = 0; renderStep(); tourModal.hidden = false; }
+  window.TSWStartTour = startTour;
+  if (prevBtn) prevBtn.addEventListener('click', function () { if (currentStep > 0) { currentStep--; renderStep(); } });
+  if (nextBtn) nextBtn.addEventListener('click', function () { if (currentStep < STEPS.length - 1) { currentStep++; renderStep(); } else finishTour(); });
+  if (skipBtn) skipBtn.addEventListener('click', finishTour);
+  if (!store.get('tsw_tour_done', false)) setTimeout(startTour, 700);
 })();
 
 /* ===================== Navigation UI & Real Multi-Tabs ===================== */
