@@ -372,6 +372,80 @@ async function getAuthUserId(req, reply) {
 	return session.userId;
 }
 
+// TSW AI API. The provider key is stored only in the server environment (GEMINI_API_KEY).
+const aiDailyUsage = new Map();
+fastify.post("/api/ai/chat", async (req, reply) => {
+  reply.header("Cache-Control", "no-store");
+  try {
+    const userId = await getAuthUserId(req, reply);
+    const body = req.body || {};
+    const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
+    if (!prompt) {
+      reply.code(400);
+      return { success: false, error: "Enter a message first." };
+    }
+    if (prompt.length > 5000) {
+      reply.code(413);
+      return { success: false, error: "That message is too long. Keep it under 5,000 characters." };
+    }
+    if (body.model && body.model !== "gemini") {
+      reply.code(400);
+      return { success: false, error: "That AI provider is not connected yet. Gemini is currently the only available model." };
+    }
+    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    if (!apiKey) {
+      reply.code(503);
+      return { success: false, error: "Gemini isn't configured on the TSW server yet. Add GEMINI_API_KEY in the server's environment settings." };
+    }
+    // A basic in-memory limit helps protect the shared free quota; this resets when the server restarts.
+    const day = new Date().toISOString().slice(0, 10);
+    const usageKey = day + ":" + String(userId);
+    const usage = aiDailyUsage.get(usageKey) || { requests: 0, chars: 0 };
+    if (usage.requests >= 20 || usage.chars + prompt.length > 20000) {
+      reply.code(429);
+      return { success: false, error: "You've reached the current daily TSW AI limit. Please try again tomorrow or use a shorter prompt." };
+    }
+    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: "You are TSW AI, a helpful assistant for everyday questions and homework. Be clear, friendly, age-appropriate, and honest when unsure. Explain schoolwork so the student can learn rather than simply encouraging cheating. Do not claim to be ChatGPT or another provider." }] },
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 900, temperature: 0.7 }
+      }),
+      signal: AbortSignal.timeout(30000)
+    });
+    if (response.status === 429) {
+      reply.code(429);
+      return { success: false, error: "Gemini has reached its free usage limit right now. Try again later." };
+    }
+    if (response.status === 401 || response.status === 403) {
+      req.log.error("Gemini API authentication/configuration failed.");
+      reply.code(503);
+      return { success: false, error: "Gemini is temporarily unavailable. The server API key may need to be checked." };
+    }
+    if (!response.ok) {
+      req.log.warn({ status: response.status }, "Gemini API request failed");
+      reply.code(502);
+      return { success: false, error: "Gemini couldn't answer right now. Please try again in a little while." };
+    }
+    const data = await response.json();
+    const answer = (data.candidates?.[0]?.content?.parts || []).map(part => part.text || "").join("").trim();
+    if (!answer) {
+      reply.code(502);
+      return { success: false, error: "Gemini returned an empty answer. Try rewording your question." };
+    }
+    usage.requests += 1;
+    usage.chars += prompt.length;
+    aiDailyUsage.set(usageKey, usage);
+    return { success: true, reply: answer, model: "Gemini 2.5 Flash", remainingRequests: Math.max(0, 20 - usage.requests) };
+  } catch (err) {
+    if (err.message && err.message.includes("Authentication")) reply.code(401);
+    else if (!reply.statusCode || reply.statusCode < 400) reply.code(500);
+    return { success: false, error: err.message && err.message.includes("Authentication") ? err.message : "AI is temporarily unavailable. Please try again later." };
+  }
+});
+
 // Friends & Chat API Routes
 fastify.get("/api/users/search", async (req, reply) => {
 	reply.header("Cache-Control", "no-store");
