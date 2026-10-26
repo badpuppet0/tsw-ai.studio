@@ -5007,16 +5007,6 @@ document.addEventListener('keydown', function (ev) {
     }, 1200);
   }
 
-  // Basic notification center using the chat data already available in this page.
-  var notificationsBtn = $('notifications-btn');
-  var notificationsCount = $('notifications-count');
-  if (notificationsBtn) notificationsBtn.addEventListener('click', function () {
-    if (window.TSWChat && window.TSWChat.open) window.TSWChat.open();
-    else { var cm = $('chat-modal'); if (cm) cm.hidden = false; }
-    var requests = $('chat-requests-section');
-    if (requests) requests.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  });
-
   // Profile details are device-local until a profile API is added.
   function profileDetailsKey() { return 'tsw.profile.details.' + (currentUser && currentUser.id ? currentUser.id : 'guest'); }
   function loadProfileDetails() {
