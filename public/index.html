@@ -5181,11 +5181,62 @@ document.addEventListener('keydown', function (ev) {
       if (aiStatus) aiStatus.textContent = 'Gemini is the only connected provider right now.';
     });
   });
+  function tswAiToast(message, kind) {
+    var toast = document.getElementById('tsw-ai-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'tsw-ai-toast';
+      toast.setAttribute('role', 'status');
+      toast.style.cssText = 'position:fixed;right:20px;bottom:20px;z-index:100000;max-width:min(360px,calc(100vw - 32px));padding:12px 16px;border:1px solid rgba(120,160,220,.35);border-radius:12px;background:#101827;color:#e8eef9;box-shadow:0 12px 40px #0009;font:500 14px/1.4 system-ui;opacity:0;transform:translateY(8px);transition:opacity .18s,transform .18s;pointer-events:none;';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.style.borderColor = kind === 'error' ? 'rgba(248,113,113,.6)' : 'rgba(120,160,220,.35)';
+    toast.style.opacity = '1'; toast.style.transform = 'translateY(0)';
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(function(){ toast.style.opacity='0'; toast.style.transform='translateY(8px)'; }, 2600);
+  }
+  function tswAiConfirm(title, message) {
+    return new Promise(function(resolve) {
+      var overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:100001;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.68);backdrop-filter:blur(5px);';
+      var panel = document.createElement('div');
+      panel.style.cssText = 'width:min(440px,100%);padding:22px;border:1px solid rgba(148,163,184,.25);border-radius:16px;background:#0d1422;color:#e5edf9;box-shadow:0 24px 80px #000a;font:14px/1.55 system-ui;';
+      var heading = document.createElement('h3'); heading.textContent=title; heading.style.cssText='font-size:18px;margin:0 0 10px;';
+      var body = document.createElement('p'); body.textContent=message; body.style.cssText='white-space:pre-line;color:#b8c4d8;margin:0 0 20px;';
+      var actions = document.createElement('div'); actions.style.cssText='display:flex;justify-content:flex-end;gap:8px;';
+      function button(label, primary) { var b=document.createElement('button'); b.type='button'; b.textContent=label; b.style.cssText='border:1px solid '+(primary?'#5799f7':'#344155')+';border-radius:9px;padding:9px 14px;background:'+(primary?'#5799f7':'#151f30')+';color:'+(primary?'#061326':'#e5edf9')+';font:600 13px system-ui;cursor:pointer;'; b.addEventListener('click',function(){overlay.remove();resolve(primary);}); return b; }
+      actions.append(button('Cancel',false),button('Continue',true)); panel.append(heading,body,actions); overlay.appendChild(panel); overlay.addEventListener('click',function(e){if(e.target===overlay){overlay.remove();resolve(false);}}); document.body.appendChild(overlay);
+    });
+  }
+  async function copyTswAiText(text, button) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(text);
+      else {
+        var area=document.createElement('textarea'); area.value=text; area.style.cssText='position:fixed;opacity:0;left:-9999px;top:0'; document.body.appendChild(area); area.select();
+        var copied=document.execCommand('copy'); area.remove(); if(!copied) throw new Error('Clipboard unavailable');
+      }
+      if (button) { button.textContent='Copied'; setTimeout(function(){button.textContent='Copy response';},1400); }
+      tswAiToast('Response copied to clipboard.');
+    } catch (e) { tswAiToast('Could not copy automatically. Select the response and copy it manually.','error'); }
+  }
   function addTswAiMessage(text, role) {
     if (!aiMessages) return;
     var bubble = document.createElement('div');
     bubble.className = 'tsw-ai-message ' + (role === 'user' ? 'tsw-ai-user' : 'tsw-ai-assistant');
-    bubble.textContent = text;
+    var body = document.createElement('div');
+    body.className = 'tsw-ai-message-text';
+    body.textContent = text;
+    bubble.appendChild(body);
+    if (role !== 'user') {
+      var actions = document.createElement('div');
+      actions.style.cssText='display:flex;justify-content:flex-end;margin-top:8px;';
+      var copy = document.createElement('button');
+      copy.type='button'; copy.textContent='Copy response';
+      copy.style.cssText='border:1px solid rgba(148,163,184,.3);border-radius:7px;padding:5px 9px;background:rgba(148,163,184,.09);color:inherit;font:500 12px system-ui;cursor:pointer;';
+      copy.addEventListener('click',function(){copyTswAiText(text,copy);});
+      actions.appendChild(copy); bubble.appendChild(actions);
+    }
     aiMessages.appendChild(bubble);
     aiMessages.scrollTop = aiMessages.scrollHeight;
   }
@@ -5196,14 +5247,14 @@ document.addEventListener('keydown', function (ev) {
     if (!prompt) return;
     try {
       if (localStorage.getItem('tsw-ai-first-message-notice-v1') !== 'accepted') {
-        var notice = 'Before your first TSW AI message:\\n\\nBy using TSW AI, you agree to follow TSW site rules and acknowledge that your prompt is sent to Google Gemini to generate a response. Your message may be processed by TSW and the AI provider. Do not share passwords, contact details, or other sensitive information. AI responses can be wrong, so check important information yourself.\\n\\nContinue and send your first message?';
-        if (!window.confirm(notice)) return;
+        var notice = 'By using TSW AI, your prompt is sent to Google Gemini to generate a response. Do not share passwords or sensitive information. AI responses can be wrong, so check important answers.';
+        if (!await tswAiConfirm('Before your first message', notice)) return;
         localStorage.setItem('tsw-ai-first-message-notice-v1', 'accepted');
       }
     } catch (noticeError) {
-      if (!window.confirm('By using TSW AI, your prompt is sent to Google Gemini to generate a response. Do not share sensitive information, and check important answers. Continue?')) return;
+      if (!await tswAiConfirm('Before using TSW AI', 'Your prompt is sent to Google Gemini. Do not share sensitive information, and check important answers. Continue?')) return;
     }
-    if (prompt.length > 1200 && !window.confirm('This is a long request and may use a lot of the shared free AI quota. Heavy or abusive use can lead to being blocked from TSW services. Send it anyway?')) return;
+    if (prompt.length > 1200 && !await tswAiConfirm('Long request', 'This request may use more of the shared free AI quota. Send it anyway?')) return;
     var user = window.TSWProfiles && window.TSWProfiles.getUser ? window.TSWProfiles.getUser() : null;
     var token = window.TSWProfiles && window.TSWProfiles.getToken ? window.TSWProfiles.getToken() : '';
     if (!user || !token) { if (aiStatus) aiStatus.textContent = 'Please sign in again to use AI.'; return; }
