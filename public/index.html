@@ -3152,20 +3152,25 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
 #ai-coming-soon-panel{
   --ai-x:50%;--ai-y:35%;
   background:
-    radial-gradient(650px circle at var(--ai-x) var(--ai-y),rgba(66,132,255,.16),transparent 58%),
-    radial-gradient(900px circle at 12% 90%,rgba(28,73,155,.18),transparent 60%),
+    radial-gradient(650px circle at var(--ai-x) var(--ai-y),rgba(66,132,255,.22),transparent 58%),
+    radial-gradient(900px circle at 12% 90%,rgba(28,73,155,.2),transparent 60%),
     linear-gradient(145deg,#050914 0%,#080e20 48%,#030610 100%) !important;
+  background-size:100% 100%,180% 180%,220% 220%!important;
+  animation:tswAiAmbient 24s ease-in-out infinite alternate;
   isolation:isolate;
 }
 #ai-coming-soon-panel:before{
-  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.45;
-  background-image:radial-gradient(1px 1px at 12% 18%,#9ec5ff 98%,transparent),radial-gradient(1px 1px at 82% 24%,#7caeff 98%,transparent),radial-gradient(1px 1px at 68% 78%,#9ec5ff 98%,transparent),radial-gradient(1px 1px at 28% 68%,#7caeff 98%,transparent),radial-gradient(1px 1px at 92% 88%,#9ec5ff 98%,transparent);
+  content:"";position:fixed;inset:-8%;z-index:-1;pointer-events:none;opacity:.52;
+  background-image:radial-gradient(1.5px 1.5px at 12% 18%,#b7d5ff 98%,transparent),radial-gradient(1px 1px at 82% 24%,#7caeff 98%,transparent),radial-gradient(1.5px 1.5px at 68% 78%,#9ec5ff 98%,transparent),radial-gradient(1px 1px at 28% 68%,#7caeff 98%,transparent),radial-gradient(1.5px 1.5px at 92% 88%,#9ec5ff 98%,transparent);
   background-size:240px 220px,310px 290px,270px 260px,360px 330px,290px 310px;
+  animation:tswAiStars 38s linear infinite alternate;
 }
+@keyframes tswAiAmbient{0%{background-position:var(--ai-x) var(--ai-y),0% 100%,0% 0%}50%{background-position:var(--ai-x) var(--ai-y),75% 25%,55% 60%}100%{background-position:var(--ai-x) var(--ai-y),100% 0%,100% 100%}}
+@keyframes tswAiStars{from{transform:translate3d(-1.5%,1%,0) scale(1)}to{transform:translate3d(1.5%,-1%,0) scale(1.04)}}
 #ai-coming-soon-panel>div{width:100%;max-width:100%!important;min-height:100dvh!important;padding:clamp(18px,4vw,42px)!important}
 #ai-coming-soon-panel>div>header{border:0!important;padding:0 0 12px!important}
 #ai-coming-soon-panel>div>header h1{font-size:17px!important;letter-spacing:.04em!important;color:#bcd5ff}
-#ai-coming-soon-back{border-color:rgba(133,174,255,.22)!important;background:rgba(12,24,48,.5)!important;backdrop-filter:blur(14px)}
+#ai-coming-soon-back{position:fixed!important;top:22px!important;left:clamp(18px,3vw,38px)!important;z-index:8!important;border-color:rgba(133,174,255,.22)!important;background:rgba(12,24,48,.72)!important;backdrop-filter:blur(14px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
 #tsw-ai-welcome{
   position:absolute;left:50%;top:46%;width:min(760px,calc(100% - 36px));transform:translate(-50%,-50%);
   margin:0!important;text-align:center;z-index:2;transition:opacity .5s ease,transform .65s cubic-bezier(.2,.8,.2,1),visibility .5s;
@@ -3174,9 +3179,9 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
   background:linear-gradient(100deg,#f4f8ff 10%,#a9cbff 56%,#75a7ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
 #tsw-ai-welcome p{font-size:15px!important;color:#91a9d1!important}
 #tsw-ai-models{
-  position:fixed;top:22px;right:clamp(18px,3vw,38px);z-index:5;margin:0!important;gap:7px!important;justify-content:flex-end;
-  max-width:calc(100% - 160px);padding:7px;border:1px solid rgba(125,164,235,.18);border-radius:14px;
-  background:rgba(5,12,27,.62);backdrop-filter:blur(18px);box-shadow:0 12px 40px rgba(0,0,0,.18)
+  position:fixed;top:22px;right:clamp(18px,3vw,38px);left:auto;z-index:5;margin:0!important;gap:7px!important;justify-content:flex-end;
+  max-width:calc(100vw - 230px);padding:7px;border:1px solid rgba(125,164,235,.18);border-radius:14px;
+  background:rgba(5,12,27,.76);backdrop-filter:blur(18px);box-shadow:0 12px 40px rgba(0,0,0,.18)
 }
 #tsw-ai-models .tsw-ai-model{font-size:12px!important;padding:7px 10px!important;border-radius:9px!important;border-color:rgba(125,164,235,.16)!important}
 #tsw-ai-models .tsw-ai-model.active{background:rgba(63,126,255,.22)!important;border-color:rgba(111,164,255,.65)!important;color:#e4efff!important}
@@ -3194,14 +3199,16 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
 @media(max-width:600px){
  #ai-coming-soon-panel>div{padding:16px!important}
  #ai-coming-soon-panel>div>header{padding-top:58px!important}
- #tsw-ai-models{top:10px;left:12px;right:12px;max-width:none;justify-content:flex-start;overflow-x:auto}
+ #tsw-ai-models{top:68px;left:12px;right:12px;max-width:none;justify-content:flex-start;overflow-x:auto}
+ #ai-coming-soon-back{top:12px!important;left:12px!important}
+ #ai-coming-soon-panel>div>header{padding-top:112px!important}
  #tsw-ai-models .tsw-ai-model{white-space:nowrap}
  #tsw-ai-welcome{top:43%}
  #tsw-ai-welcome p{max-width:300px;margin:0 auto!important}
  #tsw-ai-form{margin-bottom:4px}
  #tsw-ai-prompt{min-height:48px!important}
 }
-@media(prefers-reduced-motion:reduce){#tsw-ai-welcome,#tsw-ai-messages .tsw-ai-message{transition:none;animation:none}}
+@media(prefers-reduced-motion:reduce){#ai-coming-soon-panel,#ai-coming-soon-panel:before,#tsw-ai-welcome,#tsw-ai-messages .tsw-ai-message{transition:none;animation:none}}
 </style>
 
 <section id="game-tab" hidden>
@@ -5159,6 +5166,15 @@ document.addEventListener('keydown', function (ev) {
     if (aiBusy) return;
     var prompt = (aiPrompt.value || '').trim();
     if (!prompt) return;
+    try {
+      if (localStorage.getItem('tsw-ai-first-message-notice-v1') !== 'accepted') {
+        var notice = 'Before your first TSW AI message:\\n\\nBy using TSW AI, you agree to follow TSW site rules and acknowledge that your prompt is sent to Google Gemini to generate a response. Your message may be processed by TSW and the AI provider. Do not share passwords, contact details, or other sensitive information. AI responses can be wrong, so check important information yourself.\\n\\nContinue and send your first message?';
+        if (!window.confirm(notice)) return;
+        localStorage.setItem('tsw-ai-first-message-notice-v1', 'accepted');
+      }
+    } catch (noticeError) {
+      if (!window.confirm('By using TSW AI, your prompt is sent to Google Gemini to generate a response. Do not share sensitive information, and check important answers. Continue?')) return;
+    }
     if (prompt.length > 1200 && !window.confirm('This is a long request and may use a lot of the shared free AI quota. Heavy or abusive use can lead to being blocked from TSW services. Send it anyway?')) return;
     var user = window.TSWProfiles && window.TSWProfiles.getUser ? window.TSWProfiles.getUser() : null;
     var token = window.TSWProfiles && window.TSWProfiles.getToken ? window.TSWProfiles.getToken() : '';
