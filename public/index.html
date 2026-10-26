@@ -6087,6 +6087,44 @@ document.addEventListener('keydown', function (ev) {
     });
   }
 
+  // Report buttons are a frontend-only demo: reports are stored in this browser, not sent to a server.
+  function handleLocalMessageReport(button, type) {
+    var id = button.getAttribute(type === 'public' ? 'data-report-pub' : 'data-report-dm');
+    if (!id) return false;
+    var reason = window.prompt('Why are you reporting this message?');
+    if (reason === null) return true;
+    reason = reason.trim();
+    if (!reason) { window.alert('Please enter a reason for the report.'); return true; }
+    var key = 'tsw.demo.reports.' + type;
+    var reports = {};
+    try { reports = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch (e) {}
+    var entry = reports[id] || { count: 0, reasons: [] };
+    entry.count += 1;
+    entry.reasons.push(reason.slice(0, 300));
+    reports[id] = entry;
+    try { localStorage.setItem(key, JSON.stringify(reports)); } catch (e) {}
+    if (type === 'public' && entry.count >= 3) {
+      var row = button.closest('.public-msg-row');
+      if (row) row.remove();
+      window.alert('This message reached 3 reports and was hidden in this browser demo. It has not been deleted from the server.');
+    } else {
+      window.alert('Report saved in this browser demo (' + entry.count + '/3 reports). No report backend is connected.');
+    }
+    return true;
+  }
+  if (publicFeedBox) {
+    publicFeedBox.addEventListener('click', function (ev) {
+      var reportBtn = ev.target.closest('[data-report-pub]');
+      if (reportBtn) { handleLocalMessageReport(reportBtn, 'public'); return; }
+    });
+  }
+  if (chatFeedBox) {
+    chatFeedBox.addEventListener('click', function (ev) {
+      var reportBtn = ev.target.closest('[data-report-dm]');
+      if (reportBtn) { handleLocalMessageReport(reportBtn, 'dm'); return; }
+    });
+  }
+
   // Public messages actions (Edit & Delete)
   if (publicFeedBox) {
     publicFeedBox.addEventListener('click', function (ev) {
