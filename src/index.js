@@ -409,21 +409,21 @@ fastify.post("/api/ai/chat", async (req, reply) => {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
       body: JSON.stringify({
-        system_instruction: { parts: [{ text: "You are TSW AI, a helpful assistant for everyday questions and homework. Be clear, friendly, age-appropriate, and honest when unsure. Explain schoolwork so the student can learn rather than simply encouraging cheating. Do not claim to be ChatGPT or another provider." }] },
+        system_instruction: { parts: [{ text: "You are TSW AI, a reliable, helpful assistant for everyday questions, coding, and homework. Read the full request carefully, reason through the problem before answering, check your answer for mistakes, and use tools or calculations only when actually available. Do not reveal private hidden chain-of-thought; instead give a clear answer with useful reasoning, steps, assumptions, and checks when they help. Be friendly, age-appropriate, direct, and honest when unsure. For coding, give working complete examples when appropriate and explain likely causes of errors. Explain schoolwork so the student can learn rather than simply encouraging cheating. Do not claim to be ChatGPT or another provider." }] },
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         generationConfig: { maxOutputTokens: 900, temperature: 0.7 }
       }),
       signal: AbortSignal.timeout(30000)
     });
     // Retry transient overloads, then fall back to a lighter model if Flash is busy.
-    let response = await requestGemini("gemini-3.8-flash");
+    let response = await requestGemini("gemini-2.5-flash");
     if (response.status === 503 || response.status === 500) {
       await new Promise(resolve => setTimeout(resolve, 900));
-      response = await requestGemini("gemini-3.8-flash");
+      response = await requestGemini("gemini-2.5-flash");
     }
     if (response.status === 503 || response.status === 500 || response.status === 429) {
       req.log.warn({ status: response.status }, "Primary Gemini model unavailable; trying Flash-Lite fallback");
-      response = await requestGemini("gemini-3.5-flash-lite");
+      response = await requestGemini("gemini-2.5-flash-lite");
     }
     if (response.status === 429) {
       reply.code(429);
@@ -462,7 +462,7 @@ fastify.post("/api/ai/chat", async (req, reply) => {
     usage.requests += 1;
     usage.chars += prompt.length;
     aiDailyUsage.set(usageKey, usage);
-    return { success: true, reply: answer, model: "Gemini (3.8 Flash with Flash-Lite fallback)", remainingRequests: Math.max(0, 20 - usage.requests) };
+    return { success: true, reply: answer, model: "Gemini 2.5 Flash with Flash-Lite fallback", remainingRequests: Math.max(0, 20 - usage.requests) };
   } catch (err) {
     if (err.message && err.message.includes("Authentication")) reply.code(401);
     else if (!reply.statusCode || reply.statusCode < 400) reply.code(500);
