@@ -5269,7 +5269,9 @@ document.addEventListener('keydown', function (ev) {
       addTswAiMessage(result.reply, 'assistant');
       if (aiStatus) aiStatus.textContent = 'Gemini · Free usage may be limited';
     } catch (error) {
-      if (aiStatus) aiStatus.textContent = error.message || 'AI is temporarily unavailable. Try again later.';
+      var aiError = error.message || 'AI is temporarily unavailable. Try again later.';
+      if (aiStatus) aiStatus.textContent = aiError;
+      tswAiToast(aiError, 'error');
     } finally {
       aiBusy = false; aiPrompt.disabled = false; $('tsw-ai-send').disabled = false; aiPrompt.focus();
     }
