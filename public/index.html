@@ -3147,6 +3147,61 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
 #tsw-ai-messages .tsw-ai-assistant{align-self:flex-start;background:rgba(130,145,165,.08);border:1px solid var(--border,rgba(148,163,184,.14))}
 #tsw-ai-models .tsw-ai-model.active{border-color:var(--accent,#477be8)!important;background:rgba(71,123,232,.13)!important}
 @media(max-width:600px){#tsw-ai-messages .tsw-ai-message{max-width:96%}}
+
+/* TSW AI refresh: centered welcome, blue starfield glow, compact model picker. */
+#ai-coming-soon-panel{
+  --ai-x:50%;--ai-y:35%;
+  background:
+    radial-gradient(650px circle at var(--ai-x) var(--ai-y),rgba(66,132,255,.16),transparent 58%),
+    radial-gradient(900px circle at 12% 90%,rgba(28,73,155,.18),transparent 60%),
+    linear-gradient(145deg,#050914 0%,#080e20 48%,#030610 100%) !important;
+  isolation:isolate;
+}
+#ai-coming-soon-panel:before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.45;
+  background-image:radial-gradient(1px 1px at 12% 18%,#9ec5ff 98%,transparent),radial-gradient(1px 1px at 82% 24%,#7caeff 98%,transparent),radial-gradient(1px 1px at 68% 78%,#9ec5ff 98%,transparent),radial-gradient(1px 1px at 28% 68%,#7caeff 98%,transparent),radial-gradient(1px 1px at 92% 88%,#9ec5ff 98%,transparent);
+  background-size:240px 220px,310px 290px,270px 260px,360px 330px,290px 310px;
+}
+#ai-coming-soon-panel>div{width:100%;max-width:100%!important;min-height:100dvh!important;padding:clamp(18px,4vw,42px)!important}
+#ai-coming-soon-panel>div>header{border:0!important;padding:0 0 12px!important}
+#ai-coming-soon-panel>div>header h1{font-size:17px!important;letter-spacing:.04em!important;color:#bcd5ff}
+#ai-coming-soon-back{border-color:rgba(133,174,255,.22)!important;background:rgba(12,24,48,.5)!important;backdrop-filter:blur(14px)}
+#tsw-ai-welcome{
+  position:absolute;left:50%;top:46%;width:min(760px,calc(100% - 36px));transform:translate(-50%,-50%);
+  margin:0!important;text-align:center;z-index:2;transition:opacity .5s ease,transform .65s cubic-bezier(.2,.8,.2,1),visibility .5s;
+}
+#tsw-ai-greeting{font-size:clamp(32px,5.5vw,58px)!important;font-weight:560!important;letter-spacing:-.055em!important;
+  background:linear-gradient(100deg,#f4f8ff 10%,#a9cbff 56%,#75a7ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#tsw-ai-welcome p{font-size:15px!important;color:#91a9d1!important}
+#tsw-ai-models{
+  position:fixed;top:22px;right:clamp(18px,3vw,38px);z-index:5;margin:0!important;gap:7px!important;justify-content:flex-end;
+  max-width:calc(100% - 160px);padding:7px;border:1px solid rgba(125,164,235,.18);border-radius:14px;
+  background:rgba(5,12,27,.62);backdrop-filter:blur(18px);box-shadow:0 12px 40px rgba(0,0,0,.18)
+}
+#tsw-ai-models .tsw-ai-model{font-size:12px!important;padding:7px 10px!important;border-radius:9px!important;border-color:rgba(125,164,235,.16)!important}
+#tsw-ai-models .tsw-ai-model.active{background:rgba(63,126,255,.22)!important;border-color:rgba(111,164,255,.65)!important;color:#e4efff!important}
+#tsw-ai-models .tsw-ai-model:disabled{opacity:.42!important}
+#tsw-ai-messages{width:min(850px,100%);margin:0 auto;padding-top:70px!important}
+#tsw-ai-form{width:min(850px,100%);margin:0 auto;background:rgba(9,20,42,.66)!important;border-color:rgba(110,157,245,.28)!important;border-radius:20px!important;backdrop-filter:blur(20px);box-shadow:0 16px 70px rgba(0,0,0,.25)}
+#tsw-ai-prompt{min-height:60px!important;resize:none!important}
+#tsw-ai-send{background:linear-gradient(135deg,#659bff,#3474e8)!important;box-shadow:0 5px 18px rgba(48,108,235,.24)}
+#tsw-ai-status{width:min(850px,100%);margin-left:auto;margin-right:auto}
+#ai-coming-soon-panel>div>p:last-child{width:min(850px,100%);margin-left:auto!important;margin-right:auto!important;color:#647da8!important}
+#ai-coming-soon-panel.has-messages #tsw-ai-welcome{opacity:0;visibility:hidden;transform:translate(-50%,calc(-50% - 70px));pointer-events:none}
+#ai-coming-soon-panel.has-messages #tsw-ai-messages{padding-top:22px!important}
+#tsw-ai-messages .tsw-ai-message{animation:tswAiBubbleIn .35s ease both;border-radius:16px!important}
+@keyframes tswAiBubbleIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){
+ #ai-coming-soon-panel>div{padding:16px!important}
+ #ai-coming-soon-panel>div>header{padding-top:58px!important}
+ #tsw-ai-models{top:10px;left:12px;right:12px;max-width:none;justify-content:flex-start;overflow-x:auto}
+ #tsw-ai-models .tsw-ai-model{white-space:nowrap}
+ #tsw-ai-welcome{top:43%}
+ #tsw-ai-welcome p{max-width:300px;margin:0 auto!important}
+ #tsw-ai-form{margin-bottom:4px}
+ #tsw-ai-prompt{min-height:48px!important}
+}
+@media(prefers-reduced-motion:reduce){#tsw-ai-welcome,#tsw-ai-messages .tsw-ai-message{transition:none;animation:none}}
 </style>
 
 <section id="game-tab" hidden>
@@ -5059,6 +5114,14 @@ document.addEventListener('keydown', function (ev) {
   var aiStatus = $('tsw-ai-status');
   var aiGreeting = $('tsw-ai-greeting');
   var aiBusy = false;
+  // Pointer-following TSW blue glow and welcome-to-chat transition.
+  if (aiComingSoonPanel) {
+    aiComingSoonPanel.addEventListener('pointermove', function(ev) {
+      var rect = aiComingSoonPanel.getBoundingClientRect();
+      aiComingSoonPanel.style.setProperty('--ai-x', (ev.clientX - rect.left) + 'px');
+      aiComingSoonPanel.style.setProperty('--ai-y', (ev.clientY - rect.top) + 'px');
+    }, {passive:true});
+  }
   function closeAiComingSoon() {
     if (aiComingSoonPanel) { aiComingSoonPanel.hidden = true; aiComingSoonPanel.style.display = 'none'; }
   }
@@ -5100,6 +5163,7 @@ document.addEventListener('keydown', function (ev) {
     var user = window.TSWProfiles && window.TSWProfiles.getUser ? window.TSWProfiles.getUser() : null;
     var token = window.TSWProfiles && window.TSWProfiles.getToken ? window.TSWProfiles.getToken() : '';
     if (!user || !token) { if (aiStatus) aiStatus.textContent = 'Please sign in again to use AI.'; return; }
+    if (aiComingSoonPanel) aiComingSoonPanel.classList.add('has-messages');
     aiBusy = true; aiPrompt.value = ''; aiPrompt.disabled = true; $('tsw-ai-send').disabled = true;
     addTswAiMessage(prompt, 'user');
     if (aiStatus) aiStatus.textContent = 'Thinking…';
