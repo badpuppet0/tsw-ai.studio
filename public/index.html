@@ -2373,10 +2373,10 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
 
   <!-- Bottom Navigation Menu Items -->
   <nav class="sb-menu" aria-label="Side Navigation Menu">
-    <!-- AI (coming soon) -->
-    <button class="sb-menu-item ai-coming-soon" id="ai-coming-soon-btn" title="AI — Coming Soon" type="button" disabled aria-disabled="true">
-      <span class="sb-menu-icon">✨</span>
-      <span class="sb-label">AI <span class="ai-soon-pill">Coming Soon</span></span>
+    <!-- AI -->
+    <button class="sb-menu-item" id="ai-coming-soon-btn" title="AI" type="button">
+      <span class="sb-menu-icon">✦</span>
+      <span class="sb-label">AI</span>
     </button>
 
     <!-- Friends & Chat -->
@@ -2414,13 +2414,6 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
       </span>
       <span class="sb-label">Update Log</span>
       <span class="whats-new-dot" id="log-whats-new-dot" title="New updates!"></span>
-    </button>
-
-    <!-- Notifications -->
-    <button class="sb-menu-item" id="notifications-btn" title="Notifications" type="button">
-      <span class="sb-menu-icon">🔔</span>
-      <span class="sb-label">Notifications</span>
-      <span id="notifications-count" class="prof-item-badge" hidden>0</span>
     </button>
 
     <!-- Account / Profiles (Cloud SQL) -->
@@ -3108,15 +3101,34 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
   </div>
 </section>
 
-<section id="ai-coming-soon-panel" hidden style="position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;padding:2rem;background:rgba(5,10,20,.94);text-align:center">
-  <div style="max-width:520px;padding:2rem;border:1px solid rgba(90,162,255,.22);border-radius:20px;background:rgba(16,25,42,.82);box-shadow:0 20px 80px rgba(0,0,0,.3)">
-    <div style="font-size:2.5rem;margin-bottom:.8rem">✨</div>
-    <h1 style="font-size:clamp(1.7rem,5vw,2.5rem);margin:0 0 .7rem">AI</h1>
-    <p style="font-size:1.05rem;color:#aebed2;margin:0">Coming Soon (Major Update ⏰....)</p>
-    <p style="font-size:.85rem;color:#778ba4;margin:1rem 0 0">We're working on something bigger. Check back in a future update.</p>
-    <button type="button" id="ai-coming-soon-back" style="margin-top:1.4rem;padding:.65rem 1rem;border-radius:10px;border:1px solid rgba(90,162,255,.3);background:rgba(90,162,255,.12);color:#dbeafe;cursor:pointer">Back to TSW</button>
+<section id="ai-coming-soon-panel" hidden aria-label="TSW AI" style="position:fixed;inset:0;z-index:80;background:var(--bg,#080d16);color:var(--text,#e7edf6);overflow:auto">
+  <div style="max-width:900px;min-height:100%;margin:auto;display:flex;flex-direction:column;padding:clamp(16px,4vw,34px);box-sizing:border-box">
+    <header style="display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--border,rgba(148,163,184,.18));padding-bottom:16px">
+      <div><div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted,#91a0b5)">TSW v2</div><h1 style="font-size:25px;font-weight:650;margin:5px 0 0">AI</h1></div>
+      <button type="button" id="ai-coming-soon-back" style="padding:9px 13px;border:1px solid var(--border,rgba(148,163,184,.22));border-radius:9px;background:transparent;color:inherit;cursor:pointer">Back</button>
+    </header>
+    <div id="tsw-ai-welcome" style="margin:30px 0 18px"><h2 id="tsw-ai-greeting" style="font-size:clamp(24px,4vw,34px);font-weight:600;letter-spacing:-.03em;margin:0 0 8px">What’s on your mind?</h2><p style="margin:0;color:var(--muted,#91a0b5);font-size:14px">Ask a question, get help with homework, or work through an idea.</p></div>
+    <div id="tsw-ai-models" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      <button type="button" class="tsw-ai-model active" data-model="gemini" style="border:1px solid #65758b;border-radius:9px;padding:8px 12px;background:rgba(120,140,165,.12);color:inherit;cursor:pointer">Gemini</button>
+      <button type="button" class="tsw-ai-model" data-model="chatgpt" disabled title="Not connected" style="border:1px solid var(--border,rgba(148,163,184,.18));border-radius:9px;padding:8px 12px;background:transparent;color:var(--muted,#91a0b5);cursor:not-allowed;opacity:.65">ChatGPT · unavailable</button>
+      <button type="button" class="tsw-ai-model" data-model="deepseek" disabled title="Not connected" style="border:1px solid var(--border,rgba(148,163,184,.18));border-radius:9px;padding:8px 12px;background:transparent;color:var(--muted,#91a0b5);cursor:not-allowed;opacity:.65">DeepSeek · unavailable</button>
+    </div>
+    <div id="tsw-ai-messages" role="log" aria-live="polite" style="flex:1;min-height:180px;display:flex;flex-direction:column;gap:14px;padding:8px 0 20px"></div>
+    <div id="tsw-ai-status" role="status" style="font-size:13px;color:var(--muted,#91a0b5);min-height:20px;margin-bottom:8px"></div>
+    <form id="tsw-ai-form" style="border:1px solid var(--border,rgba(148,163,184,.25));border-radius:15px;padding:10px;background:rgba(120,140,165,.05)">
+      <textarea id="tsw-ai-prompt" maxlength="5000" rows="3" placeholder="Message TSW AI…" aria-label="Message TSW AI" style="width:100%;resize:vertical;box-sizing:border-box;border:0;outline:0;background:transparent;color:inherit;font:inherit;padding:8px"></textarea>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 4px 0"><span style="font-size:11px;color:var(--muted,#91a0b5)">Free usage can be limited. Don’t share private information.</span><button id="tsw-ai-send" type="submit" style="border:0;border-radius:9px;padding:9px 15px;background:var(--accent,#477be8);color:white;font-weight:600;cursor:pointer">Send ↑</button></div>
+    </form>
+    <p style="font-size:11px;line-height:1.5;color:var(--muted,#91a0b5);margin:12px 0 0">AI can make mistakes. Don’t use it for emergencies or as a replacement for professional advice.</p>
   </div>
 </section>
+<style>
+#tsw-ai-messages .tsw-ai-message{max-width:88%;padding:12px 15px;border-radius:13px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}
+#tsw-ai-messages .tsw-ai-user{align-self:flex-end;background:rgba(91,132,213,.18);border:1px solid rgba(91,132,213,.22)}
+#tsw-ai-messages .tsw-ai-assistant{align-self:flex-start;background:rgba(130,145,165,.08);border:1px solid var(--border,rgba(148,163,184,.14))}
+#tsw-ai-models .tsw-ai-model.active{border-color:var(--accent,#477be8)!important;background:rgba(71,123,232,.13)!important}
+@media(max-width:600px){#tsw-ai-messages .tsw-ai-message{max-width:96%}}
+</style>
 
 <section id="game-tab" hidden>
   <div class="game-bar">
@@ -5028,16 +5040,72 @@ document.addEventListener('keydown', function (ev) {
   });
   if (typeof updateAuthUI === 'function') loadProfileDetails();
 
-  // AI is intentionally disabled until the future major update.
+  // TSW AI chat. The API key stays on the server; only Gemini is enabled until other providers are genuinely connected.
   var aiComingSoonBtn = $('ai-coming-soon-btn');
   var aiComingSoonPanel = $('ai-coming-soon-panel');
   var aiComingSoonBack = $('ai-coming-soon-back');
+  var aiForm = $('tsw-ai-form');
+  var aiPrompt = $('tsw-ai-prompt');
+  var aiMessages = $('tsw-ai-messages');
+  var aiStatus = $('tsw-ai-status');
+  var aiGreeting = $('tsw-ai-greeting');
+  var aiBusy = false;
   function closeAiComingSoon() {
-    if (aiComingSoonPanel) aiComingSoonPanel.hidden = true;
-    if (aiComingSoonPanel) aiComingSoonPanel.style.display = 'none';
+    if (aiComingSoonPanel) { aiComingSoonPanel.hidden = true; aiComingSoonPanel.style.display = 'none'; }
   }
-  // The sidebar item remains disabled; this handler only supports the back button.
+  function openTswAi() {
+    var user = window.TSWProfiles && window.TSWProfiles.getUser ? window.TSWProfiles.getUser() : null;
+    if (!user) {
+      if (typeof showToast === 'function') showToast('Sign in to your TSW account to use AI.');
+      else alert('Sign in to your TSW account to use AI.');
+      return;
+    }
+    if (aiGreeting) aiGreeting.textContent = 'What’s on your mind, ' + (user.displayName || user.username || 'there') + '?';
+    aiComingSoonPanel.hidden = false;
+    aiComingSoonPanel.style.display = 'block';
+    setTimeout(function(){ if (aiPrompt) aiPrompt.focus(); }, 50);
+  }
+  if (aiComingSoonBtn) aiComingSoonBtn.addEventListener('click', openTswAi);
   if (aiComingSoonBack) aiComingSoonBack.addEventListener('click', closeAiComingSoon);
+  document.querySelectorAll('#tsw-ai-models [data-model]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if (btn.disabled) return;
+      document.querySelectorAll('#tsw-ai-models [data-model]').forEach(function(b){b.classList.toggle('active', b===btn);});
+      if (aiStatus) aiStatus.textContent = 'Gemini is the only connected provider right now.';
+    });
+  });
+  function addTswAiMessage(text, role) {
+    if (!aiMessages) return;
+    var bubble = document.createElement('div');
+    bubble.className = 'tsw-ai-message ' + (role === 'user' ? 'tsw-ai-user' : 'tsw-ai-assistant');
+    bubble.textContent = text;
+    aiMessages.appendChild(bubble);
+    aiMessages.scrollTop = aiMessages.scrollHeight;
+  }
+  if (aiForm) aiForm.addEventListener('submit', async function(event){
+    event.preventDefault();
+    if (aiBusy) return;
+    var prompt = (aiPrompt.value || '').trim();
+    if (!prompt) return;
+    if (prompt.length > 1200 && !window.confirm('This is a long request and may use a lot of the shared free AI quota. Heavy or abusive use can lead to being blocked from TSW services. Send it anyway?')) return;
+    var user = window.TSWProfiles && window.TSWProfiles.getUser ? window.TSWProfiles.getUser() : null;
+    var token = window.TSWProfiles && window.TSWProfiles.getToken ? window.TSWProfiles.getToken() : '';
+    if (!user || !token) { if (aiStatus) aiStatus.textContent = 'Please sign in again to use AI.'; return; }
+    aiBusy = true; aiPrompt.value = ''; aiPrompt.disabled = true; $('tsw-ai-send').disabled = true;
+    addTswAiMessage(prompt, 'user');
+    if (aiStatus) aiStatus.textContent = 'Thinking…';
+    try {
+      var response = await fetch('/api/ai/chat', {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify({model:'gemini',prompt:prompt})});
+      var result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.error || 'AI request failed. Please try again later.');
+      addTswAiMessage(result.reply, 'assistant');
+      if (aiStatus) aiStatus.textContent = 'Gemini · Free usage may be limited';
+    } catch (error) {
+      if (aiStatus) aiStatus.textContent = error.message || 'AI is temporarily unavailable. Try again later.';
+    } finally {
+      aiBusy = false; aiPrompt.disabled = false; $('tsw-ai-send').disabled = false; aiPrompt.focus();
+    }
+  });
 
   // Open modal on user-pill click
   profBtn.addEventListener('click', function () {
