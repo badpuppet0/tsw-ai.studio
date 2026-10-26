@@ -2907,6 +2907,15 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
         <li>Admin dashboard is being planned separately and is not available yet.</li>
       </ul>
 
+      <h3>TSW v2 1.7<span>Browser reliability & AI planning</span></h3>
+      <p class="date">October 2026</p>
+      <ul>
+        <li>Message times now use your device's local timezone, with timezone-less API timestamps interpreted as UTC.</li>
+        <li>Improved failure screens with retry and copyable error details.</li>
+        <li>Failed page attempts are kept locally for troubleshooting; a stop-loading control is available.</li>
+        <li>Built-in AI section is in planning: provider options, privacy, limits, and available features need to be decided before implementation.</li>
+      </ul>
+
       <h3 class="older">TSW v2 1.5<span>Sidebar, Cork7 Arcade & Discord</span></h3>
       <p class="date">October 2026</p>
       <ul>
@@ -3050,6 +3059,7 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
     <button id="btn-back" title="Back" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
     <button id="btn-fwd" title="Forward" aria-label="Forward"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
     <button id="btn-reload" title="Reload" aria-label="Reload"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg></button>
+    <button id="btn-stop" title="Stop loading" aria-label="Stop loading" disabled>×</button>
     <button id="btn-newtab" title="Open in new tab" aria-label="Open in new tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></button>
     <input class="addr" id="addr" type="text" inputmode="url" autocapitalize="off" spellcheck="false" aria-label="Address">
     <div class="load" id="load" role="progressbar" aria-label="Page loading" aria-valuemin="0" aria-valuemax="100"></div>
@@ -3060,7 +3070,8 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
     <h3 id="diag-t"></h3>
     <p id="diag-p"></p>
     <div class="row">
-      <button class="plain" type="button" id="diag-reload">Reload</button>
+      <button class="plain" type="button" id="diag-reload">Retry</button>
+      <button class="plain" type="button" id="diag-copy">Copy error details</button>
       <button class="plain" type="button" id="diag-tab">Open in new tab</button>
       <a class="plain" id="diag-report" href="https://docs.google.com/forms/d/e/1FAIpQLScupiUZuqQsngFai_QPQRWn06LpuZy3VGZOEyIUY0DAZ0qJxw/viewform" target="_blank" rel="noopener noreferrer">Report this site</a>
     </div>
@@ -3922,15 +3933,9 @@ store.remove = store.del;
     if (mode === 'off') { clk.hidden = true; return; }
     clk.hidden = false;
     var d = new Date();
-    var tz = (window.TSWUserGeo && window.TSWUserGeo.timezone) ? window.TSWUserGeo.timezone : undefined;
+    // Use the device/browser timezone, not an IP-geolocation guess.
     var optsTime = { hour: 'numeric', minute: '2-digit', hour12: mode === '12' };
     var optsDate = { weekday: 'long', month: 'long', day: 'numeric' };
-    if (tz) {
-      try {
-        optsTime.timeZone = tz;
-        optsDate.timeZone = tz;
-      } catch (e) {}
-    }
     clk.textContent = d.toLocaleTimeString([], optsTime) + '  \u00b7  ' +
       d.toLocaleDateString([], optsDate);
   }
@@ -5336,10 +5341,14 @@ document.addEventListener('keydown', function (ev) {
   }
 
   var spinTimer, slowTimer, diag = document.getElementById('diag');
+  var loadStartedAt = 0;
   function loading(on) {
     load.classList.remove('on'); void load.offsetWidth;
-    if (on) load.classList.add('on');
+    if (on) { load.classList.add('on'); loadStartedAt = Date.now(); }
     bRel.classList.toggle('spinning', !!on);
+    var stopBtn = $('btn-stop');
+    if (stopBtn) stopBtn.disabled = !on;
+    load.setAttribute('aria-valuenow', on ? '35' : '100');
     clearTimeout(spinTimer);
     if (on) spinTimer = setTimeout(function () { bRel.classList.remove('spinning'); }, 20000);
   }
@@ -5376,18 +5385,33 @@ document.addEventListener('keydown', function (ev) {
     return null;
   }
 
+  function recordFailedSite(url, title, body) {
+    if (!url) return;
+    var list = [];
+    try { list = JSON.parse(localStorage.getItem('tsw.failedSites') || '[]') || []; } catch (e) {}
+    list = list.filter(function (item) { return item.url !== url; });
+    list.unshift({ url: url, title: title, details: body, at: new Date().toISOString() });
+    try { localStorage.setItem('tsw.failedSites', JSON.stringify(list.slice(0, 30))); } catch (e) {}
+  }
   function fail(title, body) {
     loading(false); clearTimeout(slowTimer);
     var curTab = getActiveTab();
     if (!curTab || !curTab.viewEl) return;
+    recordFailedSite(curTab.url, title, body);
     curTab.viewEl.innerHTML = '';
     var box = document.createElement('div'); box.className = 'fail';
     var inner = document.createElement('div');
     var h = document.createElement('h2'); h.textContent = title;
     var p = document.createElement('p'); p.textContent = body;
-    var b = document.createElement('button'); b.textContent = 'Back to home';
-    b.onclick = goHome;
-    inner.append(h, p, b); box.append(inner); curTab.viewEl.append(box);
+    var row = document.createElement('div'); row.style.cssText = 'display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;margin-top:1rem';
+    var retry = document.createElement('button'); retry.textContent = 'Retry'; retry.onclick = function () { if (curTab.url) openUrl(curTab.url); };
+    var copy = document.createElement('button'); copy.textContent = 'Copy error details'; copy.onclick = function () {
+      var details = 'TSW v2 error\nPage: ' + (curTab.url || '(none)') + '\nProblem: ' + title + '\nDetails: ' + body + '\nTime: ' + new Date().toLocaleString() + '\nTimezone: ' + (Intl.DateTimeFormat().resolvedOptions().timeZone || 'device local');
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(details).then(function(){copy.textContent='Copied';}).catch(function(){window.prompt('Copy error details:',details);});
+      else window.prompt('Copy error details:', details);
+    };
+    var home = document.createElement('button'); home.textContent = 'Back to home'; home.onclick = goHome;
+    row.append(retry, copy, home); inner.append(h, p, row); box.append(inner); curTab.viewEl.append(box);
   }
 
   function setNav() {
@@ -5648,6 +5672,21 @@ document.addEventListener('keydown', function (ev) {
   function openTab() {
     createNewTab();
   }
+
+  var stopLoadingBtn = $('btn-stop');
+  if (stopLoadingBtn) stopLoadingBtn.addEventListener('click', function () {
+    clearTimeout(slowTimer);
+    loading(false);
+    var tab = getActiveTab();
+    if (tab && tab.viewEl) {
+      var note = document.createElement('div');
+      note.className = 'load-stopped-note';
+      note.textContent = 'Loading stopped. The proxy may still be processing the request.';
+      note.style.cssText = 'position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);padding:.45rem .8rem;background:#101827;border:1px solid #344256;border-radius:9px;font-size:.8rem;z-index:5';
+      tab.viewEl.appendChild(note);
+      setTimeout(function(){if(note.parentNode)note.remove();},3500);
+    }
+  });
 
   var field = document.querySelector('.field');
   if (field) {
@@ -5910,7 +5949,13 @@ document.addEventListener('keydown', function (ev) {
   function formatTime(isoStr) {
     if (!isoStr) return '';
     try {
-      var d = new Date(isoStr);
+      // API timestamps without an explicit zone are treated as UTC; display in the viewer's local timezone.
+      var raw = String(isoStr);
+      if (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}/.test(raw) && !/(Z|[+-]\d{2}:?\d{2})$/i.test(raw)) {
+        raw = raw.replace(' ', 'T') + 'Z';
+      }
+      var d = new Date(raw);
+      if (isNaN(d.getTime())) return '';
       var today = new Date();
       var isToday = d.toDateString() === today.toDateString();
       var timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
