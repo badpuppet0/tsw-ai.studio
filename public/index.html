@@ -611,6 +611,10 @@ body.sidebar-collapsed #sidebar { box-shadow:8px 0 30px rgba(0,0,0,.14); }
 }
 /* Simple game picker */
 #games .games-modal-panel { width:min(760px,94vw); max-width:none; max-height:88vh; display:flex; flex-direction:column; overflow:hidden; }
+#games .game-sources-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:.8rem; }
+#games .game-sources-grid .cork7-game-card { max-width:none; }
+#games .game-sources-grid .game-cover-fallback { font-weight:700; font-size:1.7rem; background:linear-gradient(135deg,#121a2c,#201637); color:#b8c9ff; }
+@media(max-width:480px){#games .game-sources-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
 #games .phead { flex:none; }
 #games .pbody { overflow-y:auto; min-height:0; }
 .cork7-game-card { display:block; width:100%; max-width:360px; padding:0; overflow:hidden; position:relative; color:inherit; font:inherit; text-align:left; border-radius:8px; background:rgba(18,13,29,.94); border:1px solid rgba(167,139,250,.24); cursor:pointer; }
@@ -2854,11 +2858,26 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
       <button data-close aria-label="Close">&times;</button>
     </div>
     <div class="pbody" style="padding:1rem;">
-      <button class="game-library-card cork7-game-card" data-game-title="Cork7 Arcade" data-game-url="https://cork7.com" data-game-domain="Cork7" aria-label="Play Cork7 Arcade">
-        <span class="game-cover-wrap"><img class="game-cover cork7-logo" src="https://cork7.com/favicon.ico" alt="Cork7 Arcade logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="game-cover-fallback" style="display:none">Cork7</span></span>
-        <span class="game-card-title">Cork7 Arcade</span>
-        <span class="game-card-play">Play</span>
-      </button>
+      <p style="color:var(--steel);font-size:.82rem;margin:0 0 1rem;">Choose a game source. It opens in TSW's built-in player, so you can try games without leaving the site.</p>
+      <div class="game-sources-grid">
+        <button class="game-library-card cork7-game-card" data-game-title="GN Math" data-game-url="https://gn-math.dev" data-game-domain="GN Math" aria-label="Open GN Math games">
+          <span class="game-cover-wrap"><span class="game-cover-fallback">GN</span></span>
+          <span class="game-card-title">GN Math</span><span class="game-card-play">Browse games</span>
+        </button>
+        <button class="game-library-card cork7-game-card" data-game-title="Seraph" data-game-url="https://c930n.github.io/seraph/index.html" data-game-domain="Seraph" aria-label="Open Seraph games">
+          <span class="game-cover-wrap"><span class="game-cover-fallback">S</span></span>
+          <span class="game-card-title">Seraph</span><span class="game-card-play">Browse games</span>
+        </button>
+        <button class="game-library-card cork7-game-card" data-game-title="Cork7 Arcade" data-game-url="https://cork7.com" data-game-domain="Cork7" aria-label="Open Cork7 Arcade">
+          <span class="game-cover-wrap"><img class="game-cover cork7-logo" src="https://cork7.com/favicon.ico" alt="Cork7 Arcade logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="game-cover-fallback" style="display:none">Cork7</span></span>
+          <span class="game-card-title">Cork7 Arcade</span><span class="game-card-play">Browse games</span>
+        </button>
+        <button class="game-library-card cork7-game-card" data-game-title="x8rr Games" data-game-url="https://github.com/x8rr/games" data-game-domain="x8rr Games" aria-label="Open x8rr Games source">
+          <span class="game-cover-wrap"><span class="game-cover-fallback">x8rr</span></span>
+          <span class="game-card-title">x8rr Games</span><span class="game-card-play">Open source</span>
+        </button>
+      </div>
+      <p style="color:var(--steel);font-size:.75rem;margin:1rem 0 0;">Some sources block embedding or may not load every game. More sources can be added once their correct catalog URLs are confirmed.</p>
     </div>
   </div>
 </div>
