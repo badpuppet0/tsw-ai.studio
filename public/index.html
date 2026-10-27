@@ -4597,12 +4597,19 @@ function initGameLibrary() {
     if (!item || typeof item !== 'object') return null;
     var title = item.name || item.title || item.game || item.label;
     var slug = item.slug || item.id || item.url;
-    if (!title && typeof slug === 'string') title = slug.replace(/[-_]/g,' ').replace(/\.html?$/i,'');
+    if (!title && typeof slug === 'string') title = slug.replace(/[-_]/g,' ').replace(/\\.html?$/i,'');
     if (!title || !slug) return null;
-    var url = item.url && /^https?:\/\//i.test(item.url) ? item.url : source.base + String(slug).replace(/^\//,'');
-    if (!/\.html?$/i.test(url) && !/^https?:\/\//i.test(String(item.url||''))) url += '.html';
-    var cover = item.cover || item.thumbnail || item.image || item.thumb || item.img;
-    if (cover && !/^https?:\/\//i.test(cover)) cover = source.covers + String(cover).replace(/^\//,'');
+    var url = item.url && /^https?:\\/\\//i.test(item.url) ? item.url : '';
+    if (!url) {
+      var file = item.slug || item.id;
+      if (String(item.url||'').toLowerCase() === 'local' || !item.url) {
+        url = source.base + String(file).replace(/^\\//,'') + (String(file).endsWith('.html') ? '' : '.html');
+      } else url = source.base + String(item.url).replace(/^\\//,'');
+    }
+    var cover = item.cover || item.thumbnail || item.image || item.thumb || item.img || item.icon;
+    if (cover && /\\{COVER_URL\\}/i.test(cover)) cover = cover.replace(/\\{COVER_URL\\}/gi,source.covers);
+    else if (cover && !/^https?:\\/\\//i.test(cover)) cover = source.covers + String(cover).replace(/^\\//,'');
+    if (!cover && source.name === 'GN Math' && item.id != null) cover = source.covers + item.id + '.png';
     return {title:String(title),url:safeUrl(url),cover:safeUrl(cover||''),source:source.name};
   }
   function render() {
