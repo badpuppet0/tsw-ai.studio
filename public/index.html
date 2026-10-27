@@ -2885,9 +2885,8 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
         <input id="games-search" type="search" placeholder="Search games..." autocomplete="off" aria-label="Search games">
       </div>
       <div class="games-filter-row" id="games-filter-row">
-        <button class="games-filter on" type="button" data-game-filter="all">All games</button>
+        <button class="games-filter on" type="button" data-game-filter="all">Popular 10</button>
         <button class="games-filter" type="button" data-game-filter="GN Math">GN Math</button>
-        <button class="games-filter" type="button" data-game-filter="Seraph">Seraph</button>
       </div>
       <div id="games-library-status" class="games-library-status">Loading games…</div>
       <div class="game-sources-grid" id="games-library-grid"></div>
@@ -4588,9 +4587,20 @@ function initGameLibrary() {
   if (!grid || grid.dataset.loaded === '1') return;
   grid.dataset.loaded = '1';
   var games = [], activeFilter = 'all';
+  var popularGames = [
+    {name:'Geometry Dash', match:['geometry dash','geometrydash']},
+    {name:'Subway Surfers', match:['subway surfers','subwaysurfers']},
+    {name:'Friday Night Funkin’', match:['friday night funkin','fridaynightfunkin','fnf']},
+    {name:'Moto X3M', match:['moto x3m','motox3m']},
+    {name:'Crossy Road', match:['crossy road','crossyroad']},
+    {name:'Slope', match:['slope']},
+    {name:'Cookie Clicker', match:['cookie clicker','cookieclicker']},
+    {name:'Retro Bowl', match:['retro bowl','retrobowl']},
+    {name:'Drift Boss', match:['drift boss','driftboss']},
+    {name:'2048', match:['2048']}
+  ];
   var sources = [
-    {name:'GN Math', catalog:'https://cdn.jsdelivr.net/gh/freebuisness/assets@latest/zones.json', base:'https://cdn.jsdelivr.net/gh/freebuisness/html@main/', covers:'https://cdn.jsdelivr.net/gh/freebuisness/covers@main/'},
-    {name:'Seraph', catalog:'https://cdn.jsdelivr.net/gh/skibbsz/seraph@main/games.json', base:'https://cdn.jsdelivr.net/gh/skibbsz/seraph@main/', covers:'https://cdn.jsdelivr.net/gh/skibbsz/seraph@main/thumbnails/'}
+    {name:'GN Math', catalog:'https://cdn.jsdelivr.net/gh/freebuisness/assets@latest/zones.json', base:'https://cdn.jsdelivr.net/gh/freebuisness/html@main/', covers:'https://cdn.jsdelivr.net/gh/freebuisness/covers@main/'}
   ];
   function safeUrl(value) { try { var u = new URL(value, location.href); return /^https?:$/.test(u.protocol) ? u.href : ''; } catch(e) { return ''; } }
   function normalize(item, source) {
@@ -4616,27 +4626,32 @@ function initGameLibrary() {
     var q = (search && search.value || '').trim().toLowerCase();
     var shown = games.filter(function(g){ return (activeFilter==='all'||g.source===activeFilter) && g.title.toLowerCase().includes(q); });
     grid.innerHTML = '';
-    shown.slice(0,240).forEach(function(g) {
+    shown.slice(0,10).forEach(function(g) {
       var card = document.createElement('button'); card.type='button'; card.className='game-library-card cork7-game-card';
       card.setAttribute('data-game-title',g.title); card.setAttribute('data-game-url',g.url); card.setAttribute('data-game-domain',g.source);
+      card.setAttribute('aria-label','Play '+g.title);
       var wrap=document.createElement('span'); wrap.className='game-cover-wrap';
-      if(g.cover){ var img=document.createElement('img'); img.className='game-cover'; img.loading='lazy'; img.alt=''; img.src=g.cover; img.onerror=function(){this.remove();}; wrap.appendChild(img); }
+      if(g.cover){ var img=document.createElement('img'); img.className='game-cover'; img.loading='lazy'; img.alt=g.title+' thumbnail'; img.src=g.cover; img.onerror=function(){this.remove();}; wrap.appendChild(img); }
       else { var fallback=document.createElement('span'); fallback.className='game-cover-fallback'; fallback.textContent=g.title.slice(0,2).toUpperCase(); wrap.appendChild(fallback); }
       var title=document.createElement('span'); title.className='game-card-title'; title.textContent=g.title;
       var play=document.createElement('span'); play.className='game-card-play'; play.textContent='Play';
       card.append(wrap,title,play); grid.appendChild(card);
     });
-    if(status) status.textContent = shown.length ? shown.length+' games' : 'No games match that search.';
+    if(status) status.textContent = shown.length ? shown.length+' of 10 popular games' : 'No matching games found in the catalog.';
   }
   var filters=$('games-filter-row');
-  if(filters) filters.addEventListener('click',function(ev){var b=ev.target.closest('[data-game-filter]');if(!b)return;activeFilter=b.getAttribute('data-game-filter');filters.querySelectorAll('.games-filter').forEach(function(x){x.classList.toggle('on',x===b);});render();});
+  if(filters) filters.addEventListener('click',function(ev){var b=ev.target.closest('[data-game-filter]');if(!b)return;activeFilter=b.getAttribute('data-game-filter');filters.querySelectorAll('[data-game-filter]').forEach(function(x){x.classList.toggle('on',x===b);});render();});
   if(search) search.addEventListener('input',render);
   Promise.all(sources.map(function(source){return fetch(source.catalog).then(function(r){if(!r.ok)throw new Error('catalog unavailable');return r.json();}).then(function(data){
     var list=Array.isArray(data)?data:(data.games||data.zones||data.items||[]);
     return list.map(function(item){return normalize(item,source);}).filter(function(g){return g&&g.url;});
   }).catch(function(){return [];} );})).then(function(lists){
-    games=lists.flat();
-    if(status) status.textContent=games.length?'Loading game library…':'Could not load the game catalogs. Try again later.';
+    var catalog=lists.flat();
+    games=popularGames.map(function(p){
+      var found=catalog.find(function(g){var t=g.title.toLowerCase().replace(/[^a-z0-9]/g,'');return p.match.some(function(alias){return t.includes(alias.toLowerCase().replace(/[^a-z0-9]/g,''));});});
+      return found ? Object.assign({},found,{featuredTitle:p.name}) : null;
+    }).filter(Boolean).map(function(g){g.title=g.featuredTitle;delete g.featuredTitle;return g;});
+    if(status) status.textContent = games.length ? 'Loading popular games…' : 'Could not match the popular games in the catalog. Try again later.';
     render();
   });
 }
