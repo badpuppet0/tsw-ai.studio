@@ -624,6 +624,28 @@ body.sidebar-collapsed #sidebar { box-shadow:8px 0 30px rgba(0,0,0,.14); }
 .cork7-game-card .game-cover-fallback { display:flex; width:100%; height:100%; align-items:center; justify-content:center; font-size:1.4rem; letter-spacing:.03em; background:#171323; color:#d8d2e4; }
 .cork7-game-card .game-card-title { display:block; padding:12px 13px 5px; font-size:.95rem; font-weight:600; }
 .cork7-game-card .game-card-play { display:block; margin:6px 12px 12px; text-align:center; padding:8px; border-radius:5px; background:rgba(139,92,246,.16); font-size:.85rem; font-weight:600; }
+/* Games library — compact cards, matching the account panel */
+#games .games-modal-panel { width:min(920px,95vw); max-height:88vh; }
+#games .phead { border-bottom:1px solid var(--edge); padding:1.1rem 1.2rem; }
+#games .pbody { padding:1.1rem 1.2rem 1.25rem!important; }
+.games-library-head { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem; }
+.games-library-head p { color:#f1f5f9; font-size:1.05rem; font-weight:600; }
+.games-library-head span { color:var(--steel); font-size:.82rem; }
+#games-search { width:min(260px,48%); background:#080b12; border:1px solid var(--edge); border-radius:9px; padding:.65rem .8rem; color:var(--ink); font:inherit; outline:none; }
+#games-search:focus { border-color:var(--blue-dim); }
+.games-filter-row { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1rem; }
+.games-filter { background:transparent; color:#9aa5b8; border:1px solid var(--edge); border-radius:999px; padding:.38rem .8rem; font:inherit; font-size:.8rem; cursor:pointer; }
+.games-filter:hover,.games-filter.on { color:#fff; border-color:#456ba0; background:rgba(90,162,255,.1); }
+#games .game-sources-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(155px,1fr)); gap:.8rem; }
+#games .cork7-game-card { border-radius:10px; background:#0d111b; border:1px solid rgba(255,255,255,.08); transition:transform .15s,border-color .15s,background .15s; }
+#games .cork7-game-card:hover { transform:translateY(-2px); border-color:rgba(90,162,255,.4); background:#111725; }
+#games .cork7-game-card .game-cover-wrap { aspect-ratio:16/10; background:#080b12; }
+#games .cork7-game-card .game-cover { width:100%; height:100%; object-fit:cover; }
+#games .cork7-game-card .game-card-title { padding:10px 11px 2px; font-size:.88rem; line-height:1.3; }
+#games .cork7-game-card .game-card-play { margin:5px 10px 10px; padding:6px; background:rgba(90,162,255,.1); color:#9cc6ff; border-radius:6px; font-size:.76rem; }
+.games-library-status { color:var(--steel); font-size:.82rem; padding:.6rem 0 1rem; }
+.games-library-foot { margin-top:1rem; color:var(--steel); font-size:.75rem; }
+@media(max-width:520px) { .games-library-head { align-items:stretch; flex-direction:column; } #games-search { width:100%; } #games .game-sources-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:.55rem; } }
 /* In-site mini game window */
 #game-tab {
   position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column;
@@ -2853,31 +2875,23 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
     <div class="phead">
       <div>
         <h2 id="gm-h" style="margin:0;font-size:1.05rem;font-weight:600;">Games</h2>
-        <div style="font-size:.78rem;color:var(--steel);margin-top:.15rem;">Cork7 Arcade</div>
+        <div style="font-size:.78rem;color:var(--steel);margin-top:.15rem;">Games library</div>
       </div>
       <button data-close aria-label="Close">&times;</button>
     </div>
     <div class="pbody" style="padding:1rem;">
-      <p style="color:var(--steel);font-size:.82rem;margin:0 0 1rem;">Choose a game source. It opens in TSW's built-in player, so you can try games without leaving the site.</p>
-      <div class="game-sources-grid">
-        <button class="game-library-card cork7-game-card" data-game-title="GN Math" data-game-url="https://gn-math.dev" data-game-domain="GN Math" aria-label="Open GN Math games">
-          <span class="game-cover-wrap"><span class="game-cover-fallback">GN</span></span>
-          <span class="game-card-title">GN Math</span><span class="game-card-play">Browse games</span>
-        </button>
-        <button class="game-library-card cork7-game-card" data-game-title="Seraph" data-game-url="https://c930n.github.io/seraph/index.html" data-game-domain="Seraph" aria-label="Open Seraph games">
-          <span class="game-cover-wrap"><span class="game-cover-fallback">S</span></span>
-          <span class="game-card-title">Seraph</span><span class="game-card-play">Browse games</span>
-        </button>
-        <button class="game-library-card cork7-game-card" data-game-title="Cork7 Arcade" data-game-url="https://cork7.com" data-game-domain="Cork7" aria-label="Open Cork7 Arcade">
-          <span class="game-cover-wrap"><img class="game-cover cork7-logo" src="https://cork7.com/favicon.ico" alt="Cork7 Arcade logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="game-cover-fallback" style="display:none">Cork7</span></span>
-          <span class="game-card-title">Cork7 Arcade</span><span class="game-card-play">Browse games</span>
-        </button>
-        <button class="game-library-card cork7-game-card" data-game-title="x8rr Games" data-game-url="https://github.com/x8rr/games" data-game-domain="x8rr Games" aria-label="Open x8rr Games source">
-          <span class="game-cover-wrap"><span class="game-cover-fallback">x8rr</span></span>
-          <span class="game-card-title">x8rr Games</span><span class="game-card-play">Open source</span>
-        </button>
+      <div class="games-library-head">
+        <div><p>Find something to play.</p><span>Games load right here in TSW.</span></div>
+        <input id="games-search" type="search" placeholder="Search games..." autocomplete="off" aria-label="Search games">
       </div>
-      <p style="color:var(--steel);font-size:.75rem;margin:1rem 0 0;">Some sources block embedding or may not load every game. More sources can be added once their correct catalog URLs are confirmed.</p>
+      <div class="games-filter-row" id="games-filter-row">
+        <button class="games-filter on" type="button" data-game-filter="all">All games</button>
+        <button class="games-filter" type="button" data-game-filter="GN Math">GN Math</button>
+        <button class="games-filter" type="button" data-game-filter="Seraph">Seraph</button>
+      </div>
+      <div id="games-library-status" class="games-library-status">Loading games…</div>
+      <div class="game-sources-grid" id="games-library-grid"></div>
+      <p class="games-library-foot">If a game does not open, its host may block embedding.</p>
     </div>
   </div>
 </div>
@@ -4569,7 +4583,56 @@ var STATUS_NOTICE = '';
 
 /* ===================== Cork7 Dedicated Game Tab ===================== */
 var tswCurrentGame = { title: 'Cork7 Arcade', url: 'https://cork7.com', domain: 'Cork7' };
-function initGameLibrary() { /* Only Cork7 is available for now. */ }
+function initGameLibrary() {
+  var grid = $('games-library-grid'), status = $('games-library-status'), search = $('games-search');
+  if (!grid || grid.dataset.loaded === '1') return;
+  grid.dataset.loaded = '1';
+  var games = [], activeFilter = 'all';
+  var sources = [
+    {name:'GN Math', catalog:'https://cdn.jsdelivr.net/gh/freebuisness/assets@latest/zones.json', base:'https://cdn.jsdelivr.net/gh/freebuisness/html@main/', covers:'https://cdn.jsdelivr.net/gh/freebuisness/covers@main/'},
+    {name:'Seraph', catalog:'https://cdn.jsdelivr.net/gh/skibbsz/seraph@main/games.json', base:'https://cdn.jsdelivr.net/gh/skibbsz/seraph@main/', covers:'https://cdn.jsdelivr.net/gh/skibbsz/seraph@main/thumbnails/'}
+  ];
+  function safeUrl(value) { try { var u = new URL(value, location.href); return /^https?:$/.test(u.protocol) ? u.href : ''; } catch(e) { return ''; } }
+  function normalize(item, source) {
+    if (!item || typeof item !== 'object') return null;
+    var title = item.name || item.title || item.game || item.label;
+    var slug = item.slug || item.id || item.url;
+    if (!title && typeof slug === 'string') title = slug.replace(/[-_]/g,' ').replace(/\.html?$/i,'');
+    if (!title || !slug) return null;
+    var url = item.url && /^https?:\/\//i.test(item.url) ? item.url : source.base + String(slug).replace(/^\//,'');
+    if (!/\.html?$/i.test(url) && !/^https?:\/\//i.test(String(item.url||''))) url += '.html';
+    var cover = item.cover || item.thumbnail || item.image || item.thumb || item.img;
+    if (cover && !/^https?:\/\//i.test(cover)) cover = source.covers + String(cover).replace(/^\//,'');
+    return {title:String(title),url:safeUrl(url),cover:safeUrl(cover||''),source:source.name};
+  }
+  function render() {
+    var q = (search && search.value || '').trim().toLowerCase();
+    var shown = games.filter(function(g){ return (activeFilter==='all'||g.source===activeFilter) && g.title.toLowerCase().includes(q); });
+    grid.innerHTML = '';
+    shown.slice(0,240).forEach(function(g) {
+      var card = document.createElement('button'); card.type='button'; card.className='game-library-card cork7-game-card';
+      card.setAttribute('data-game-title',g.title); card.setAttribute('data-game-url',g.url); card.setAttribute('data-game-domain',g.source);
+      var wrap=document.createElement('span'); wrap.className='game-cover-wrap';
+      if(g.cover){ var img=document.createElement('img'); img.className='game-cover'; img.loading='lazy'; img.alt=''; img.src=g.cover; img.onerror=function(){this.remove();}; wrap.appendChild(img); }
+      else { var fallback=document.createElement('span'); fallback.className='game-cover-fallback'; fallback.textContent=g.title.slice(0,2).toUpperCase(); wrap.appendChild(fallback); }
+      var title=document.createElement('span'); title.className='game-card-title'; title.textContent=g.title;
+      var play=document.createElement('span'); play.className='game-card-play'; play.textContent='Play';
+      card.append(wrap,title,play); grid.appendChild(card);
+    });
+    if(status) status.textContent = shown.length ? shown.length+' games' : 'No games match that search.';
+  }
+  var filters=$('games-filter-row');
+  if(filters) filters.addEventListener('click',function(ev){var b=ev.target.closest('[data-game-filter]');if(!b)return;activeFilter=b.getAttribute('data-game-filter');filters.querySelectorAll('.games-filter').forEach(function(x){x.classList.toggle('on',x===b);});render();});
+  if(search) search.addEventListener('input',render);
+  Promise.all(sources.map(function(source){return fetch(source.catalog).then(function(r){if(!r.ok)throw new Error('catalog unavailable');return r.json();}).then(function(data){
+    var list=Array.isArray(data)?data:(data.games||data.zones||data.items||[]);
+    return list.map(function(item){return normalize(item,source);}).filter(function(g){return g&&g.url;});
+  }).catch(function(){return [];} );})).then(function(lists){
+    games=lists.flat();
+    if(status) status.textContent=games.length?'Loading game library…':'Could not load the game catalogs. Try again later.';
+    render();
+  });
+}
 function openEmbeddedGame(title, url, domain) {
   ['settings', 'addlink', 'games', 'info', 'log', 'gta-modal'].forEach(function (id) {
     var el = $(id); if (el) el.hidden = true;
