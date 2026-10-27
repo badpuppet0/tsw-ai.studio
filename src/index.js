@@ -32,7 +32,10 @@ import {
 	getPublicMessages,
 	sendPublicMessage,
 	deletePublicMessage,
-	editPublicMessage
+	editPublicMessage,
+	isUserAdmin,
+	getAdminMetrics,
+	purgeExpiredPublicMessages
 } from "./db/users.ts";
 import { verifyAuth } from "./middleware/auth.ts";
 
@@ -196,7 +199,17 @@ fastify.post("/api/auth/signup", async (req, reply) => {
 		}
 
 		const result = await signUpUser(username, password, email);
-		return { success: true, ...result };
+		const isOwner = isUserAdmin(result.user);
+		return {
+			success: true,
+			...result,
+			user: {
+				...result.user,
+				role: result.user.role || (isOwner ? 'owner' : 'TSW User'),
+				isOwner,
+				isAdmin: isOwner
+			}
+		};
 	} catch (err) {
 		req.log.error(err);
 		reply.code(400);
@@ -216,7 +229,17 @@ fastify.post("/api/auth/login", async (req, reply) => {
 		}
 
 		const result = await loginUser(username, password);
-		return { success: true, ...result };
+		const isOwner = isUserAdmin(result.user);
+		return {
+			success: true,
+			...result,
+			user: {
+				...result.user,
+				role: result.user.role || (isOwner ? 'owner' : 'TSW User'),
+				isOwner,
+				isAdmin: isOwner
+			}
+		};
 	} catch (err) {
 		req.log.error(err);
 		reply.code(401);
@@ -235,10 +258,18 @@ fastify.get("/api/auth/me", async (req, reply) => {
 				const user = await getUserById(session.userId);
 				if (user) {
 					const profiles = await getUserProfiles(user.id);
+					const isOwner = isUserAdmin(user);
 					return {
 						success: true,
 						authenticated: true,
-						user: { id: user.id, username: user.username, email: user.email },
+						user: {
+							id: user.id,
+							username: user.username,
+							email: user.email,
+							role: user.role || (isOwner ? 'owner' : 'TSW User'),
+							isOwner,
+							isAdmin: isOwner
+						},
 						profiles,
 						activeProfile: profiles.find(p => p.isDefault) || profiles[0]
 					};
@@ -689,8 +720,7 @@ fastify.delete("/api/public-messages/:id", async (req, reply) => {
 			return { success: false, error: "Invalid message ID" };
 		}
 		const user = await getUserById(userId);
-		const username = (user?.username || "").toLowerCase();
-		const isAdmin = username.includes("admin") || username.includes("tsw");
+		const isAdmin = isUserAdmin(user);
 		const result = await deletePublicMessage(userId, messageId, isAdmin);
 		return { success: true, ...result };
 	} catch (err) {
@@ -714,6 +744,121 @@ fastify.put("/api/public-messages/:id", async (req, reply) => {
 	} catch (err) {
 		reply.code(400);
 		return { success: false, error: err.message };
+	}
+});
+
+// Cloud Admin & Metrics Endpoints
+fastify.get("/api/admin/metrics", async (req, reply) => {
+	reply.header("Cache-Control", "no-store");
+	try {
+		const authHeader = req.headers.authorization;
+		let currentUser = null;
+		if (authHeader) {
+			const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
+			const session = verifySessionToken(token);
+			if (session && session.userId) {
+				currentUser = await getUserById(session.userId);
+			}
+		}
+
+		const isOwner = isUserAdmin(currentUser);
+		if (!isOwner) {
+			reply.code(403);
+			return { success: false, error: "Access denied. Only the Owner (Alex Dalbey) can access Cloud Admin." };
+		}
+		const dbMetrics = await getAdminMetrics();
+
+		// Calculate daily AI usage metrics
+		let totalAiRequests = 0;
+		let totalAiChars = 0;
+		for (const [, usage] of aiDailyUsage.entries()) {
+			totalAiRequests += (usage.requests || 0);
+			totalAiChars += (usage.chars || 0);
+		}
+
+		const uptimeSec = Math.floor(process.uptime());
+		const hours = Math.floor(uptimeSec / 3600);
+		const mins = Math.floor((uptimeSec % 3600) / 60);
+		const secs = uptimeSec % 60;
+		const uptimeStr = `${hours}h ${mins}m ${secs}s`;
+
+		const mem = process.memoryUsage();
+		const memStats = {
+			rssMB: (mem.rss / 1024 / 1024).toFixed(1),
+			heapUsedMB: (mem.heapUsed / 1024 / 1024).toFixed(1),
+			heapTotalMB: (mem.heapTotal / 1024 / 1024).toFixed(1),
+			heapPercent: Math.round((mem.heapUsed / mem.heapTotal) * 100)
+		};
+
+		return {
+			success: true,
+			isAdmin,
+			superAdminEmail: "alexc.second@gmail.com",
+			activeUser: currentUser ? {
+				id: currentUser.id,
+				username: currentUser.username,
+				email: currentUser.email,
+				isAdmin: isUserAdmin(currentUser)
+			} : null,
+			gcp: {
+				projectId: "strong-voyage-v8p5g",
+				designatedOwner: "alexc.second@gmail.com",
+				requestedRole: "roles/monitoring.editor",
+				cloudRunRegion: "us-east1",
+				serviceUrl: "https://ais-dev-irpbeztud5alnivyn63pfn-183866442448.us-east1.run.app",
+				monitoringUrl: "https://console.cloud.google.com/monitoring?project=strong-voyage-v8p5g",
+				iamTroubleshooterUrl: "https://console.cloud.google.com/iam-admin/troubleshooter/summary;permissions=monitoring.uptimeCheckConfigs.create;token=AX6qVRYTS4hGZsWN-r57SK2_xhsMSVbxO3gWCGWeR2IvNqQVt5eiGqRsmfSC99ydAWz4YgALXGuMyNH9vDKYGDWhMbOvdAHgzQje9D4r-PK4KGT1ciOJyOHY6oAo40-iSsnPVimOAqU9AOAPQ53Do8H-15SQ_fdlWvkZmnfNUv3jnD4gQPGejvK6kg"
+			},
+			server: {
+				status: "Healthy / Online",
+				uptime: uptimeStr,
+				uptimeSeconds: uptimeSec,
+				nodeVersion: process.version,
+				platform: process.platform + " (" + process.arch + ")",
+				memory: memStats,
+				port: port
+			},
+			database: dbMetrics,
+			ai: {
+				status: (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY) ? "Online / Connected" : "Not configured",
+				primaryModel: "Gemini 2.5 Flash",
+				fallbackModel: "Gemini 2.5 Flash-Lite",
+				dailyRequests: totalAiRequests,
+				dailyChars: totalAiChars,
+				dailyLimitPerUser: 20
+			}
+		};
+	} catch (err) {
+		req.log.error(err);
+		reply.code(500);
+		return { success: false, error: "Failed to load cloud metrics" };
+	}
+});
+
+fastify.post("/api/admin/purge-expired", async (req, reply) => {
+	try {
+		const authHeader = req.headers.authorization;
+		if (!authHeader) {
+			reply.code(401);
+			return { success: false, error: "Authentication required" };
+		}
+		const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
+		const session = verifySessionToken(token);
+		if (!session || !session.userId) {
+			reply.code(401);
+			return { success: false, error: "Invalid session" };
+		}
+		const user = await getUserById(session.userId);
+		if (!isUserAdmin(user)) {
+			reply.code(403);
+			return { success: false, error: "Forbidden: Super Admin access required" };
+		}
+		const res = await purgeExpiredPublicMessages();
+		return { success: true, purgedCount: res.count };
+	} catch (err) {
+		req.log.error(err);
+		reply.code(500);
+		return { success: false, error: "Failed to purge expired records" };
 	}
 });
 

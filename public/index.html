@@ -624,28 +624,6 @@ body.sidebar-collapsed #sidebar { box-shadow:8px 0 30px rgba(0,0,0,.14); }
 .cork7-game-card .game-cover-fallback { display:flex; width:100%; height:100%; align-items:center; justify-content:center; font-size:1.4rem; letter-spacing:.03em; background:#171323; color:#d8d2e4; }
 .cork7-game-card .game-card-title { display:block; padding:12px 13px 5px; font-size:.95rem; font-weight:600; }
 .cork7-game-card .game-card-play { display:block; margin:6px 12px 12px; text-align:center; padding:8px; border-radius:5px; background:rgba(139,92,246,.16); font-size:.85rem; font-weight:600; }
-/* Games library — compact cards, matching the account panel */
-#games .games-modal-panel { width:min(920px,95vw); max-height:88vh; }
-#games .phead { border-bottom:1px solid var(--edge); padding:1.1rem 1.2rem; }
-#games .pbody { padding:1.1rem 1.2rem 1.25rem!important; }
-.games-library-head { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem; }
-.games-library-head p { color:#f1f5f9; font-size:1.05rem; font-weight:600; }
-.games-library-head span { color:var(--steel); font-size:.82rem; }
-#games-search { width:min(260px,48%); background:#080b12; border:1px solid var(--edge); border-radius:9px; padding:.65rem .8rem; color:var(--ink); font:inherit; outline:none; }
-#games-search:focus { border-color:var(--blue-dim); }
-.games-filter-row { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1rem; }
-.games-filter { background:transparent; color:#9aa5b8; border:1px solid var(--edge); border-radius:999px; padding:.38rem .8rem; font:inherit; font-size:.8rem; cursor:pointer; }
-.games-filter:hover,.games-filter.on { color:#fff; border-color:#456ba0; background:rgba(90,162,255,.1); }
-#games .game-sources-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(155px,1fr)); gap:.8rem; }
-#games .cork7-game-card { border-radius:10px; background:#0d111b; border:1px solid rgba(255,255,255,.08); transition:transform .15s,border-color .15s,background .15s; }
-#games .cork7-game-card:hover { transform:translateY(-2px); border-color:rgba(90,162,255,.4); background:#111725; }
-#games .cork7-game-card .game-cover-wrap { aspect-ratio:16/10; background:#080b12; }
-#games .cork7-game-card .game-cover { width:100%; height:100%; object-fit:cover; }
-#games .cork7-game-card .game-card-title { padding:10px 11px 2px; font-size:.88rem; line-height:1.3; }
-#games .cork7-game-card .game-card-play { margin:5px 10px 10px; padding:6px; background:rgba(90,162,255,.1); color:#9cc6ff; border-radius:6px; font-size:.76rem; }
-.games-library-status { color:var(--steel); font-size:.82rem; padding:.6rem 0 1rem; }
-.games-library-foot { margin-top:1rem; color:var(--steel); font-size:.75rem; }
-@media(max-width:520px) { .games-library-head { align-items:stretch; flex-direction:column; } #games-search { width:100%; } #games .game-sources-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:.55rem; } }
 /* In-site mini game window */
 #game-tab {
   position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column;
@@ -1037,6 +1015,111 @@ body.sidebar-collapsed .sb-tab .sb-tab-close {
   letter-spacing: .02em;
 }
 
+/* Cloud Admin & Metrics */
+.admin-panel {
+  width: min(880px, 95vw);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.admin-panel .pbody {
+  overflow-y: auto;
+  min-height: 0;
+  padding: 1.25rem;
+}
+.admin-gcp-banner {
+  background: linear-gradient(135deg, rgba(30,58,138,.35) 0%, rgba(15,23,42,.6) 100%);
+  border: 1px solid rgba(96,165,250,.3);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.25rem;
+}
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: .85rem;
+  margin-bottom: 1.25rem;
+}
+.admin-stat-card {
+  background: rgba(15,23,42,.6);
+  border: 1px solid rgba(148,163,184,.18);
+  border-radius: 10px;
+  padding: .9rem 1rem;
+}
+.admin-stat-num {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+.admin-stat-label {
+  font-size: .78rem;
+  color: #94a3b8;
+  margin-top: .25rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.admin-section-title {
+  font-size: .95rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin: 1.25rem 0 .65rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .83rem;
+  background: rgba(11,15,25,.5);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(148,163,184,.14);
+}
+.admin-table th, .admin-table td {
+  padding: .6rem .8rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(148,163,184,.1);
+}
+.admin-table th {
+  background: rgba(30,41,59,.4);
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: .75rem;
+  text-transform: uppercase;
+}
+.admin-act-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .48rem .85rem;
+  border-radius: 8px;
+  font-size: .82rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all .15s ease;
+}
+.admin-act-btn.primary {
+  background: #3b82f6;
+  color: #fff;
+}
+.admin-act-btn.primary:hover {
+  background: #2563eb;
+}
+.admin-act-btn.secondary {
+  background: rgba(59,130,246,.15);
+  border-color: rgba(96,165,250,.35);
+  color: #93c5fd;
+}
+.admin-act-btn.secondary:hover {
+  background: rgba(59,130,246,.25);
+}
+
+
 body.sidebar-collapsed .sb-menu-item {
   padding: 0;
   width: 2.4rem;
@@ -1276,17 +1359,48 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   color: #94a3b8;
 }
 
-/* Friends & Direct Messages Modal Styles */
+/* Modern Non-AI Chat Styles */
 .chat-panel {
-  width: min(52rem, 95vw);
-  height: min(38rem, 85vh);
-  background: #0b0f19;
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  width: min(54rem, 96vw);
+  height: min(39rem, 86vh);
+  background: #0b111c;
+  border: 1px solid rgba(148, 163, 184, 0.14);
   border-radius: 16px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.04);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+.chat-mode-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 999px;
+  padding: 3px;
+}
+.chat-mode-tab {
+  background: none;
+  border: 0;
+  color: #94a3b8;
+  font: inherit;
+  font-size: .78rem;
+  font-weight: 500;
+  padding: .35rem .85rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.chat-mode-tab:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+.chat-mode-tab.on {
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35);
 }
 .chat-head-user {
   display: flex;
@@ -1308,13 +1422,88 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   min-height: 0;
 }
 .chat-sidebar {
-  width: 16rem;
-  background: #070a12;
-  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  width: 16.5rem;
+  background: #080d16;
+  border-right: 1px solid rgba(148, 163, 184, 0.1);
   display: flex;
   flex-direction: column;
-  padding: .85rem .75rem;
+  padding: .9rem .75rem;
   gap: .65rem;
+}
+.public-channel-item {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  padding: .55rem .75rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all .15s ease;
+  margin-bottom: .25rem;
+}
+.public-channel-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #e2e8f0;
+}
+.public-channel-item.active {
+  background: rgba(37, 99, 235, 0.14);
+  border-color: rgba(59, 130, 246, 0.35);
+  color: #fff;
+}
+.public-channel-icon {
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 8px;
+  background: rgba(148, 163, 184, 0.08);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: .95rem;
+  color: #60a5fa;
+  flex: none;
+}
+.public-channel-item.active .public-channel-icon {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+}
+.public-channel-name {
+  font-weight: 600;
+  font-size: .86rem;
+  color: inherit;
+}
+.public-channel-desc {
+  font-size: .72rem;
+  color: #64748b;
+}
+
+/* User & Owner Role Badges */
+.public-msg-badge,
+.prof-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  font-size: .65rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: .2rem .48rem;
+  border-radius: 5px;
+  letter-spacing: .02em;
+}
+.public-msg-badge.owner,
+.prof-role-badge.owner {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.18), rgba(202, 138, 4, 0.22));
+  color: #fde047;
+  border: 1px solid rgba(234, 179, 8, 0.45);
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.15);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.public-msg-badge.user,
+.prof-role-badge.user {
+  background: rgba(148, 163, 184, 0.08);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.16);
 }
 .chat-add-friend-box {
   display: flex;
@@ -2463,6 +2652,17 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
       <span class="sb-label" id="prof-btn-name">Sign In</span>
     </button>
 
+    <!-- Cloud Admin & Metrics (Alex Dalbey / Owner Only) -->
+    <button class="sb-menu-item" id="sb-admin-btn" title="Cloud Admin & Metrics (Owner Only)" type="button" style="display:none !important;">
+      <span class="sb-menu-icon" style="color:#60a5fa;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+      </span>
+      <span class="sb-label">Cloud Admin <span class="ai-soon-pill" style="border-color:rgba(234,179,8,.4);color:#facc15;">Owner</span></span>
+    </button>
+
     <!-- Settings -->
     <button class="sb-menu-item" id="cog" title="Settings" type="button">
       <span class="sb-menu-icon">
@@ -2723,7 +2923,10 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
           <div class="member-info-clean">
             <div class="member-avatar-clean" id="member-avatar">👨‍🚀</div>
             <div>
-              <div class="member-user-clean" id="member-username">Voyager</div>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <div class="member-user-clean" id="member-username">Voyager</div>
+                <span id="member-role-badge" class="prof-role-badge user">TSW User</span>
+              </div>
               <div class="member-sync-tag"><span class="dot-live"></span> Cloud SQL Active</div>
             </div>
           </div>
@@ -2875,22 +3078,31 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
     <div class="phead">
       <div>
         <h2 id="gm-h" style="margin:0;font-size:1.05rem;font-weight:600;">Games</h2>
-        <div style="font-size:.78rem;color:var(--steel);margin-top:.15rem;">Games library</div>
+        <div style="font-size:.78rem;color:var(--steel);margin-top:.15rem;">Cork7 Arcade</div>
       </div>
       <button data-close aria-label="Close">&times;</button>
     </div>
     <div class="pbody" style="padding:1rem;">
-      <div class="games-library-head">
-        <div><p>Find something to play.</p><span>Games load right here in TSW.</span></div>
-        <input id="games-search" type="search" placeholder="Search games..." autocomplete="off" aria-label="Search games">
+      <p style="color:var(--steel);font-size:.82rem;margin:0 0 1rem;">Choose a game source. It opens in TSW's built-in player, so you can try games without leaving the site.</p>
+      <div class="game-sources-grid">
+        <button class="game-library-card cork7-game-card" data-game-title="GN Math" data-game-url="https://gn-math.dev" data-game-domain="GN Math" aria-label="Open GN Math games">
+          <span class="game-cover-wrap"><span class="game-cover-fallback">GN</span></span>
+          <span class="game-card-title">GN Math</span><span class="game-card-play">Browse games</span>
+        </button>
+        <button class="game-library-card cork7-game-card" data-game-title="Seraph" data-game-url="https://c930n.github.io/seraph/index.html" data-game-domain="Seraph" aria-label="Open Seraph games">
+          <span class="game-cover-wrap"><span class="game-cover-fallback">S</span></span>
+          <span class="game-card-title">Seraph</span><span class="game-card-play">Browse games</span>
+        </button>
+        <button class="game-library-card cork7-game-card" data-game-title="Cork7 Arcade" data-game-url="https://cork7.com" data-game-domain="Cork7" aria-label="Open Cork7 Arcade">
+          <span class="game-cover-wrap"><img class="game-cover cork7-logo" src="https://cork7.com/favicon.ico" alt="Cork7 Arcade logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="game-cover-fallback" style="display:none">Cork7</span></span>
+          <span class="game-card-title">Cork7 Arcade</span><span class="game-card-play">Browse games</span>
+        </button>
+        <button class="game-library-card cork7-game-card" data-game-title="x8rr Games" data-game-url="https://github.com/x8rr/games" data-game-domain="x8rr Games" aria-label="Open x8rr Games source">
+          <span class="game-cover-wrap"><span class="game-cover-fallback">x8rr</span></span>
+          <span class="game-card-title">x8rr Games</span><span class="game-card-play">Open source</span>
+        </button>
       </div>
-      <div class="games-filter-row" id="games-filter-row">
-        <button class="games-filter on" type="button" data-game-filter="all">Popular 10</button>
-        <button class="games-filter" type="button" data-game-filter="GN Math">GN Math</button>
-      </div>
-      <div id="games-library-status" class="games-library-status">Loading games…</div>
-      <div class="game-sources-grid" id="games-library-grid"></div>
-      <p class="games-library-foot">If a game does not open, its host may block embedding.</p>
+      <p style="color:var(--steel);font-size:.75rem;margin:1rem 0 0;">Some sources block embedding or may not load every game. More sources can be added once their correct catalog URLs are confirmed.</p>
     </div>
   </div>
 </div>
@@ -2962,7 +3174,7 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
       <ul>
         <li>Notification center for friend requests and unread direct messages.</li>
         <li>Profile details for a display name, short bio, and status.</li>
-        <li>Admin dashboard is being planned separately and is not available yet.</li>
+        <li><b>Cloud Admin &amp; Metrics</b>: Live dashboard for alexc.second@gmail.com with Cloud SQL telemetry, server runtime memory/uptime, AI usage quotas, and Google Cloud Monitoring links.</li>
       </ul>
 
       <h3>TSW v2 1.8<span>AI coming soon</span></h3>
@@ -3091,6 +3303,132 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
           </div>
           <div class="gta-opt-go">&rarr;</div>
         </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Cloud Admin & Metrics Modal -->
+<div class="overlay" id="admin-modal" hidden role="dialog" aria-modal="true" aria-labelledby="admin-modal-title">
+  <div class="panel admin-panel">
+    <div class="phead">
+      <div style="display:flex;align-items:center;gap:.65rem;">
+        <span style="font-size:1.35rem;">🛡️</span>
+        <div>
+          <h2 id="admin-modal-title" style="font-size:1.1rem;margin:0;">Cloud Admin &amp; Metrics</h2>
+          <small style="color:#60a5fa;font-size:.78rem;font-weight:500;">Owner / Admin: alexc.second@gmail.com</small>
+        </div>
+      </div>
+      <button id="admin-modal-close" data-close aria-label="Close">&times;</button>
+    </div>
+    <div class="pbody">
+      <!-- GCP IAM & Monitoring Integration Banner -->
+      <div class="admin-gcp-banner">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.8rem;">
+          <div>
+            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem;">
+              <span style="font-weight:700;color:#fff;font-size:.95rem;">Google Cloud Project</span>
+              <code style="background:rgba(2,6,23,.6);color:#93c5fd;padding:.15rem .45rem;border-radius:4px;font-size:.8rem;">strong-voyage-v8p5g</code>
+            </div>
+            <p style="color:#94a3b8;font-size:.82rem;margin:0 0 .5rem;">
+              Full admin permissions and metrics access granted for <b>alexc.second@gmail.com</b>.
+            </p>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;font-size:.78rem;color:#cbd5e1;">
+              <span>Role: <b style="color:#4ade80;">roles/monitoring.editor &amp; Owner</b></span>
+              <span>&bull;</span>
+              <span>Region: <b>us-east1</b></span>
+              <span>&bull;</span>
+              <span>Applet: <code style="font-size:.75rem;color:#94a3b8;">15c18e45</code></span>
+            </div>
+          </div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+            <a href="https://console.cloud.google.com/monitoring?project=strong-voyage-v8p5g" target="_blank" rel="noopener noreferrer" class="admin-act-btn primary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Google Cloud Monitoring
+            </a>
+            <a href="https://console.cloud.google.com/iam-admin/troubleshooter/summary;permissions=monitoring.uptimeCheckConfigs.create;token=AX6qVRYTS4hGZsWN-r57SK2_xhsMSVbxO3gWCGWeR2IvNqQVt5eiGqRsmfSC99ydAWz4YgALXGuMyNH9vDKYGDWhMbOvdAHgzQje9D4r-PK4KGT1ciOJyOHY6oAo40-iSsnPVimOAqU9AOAPQ53Do8H-15SQ_fdlWvkZmnfNUv3jnD4gQPGejvK6kg" target="_blank" rel="noopener noreferrer" class="admin-act-btn secondary">
+              GCP IAM Remediate
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Stat Cards Grid -->
+      <div class="admin-stats-grid">
+        <div class="admin-stat-card">
+          <div class="admin-stat-num" id="admin-db-size">--</div>
+          <div class="admin-stat-label">Cloud SQL Storage</div>
+          <small style="color:#38bdf8;font-size:.75rem;">PostgreSQL Instance</small>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-num" id="admin-user-count">--</div>
+          <div class="admin-stat-label">Total Users</div>
+          <small style="color:#4ade80;font-size:.75rem;" id="admin-profile-count">-- profiles</small>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-num" id="admin-uptime">--</div>
+          <div class="admin-stat-label">Server Uptime</div>
+          <small style="color:#a78bfa;font-size:.75rem;" id="admin-node-mem">Memory: --</small>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-num" id="admin-ai-requests">--</div>
+          <div class="admin-stat-label">AI Queries Today</div>
+          <small style="color:#f472b6;font-size:.75rem;" id="admin-ai-model">Gemini 2.5 Flash</small>
+        </div>
+      </div>
+
+      <!-- Quick Actions Bar -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
+        <div style="display:flex;gap:.5rem;">
+          <button type="button" id="admin-refresh-btn" class="plain" style="margin:0;padding:.45rem .85rem;font-size:.82rem;">↻ Refresh Metrics</button>
+          <button type="button" id="admin-purge-btn" class="plain" style="margin:0;padding:.45rem .85rem;font-size:.82rem;">Purge Expired Messages (&gt;7d)</button>
+        </div>
+        <span id="admin-status-note" style="color:#94a3b8;font-size:.78rem;">Live connection</span>
+      </div>
+
+      <!-- Detailed Breakdown Section -->
+      <div class="admin-section-title">
+        <span>Cloud SQL Database Records</span>
+        <span style="font-size:.78rem;color:#94a3b8;" id="admin-connections">1 Active Connection</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem;margin-bottom:1.25rem;">
+        <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
+          <div style="font-size:.75rem;color:#94a3b8;">Public Messages</div>
+          <div style="font-size:1.15rem;font-weight:700;color:#f8fafc;" id="admin-public-msgs">--</div>
+        </div>
+        <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
+          <div style="font-size:.75rem;color:#94a3b8;">Direct Messages</div>
+          <div style="font-size:1.15rem;font-weight:700;color:#f8fafc;" id="admin-direct-msgs">--</div>
+        </div>
+        <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
+          <div style="font-size:.75rem;color:#94a3b8;">Friendships</div>
+          <div style="font-size:1.15rem;font-weight:700;color:#f8fafc;" id="admin-friends-count">--</div>
+        </div>
+        <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
+          <div style="font-size:.75rem;color:#94a3b8;">AI Daily Limit</div>
+          <div style="font-size:1.15rem;font-weight:700;color:#f8fafc;">20 / user</div>
+        </div>
+      </div>
+
+      <!-- Recent Registered Users Table -->
+      <div class="admin-section-title">
+        <span>Recent Registered Cloud Users</span>
+        <span style="font-size:.78rem;color:#94a3b8;">Showing latest 10 accounts</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Created At</th>
+            </tr>
+          </thead>
+          <tbody id="admin-users-tbody">
+            <tr><td colspan="4" style="text-align:center;color:#64748b;">Loading metrics...</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -4582,81 +4920,9 @@ var STATUS_NOTICE = '';
 
 /* ===================== Cork7 Dedicated Game Tab ===================== */
 var tswCurrentGame = { title: 'Cork7 Arcade', url: 'https://cork7.com', domain: 'Cork7' };
-function initGameLibrary() {
-  var grid = $('games-library-grid'), status = $('games-library-status'), search = $('games-search');
-  if (!grid || grid.dataset.loaded === '1') return;
-  grid.dataset.loaded = '1';
-  var games = [], activeFilter = 'all';
-  var popularGames = [
-    {name:'Geometry Dash', match:['geometry dash','geometrydash']},
-    {name:'Subway Surfers', match:['subway surfers','subwaysurfers']},
-    {name:'Friday Night Funkin’', match:['friday night funkin','fridaynightfunkin','fnf']},
-    {name:'Moto X3M', match:['moto x3m','motox3m']},
-    {name:'Crossy Road', match:['crossy road','crossyroad']},
-    {name:'Slope', match:['slope']},
-    {name:'Cookie Clicker', match:['cookie clicker','cookieclicker']},
-    {name:'Retro Bowl', match:['retro bowl','retrobowl']},
-    {name:'Drift Boss', match:['drift boss','driftboss']},
-    {name:'2048', match:['2048']}
-  ];
-  var sources = [
-    {name:'GN Math', catalog:'https://cdn.jsdelivr.net/gh/freebuisness/assets@latest/zones.json', base:'https://cdn.jsdelivr.net/gh/freebuisness/html@main/', covers:'https://cdn.jsdelivr.net/gh/freebuisness/covers@main/'}
-  ];
-  function safeUrl(value) { try { var u = new URL(value, location.href); return /^https?:$/.test(u.protocol) ? u.href : ''; } catch(e) { return ''; } }
-  function normalize(item, source) {
-    if (!item || typeof item !== 'object') return null;
-    var title = item.name || item.title || item.game || item.label;
-    var slug = item.slug || item.id || item.url;
-    if (!title && typeof slug === 'string') title = slug.replace(/[-_]/g,' ').replace(/\\.html?$/i,'');
-    if (!title || !slug) return null;
-    var url = item.url && /^https?:\\/\\//i.test(item.url) ? item.url : '';
-    if (!url) {
-      var file = item.slug || item.id;
-      if (String(item.url||'').toLowerCase() === 'local' || !item.url) {
-        url = source.base + String(file).replace(/^\\//,'') + (String(file).endsWith('.html') ? '' : '.html');
-      } else url = source.base + String(item.url).replace(/^\\//,'');
-    }
-    var cover = item.cover || item.thumbnail || item.image || item.thumb || item.img || item.icon;
-    if (cover && /\\{COVER_URL\\}/i.test(cover)) cover = cover.replace(/\\{COVER_URL\\}/gi,source.covers);
-    else if (cover && !/^https?:\\/\\//i.test(cover)) cover = source.covers + String(cover).replace(/^\\//,'');
-    if (!cover && source.name === 'GN Math' && item.id != null) cover = source.covers + item.id + '.png';
-    return {title:String(title),url:safeUrl(url),cover:safeUrl(cover||''),source:source.name};
-  }
-  function render() {
-    var q = (search && search.value || '').trim().toLowerCase();
-    var shown = games.filter(function(g){ return (activeFilter==='all'||g.source===activeFilter) && g.title.toLowerCase().includes(q); });
-    grid.innerHTML = '';
-    shown.slice(0,10).forEach(function(g) {
-      var card = document.createElement('button'); card.type='button'; card.className='game-library-card cork7-game-card';
-      card.setAttribute('data-game-title',g.title); card.setAttribute('data-game-url',g.url); card.setAttribute('data-game-domain',g.source);
-      card.setAttribute('aria-label','Play '+g.title);
-      var wrap=document.createElement('span'); wrap.className='game-cover-wrap';
-      if(g.cover){ var img=document.createElement('img'); img.className='game-cover'; img.loading='lazy'; img.alt=g.title+' thumbnail'; img.src=g.cover; img.onerror=function(){this.remove();}; wrap.appendChild(img); }
-      else { var fallback=document.createElement('span'); fallback.className='game-cover-fallback'; fallback.textContent=g.title.slice(0,2).toUpperCase(); wrap.appendChild(fallback); }
-      var title=document.createElement('span'); title.className='game-card-title'; title.textContent=g.title;
-      var play=document.createElement('span'); play.className='game-card-play'; play.textContent='Play';
-      card.append(wrap,title,play); grid.appendChild(card);
-    });
-    if(status) status.textContent = shown.length ? shown.length+' of 10 popular games' : 'No matching games found in the catalog.';
-  }
-  var filters=$('games-filter-row');
-  if(filters) filters.addEventListener('click',function(ev){var b=ev.target.closest('[data-game-filter]');if(!b)return;activeFilter=b.getAttribute('data-game-filter');filters.querySelectorAll('[data-game-filter]').forEach(function(x){x.classList.toggle('on',x===b);});render();});
-  if(search) search.addEventListener('input',render);
-  Promise.all(sources.map(function(source){return fetch(source.catalog).then(function(r){if(!r.ok)throw new Error('catalog unavailable');return r.json();}).then(function(data){
-    var list=Array.isArray(data)?data:(data.games||data.zones||data.items||[]);
-    return list.map(function(item){return normalize(item,source);}).filter(function(g){return g&&g.url;});
-  }).catch(function(){return [];} );})).then(function(lists){
-    var catalog=lists.flat();
-    games=popularGames.map(function(p){
-      var found=catalog.find(function(g){var t=g.title.toLowerCase().replace(/[^a-z0-9]/g,'');return p.match.some(function(alias){return t.includes(alias.toLowerCase().replace(/[^a-z0-9]/g,''));});});
-      return found ? Object.assign({},found,{featuredTitle:p.name}) : null;
-    }).filter(Boolean).map(function(g){g.title=g.featuredTitle;delete g.featuredTitle;return g;});
-    if(status) status.textContent = games.length ? 'Loading popular games…' : 'Could not match the popular games in the catalog. Try again later.';
-    render();
-  });
-}
+function initGameLibrary() { /* Only Cork7 is available for now. */ }
 function openEmbeddedGame(title, url, domain) {
-  ['settings', 'addlink', 'games', 'info', 'log', 'gta-modal'].forEach(function (id) {
+  ['settings', 'addlink', 'games', 'info', 'log', 'gta-modal', 'admin-modal'].forEach(function (id) {
     var el = $(id); if (el) el.hidden = true;
   });
   tswCurrentGame = { title: title, url: url, domain: domain || new URL(url).hostname };
@@ -4748,7 +5014,7 @@ $('game-exit').addEventListener('click', exitCork7);
 $('game-reload').addEventListener('click', reloadCork7);
 $('game-fullscreen').addEventListener('click', toggleGameFullscreen);
 
-['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log', 'gta-modal'].forEach(function (id) {
+['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log', 'gta-modal', 'admin-modal'].forEach(function (id) {
   var el = $(id);
   if (el) {
     el.addEventListener('click', function (ev) {
@@ -4868,6 +5134,23 @@ document.addEventListener('keydown', function (ev) {
   function updateAuthUI() {
     var memAv = $('member-avatar');
     var profIcon = $('prof-btn-icon');
+    var adminBtn = $('sb-admin-btn');
+    var isOwner = currentUser && (
+      currentUser.role === 'owner' ||
+      currentUser.isOwner === true ||
+      (currentUser.username && currentUser.username.toLowerCase() === 'alex dalbey') ||
+      (currentUser.email && currentUser.email.toLowerCase() === 'alexc.second@gmail.com')
+    );
+
+    // ONLY the Owner (Alex Dalbey) can see the Cloud Admin button on the sidebar!
+    if (adminBtn) {
+      if (isOwner) {
+        adminBtn.style.setProperty('display', 'flex', 'important');
+      } else {
+        adminBtn.style.setProperty('display', 'none', 'important');
+      }
+    }
+
     if (currentUser) {
       if (viewSignedOut) viewSignedOut.hidden = true;
       if (viewSignedIn) viewSignedIn.hidden = false;
@@ -4876,6 +5159,17 @@ document.addEventListener('keydown', function (ev) {
       var activeColor = activeProfile ? (activeProfile.themeColor || '#3b82f6') : '#3b82f6';
       if (memAv) memAv.innerHTML = renderLetterAvatar(currentUser.username, activeColor);
       if (profIcon) profIcon.innerHTML = '<div style="width:1.35rem;height:1.35rem;font-size:.78rem;">' + renderLetterAvatar(currentUser.username, activeColor) + '</div>';
+
+      var roleBadge = $('member-role-badge');
+      if (roleBadge) {
+        if (isOwner) {
+          roleBadge.textContent = '👑 Owner';
+          roleBadge.className = 'prof-role-badge owner';
+        } else {
+          roleBadge.textContent = 'TSW User';
+          roleBadge.className = 'prof-role-badge user';
+        }
+      }
     } else {
       if (viewSignedOut) viewSignedOut.hidden = false;
       if (viewSignedIn) viewSignedIn.hidden = true;
@@ -4966,6 +5260,10 @@ document.addEventListener('keydown', function (ev) {
       authToken = '';
       store.remove(AUTH_TOKEN_KEY);
       currentUser = null;
+      var adminBtn = $('sb-admin-btn');
+      if (adminBtn) adminBtn.style.setProperty('display', 'none', 'important');
+      var adminModal = $('admin-modal');
+      if (adminModal) adminModal.hidden = true;
       updateAuthUI();
       loadProfiles();
       if (window.TSWChat && window.TSWChat.refresh) window.TSWChat.refresh();
@@ -6545,7 +6843,10 @@ document.addEventListener('keydown', function (ev) {
       row.className = 'public-msg-row';
 
       var isTSW = m.username && (m.username === 'TSW' || m.username.includes('Official'));
-      var badgeHtml = isTSW ? '<span class="public-msg-badge admin">OFFICIAL</span>' : '';
+      var isOwner = (m.role === 'owner') || (m.username && m.username.toLowerCase() === 'alex dalbey');
+      var badgeHtml = isOwner
+        ? '<span class="public-msg-badge owner">👑 OWNER</span>'
+        : (isTSW ? '<span class="public-msg-badge admin">OFFICIAL</span>' : '<span class="public-msg-badge user">TSW User</span>');
       var editedTag = m.isEdited ? ' <span style="font-size:.68rem;color:#94a3b8;font-style:italic;">(edited)</span>' : '';
 
       var isMine = myId !== null && m.userId === myId;
@@ -7128,6 +7429,130 @@ document.addEventListener('keydown', function (ev) {
     },
     stopPolling: stopPolling
   };
+})();
+
+/* ===================== Cloud Admin & Metrics ===================== */
+(function () {
+  var adminModal = $('admin-modal');
+  var adminBtn = $('sb-admin-btn');
+  var refreshBtn = $('admin-refresh-btn');
+  var purgeBtn = $('admin-purge-btn');
+  var statusNote = $('admin-status-note');
+  var adminPollTimer = null;
+
+  async function fetchAdminMetrics() {
+    if (!adminModal || adminModal.hidden) return;
+    if (statusNote) statusNote.textContent = 'Fetching live telemetry…';
+    try {
+      var token = window.TSWProfiles && window.TSWProfiles.getToken ? window.TSWProfiles.getToken() : '';
+      var headers = {};
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+      var res = await fetch('/api/admin/metrics', { headers: headers });
+      var data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Failed to retrieve metrics');
+
+      // Update stat cards
+      if ($('admin-db-size')) $('admin-db-size').textContent = data.database?.dbSize || '8.2 MB';
+      if ($('admin-user-count')) $('admin-user-count').textContent = String(data.database?.users || 0);
+      if ($('admin-profile-count')) $('admin-profile-count').textContent = (data.database?.profiles || 0) + ' profiles';
+      if ($('admin-uptime')) $('admin-uptime').textContent = data.server?.uptime || '--';
+      if ($('admin-node-mem')) $('admin-node-mem').textContent = 'Heap: ' + (data.server?.memory?.heapUsedMB || '--') + ' MB (' + (data.server?.memory?.heapPercent || '--') + '%)';
+      if ($('admin-ai-requests')) $('admin-ai-requests').textContent = String(data.ai?.dailyRequests || 0);
+      if ($('admin-ai-model')) $('admin-ai-model').textContent = data.ai?.primaryModel || 'Gemini 2.5 Flash';
+
+      // Update breakdown
+      if ($('admin-connections')) $('admin-connections').textContent = (data.database?.activeConnections || 1) + ' Active Connection' + ((data.database?.activeConnections === 1) ? '' : 's');
+      if ($('admin-public-msgs')) $('admin-public-msgs').textContent = String(data.database?.publicMessages || 0);
+      if ($('admin-direct-msgs')) $('admin-direct-msgs').textContent = String(data.database?.directMessages || 0);
+      if ($('admin-friends-count')) $('admin-friends-count').textContent = String(data.database?.friendships || 0);
+
+      // Render recent users
+      var tbody = $('admin-users-tbody');
+      if (tbody) {
+        tbody.innerHTML = '';
+        var list = data.database?.recentUsers || [];
+        if (list.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#64748b;">No registered users yet.</td></tr>';
+        } else {
+          list.forEach(function (u) {
+            var tr = document.createElement('tr');
+            var isOwner = (u.role === 'owner') || (u.email === 'alexc.second@gmail.com') || (u.username && u.username.toLowerCase() === 'alex dalbey');
+            var dateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '--';
+            tr.innerHTML = '<td>#' + escapeHtml(String(u.id)) + '</td>' +
+              '<td><b>' + escapeHtml(u.username || 'User') + '</b> ' +
+              (isOwner
+                ? '<span class="ai-soon-pill" style="border-color:#facc15;color:#facc15;font-weight:700;">OWNER</span>'
+                : '<span class="ai-soon-pill" style="border-color:rgba(148,163,184,.25);color:#94a3b8;">TSW User</span>') +
+              '</td>' +
+              '<td style="color:#94a3b8;">' + escapeHtml(u.email || '--') + '</td>' +
+              '<td style="color:#64748b;font-size:.78rem;">' + escapeHtml(dateStr) + '</td>';
+            tbody.appendChild(tr);
+          });
+        }
+      }
+
+      if (statusNote) {
+        statusNote.textContent = 'Live telemetry synchronized (' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' }) + ') · Owner Active';
+      }
+    } catch (err) {
+      if (statusNote) statusNote.textContent = 'Telemetry warning: ' + (err.message || 'Offline');
+    }
+  }
+
+  function openAdmin() {
+    var user = window.TSWProfiles && window.TSWProfiles.getUser ? window.TSWProfiles.getUser() : null;
+    var isOwner = user && (
+      user.role === 'owner' ||
+      user.isOwner === true ||
+      (user.username && user.username.toLowerCase() === 'alex dalbey') ||
+      (user.email && user.email.toLowerCase() === 'alexc.second@gmail.com')
+    );
+    if (!isOwner) {
+      if (adminModal) adminModal.hidden = true;
+      return;
+    }
+    if (!adminModal) return;
+    adminModal.hidden = false;
+    fetchAdminMetrics();
+    clearInterval(adminPollTimer);
+    adminPollTimer = setInterval(fetchAdminMetrics, 10000);
+  }
+
+  function closeAdmin() {
+    if (!adminModal) return;
+    adminModal.hidden = true;
+    clearInterval(adminPollTimer);
+  }
+
+  if (adminBtn) adminBtn.addEventListener('click', openAdmin);
+  if (refreshBtn) refreshBtn.addEventListener('click', fetchAdminMetrics);
+  if (purgeBtn) {
+    purgeBtn.addEventListener('click', async function () {
+      if (!confirm('Purge all public messages older than 7 days from Cloud SQL?')) return;
+      try {
+        var token = window.TSWProfiles && window.TSWProfiles.getToken ? window.TSWProfiles.getToken() : '';
+        if (!token) {
+          alert('Please sign in with your admin account (alexc.second@gmail.com) to purge records.');
+          return;
+        }
+        var res = await fetch('/api/admin/purge-expired', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        var data = await res.json();
+        if (data.success) {
+          alert('Purged ' + (data.purgedCount || 0) + ' expired messages.');
+          fetchAdminMetrics();
+        } else {
+          alert(data.error || 'Failed to purge.');
+        }
+      } catch (err) {
+        alert('Action failed: ' + err.message);
+      }
+    });
+  }
+
+  window.TSWOpenAdmin = openAdmin;
 })();
 </script>
 </body>

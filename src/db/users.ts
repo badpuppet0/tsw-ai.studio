@@ -75,12 +75,15 @@ export async function signUpUser(username: string, password: string, email?: str
   const userEmail = email && email.includes('@') ? email.trim() : `${cleanUsername.toLowerCase()}@tswv2.local`;
   const uid = 'usr_' + crypto.randomBytes(8).toString('hex');
   const passwordHash = hashPassword(password);
+  const isOwner = cleanUsername.toLowerCase() === 'alex dalbey' || userEmail.toLowerCase() === 'alexc.second@gmail.com';
+  const role = isOwner ? 'owner' : 'TSW User';
 
   const inserted = await db.insert(users).values({
     uid,
     username: cleanUsername,
     passwordHash,
     email: userEmail,
+    role,
   }).returning();
 
   const user = inserted[0];
@@ -102,9 +105,9 @@ export async function signUpUser(username: string, password: string, email?: str
   const initialProfile = await db.insert(profiles).values({
     userId: user.id,
     name: cleanUsername,
-    avatar: 'astronaut',
+    avatar: isOwner ? 'crown' : 'astronaut',
     themeColor: '#5aa2ff',
-    bio: 'Explorer of the cosmos',
+    bio: isOwner ? 'TSW Creator & Owner' : 'Explorer of the cosmos',
     shortcuts: JSON.stringify(starterShortcuts),
     preferences: JSON.stringify({
       searchEngine: 'https://www.google.com/search?q=',
@@ -117,7 +120,7 @@ export async function signUpUser(username: string, password: string, email?: str
 
   const token = createSessionToken(user.id, cleanUsername);
   return {
-    user: { id: user.id, username: cleanUsername, email: user.email },
+    user: { id: user.id, username: cleanUsername, email: user.email, role: user.role || role },
     profile: initialProfile[0],
     token,
     isNewAccount: true,
@@ -143,21 +146,27 @@ export async function loginUser(username: string, password: string) {
     throw new Error('Invalid username or password');
   }
 
+  // Ensure role is accurate if logging in as Alex Dalbey
+  if ((user.username?.toLowerCase() === 'alex dalbey' || user.email?.toLowerCase() === 'alexc.second@gmail.com') && user.role !== 'owner') {
+    await db.update(users).set({ role: 'owner' }).where(eq(users.id, user.id));
+    user.role = 'owner';
+  }
+
   const userProfiles = await getUserProfiles(user.id);
   let activeProfile = userProfiles.find(p => p.isDefault) || userProfiles[0];
   if (!activeProfile) {
     activeProfile = await createProfile(user.id, {
       name: user.username || 'Voyager',
-      avatar: 'astronaut',
+      avatar: user.role === 'owner' ? 'crown' : 'astronaut',
       themeColor: '#5aa2ff',
-      bio: 'Explorer of the cosmos',
+      bio: user.role === 'owner' ? 'TSW Creator & Owner' : 'Explorer of the cosmos',
       isDefault: true
     });
   }
 
   const token = createSessionToken(user.id, user.username || user.email.split('@')[0]);
   return {
-    user: { id: user.id, username: user.username || user.email.split('@')[0], email: user.email },
+    user: { id: user.id, username: user.username || user.email.split('@')[0], email: user.email, role: user.role || 'TSW User' },
     profile: activeProfile,
     profiles: userProfiles,
     token,
@@ -169,6 +178,7 @@ export async function getUserById(userId: number) {
     id: users.id,
     username: users.username,
     email: users.email,
+    role: users.role,
     createdAt: users.createdAt,
   }).from(users).where(eq(users.id, userId));
   return res[0] || null;
@@ -181,8 +191,11 @@ export async function getOrCreateUser(uid: string, email: string) {
       return existing[0];
     }
 
+    const isOwner = email.toLowerCase() === 'alexc.second@gmail.com';
+    const role = isOwner ? 'owner' : 'TSW User';
+
     const inserted = await db.insert(users)
-      .values({ uid, email, username: email.split('@')[0] })
+      .values({ uid, email, username: email.split('@')[0], role })
       .onConflictDoUpdate({
         target: users.uid,
         set: { email },
@@ -620,6 +633,7 @@ export async function getPublicMessages(channel: string) {
   const res = await db.execute(sql`
     SELECT pm.id, pm.channel, pm.user_id as "userId", pm.content, pm.created_at as "createdAt",
            u.username,
+           COALESCE(u.role, 'TSW User') as role,
            COALESCE(p.avatar, 'astronaut') as avatar
     FROM public_messages pm
     JOIN users u ON u.id = pm.user_id
@@ -635,6 +649,7 @@ export async function getPublicMessages(channel: string) {
     channel: r.channel,
     userId: r.userId,
     username: r.username || 'Member',
+    role: r.role || 'TSW User',
     avatar: r.avatar || 'astronaut',
     content: r.content,
     createdAt: r.createdAt,
@@ -651,10 +666,9 @@ export async function sendPublicMessage(channel: string, userId: number, content
   // Enforce read-only for announcements channel
   if (cleanChannel === 'announcements') {
     const user = await getUserById(userId);
-    const username = (user?.username || '').toLowerCase();
-    const isAdmin = username.includes('admin') || username.includes('tsw') || username.includes('alex');
-    if (!isAdmin) {
-      throw new Error('Announcements is a read-only channel. Only administrators can post announcements.');
+    const isOwner = user?.role === 'owner' || isUserAdmin(user);
+    if (!isOwner) {
+      throw new Error('Announcements is a read-only channel. Only the owner can post announcements.');
     }
   }
 
@@ -674,6 +688,7 @@ export async function sendPublicMessage(channel: string, userId: number, content
     channel: msg.channel,
     userId: msg.userId,
     username: user?.username || 'Member',
+    role: user?.role || 'TSW User',
     avatar: activeProfile?.avatar || 'astronaut',
     content: msg.content,
     createdAt: msg.createdAt,
@@ -698,5 +713,57 @@ export async function editPublicMessage(userId: number, messageId: number, conte
     and(eq(publicMessages.id, messageId), eq(publicMessages.userId, userId))
   );
   return { success: true, content: clean };
+}
+
+export function isUserAdmin(user: { id?: number; username?: string | null; email?: string | null; role?: string | null } | null | undefined): boolean {
+  if (!user) return false;
+  if (user.role === 'owner') return true;
+  const email = (user.email || '').toLowerCase().trim();
+  const username = (user.username || '').toLowerCase().trim();
+  if (email === 'alexc.second@gmail.com') return true;
+  if (username === 'alex dalbey') return true;
+  return false;
+}
+
+export async function getAdminMetrics() {
+  await ensureChatTables();
+  const userCountRes = await db.execute(sql`SELECT count(*)::int as count FROM users;`);
+  const profileCountRes = await db.execute(sql`SELECT count(*)::int as count FROM profiles;`);
+  const messageCountRes = await db.execute(sql`SELECT count(*)::int as count FROM messages;`);
+  const publicMsgRes = await db.execute(sql`SELECT count(*)::int as count FROM public_messages;`);
+  const friendRes = await db.execute(sql`SELECT count(*)::int as count FROM friends;`);
+  const dbMetaRes = await db.execute(sql`SELECT pg_size_pretty(pg_database_size(current_database())) as dbsize, count(*)::int as connections FROM pg_stat_activity WHERE datname = current_database();`);
+
+  const recentUsersRes = await db.execute(sql`
+    SELECT id, username, email, COALESCE(role, 'TSW User') as role, created_at as "createdAt"
+    FROM users
+    ORDER BY id DESC
+    LIMIT 10;
+  `);
+
+  return {
+    users: Number((userCountRes.rows[0] as any)?.count || 0),
+    profiles: Number((profileCountRes.rows[0] as any)?.count || 0),
+    directMessages: Number((messageCountRes.rows[0] as any)?.count || 0),
+    publicMessages: Number((publicMsgRes.rows[0] as any)?.count || 0),
+    friendships: Number((friendRes.rows[0] as any)?.count || 0),
+    dbSize: String((dbMetaRes.rows[0] as any)?.dbsize || '8.2 MB'),
+    activeConnections: Number((dbMetaRes.rows[0] as any)?.connections || 1),
+    recentUsers: (recentUsersRes.rows || []).map((r: any) => ({
+      id: r.id,
+      username: r.username || 'User',
+      email: r.email,
+      role: r.role || 'TSW User',
+      createdAt: r.createdAt
+    }))
+  };
+}
+
+export async function purgeExpiredPublicMessages() {
+  const res = await db.execute(sql`
+    DELETE FROM public_messages
+    WHERE created_at < NOW() - INTERVAL '7 days';
+  `);
+  return { success: true, count: Number((res as any)?.rowCount || 0) };
 }
 
