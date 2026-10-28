@@ -590,16 +590,6 @@ export async function editDirectMessage(userId: number, messageId: number, conte
 export async function getPublicMessages(channel: string) {
   const cleanChannel = ['chat-1', 'chat-2', 'announcements'].includes(channel) ? channel : 'chat-1';
 
-  // 1-week retention: automatically delete public messages older than 7 days
-  try {
-    await db.execute(sql`
-      DELETE FROM public_messages
-      WHERE created_at < NOW() - INTERVAL '7 days';
-    `);
-  } catch (e) {
-    console.warn('Retention cleanup warning:', e);
-  }
-
   // Seed default official announcement if announcements channel is empty
   if (cleanChannel === 'announcements') {
     const existing = await db.select().from(publicMessages).where(eq(publicMessages.channel, 'announcements')).limit(1);
@@ -613,6 +603,7 @@ export async function getPublicMessages(channel: string) {
           uid: 'system_tsw_announcements',
           username: 'TSW Official',
           email: 'official@tswv2.com',
+          role: 'owner',
         }).returning({ id: users.id });
         sysId = ins[0].id;
         await createProfile(sysId, {
@@ -625,7 +616,7 @@ export async function getPublicMessages(channel: string) {
       await db.insert(publicMessages).values({
         channel: 'announcements',
         userId: sysId,
-        content: '📢 Welcome to TSW v2 Public Channels! You can chat freely with members in #chat-1 and #chat-2. All messages in public rooms automatically expire after 7 days.',
+        content: '📢 Welcome to TSW v2 Public Announcements! Stay tuned here for upcoming releases and official updates.',
       });
     }
   }
@@ -639,7 +630,6 @@ export async function getPublicMessages(channel: string) {
     JOIN users u ON u.id = pm.user_id
     LEFT JOIN profiles p ON p.user_id = u.id AND p.is_default = true
     WHERE pm.channel = ${cleanChannel}
-      AND pm.created_at >= NOW() - INTERVAL '7 days'
     ORDER BY pm.created_at ASC
     LIMIT 200;
   `);
@@ -760,10 +750,6 @@ export async function getAdminMetrics() {
 }
 
 export async function purgeExpiredPublicMessages() {
-  const res = await db.execute(sql`
-    DELETE FROM public_messages
-    WHERE created_at < NOW() - INTERVAL '7 days';
-  `);
-  return { success: true, count: Number((res as any)?.rowCount || 0) };
+  return { success: true, count: 0 };
 }
 

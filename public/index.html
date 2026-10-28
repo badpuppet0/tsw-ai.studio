@@ -1335,18 +1335,131 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   color: #e2e8f0;
   word-break: break-word;
 }
-.public-retention-notice {
+/* Update Countdown Cards (Hype update ticker) */
+.update-countdown-card {
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(96, 165, 250, 0.22);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5), 0 0 16px -4px rgba(59, 130, 246, 0.2);
+  padding: 0.65rem 1rem;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+.update-countdown-card.home-variant {
+  margin: 1rem auto 1.25rem auto;
+  max-width: 440px;
+  width: 90%;
+}
+.update-countdown-card.announcements-variant {
+  margin: 0;
+  width: 100%;
+  background: rgba(15, 23, 42, 0.85);
+  border-color: rgba(234, 179, 8, 0.3);
+  box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.5), 0 0 14px -4px rgba(234, 179, 8, 0.2);
+}
+.ucc-header {
   display: flex;
   align-items: center;
-  gap: .5rem;
-  font-size: .74rem;
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.08);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  padding: .45rem .75rem;
-  border-radius: 8px;
-  margin-bottom: .6rem;
+  justify-content: space-between;
+  margin-bottom: 0.45rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
+.ucc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #93c5fd;
+}
+.announcements-variant .ucc-badge {
+  color: #fde047;
+}
+.ucc-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #3b82f6;
+  box-shadow: 0 0 8px #3b82f6;
+  animation: uccPulseAnim 1.6s ease-in-out infinite;
+}
+.announcements-variant .ucc-pulse {
+  background: #eab308;
+  box-shadow: 0 0 8px #eab308;
+}
+@keyframes uccPulseAnim {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.8); }
+}
+.ucc-target-date {
+  font-size: 0.74rem;
+  color: #94a3b8;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.ucc-timer-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+.ucc-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(2, 6, 23, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0.3rem 0.6rem;
+  min-width: 52px;
+}
+.ucc-num {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #f8fafc;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  text-shadow: 0 0 10px rgba(96, 165, 250, 0.4);
+}
+.announcements-variant .ucc-num {
+  text-shadow: 0 0 10px rgba(234, 179, 8, 0.35);
+}
+.ucc-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+  margin-top: 0.15rem;
+}
+.ucc-colon {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: rgba(148, 163, 184, 0.5);
+  line-height: 1;
+  margin-top: -0.5rem;
+}
+[data-theme="light"] .update-countdown-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(37, 99, 235, 0.25);
+  box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .ucc-badge { color: #2563eb; }
+[data-theme="light"] .announcements-variant .ucc-badge { color: #b45309; }
+[data-theme="light"] .ucc-target-date { color: #475569; }
+[data-theme="light"] .ucc-unit {
+  background: rgba(241, 245, 249, 0.9);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .ucc-num { color: #0f172a; text-shadow: none; }
+[data-theme="light"] .ucc-label { color: #64748b; }
+[data-theme="light"] .ucc-colon { color: rgba(100, 116, 139, 0.5); }
+
 .public-locked-bar {
   padding: .75rem 1.1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.07);
@@ -2316,29 +2429,7 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   color: #fca5a5;
 }
 
-/* Public Channel Mute Switch */
-.public-mute-btn {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
-  border-radius: 6px;
-  padding: .3rem .65rem;
-  font-size: .78rem;
-  display: inline-flex;
-  align-items: center;
-  gap: .35rem;
-  cursor: pointer;
-  transition: all .15s;
-}
-.public-mute-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-}
-.public-mute-btn.muted {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: rgba(239, 68, 68, 0.35);
-  color: #fca5a5;
-}
+
 
 /* Sidebar Status Item inside .sb-menu (No competition for screen space) */
 .sb-menu .status {
@@ -2730,7 +2821,7 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
       <aside class="chat-sidebar" id="chat-sidebar-public" style="display:none;">
         <div class="chat-sidebar-section-title">
           <span>Public Rooms</span>
-          <span style="font-size:.68rem;color:#38bdf8;">7-day reset</span>
+          <span style="font-size:.68rem;color:#94a3b8;">Community</span>
         </div>
 
         <div class="chat-public-channels-list">
@@ -2753,7 +2844,7 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
           <div class="public-channel-item" data-channel="announcements" id="channel-item-announcements" role="button" tabindex="0">
             <div class="public-channel-icon" style="color:#eab308;">📢</div>
             <div class="public-channel-meta">
-              <div class="public-channel-name">announcements <span class="public-readonly-badge">Read-only</span></div>
+              <div class="public-channel-name">announcements <span class="public-readonly-badge">Official</span></div>
               <div class="public-channel-desc">Official updates & news</div>
             </div>
           </div>
@@ -2808,9 +2899,36 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
               <div class="chat-convo-head-sub" id="public-header-sub" style="color:#94a3b8;">Public channel for all members</div>
             </div>
           </div>
-          <div style="display:flex;align-items:center;gap:.6rem;">
-            <button type="button" class="public-mute-btn" id="public-mute-btn" title="Toggle channel alerts">🔔 <span id="public-mute-label">Alerts On</span></button>
-            <span class="public-retention-pill">⏳ Auto-deletes after 7 days</span>
+        </div>
+
+        <!-- Pinned Countdown Banner for Announcements -->
+        <div id="announcements-pinned-timer" style="display:none;padding:.75rem 1rem 0.25rem 1rem;flex:none;">
+          <div class="update-countdown-card announcements-variant" aria-label="Announcement Countdown to Major Update">
+            <div class="ucc-header">
+              <span class="ucc-badge"><span class="ucc-pulse"></span> MAJOR UPDATE COUNTDOWN</span>
+              <span class="ucc-target-date">Monday, Nov 2 @ 7:00 AM</span>
+            </div>
+            <div class="ucc-timer-grid">
+              <div class="ucc-unit">
+                <span class="ucc-num ucc-days-val">00</span>
+                <span class="ucc-label">DAYS</span>
+              </div>
+              <span class="ucc-colon">:</span>
+              <div class="ucc-unit">
+                <span class="ucc-num ucc-hours-val">00</span>
+                <span class="ucc-label">HOURS</span>
+              </div>
+              <span class="ucc-colon">:</span>
+              <div class="ucc-unit">
+                <span class="ucc-num ucc-mins-val">00</span>
+                <span class="ucc-label">MIN</span>
+              </div>
+              <span class="ucc-colon">:</span>
+              <div class="ucc-unit">
+                <span class="ucc-num ucc-secs-val">00</span>
+                <span class="ucc-label">SEC</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -2818,7 +2936,7 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
           <!-- Populated by JavaScript -->
         </div>
 
-        <!-- Input Bar for chat-1 & chat-2 -->
+        <!-- Input Bar for chat-1, chat-2, and announcements (owner) -->
         <div class="chat-input-bar" id="public-input-bar">
           <form class="chat-input-form" id="public-message-form" autocomplete="off">
             <input id="public-message-input" type="text" placeholder="Message #chat-1..." maxlength="1000" required>
@@ -2830,10 +2948,10 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
           </div>
         </div>
 
-        <!-- Locked Banner for Announcements -->
+        <!-- Locked Banner for Announcements (Non-owners) -->
         <div class="public-locked-bar" id="public-locked-bar" style="display:none;">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#eab308;flex:none;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <span><b>Announcements</b> is a read-only channel. Anyone with an account can chat in <b>#chat-1</b> and <b>#chat-2</b>.</span>
+          <span id="public-locked-text"><b>Announcements</b> is an official channel. Only the Owner (Alex Dalbey) can post here.</span>
         </div>
       </main>
     </div>
@@ -3162,17 +3280,17 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
       <ul>
         <li><b>Real Vertical Multi-Tabs</b>: Keep multiple tabs in the sidebar with isolated browsing histories and states.</li>
         <li><b>Social Chat & DMs</b>: Direct messaging with approval-based friend requests, message edit and delete, typing indicators, and unread dots.</li>
-        <li><b>Public Channels</b>: Squared, modern chat rooms (#chat-1, #chat-2, #announcements) with 7-day auto-retention and profanity filter.</li>
+        <li><b>Public Channels</b>: Squared, modern chat rooms (#chat-1, #chat-2, #announcements) with profanity filter and real-time updates.</li>
         <li><b>Draggable Chat Window</b>: Reposition the friends and chat panel anywhere across your screen.</li>
         <li><b>Cloud SQL Account Sync</b>: Cloud-synced shortcuts, themes, audio, and settings across all browsers.</li>
         <li><b>Calming Ambient Rain & Live Weather</b>: Procedural Web Audio rain sound (off by default) and live weather on the home screen.</li>
         <li><b>Light Mode & Guided Tour</b>: Clean high-contrast Light Mode theme and step-by-step feature walkthrough.</li>
       </ul>
 
-      <h3 class="older">TSW v2 1.6<span>Notifications & profiles</span></h3>
+      <h3 class="older">TSW v2 1.6<span>Community & profiles</span></h3>
       <p class="date">October 2026</p>
       <ul>
-        <li>Notification center for friend requests and unread direct messages.</li>
+        <li>Direct messaging and approval-based friend requests.</li>
         <li>Profile details for a display name, short bio, and status.</li>
         <li><b>Cloud Admin &amp; Metrics</b>: Live dashboard for alexc.second@gmail.com with Cloud SQL telemetry, server runtime memory/uptime, AI usage quotas, and Google Cloud Monitoring links.</li>
       </ul>
@@ -3381,7 +3499,6 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
         <div style="display:flex;gap:.5rem;">
           <button type="button" id="admin-refresh-btn" class="plain" style="margin:0;padding:.45rem .85rem;font-size:.82rem;">↻ Refresh Metrics</button>
-          <button type="button" id="admin-purge-btn" class="plain" style="margin:0;padding:.45rem .85rem;font-size:.82rem;">Purge Expired Messages (&gt;7d)</button>
         </div>
         <span id="admin-status-note" style="color:#94a3b8;font-size:.78rem;">Live connection</span>
       </div>
@@ -3446,6 +3563,36 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </button>
     </form>
+
+    <!-- COUNTDOWN TO HUGE UPDATE (Below Search Bar) -->
+    <div class="update-countdown-card home-variant" id="home-update-countdown" aria-label="Countdown to Major Update">
+      <div class="ucc-header">
+        <span class="ucc-badge"><span class="ucc-pulse"></span> HUGE UPDATE COUNTDOWN</span>
+        <span class="ucc-target-date">Monday, Nov 2 @ 7:00 AM</span>
+      </div>
+      <div class="ucc-timer-grid">
+        <div class="ucc-unit">
+          <span class="ucc-num ucc-days-val" id="ucc-days">00</span>
+          <span class="ucc-label">DAYS</span>
+        </div>
+        <span class="ucc-colon">:</span>
+        <div class="ucc-unit">
+          <span class="ucc-num ucc-hours-val" id="ucc-hours">00</span>
+          <span class="ucc-label">HOURS</span>
+        </div>
+        <span class="ucc-colon">:</span>
+        <div class="ucc-unit">
+          <span class="ucc-num ucc-mins-val" id="ucc-mins">00</span>
+          <span class="ucc-label">MIN</span>
+        </div>
+        <span class="ucc-colon">:</span>
+        <div class="ucc-unit">
+          <span class="ucc-num ucc-secs-val" id="ucc-secs">00</span>
+          <span class="ucc-label">SEC</span>
+        </div>
+      </div>
+    </div>
+
     <nav class="links" id="links" aria-label="Shortcuts">
       <!-- Loaded dynamically from active Cloud SQL profile -->
     </nav>
@@ -5177,6 +5324,7 @@ document.addEventListener('keydown', function (ev) {
       if (profIcon) profIcon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
     }
     if (typeof loadProfileDetails === 'function') loadProfileDetails();
+    if (typeof window.TSWRefreshPublicChannel === 'function') window.TSWRefreshPublicChannel();
   }
 
   function setAuthMode(mode) {
@@ -6599,8 +6747,6 @@ document.addEventListener('keydown', function (ev) {
   var publicGuestPrompt = $('public-guest-prompt');
   var publicSignInBtn = $('public-sign-in-btn');
   var publicLockedBar = $('public-locked-bar');
-  var publicMuteBtn = $('public-mute-btn');
-  var publicMuteLabel = $('public-mute-label');
 
   var currentMode = 'dms';
   var activePublicChannel = 'chat-1';
@@ -6611,26 +6757,25 @@ document.addEventListener('keydown', function (ev) {
   var lastDmCount = 0;
   var lastPublicCount = 0;
   var typingTimeout = null;
-  var isPublicMuted = store.get('tsw.public_muted', false);
 
   var PUBLIC_CHANNELS_CONFIG = {
     'chat-1': {
       title: '# chat-1',
       icon: '#',
-      sub: 'Main public room for all members · 7-day retention',
+      sub: 'Main public room for all members',
       readonly: false
     },
     'chat-2': {
       title: '# chat-2',
       icon: '#',
-      sub: 'Gaming & casual discussions · 7-day retention',
+      sub: 'Gaming & casual discussions',
       readonly: false
     },
     'announcements': {
       title: '📢 announcements',
       icon: '📢',
-      sub: 'Official updates and announcements · Read-only',
-      readonly: true
+      sub: 'Official updates and announcements',
+      readonly: false
     }
   };
 
@@ -6758,24 +6903,6 @@ document.addEventListener('keydown', function (ev) {
   if (tabDmsBtn) tabDmsBtn.addEventListener('click', function () { switchMode('dms'); });
   if (tabPublicBtn) tabPublicBtn.addEventListener('click', function () { switchMode('public'); });
 
-  /* ---------------- Public Mute Toggle ---------------- */
-  function updateMuteButton() {
-    if (!publicMuteBtn) return;
-    publicMuteBtn.classList.toggle('muted', isPublicMuted);
-    if (publicMuteLabel) {
-      publicMuteLabel.textContent = isPublicMuted ? 'Muted' : 'Alerts On';
-    }
-    publicMuteBtn.innerHTML = (isPublicMuted ? '🔕 ' : '🔔 ') + '<span id="public-mute-label">' + (isPublicMuted ? 'Muted' : 'Alerts On') + '</span>';
-  }
-  if (publicMuteBtn) {
-    updateMuteButton();
-    publicMuteBtn.addEventListener('click', function () {
-      isPublicMuted = !isPublicMuted;
-      store.set('tsw.public_muted', isPublicMuted);
-      updateMuteButton();
-    });
-  }
-
   /* ---------------- Public Channels Logic ---------------- */
   function selectPublicChannel(channel) {
     activePublicChannel = channel;
@@ -6794,10 +6921,42 @@ document.addEventListener('keydown', function (ev) {
     if (publicHeaderTitle) publicHeaderTitle.textContent = cfg.title;
     if (publicHeaderSub) publicHeaderSub.textContent = cfg.sub;
 
+    // Show pinned timer only in announcements
+    var pinnedTimer = $('announcements-pinned-timer');
+    if (pinnedTimer) {
+      pinnedTimer.style.display = (channel === 'announcements') ? 'block' : 'none';
+    }
+
     var user = getCurrentUser();
-    if (cfg.readonly) {
-      if (publicInputBar) publicInputBar.style.display = 'none';
-      if (publicLockedBar) publicLockedBar.style.display = 'flex';
+    var isOwner = user && (
+      user.role === 'owner' ||
+      user.isOwner === true ||
+      (user.username && user.username.toLowerCase() === 'alex dalbey') ||
+      (user.email && user.email.toLowerCase() === 'alexc.second@gmail.com')
+    );
+
+    if (channel === 'announcements') {
+      if (isOwner) {
+        // Owner role can talk inside announcements!
+        if (publicLockedBar) publicLockedBar.style.display = 'none';
+        if (publicInputBar) publicInputBar.style.display = 'block';
+        if (publicMessageForm) publicMessageForm.style.display = 'flex';
+        if (publicGuestPrompt) publicGuestPrompt.style.display = 'none';
+        if (publicMessageInput) {
+          publicMessageInput.placeholder = 'Post an official announcement (Owner)...';
+          publicMessageInput.disabled = false;
+        }
+      } else {
+        // Non-owners see read-only banner
+        if (publicInputBar) publicInputBar.style.display = 'none';
+        if (publicLockedBar) {
+          publicLockedBar.style.display = 'flex';
+          var lockedText = $('public-locked-text');
+          if (lockedText) {
+            lockedText.innerHTML = '<b>Announcements</b> is an official channel. Only the Owner (Alex Dalbey) can post here.';
+          }
+        }
+      }
     } else {
       if (publicLockedBar) publicLockedBar.style.display = 'none';
       if (publicInputBar) publicInputBar.style.display = 'block';
@@ -6806,7 +6965,8 @@ document.addEventListener('keydown', function (ev) {
         if (publicMessageForm) publicMessageForm.style.display = 'flex';
         if (publicGuestPrompt) publicGuestPrompt.style.display = 'none';
         if (publicMessageInput) {
-          publicMessageInput.placeholder = 'Message #' + channel + ' (cleared after 7 days)...';
+          publicMessageInput.placeholder = 'Message #' + channel + '...';
+          publicMessageInput.disabled = false;
           publicMessageInput.focus();
         }
       } else {
@@ -6818,14 +6978,13 @@ document.addEventListener('keydown', function (ev) {
     loadPublicMessages(channel, true);
   }
 
+  window.TSWRefreshPublicChannel = function () {
+    selectPublicChannel(activePublicChannel);
+  };
+
   function renderPublicMessages(messages, scrollBottom) {
     if (!publicFeedBox) return;
     publicFeedBox.innerHTML = '';
-
-    var notice = document.createElement('div');
-    notice.className = 'public-retention-notice';
-    notice.innerHTML = '<span style="font-size:.9rem">⏳</span> <span><b>7-Day Ephemeral Retention:</b> Messages in this channel automatically delete after 7 days. Anyone with an account can chat in #chat-1 and #chat-2!</span>';
-    publicFeedBox.appendChild(notice);
 
     if (!messages || messages.length === 0) {
       var emptyEl = document.createElement('div');
@@ -7070,16 +7229,6 @@ document.addEventListener('keydown', function (ev) {
     });
   }
 
-  function updateNotificationCount() {
-    var unread = friends.filter(function (f) { return !!f.unread; }).length;
-    var requestCount = friendRequests.length;
-    var count = unread + requestCount;
-    if (notificationsCount) {
-      notificationsCount.textContent = String(count);
-      notificationsCount.hidden = count === 0;
-    }
-  }
-
   function loadFriendRequests() {
     var user = getCurrentUser();
     if (!user) return Promise.resolve();
@@ -7088,7 +7237,6 @@ document.addEventListener('keydown', function (ev) {
       if (res && res.success && Array.isArray(res.requests)) {
         friendRequests = res.requests;
         renderFriendRequests();
-        updateNotificationCount();
       }
     }).catch(function (err) {
       console.warn('Friend requests fetch warning:', err);
@@ -7158,7 +7306,6 @@ document.addEventListener('keydown', function (ev) {
       if (res && res.success && Array.isArray(res.friends)) {
         friends = res.friends;
         renderFriendsList();
-        updateNotificationCount();
         if (selectedFriend) {
           var updated = friends.find(function (f) { return f.friendId === selectedFriend.friendId; });
           if (updated) selectedFriend = updated;
@@ -7526,33 +7673,44 @@ document.addEventListener('keydown', function (ev) {
 
   if (adminBtn) adminBtn.addEventListener('click', openAdmin);
   if (refreshBtn) refreshBtn.addEventListener('click', fetchAdminMetrics);
-  if (purgeBtn) {
-    purgeBtn.addEventListener('click', async function () {
-      if (!confirm('Purge all public messages older than 7 days from Cloud SQL?')) return;
-      try {
-        var token = window.TSWProfiles && window.TSWProfiles.getToken ? window.TSWProfiles.getToken() : '';
-        if (!token) {
-          alert('Please sign in with your admin account (alexc.second@gmail.com) to purge records.');
-          return;
-        }
-        var res = await fetch('/api/admin/purge-expired', {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + token }
-        });
-        var data = await res.json();
-        if (data.success) {
-          alert('Purged ' + (data.purgedCount || 0) + ' expired messages.');
-          fetchAdminMetrics();
-        } else {
-          alert(data.error || 'Failed to purge.');
-        }
-      } catch (err) {
-        alert('Action failed: ' + err.message);
-      }
-    });
-  }
 
   window.TSWOpenAdmin = openAdmin;
+})();
+
+/* ===================== Major Update Countdown (Monday, Nov 2 @ 7:00 AM) ===================== */
+(function initUpdateCountdown() {
+  // Target: Monday, November 2, 2026 at 7:00 AM local time
+  var targetDate = new Date(2026, 10, 2, 7, 0, 0);
+
+  function tick() {
+    var now = new Date();
+    var diff = targetDate.getTime() - now.getTime();
+    var days = 0, hours = 0, mins = 0, secs = 0;
+    if (diff > 0) {
+      days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      secs = Math.floor((diff % (1000 * 60)) / 1000);
+    }
+
+    var dStr = String(days).padStart(2, '0');
+    var hStr = String(hours).padStart(2, '0');
+    var mStr = String(mins).padStart(2, '0');
+    var sStr = String(secs).padStart(2, '0');
+
+    var daysEls = document.querySelectorAll('.ucc-days-val');
+    var hoursEls = document.querySelectorAll('.ucc-hours-val');
+    var minsEls = document.querySelectorAll('.ucc-mins-val');
+    var secsEls = document.querySelectorAll('.ucc-secs-val');
+
+    for (var i = 0; i < daysEls.length; i++) daysEls[i].textContent = dStr;
+    for (var j = 0; j < hoursEls.length; j++) hoursEls[j].textContent = hStr;
+    for (var k = 0; k < minsEls.length; k++) minsEls[k].textContent = mStr;
+    for (var l = 0; l < secsEls.length; l++) secsEls[l].textContent = sStr;
+  }
+
+  tick();
+  setInterval(tick, 1000);
 })();
 </script>
 </body>
