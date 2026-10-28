@@ -1352,6 +1352,70 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   max-width: 440px;
   width: 90%;
 }
+/* Home countdown: compact, understated, and below the shortcuts. */
+.update-countdown-card.home-variant {
+  margin: .55rem auto 0;
+  max-width: 340px;
+  width: min(92%, 340px);
+  padding: .45rem .7rem;
+  background: rgba(9, 12, 19, .82);
+  border: 1px solid rgba(148, 163, 184, .16);
+  border-radius: 9px;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.home-variant .ucc-header {
+  margin-bottom: .25rem;
+  gap: .35rem;
+}
+.home-variant .ucc-badge {
+  color: #aab4c5;
+  font-size: .66rem;
+  font-weight: 600;
+  letter-spacing: .01em;
+  text-transform: none;
+}
+.home-variant .ucc-pulse {
+  width: 6px;
+  height: 6px;
+  background: #8b98aa;
+  box-shadow: none;
+  animation: none;
+}
+.home-variant .ucc-target-date {
+  font-size: .65rem;
+  color: #778296;
+  letter-spacing: 0;
+}
+.home-variant .ucc-timer-grid { gap: .28rem; }
+.home-variant .ucc-unit {
+  min-width: 40px;
+  padding: .15rem .35rem;
+  border: 0;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, .035);
+}
+.home-variant .ucc-num {
+  font-size: 1rem;
+  font-weight: 650;
+  color: #d9e0eb;
+  text-shadow: none;
+}
+.home-variant .ucc-label {
+  font-size: .5rem;
+  letter-spacing: .04em;
+  color: #7f899b;
+}
+.home-variant .ucc-colon {
+  font-size: .85rem;
+  color: #667085;
+}
+@media (max-width: 480px) {
+  .update-countdown-card.home-variant { margin-top: .45rem; padding: .4rem .5rem; }
+  .home-variant .ucc-target-date { font-size: .6rem; }
+  .home-variant .ucc-unit { min-width: 34px; }
+}
 .update-countdown-card.announcements-variant {
   margin: 0;
   width: 100%;
@@ -3564,10 +3628,14 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
       </button>
     </form>
 
-    <!-- COUNTDOWN TO HUGE UPDATE (Below Search Bar) -->
-    <div class="update-countdown-card home-variant" id="home-update-countdown" aria-label="Countdown to Major Update">
+    <nav class="links" id="links" aria-label="Shortcuts">
+      <!-- Loaded dynamically from active Cloud SQL profile -->
+    </nav>
+
+    <!-- Compact update countdown below shortcuts -->
+    <div class="update-countdown-card home-variant" id="home-update-countdown" aria-label="Countdown to Large Update">
       <div class="ucc-header">
-        <span class="ucc-badge"><span class="ucc-pulse"></span> HUGE UPDATE COUNTDOWN</span>
+        <span class="ucc-badge"><span class="ucc-pulse"></span> Large Update...</span>
         <span class="ucc-target-date">Monday, Nov 2 @ 7:00 AM</span>
       </div>
       <div class="ucc-timer-grid">
@@ -3578,7 +3646,7 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
         <span class="ucc-colon">:</span>
         <div class="ucc-unit">
           <span class="ucc-num ucc-hours-val" id="ucc-hours">00</span>
-          <span class="ucc-label">HOURS</span>
+          <span class="ucc-label">HRS</span>
         </div>
         <span class="ucc-colon">:</span>
         <div class="ucc-unit">
@@ -3592,10 +3660,6 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
         </div>
       </div>
     </div>
-
-    <nav class="links" id="links" aria-label="Shortcuts">
-      <!-- Loaded dynamically from active Cloud SQL profile -->
-    </nav>
     <p class="msg" id="home-msg" role="status"></p>
   </div>
   <p class="note">Some sites block proxies and won't load. <a href="https://docs.google.com/forms/d/e/1FAIpQLScupiUZuqQsngFai_QPQRWn06LpuZy3VGZOEyIUY0DAZ0qJxw/viewform" target="_blank" rel="noopener noreferrer">Report a broken site</a></p>
@@ -7677,7 +7741,7 @@ document.addEventListener('keydown', function (ev) {
   window.TSWOpenAdmin = openAdmin;
 })();
 
-/* ===================== Major Update Countdown (Monday, Nov 2 @ 7:00 AM) ===================== */
+/* ===================== Large Update Countdown (Monday, Nov 2 @ 7:00 AM) ===================== */
 (function initUpdateCountdown() {
   // Target: Monday, November 2, 2026 at 7:00 AM local time
   var targetDate = new Date(2026, 10, 2, 7, 0, 0);
