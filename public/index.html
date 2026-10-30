@@ -29,7 +29,17 @@ html, body { height: 100%; background: var(--void); color: var(--ink); overflow:
 #home { position: relative; z-index: 1; height: 100%; display: grid; place-items: center;
   padding: 1.5rem; padding-bottom: 12vh; }
 #home[hidden] { display: none; }
-.hero { width: min(34rem, 100%); text-align: center; }
+.hero {
+  width: min(34rem, 100%);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.hero .field {
+  width: 100%;
+  box-sizing: border-box;
+}
 .mark { font-size: clamp(2.6rem, 9vw, 4.2rem); font-weight: 200; letter-spacing: .32em;
   padding-left: .32em; color: var(--ink); }
 .mark b { font-weight: 600; color: var(--blue); letter-spacing: .1em; margin-left: .35em; font-size: .55em; }
@@ -523,7 +533,33 @@ body.sidebar-collapsed #sidebar { box-shadow:8px 0 30px rgba(0,0,0,.14); }
 /* ---- v1.4 additions ---- */
 #bgvid { position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; pointer-events: none; }
 #bgvid[hidden] { display: none; }
-.clock { color: var(--steel); font-size: 1.05rem; margin: .5rem 0 1.2rem; min-height: 1.6rem; font-variant-numeric: tabular-nums; }
+.clock {
+  display: block;
+  width: 100%;
+  max-width: min(34rem, 90vw);
+  box-sizing: border-box;
+  color: var(--steel);
+  font-size: 1.05rem;
+  margin: .5rem auto .35rem auto;
+  min-height: 2.8rem;
+  line-height: 1.38;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity .25s ease, transform .25s ease, color .2s ease;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+  padding: 0 .5rem;
+}
+.clock:hover {
+  color: #f1f5f9;
+}
+.clock.fade-out {
+  opacity: 0;
+  transform: translateY(-3px);
+}
 .clock[hidden] { display: none; }
 .tag { transition: opacity .4s; }
 #splash { position: fixed; inset: 0; z-index: 50; background: var(--void); display: flex; flex-direction: column;
@@ -2560,10 +2596,11 @@ body.sidebar-collapsed .sb-menu .status svg {
   border: 1px solid rgba(255, 255, 255, 0.08);
   padding: .28rem .85rem;
   border-radius: 999px;
-  margin: -.2rem auto 1.15rem;
+  margin: .35rem auto 1.25rem auto;
   letter-spacing: .01em;
   max-width: 92%;
   box-sizing: border-box;
+  clear: both;
 }
 
 /* Guided tour: compact, practical walkthrough with a real feature spotlight */
@@ -3002,8 +3039,19 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
 
         <!-- Input Bar for chat-1, chat-2, and announcements (owner) -->
         <div class="chat-input-bar" id="public-input-bar">
+          <!-- Owner Quick Commands Bar (Visible only for Owner) -->
+          <div id="owner-commands-bar" style="display:none;padding:.35rem .75rem;background:#0b1324;border-bottom:1px solid rgba(255,255,255,.07);align-items:center;justify-content:space-between;gap:.5rem;font-size:.78rem;">
+            <div style="display:flex;align-items:center;gap:.4rem;color:#facc15;font-weight:600;">
+              <span>👑 Owner Commands:</span>
+            </div>
+            <div style="display:flex;gap:.35rem;flex-wrap:wrap;">
+              <button type="button" class="owner-quick-cmd-btn" data-cmd="/discord" style="border:1px solid rgba(59,130,246,.4);background:rgba(59,130,246,.12);color:#93c5fd;border-radius:4px;padding:2px 8px;font-size:.72rem;cursor:pointer;">/discord</button>
+              <button type="button" class="owner-quick-cmd-btn" data-cmd="/give role" style="border:1px solid rgba(234,179,8,.4);background:rgba(234,179,8,.12);color:#fde047;border-radius:4px;padding:2px 8px;font-size:.72rem;cursor:pointer;">/give role</button>
+              <button type="button" class="owner-quick-cmd-btn" data-cmd="/commands" style="border:1px solid rgba(148,163,184,.3);background:rgba(148,163,184,.1);color:#cbd5e1;border-radius:4px;padding:2px 8px;font-size:.72rem;cursor:pointer;">/commands</button>
+            </div>
+          </div>
           <form class="chat-input-form" id="public-message-form" autocomplete="off">
-            <input id="public-message-input" type="text" placeholder="Message #chat-1..." maxlength="1000" required>
+            <input id="public-message-input" type="text" placeholder="Message #chat-1 (or /commands)..." maxlength="1000" required>
             <button type="submit" id="public-message-send-btn">Send</button>
           </form>
           <div id="public-guest-prompt" style="display:none;text-align:center;padding:.3rem 0;">
@@ -3610,6 +3658,97 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
             <tr><td colspan="4" style="text-align:center;color:#64748b;">Loading metrics...</td></tr>
           </tbody>
         </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Owner /give role Modal -->
+<div class="overlay" id="owner-role-modal" hidden role="dialog" aria-modal="true" aria-labelledby="owner-role-title">
+  <div class="panel" style="max-width:440px;width:100%;border:1px solid rgba(234,179,8,.35);box-shadow:0 20px 60px rgba(0,0,0,.6);">
+    <div class="phead" style="border-bottom:1px solid rgba(255,255,255,.08);padding:.85rem 1.1rem;display:flex;justify-content:space-between;align-items:center;">
+      <div style="display:flex;align-items:center;gap:.6rem;">
+        <span style="font-size:1.3rem;">👑</span>
+        <div>
+          <h2 id="owner-role-title" style="font-size:1.05rem;margin:0;color:#fef08a;">Assign User Role (/give role)</h2>
+          <small style="color:#94a3b8;font-size:.76rem;">Select a role and target member to update</small>
+        </div>
+      </div>
+      <button data-close aria-label="Close" style="background:none;border:none;color:#94a3b8;font-size:1.4rem;cursor:pointer;">&times;</button>
+    </div>
+    <div class="pbody" style="padding:1.2rem;">
+      <form id="owner-role-form" style="display:flex;flex-direction:column;gap:1.1rem;">
+        <div>
+          <label style="display:block;font-size:.82rem;font-weight:600;color:#cbd5e1;margin-bottom:.4rem;">1. Select Role:</label>
+          <select id="give-role-select" required style="width:100%;padding:.65rem .85rem;background:#090e17;border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#fff;font-size:.9rem;outline:none;">
+            <option value="owner">👑 Owner (Full access to commands & Cloud Admin)</option>
+            <option value="admin">🛡️ Admin (System Administrator)</option>
+            <option value="moderator">⚔️ Moderator (Chat Moderation)</option>
+            <option value="VIP">⭐ VIP (Supporter Badge)</option>
+            <option value="TSW User" selected>👤 TSW User (Standard Member)</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="display:block;font-size:.82rem;font-weight:600;color:#cbd5e1;margin-bottom:.4rem;">2. Select User:</label>
+          <select id="give-user-select" required style="width:100%;padding:.65rem .85rem;background:#090e17;border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#fff;font-size:.9rem;outline:none;">
+            <option value="" disabled selected>Loading registered users...</option>
+          </select>
+          <small id="give-user-hint" style="display:block;margin-top:.3rem;color:#64748b;font-size:.74rem;">Select the member whose role will be updated</small>
+        </div>
+
+        <div id="give-role-status" style="display:none;padding:.6rem .8rem;border-radius:6px;font-size:.82rem;"></div>
+
+        <div style="display:flex;justify-content:flex-end;gap:.6rem;margin-top:.5rem;">
+          <button type="button" class="plain" id="give-role-cancel-btn" style="padding:.5rem 1rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:#cbd5e1;cursor:pointer;">Cancel</button>
+          <button type="submit" id="give-role-submit-btn" style="padding:.55rem 1.25rem;background:linear-gradient(135deg,#eab308,#ca8a04);color:#020617;font-weight:700;border:none;border-radius:6px;cursor:pointer;">Grant Role</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Owner /commands List Modal -->
+<div class="overlay" id="owner-commands-modal" hidden role="dialog" aria-modal="true" aria-labelledby="owner-commands-title">
+  <div class="panel" style="max-width:460px;width:100%;border:1px solid rgba(59,130,246,.35);box-shadow:0 20px 60px rgba(0,0,0,.6);">
+    <div class="phead" style="border-bottom:1px solid rgba(255,255,255,.08);padding:.85rem 1.1rem;display:flex;justify-content:space-between;align-items:center;">
+      <div style="display:flex;align-items:center;gap:.6rem;">
+        <span style="font-size:1.3rem;">⚡</span>
+        <div>
+          <h2 id="owner-commands-title" style="font-size:1.05rem;margin:0;color:#93c5fd;">Active Owner Commands (/commands)</h2>
+          <small style="color:#94a3b8;font-size:.76rem;">Exclusive controls for Owner (Alex Dalbey)</small>
+        </div>
+      </div>
+      <button data-close aria-label="Close" style="background:none;border:none;color:#94a3b8;font-size:1.4rem;cursor:pointer;">&times;</button>
+    </div>
+    <div class="pbody" style="padding:1.1rem;">
+      <div style="display:flex;flex-direction:column;gap:.8rem;">
+        <div style="background:#090f1d;border:1px solid rgba(59,130,246,.25);border-radius:8px;padding:.85rem;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <code style="color:#60a5fa;font-weight:700;font-size:.9rem;">/discord</code>
+            <p style="margin:.25rem 0 0;color:#94a3b8;font-size:.78rem;">TSW Official sends "join our discord now!" into the active channel.</p>
+          </div>
+          <button type="button" class="owner-run-cmd-btn" data-run-cmd="/discord" style="border:1px solid rgba(59,130,246,.4);background:rgba(59,130,246,.2);color:#93c5fd;border-radius:6px;padding:.35rem .75rem;font-size:.78rem;font-weight:600;cursor:pointer;">Run</button>
+        </div>
+
+        <div style="background:#090f1d;border:1px solid rgba(234,179,8,.25);border-radius:8px;padding:.85rem;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <code style="color:#facc15;font-weight:700;font-size:.9rem;">/give role</code>
+            <p style="margin:.25rem 0 0;color:#94a3b8;font-size:.78rem;">Opens dropdown to select any role and choose which user to assign it to.</p>
+          </div>
+          <button type="button" class="owner-run-cmd-btn" data-run-cmd="/give role" style="border:1px solid rgba(234,179,8,.4);background:rgba(234,179,8,.2);color:#fde047;border-radius:6px;padding:.35rem .75rem;font-size:.78rem;font-weight:600;cursor:pointer;">Open</button>
+        </div>
+
+        <div style="background:#090f1d;border:1px solid rgba(148,163,184,.2);border-radius:8px;padding:.85rem;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <code style="color:#cbd5e1;font-weight:700;font-size:.9rem;">/commands (or /comands)</code>
+            <p style="margin:.25rem 0 0;color:#94a3b8;font-size:.78rem;">Lists all working commands and owner controls.</p>
+          </div>
+          <span style="font-size:.72rem;color:#4ade80;background:rgba(74,222,128,.1);padding:.25rem .5rem;border-radius:4px;border:1px solid rgba(74,222,128,.25);">Active</span>
+        </div>
+      </div>
+      <div style="margin-top:1rem;text-align:center;">
+        <span style="font-size:.74rem;color:#64748b;">Commands are hidden from chat and never posted as regular messages.</span>
       </div>
     </div>
   </div>
@@ -4664,22 +4803,115 @@ store.remove = store.del;
   };
 })();
 
-/* ===================== clock ===================== */
+/* ===================== clock & rotating status ===================== */
 (function () {
   var clk = $('clock');
-  function paint() {
+  if (!clk) return;
+
+  var customQuotes = [
+    "whoever made this is tuff 🤷‍♂️",
+    "i should add microtransactions💵",
+    "WE hate lightspeed & securley",
+    "damn",
+    "cork7 with all items unlocked is tuff",
+    "yall need to chill in public chat bro",
+    "lock in inside public chat or else im not addiing the ability to send images"
+  ];
+
+  var hints = [
+    "Tip: Hit Escape or your panic key to disguise this tab instantly",
+    "Tip: Customize live mesh backgrounds & ambient audio in Settings",
+    "Tip: Sidebar vertical tabs let you maintain separate browsing sessions",
+    "Tip: Reposition the friends & chat window anywhere on your screen",
+    "Tip: Shortcuts, audio, and profiles sync to your signed-in account"
+  ];
+
+  var rotationIndex = 0;
+  var cycleTimer = null;
+  var isTransitioning = false;
+
+  function getTimeString() {
     var mode = window.TSWClock || '12';
-    if (mode === 'off') { clk.hidden = true; return; }
-    clk.hidden = false;
+    if (mode === 'off') return null;
     var d = new Date();
-    // Use the device/browser timezone, not an IP-geolocation guess.
     var optsTime = { hour: 'numeric', minute: '2-digit', hour12: mode === '12' };
     var optsDate = { weekday: 'long', month: 'long', day: 'numeric' };
-    clk.textContent = d.toLocaleTimeString([], optsTime) + '  \u00b7  ' +
-      d.toLocaleDateString([], optsDate);
+    return d.toLocaleTimeString([], optsTime) + '  \u00b7  ' + d.toLocaleDateString([], optsDate);
   }
-  window.TSWClockRefresh = paint;
-  setInterval(paint, 10000); paint();
+
+  function getRotationPool() {
+    var pool = [];
+    var timeStr = getTimeString();
+
+    var qLen = customQuotes.length;
+    var hLen = hints.length;
+    var maxIter = Math.max(qLen, hLen);
+
+    for (var i = 0; i < maxIter; i++) {
+      if (timeStr) pool.push({ type: 'time', text: timeStr });
+      if (i < qLen) pool.push({ type: 'quote', text: customQuotes[i] });
+      if (i < hLen) pool.push({ type: 'hint', text: hints[i] });
+    }
+
+    if (pool.length === 0) pool.push({ type: 'quote', text: customQuotes[0] });
+    return pool;
+  }
+
+  function renderCurrent(immediate) {
+    var pool = getRotationPool();
+    if (rotationIndex >= pool.length) rotationIndex = 0;
+    var item = pool[rotationIndex];
+
+    var displayText = item.type === 'time' ? getTimeString() : item.text;
+    if (!displayText) {
+      rotationIndex = (rotationIndex + 1) % pool.length;
+      item = pool[rotationIndex];
+      displayText = item.type === 'time' ? getTimeString() : item.text;
+    }
+
+    clk.hidden = false;
+    clk.title = 'Click to cycle quote or hint';
+
+    if (immediate) {
+      clk.textContent = displayText || '';
+      clk.classList.remove('fade-out');
+      return;
+    }
+
+    isTransitioning = true;
+    clk.classList.add('fade-out');
+    setTimeout(function () {
+      clk.textContent = displayText || '';
+      clk.classList.remove('fade-out');
+      setTimeout(function () {
+        isTransitioning = false;
+      }, 250);
+    }, 220);
+  }
+
+  function advance() {
+    var pool = getRotationPool();
+    rotationIndex = (rotationIndex + 1) % pool.length;
+    renderCurrent(false);
+  }
+
+  function resetCycle() {
+    if (cycleTimer) clearInterval(cycleTimer);
+    cycleTimer = setInterval(advance, 4200);
+  }
+
+  clk.addEventListener('click', function () {
+    if (isTransitioning) return;
+    advance();
+    resetCycle();
+  });
+
+  window.TSWClockRefresh = function () {
+    renderCurrent(true);
+  };
+
+  renderCurrent(true);
+  resetCycle();
 })();
 
 /* ===================== opening animation ===================== */
@@ -5225,7 +5457,7 @@ $('game-exit').addEventListener('click', exitCork7);
 $('game-reload').addEventListener('click', reloadCork7);
 $('game-fullscreen').addEventListener('click', toggleGameFullscreen);
 
-['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log', 'gta-modal', 'admin-modal'].forEach(function (id) {
+['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log', 'gta-modal', 'admin-modal', 'owner-role-modal', 'owner-commands-modal'].forEach(function (id) {
   var el = $(id);
   if (el) {
     el.addEventListener('click', function (ev) {
@@ -5250,7 +5482,7 @@ document.addEventListener('keydown', function (ev) {
     if (!$('game-tab').hidden && !document.fullscreenElement) {
       exitCork7();
     }
-    ['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log'].forEach(function (id) {
+    ['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log', 'gta-modal', 'admin-modal', 'owner-role-modal', 'owner-commands-modal'].forEach(function (id) {
       var el = $(id);
       if (el) {
         el.hidden = true;
@@ -5788,12 +6020,11 @@ document.addEventListener('keydown', function (ev) {
   }
   function openTswAi() {
     var user = window.TSWProfiles && window.TSWProfiles.getUser ? window.TSWProfiles.getUser() : null;
-    if (!user) {
-      if (typeof showToast === 'function') showToast('Sign in to your TSW account to use AI.');
-      else alert('Sign in to your TSW account to use AI.');
-      return;
+    if (aiGreeting) {
+      aiGreeting.textContent = user
+        ? ('What’s on your mind, ' + (user.displayName || user.username || 'there') + '?')
+        : 'What’s on your mind?';
     }
-    if (aiGreeting) aiGreeting.textContent = 'What’s on your mind, ' + (user.displayName || user.username || 'there') + '?';
     aiComingSoonPanel.hidden = false;
     aiComingSoonPanel.style.display = 'block';
     setTimeout(function(){ if (aiPrompt) aiPrompt.focus(); }, 50);
@@ -5883,20 +6114,29 @@ document.addEventListener('keydown', function (ev) {
     if (prompt.length > 1200 && !await tswAiConfirm('Long request', 'This request may use more of the shared free AI quota. Send it anyway?')) return;
     var user = window.TSWProfiles && window.TSWProfiles.getUser ? window.TSWProfiles.getUser() : null;
     var token = window.TSWProfiles && window.TSWProfiles.getToken ? window.TSWProfiles.getToken() : '';
-    if (!user || !token) { if (aiStatus) aiStatus.textContent = 'Please sign in again to use AI.'; return; }
     if (aiComingSoonPanel) aiComingSoonPanel.classList.add('has-messages');
     aiBusy = true; aiPrompt.value = ''; aiPrompt.disabled = true; $('tsw-ai-send').disabled = true;
     addTswAiMessage(prompt, 'user');
     if (aiStatus) aiStatus.textContent = 'Thinking…';
     try {
-      var response = await fetch('/api/ai/chat', {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify({model:'gemini',prompt:prompt})});
+      var headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+      var cid = (window.TSWProfiles && window.TSWProfiles.getClientId) ? window.TSWProfiles.getClientId() : (localStorage.getItem('tsw.client_id') || '');
+      if (cid) headers['x-client-id'] = cid;
+
+      var response = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({ model: 'gemini', prompt: prompt })
+      });
       var result = await response.json();
       if (!response.ok || !result.success) throw new Error(result.error || 'AI request failed. Please try again later.');
       addTswAiMessage(result.reply, 'assistant');
-      if (aiStatus) aiStatus.textContent = 'Gemini · Free usage may be limited';
+      if (aiStatus) aiStatus.textContent = 'Gemini 3.1 Flash Lite · Active';
     } catch (error) {
-      if (aiStatus) aiStatus.textContent = 'AI Unavailable';
-      tswAiToast('AI Unavailable', 'error');
+      var errMsg = error.message || 'AI is temporarily unavailable. Please try again.';
+      if (aiStatus) aiStatus.textContent = errMsg;
+      tswAiToast(errMsg, 'error');
     } finally {
       aiBusy = false; aiPrompt.disabled = false; $('tsw-ai-send').disabled = false; aiPrompt.focus();
     }
@@ -6099,7 +6339,8 @@ document.addEventListener('keydown', function (ev) {
     api: api,
     renderLetterAvatar: renderLetterAvatar,
     syncSettings: syncSettings,
-    checkAuth: checkAuth
+    checkAuth: checkAuth,
+    getClientId: function () { return clientId; }
   };
 })();
 
@@ -6824,7 +7065,7 @@ document.addEventListener('keydown', function (ev) {
   var publicSignInBtn = $('public-sign-in-btn');
   var publicLockedBar = $('public-locked-bar');
 
-  var currentMode = 'dms';
+  var currentMode = 'public';
   var activePublicChannel = 'chat-1';
   var friends = [];
   var friendRequests = [];
@@ -7011,6 +7252,12 @@ document.addEventListener('keydown', function (ev) {
       (user.email && user.email.toLowerCase() === 'alexc.second@gmail.com')
     );
 
+    // Toggle Owner quick command bar
+    var ownerCmdBar = $('owner-commands-bar');
+    if (ownerCmdBar) {
+      ownerCmdBar.style.display = isOwner ? 'flex' : 'none';
+    }
+
     if (channel === 'announcements') {
       if (isOwner) {
         // Owner role can talk inside announcements!
@@ -7019,7 +7266,7 @@ document.addEventListener('keydown', function (ev) {
         if (publicMessageForm) publicMessageForm.style.display = 'flex';
         if (publicGuestPrompt) publicGuestPrompt.style.display = 'none';
         if (publicMessageInput) {
-          publicMessageInput.placeholder = 'Post an official announcement (Owner)...';
+          publicMessageInput.placeholder = 'Post an official announcement (Owner, /commands)...';
           publicMessageInput.disabled = false;
         }
       } else {
@@ -7036,18 +7283,14 @@ document.addEventListener('keydown', function (ev) {
     } else {
       if (publicLockedBar) publicLockedBar.style.display = 'none';
       if (publicInputBar) publicInputBar.style.display = 'block';
-
-      if (user) {
-        if (publicMessageForm) publicMessageForm.style.display = 'flex';
-        if (publicGuestPrompt) publicGuestPrompt.style.display = 'none';
-        if (publicMessageInput) {
-          publicMessageInput.placeholder = 'Message #' + channel + '...';
-          publicMessageInput.disabled = false;
-          publicMessageInput.focus();
-        }
-      } else {
-        if (publicMessageForm) publicMessageForm.style.display = 'none';
-        if (publicGuestPrompt) publicGuestPrompt.style.display = 'block';
+      if (publicMessageForm) publicMessageForm.style.display = 'flex';
+      if (publicGuestPrompt) publicGuestPrompt.style.display = 'none';
+      if (publicMessageInput) {
+        publicMessageInput.placeholder = isOwner
+          ? ('Message #' + channel + ' (or /commands, /discord, /give role)...')
+          : (user ? ('Message #' + channel + '...') : ('Message #' + channel + ' (as Guest)...'));
+        publicMessageInput.disabled = false;
+        try { publicMessageInput.focus(); } catch (e) {}
       }
     }
 
@@ -7079,9 +7322,23 @@ document.addEventListener('keydown', function (ev) {
 
       var isTSW = m.username && (m.username === 'TSW' || m.username.includes('Official'));
       var isOwner = (m.role === 'owner') || (m.username && m.username.toLowerCase() === 'alex dalbey');
-      var badgeHtml = isOwner
-        ? '<span class="public-msg-badge owner">👑 OWNER</span>'
-        : (isTSW ? '<span class="public-msg-badge admin">OFFICIAL</span>' : '<span class="public-msg-badge user">TSW User</span>');
+      var rLower = (m.role || '').toLowerCase();
+
+      var badgeHtml = '';
+      if (isOwner) {
+        badgeHtml = '<span class="public-msg-badge owner">👑 OWNER</span>';
+      } else if (isTSW) {
+        badgeHtml = '<span class="public-msg-badge admin" style="background:rgba(59,130,246,.22);color:#93c5fd;border:1px solid rgba(59,130,246,.45);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">OFFICIAL</span>';
+      } else if (rLower === 'admin') {
+        badgeHtml = '<span class="public-msg-badge admin" style="background:rgba(59,130,246,.2);color:#93c5fd;border:1px solid rgba(59,130,246,.4);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🛡️ ADMIN</span>';
+      } else if (rLower === 'moderator' || rLower === 'mod') {
+        badgeHtml = '<span class="public-msg-badge mod" style="background:rgba(20,184,166,.2);color:#5eead4;border:1px solid rgba(20,184,166,.4);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">⚔️ MOD</span>';
+      } else if (rLower === 'vip') {
+        badgeHtml = '<span class="public-msg-badge vip" style="background:rgba(168,85,247,.2);color:#d8b4fe;border:1px solid rgba(168,85,247,.4);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">⭐ VIP</span>';
+      } else {
+        badgeHtml = '<span class="public-msg-badge user">TSW User</span>';
+      }
+
       var editedTag = m.isEdited ? ' <span style="font-size:.68rem;color:#94a3b8;font-style:italic;">(edited)</span>' : '';
 
       var isMine = myId !== null && m.userId === myId;
@@ -7130,6 +7387,16 @@ document.addEventListener('keydown', function (ev) {
       if (item) {
         var ch = item.getAttribute('data-channel');
         if (ch) selectPublicChannel(ch);
+      }
+    });
+    sidebarPublic.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        var item = ev.target.closest('.public-channel-item');
+        if (item) {
+          ev.preventDefault();
+          var ch = item.getAttribute('data-channel');
+          if (ch) selectPublicChannel(ch);
+        }
       }
     });
   }
@@ -7204,31 +7471,197 @@ document.addEventListener('keydown', function (ev) {
     });
   }
 
-  if (publicMessageForm) {
-    publicMessageForm.addEventListener('submit', function (ev) {
+  function executeOwnerCommand(cmd, channel) {
+    var lower = cmd.trim().toLowerCase();
+    if (lower === '/commands' || lower === '/comands') {
+      var modal = $('owner-commands-modal');
+      if (modal) modal.hidden = false;
+      return;
+    }
+
+    if (lower === '/give role' || lower === '/giverole') {
+      openGiveRoleModal(channel);
+      return;
+    }
+
+    if (lower === '/discord') {
+      api('/api/chat/command', 'POST', { command: '/discord', channel: channel }).then(function (res) {
+        if (res && res.success) {
+          loadPublicMessages(channel, true);
+        } else if (res && res.error) {
+          alert(res.error);
+        }
+      }).catch(function (err) {
+        alert(err.message || 'Failed to execute /discord command');
+      });
+      return;
+    }
+
+    // Generic slash command
+    api('/api/chat/command', 'POST', { command: cmd, channel: channel }).then(function (res) {
+      if (res && res.success) {
+        if (res.action === 'show_commands') {
+          var m = $('owner-commands-modal');
+          if (m) m.hidden = false;
+        } else if (res.action === 'open_role_modal') {
+          openGiveRoleModal(channel);
+        } else {
+          loadPublicMessages(channel, true);
+        }
+      } else if (res && res.error) {
+        alert(res.error);
+      }
+    }).catch(function (err) {
+      alert(err.message || 'Command failed');
+    });
+  }
+
+  function openGiveRoleModal(channel) {
+    var modal = $('owner-role-modal');
+    if (!modal) return;
+    modal.hidden = false;
+    var userSelect = $('give-user-select');
+    var statusEl = $('give-role-status');
+    if (statusEl) statusEl.style.display = 'none';
+
+    if (userSelect) {
+      userSelect.innerHTML = '<option value="" disabled selected>Loading registered users...</option>';
+      api('/api/owner/users', 'GET').then(function (res) {
+        if (res && res.success && Array.isArray(res.users)) {
+          userSelect.innerHTML = '';
+          if (res.users.length === 0) {
+            userSelect.innerHTML = '<option value="" disabled selected>No registered users found</option>';
+            return;
+          }
+          res.users.forEach(function (u) {
+            var opt = document.createElement('option');
+            opt.value = u.id;
+            opt.textContent = '@' + u.username + ' (Current: ' + u.role + ')';
+            userSelect.appendChild(opt);
+          });
+        }
+      }).catch(function () {
+        userSelect.innerHTML = '<option value="" disabled selected>Failed to load users</option>';
+      });
+    }
+  }
+
+  // Handle /give role form submission
+  var ownerRoleForm = $('owner-role-form');
+  if (ownerRoleForm) {
+    ownerRoleForm.addEventListener('submit', function (ev) {
       ev.preventDefault();
-      var user = getCurrentUser();
-      if (!user) {
-        if (chatModal) chatModal.hidden = true;
-        var pm = $('profiles-modal');
-        if (pm) pm.hidden = false;
+      var roleSel = $('give-role-select');
+      var userSel = $('give-user-select');
+      var statusEl = $('give-role-status');
+      var submitBtn = $('give-role-submit-btn');
+
+      var role = roleSel ? roleSel.value : '';
+      var targetUserId = userSel ? userSel.value : '';
+
+      if (!role || !targetUserId) {
+        alert('Please select both a role and a user.');
         return;
       }
 
+      if (submitBtn) submitBtn.disabled = true;
+
+      api('/api/owner/give-role', 'POST', {
+        targetUserId: targetUserId,
+        role: role,
+        channel: activePublicChannel
+      }).then(function (res) {
+        if (submitBtn) submitBtn.disabled = false;
+        if (res && res.success) {
+          if (statusEl) {
+            statusEl.style.display = 'block';
+            statusEl.style.background = 'rgba(74,222,128,.15)';
+            statusEl.style.color = '#4ade80';
+            statusEl.style.border = '1px solid rgba(74,222,128,.3)';
+            statusEl.textContent = '✅ ' + (res.message || 'Role updated successfully!');
+          }
+          loadPublicMessages(activePublicChannel, true);
+          setTimeout(function () {
+            var m = $('owner-role-modal');
+            if (m) m.hidden = true;
+            if (statusEl) statusEl.style.display = 'none';
+          }, 1200);
+        } else {
+          alert((res && res.error) || 'Failed to update role');
+        }
+      }).catch(function (err) {
+        if (submitBtn) submitBtn.disabled = false;
+        alert(err.message || 'Failed to update role');
+      });
+    });
+  }
+
+  var giveRoleCancelBtn = $('give-role-cancel-btn');
+  if (giveRoleCancelBtn) {
+    giveRoleCancelBtn.addEventListener('click', function () {
+      var m = $('owner-role-modal');
+      if (m) m.hidden = true;
+    });
+  }
+
+  // Handle Quick Command buttons
+  document.addEventListener('click', function (ev) {
+    var quickBtn = ev.target.closest('.owner-quick-cmd-btn');
+    if (quickBtn) {
+      var cmd = quickBtn.getAttribute('data-cmd');
+      if (cmd) executeOwnerCommand(cmd, activePublicChannel);
+      return;
+    }
+    var runBtn = ev.target.closest('.owner-run-cmd-btn');
+    if (runBtn) {
+      var rcmd = runBtn.getAttribute('data-run-cmd');
+      var m = $('owner-commands-modal');
+      if (m) m.hidden = true;
+      if (rcmd) executeOwnerCommand(rcmd, activePublicChannel);
+      return;
+    }
+  });
+
+  if (publicMessageForm) {
+    publicMessageForm.addEventListener('submit', function (ev) {
+      ev.preventDefault();
       var text = (publicMessageInput.value || '').trim();
       if (!text) return;
 
       var currentChannel = activePublicChannel;
+      var user = getCurrentUser();
+      var isOwner = user && (
+        user.role === 'owner' ||
+        user.isOwner === true ||
+        (user.username && user.username.toLowerCase() === 'alex dalbey') ||
+        (user.email && user.email.toLowerCase() === 'alexc.second@gmail.com')
+      );
+
+      // Slash command interception: Never display command text inside chat1!
+      if (text.startsWith('/')) {
+        publicMessageInput.value = '';
+        if (!isOwner) {
+          alert('Access Denied: Only the account with the Owner role (Alex Dalbey) can execute system commands.');
+          return;
+        }
+        executeOwnerCommand(text, currentChannel);
+        return;
+      }
+
+      var activeLocalProf = (window.TSWProfiles && window.TSWProfiles.getActive) ? window.TSWProfiles.getActive() : null;
+      var guestName = user ? (user.username || user.name) : ((activeLocalProf && activeLocalProf.name) ? activeLocalProf.name : 'Guest');
+
       publicMessageInput.value = '';
 
-      api('/api/public-messages/' + currentChannel, 'POST', { content: text }).then(function (res) {
-        if (res.success) {
+      api('/api/public-messages/' + currentChannel, 'POST', { content: text, guestName: guestName }).then(function (res) {
+        if (res && res.success) {
           loadPublicMessages(currentChannel, true);
-        } else if (res.error) {
+        } else if (res && res.error) {
           alert(res.error);
         }
       }).catch(function (err) {
         console.error('Failed to post public message:', err);
+        alert(err.message || 'Failed to post message. Please try again.');
       });
     });
   }
@@ -7242,8 +7675,16 @@ document.addEventListener('keydown', function (ev) {
   }
 
   /* ---------------- Direct Messages (DMs) & Friend Requests ---------------- */
-  function openChat() {
+  function openChat(target) {
     if (chatModal) chatModal.hidden = false;
+    if (target === 'chat-1' || target === 'chat-2' || target === 'announcements') {
+      currentMode = 'public';
+      activePublicChannel = target;
+    } else if (target === 'public') {
+      currentMode = 'public';
+    } else if (target === 'dms') {
+      currentMode = 'dms';
+    }
     switchMode(currentMode);
     startPolling();
   }

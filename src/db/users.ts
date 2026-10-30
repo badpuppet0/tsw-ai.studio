@@ -587,6 +587,30 @@ export async function editDirectMessage(userId: number, messageId: number, conte
   return { success: true, content: clean };
 }
 
+export async function getOrCreateGuestUser(clientId: string, preferredName: string = 'Guest') {
+  await ensureChatTables();
+  const guestUid = `guest_${clientId.slice(0, 32)}`;
+  const existing = await db.select().from(users).where(eq(users.uid, guestUid)).limit(1);
+  if (existing.length > 0) {
+    return existing[0];
+  }
+  const cleanName = preferredName.replace(/[^a-zA-Z0-9_ -]/g, '').trim().slice(0, 24) || 'Guest';
+  const ins = await db.insert(users).values({
+    uid: guestUid,
+    username: cleanName,
+    email: `${guestUid}@guest.tswv2.local`,
+    role: 'TSW User',
+  }).returning();
+  const u = ins[0];
+  await createProfile(u.id, {
+    name: cleanName,
+    avatar: 'astronaut',
+    themeColor: '#5aa2ff',
+    isDefault: true,
+  });
+  return u;
+}
+
 export async function getPublicMessages(channel: string) {
   const cleanChannel = ['chat-1', 'chat-2', 'announcements'].includes(channel) ? channel : 'chat-1';
 
@@ -621,13 +645,43 @@ export async function getPublicMessages(channel: string) {
     }
   }
 
+  // Seed default community chat if chat-1 is empty
+  if (cleanChannel === 'chat-1') {
+    const existing = await db.select().from(publicMessages).where(eq(publicMessages.channel, 'chat-1')).limit(1);
+    if (existing.length === 0) {
+      let commUser = await db.select().from(users).where(eq(users.username, 'TSW')).limit(1);
+      let commId: number;
+      if (commUser.length > 0) {
+        commId = commUser[0].id;
+      } else {
+        const ins = await db.insert(users).values({
+          uid: 'system_tsw_chat1',
+          username: 'TSW Community',
+          email: 'community@tswv2.com',
+          role: 'TSW User',
+        }).returning({ id: users.id });
+        commId = ins[0].id;
+      }
+      await db.insert(publicMessages).values({
+        channel: 'chat-1',
+        userId: commId,
+        content: 'Welcome to #chat-1! Connect, chat, and share tips with fellow TSW members.',
+      });
+      await db.insert(publicMessages).values({
+        channel: 'chat-1',
+        userId: commId,
+        content: 'whoever made this is tuff 🤷‍♂️',
+      });
+    }
+  }
+
   const res = await db.execute(sql`
     SELECT pm.id, pm.channel, pm.user_id as "userId", pm.content, pm.created_at as "createdAt",
-           u.username,
+           COALESCE(u.username, 'Guest') as username,
            COALESCE(u.role, 'TSW User') as role,
            COALESCE(p.avatar, 'astronaut') as avatar
     FROM public_messages pm
-    JOIN users u ON u.id = pm.user_id
+    LEFT JOIN users u ON u.id = pm.user_id
     LEFT JOIN profiles p ON p.user_id = u.id AND p.is_default = true
     WHERE pm.channel = ${cleanChannel}
     ORDER BY pm.created_at ASC
@@ -751,5 +805,84 @@ export async function getAdminMetrics() {
 
 export async function purgeExpiredPublicMessages() {
   return { success: true, count: 0 };
+}
+
+export async function updateUserRole(targetUserId: number, newRole: string) {
+  await ensureChatTables();
+  const validRoles = ['owner', 'admin', 'moderator', 'VIP', 'TSW User'];
+  const matchedRole = validRoles.find(r => r.toLowerCase() === newRole.toLowerCase()) || 'TSW User';
+
+  const updated = await db.update(users).set({ role: matchedRole }).where(eq(users.id, targetUserId)).returning({
+    id: users.id,
+    username: users.username,
+    role: users.role,
+  });
+
+  if (updated.length === 0) {
+    throw new Error('User not found');
+  }
+  return updated[0];
+}
+
+export async function getAllUsersForOwner() {
+  await ensureChatTables();
+  const res = await db.execute(sql`
+    SELECT u.id, u.username, u.email, COALESCE(u.role, 'TSW User') as role,
+           COALESCE(p.avatar, 'astronaut') as avatar
+    FROM users u
+    LEFT JOIN profiles p ON p.user_id = u.id AND p.is_default = true
+    WHERE u.username IS NOT NULL AND u.username != ''
+    ORDER BY u.id ASC;
+  `);
+
+  return (res.rows || []).map((r: any) => ({
+    id: r.id,
+    username: r.username,
+    email: r.email,
+    role: r.role || 'TSW User',
+    avatar: r.avatar || 'astronaut',
+  }));
+}
+
+export async function sendOfficialBotMessage(channel: string, content: string) {
+  await ensureChatTables();
+  const cleanChannel = ['chat-1', 'chat-2', 'announcements'].includes(channel) ? channel : 'chat-1';
+  let sysUser = await db.select().from(users).where(eq(users.username, 'TSW Official')).limit(1);
+  let sysId: number;
+  if (sysUser.length > 0) {
+    sysId = sysUser[0].id;
+  } else {
+    const ins = await db.insert(users).values({
+      uid: 'system_tsw_official_bot',
+      username: 'TSW Official',
+      email: 'official@tswv2.com',
+      role: 'owner',
+    }).returning({ id: users.id });
+    sysId = ins[0].id;
+    await createProfile(sysId, {
+      name: 'TSW Official',
+      avatar: 'lightning',
+      themeColor: '#5aa2ff',
+      isDefault: true,
+    });
+  }
+
+  const inserted = await db.insert(publicMessages).values({
+    channel: cleanChannel,
+    userId: sysId,
+    content,
+  }).returning();
+
+  const msg = inserted[0];
+  return {
+    id: msg.id,
+    channel: msg.channel,
+    userId: sysId,
+    username: 'TSW Official',
+    role: 'owner',
+    avatar: 'lightning',
+    content: msg.content,
+    createdAt: msg.createdAt,
+  };
 }
 

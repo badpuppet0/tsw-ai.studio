@@ -35,9 +35,14 @@ import {
 	editPublicMessage,
 	isUserAdmin,
 	getAdminMetrics,
-	purgeExpiredPublicMessages
+	purgeExpiredPublicMessages,
+	getOrCreateGuestUser,
+	updateUserRole,
+	getAllUsersForOwner,
+	sendOfficialBotMessage
 } from "./db/users.ts";
 import { verifyAuth } from "./middleware/auth.ts";
+import { GoogleGenAI } from "@google/genai";
 
 const publicPath = fileURLToPath(new URL("../public/", import.meta.url));
 
@@ -403,12 +408,32 @@ async function getAuthUserId(req, reply) {
 	return session.userId;
 }
 
-// TSW AI API. The provider key is stored only in the server environment (GEMINI_API_KEY).
+// TSW AI API. Powered by Google Gemini via @google/genai SDK.
 const aiDailyUsage = new Map();
+const aiClient = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY,
+  httpOptions: {
+    headers: {
+      'User-Agent': 'aistudio-build',
+    }
+  }
+});
+
 fastify.post("/api/ai/chat", async (req, reply) => {
   reply.header("Cache-Control", "no-store");
   try {
-    const userId = await getAuthUserId(req, reply);
+    let userId = null;
+    let username = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader) {
+      const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
+      const session = verifySessionToken(token);
+      if (session && session.userId) {
+        userId = session.userId;
+        username = session.username;
+      }
+    }
+
     const body = req.body || {};
     const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
     if (!prompt) {
@@ -419,85 +444,77 @@ fastify.post("/api/ai/chat", async (req, reply) => {
       reply.code(413);
       return { success: false, error: "That message is too long. Keep it under 5,000 characters." };
     }
-    if (body.model && body.model !== "gemini") {
-      reply.code(400);
-      return { success: false, error: "That AI provider is not connected yet. Gemini is currently the only available model." };
-    }
+
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     if (!apiKey) {
       reply.code(503);
-      return { success: false, error: "Gemini isn't configured on the TSW server yet. Add GEMINI_API_KEY in the server's environment settings." };
+      return { success: false, error: "Gemini isn't configured on the server yet. Ensure GEMINI_API_KEY is available in the environment settings." };
     }
-    // A basic in-memory limit helps protect the shared free quota; this resets when the server restarts.
+
+    // Rate limiting: by userId if signed in, or by clientId/ip if guest
+    const clientIdentifier = userId ? `user_${userId}` : (req.headers["x-client-id"] || req.ip || "guest");
     const day = new Date().toISOString().slice(0, 10);
-    const usageKey = day + ":" + String(userId);
+    const usageKey = `${day}:${clientIdentifier}`;
     const usage = aiDailyUsage.get(usageKey) || { requests: 0, chars: 0 };
-    if (usage.requests >= 20 || usage.chars + prompt.length > 20000) {
+    const maxRequests = userId ? 40 : 25;
+    if (usage.requests >= maxRequests || usage.chars + prompt.length > 30000) {
       reply.code(429);
-      return { success: false, error: "You've reached the current daily TSW AI limit. Please try again tomorrow or use a shorter prompt." };
+      return { success: false, error: "You've reached the current daily TSW AI limit. Please try again tomorrow or sign in for higher limits." };
     }
-    const requestGemini = async (model) => fetch("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-      body: JSON.stringify({
-        system_instruction: { parts: [{ text: "You are TSW AI, a reliable, helpful assistant for everyday questions, coding, and homework. Read the full request carefully, reason through the problem before answering, check your answer for mistakes, and use tools or calculations only when actually available. Do not reveal private hidden chain-of-thought; instead give a clear answer with useful reasoning, steps, assumptions, and checks when they help. Be friendly, age-appropriate, direct, and honest when unsure. For coding, give working complete examples when appropriate and explain likely causes of errors. Explain schoolwork so the student can learn rather than simply encouraging cheating. Do not claim to be ChatGPT or another provider." }] },
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 900, temperature: 0.7 }
-      }),
-      signal: AbortSignal.timeout(30000)
-    });
-    // Retry transient overloads, then fall back to a lighter model if Flash is busy.
-    let response = await requestGemini("gemini-2.5-flash");
-    if (response.status === 503 || response.status === 500) {
-      await new Promise(resolve => setTimeout(resolve, 900));
-      response = await requestGemini("gemini-2.5-flash");
-    }
-    if (response.status === 503 || response.status === 500 || response.status === 429) {
-      req.log.warn({ status: response.status }, "Primary Gemini model unavailable; trying Flash-Lite fallback");
-      response = await requestGemini("gemini-2.5-flash-lite");
-    }
-    if (response.status === 429) {
-      reply.code(429);
-      return { success: false, error: "Google's Gemini API quota or rate limit is currently reached for the available models. Check your Google AI Studio usage and try again later." };
-    }
-    if (response.status === 401 || response.status === 403) {
-      req.log.error("Gemini API authentication/configuration failed.");
-      reply.code(503);
-      return { success: false, error: "TSW AI's Google API key was rejected. Check the key and API access in Google AI Studio." };
-    }
-    if (!response.ok) {
-      let providerMessage = "";
+
+    const systemInstruction = "You are TSW AI, a modern, reliable, and helpful assistant built into TSW v2. Answer clearly, concisely, and accurately. Help with schoolwork, coding, gaming questions, writing, or everyday questions. Give working code examples when asked and explain concepts patiently. Do not claim to be ChatGPT or other providers.";
+
+    let replyText = "";
+    let usedModel = "gemini-3.1-flash-lite";
+
+    try {
+      const response = await aiClient.models.generateContent({
+        model: "gemini-3.1-flash-lite",
+        contents: prompt,
+        config: {
+          systemInstruction,
+          temperature: 0.7,
+        }
+      });
+      replyText = response.text || "";
+    } catch (primaryErr) {
+      req.log.warn({ err: primaryErr.message }, "Primary model gemini-3.1-flash-lite failed, trying gemini-3.8-flash fallback");
       try {
-        const errorData = await response.json();
-        providerMessage = typeof errorData?.error?.message === "string" ? errorData.error.message : "";
-      } catch (_) {}
-      req.log.warn({ status: response.status, providerMessage }, "Gemini API request failed after fallback");
-      reply.code(502);
-      if (response.status === 404) {
-        return { success: false, error: "The Gemini model isn't available to this API key. Check model access in Google AI Studio." };
+        const fallbackRes = await aiClient.models.generateContent({
+          model: "gemini-3.8-flash",
+          contents: prompt,
+          config: {
+            systemInstruction,
+            temperature: 0.7,
+          }
+        });
+        replyText = fallbackRes.text || "";
+        usedModel = "gemini-3.8-flash";
+      } catch (fallbackErr) {
+        req.log.error({ primary: primaryErr.message, fallback: fallbackErr.message }, "All Gemini models failed");
+        throw new Error(primaryErr.message || fallbackErr.message || "Gemini service temporarily unavailable");
       }
-      if (response.status === 400) {
-        return { success: false, error: "Gemini rejected the request. Check the server logs for the provider's error details." };
-      }
-      if (response.status === 503 || response.status === 500) {
-        return { success: false, error: "Google's Gemini API is overloaded right now, including its fallback model. Please try again in a minute." };
-      }
-      return { success: false, error: "Gemini API request failed (HTTP " + response.status + "). " + (providerMessage ? providerMessage.slice(0, 220) : "Check the server logs for details.") };
     }
-    const data = await response.json();
-    const answer = (data.candidates?.[0]?.content?.parts || []).map(part => part.text || "").join("").trim();
-    if (!answer) {
+
+    if (!replyText || !replyText.trim()) {
       reply.code(502);
-      return { success: false, error: "Gemini returned an empty answer. Try rewording your question." };
+      return { success: false, error: "Gemini returned an empty answer. Please try rephrasing your message." };
     }
+
     usage.requests += 1;
     usage.chars += prompt.length;
     aiDailyUsage.set(usageKey, usage);
-    return { success: true, reply: answer, model: "Gemini 2.5 Flash with Flash-Lite fallback", remainingRequests: Math.max(0, 20 - usage.requests) };
+
+    return {
+      success: true,
+      reply: replyText.trim(),
+      model: usedModel,
+      remainingRequests: Math.max(0, maxRequests - usage.requests)
+    };
   } catch (err) {
-    if (err.message && err.message.includes("Authentication")) reply.code(401);
-    else if (!reply.statusCode || reply.statusCode < 400) reply.code(500);
-    return { success: false, error: err.message && err.message.includes("Authentication") ? err.message : "AI is temporarily unavailable. Please try again later." };
+    req.log.error(err, "TSW AI chat error");
+    if (!reply.statusCode || reply.statusCode < 400) reply.code(500);
+    return { success: false, error: err.message || "AI is temporarily unavailable. Please try again later." };
   }
 });
 
@@ -614,7 +631,29 @@ fastify.get("/api/public-messages/:channel", async (req, reply) => {
 
 fastify.post("/api/public-messages/:channel", async (req, reply) => {
 	try {
-		const userId = await getAuthUserId(req, reply);
+		let userId = null;
+		const authHeader = req.headers.authorization;
+		if (authHeader) {
+			const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
+			const session = verifySessionToken(token);
+			if (session && session.userId) {
+				userId = session.userId;
+			}
+		}
+
+		// Allow guest posting in community channels (chat-1, chat-2)
+		if (!userId) {
+			const channelName = (req.params.channel || "chat-1").toString();
+			if (channelName === "announcements") {
+				reply.code(401);
+				return { success: false, error: "Only the Owner (Alex Dalbey) can post in #announcements." };
+			}
+			const clientId = (req.headers["x-client-id"] || req.body?.clientId || "").toString().trim() || ("guest_" + Math.random().toString(36).substring(2, 9));
+			const guestName = (req.body?.guestName || req.body?.username || "Guest").toString().slice(0, 30).trim() || "Guest";
+			const guestUser = await getOrCreateGuestUser(clientId, guestName);
+			userId = guestUser.id;
+		}
+
 		const channel = (req.params.channel || "chat-1").toString();
 		const body = req.body || {};
 		const content = (body.content || "").trim();
@@ -624,6 +663,155 @@ fastify.post("/api/public-messages/:channel", async (req, reply) => {
 		}
 		const message = await sendPublicMessage(channel, userId, content);
 		return { success: true, message };
+	} catch (err) {
+		reply.code(err.message.includes("Authentication") ? 401 : 400);
+		return { success: false, error: err.message };
+	}
+});
+
+// Owner Commands & System Controls (Only account with Owner role can execute)
+fastify.post("/api/chat/command", async (req, reply) => {
+	reply.header("Cache-Control", "no-store");
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const user = await getUserById(userId);
+		const isOwner = user && (
+			user.role === 'owner' ||
+			(user.username && user.username.toLowerCase() === 'alex dalbey') ||
+			(user.email && user.email.toLowerCase() === 'alexc.second@gmail.com')
+		);
+
+		if (!isOwner) {
+			reply.code(403);
+			return { success: false, error: "Access Denied: Only the account with the Owner role (Alex Dalbey) can execute system commands." };
+		}
+
+		const body = req.body || {};
+		const rawCmd = (body.command || "").trim();
+		const channel = (body.channel || "chat-1").toString();
+		const lower = rawCmd.toLowerCase();
+
+		if (lower === "/discord") {
+			// TSW Official posts: "join our discord now!"
+			const botMsg = await sendOfficialBotMessage(channel, "join our discord now! https://discord.gg/tsw");
+			return {
+				success: true,
+				command: "/discord",
+				action: "bot_message",
+				message: "TSW Official posted Discord invite.",
+				botMessage: botMsg
+			};
+		}
+
+		if (lower === "/commands" || lower === "/comands") {
+			const commandsList = [
+				{ cmd: "/discord", desc: "TSW Official automatically posts 'join our discord now!' into the current channel." },
+				{ cmd: "/commands (or /comands)", desc: "Lists all working commands and owner controls." },
+				{ cmd: "/give role", desc: "Opens role assigner with user & role dropdowns to instantly grant roles." }
+			];
+			return {
+				success: true,
+				command: "/commands",
+				action: "show_commands",
+				commands: commandsList
+			};
+		}
+
+		if (lower.startsWith("/give role") || lower.startsWith("/giverole")) {
+			// If targetUserId & role are passed directly
+			const roleParam = body.role || body.newRole;
+			if (body.targetUserId && roleParam) {
+				const targetId = parseInt(body.targetUserId, 10);
+				const role = roleParam.toString().trim();
+				const updated = await updateUserRole(targetId, role);
+				const botMsg = await sendOfficialBotMessage(channel, `👑 @${updated.username} was granted the role [${updated.role}] by Owner Alex Dalbey.`);
+				return {
+					success: true,
+					command: "/give role",
+					action: "role_granted",
+					targetUser: updated,
+					botMessage: botMsg
+				};
+			}
+			// Otherwise request frontend to show the role dropdown picker
+			return {
+				success: true,
+				command: "/give role",
+				action: "open_role_modal"
+			};
+		}
+
+		reply.code(400);
+		return {
+			success: false,
+			error: `Unknown command "${rawCmd}". Type /commands or /comands to list all working commands.`
+		};
+	} catch (err) {
+		reply.code(err.message.includes("Authentication") ? 401 : 400);
+		return { success: false, error: err.message };
+	}
+});
+
+// Owner endpoint to get all users for the role assignment dropdown
+fastify.get("/api/owner/users", async (req, reply) => {
+	reply.header("Cache-Control", "no-store");
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const user = await getUserById(userId);
+		const isOwner = user && (
+			user.role === 'owner' ||
+			(user.username && user.username.toLowerCase() === 'alex dalbey') ||
+			(user.email && user.email.toLowerCase() === 'alexc.second@gmail.com')
+		);
+
+		if (!isOwner) {
+			reply.code(403);
+			return { success: false, error: "Only the Owner can access user directory for role management." };
+		}
+
+		const usersList = await getAllUsersForOwner();
+		return { success: true, users: usersList };
+	} catch (err) {
+		reply.code(err.message.includes("Authentication") ? 401 : 400);
+		return { success: false, error: err.message };
+	}
+});
+
+// Owner endpoint to assign role to a specific user
+fastify.post("/api/owner/give-role", async (req, reply) => {
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const user = await getUserById(userId);
+		const isOwner = user && (
+			user.role === 'owner' ||
+			(user.username && user.username.toLowerCase() === 'alex dalbey') ||
+			(user.email && user.email.toLowerCase() === 'alexc.second@gmail.com')
+		);
+
+		if (!isOwner) {
+			reply.code(403);
+			return { success: false, error: "Only the Owner can grant roles." };
+		}
+
+		const body = req.body || {};
+		const targetUserId = parseInt(body.targetUserId, 10);
+		const role = (body.role || body.newRole || "").toString().trim();
+		const channel = (body.channel || "chat-1").toString();
+
+		if (isNaN(targetUserId) || !role) {
+			reply.code(400);
+			return { success: false, error: "targetUserId and role are required." };
+		}
+
+		const updatedUser = await updateUserRole(targetUserId, role);
+		const botMsg = await sendOfficialBotMessage(channel, `👑 @${updatedUser.username} was granted the role [${updatedUser.role}] by Owner Alex Dalbey.`);
+
+		return {
+			success: true,
+			user: updatedUser,
+			botMessage: botMsg,
+			message: `Successfully updated @${updatedUser.username} to ${updatedUser.role}`
+		};
 	} catch (err) {
 		reply.code(err.message.includes("Authentication") ? 401 : 400);
 		return { success: false, error: err.message };
