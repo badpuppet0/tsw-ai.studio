@@ -344,7 +344,7 @@ export async function searchUsers(searchTerm: string, currentUserId: number) {
   const results = await db.select({
     id: users.id,
     username: users.username,
-  }).from(users).where(sql`lower(${users.username}) LIKE ${'%' + term + '%'} AND ${users.id} != ${currentUserId}`).limit(10);
+  }).from(users).where(sql`lower(${users.username}) LIKE ${'%' + term + '%'} AND ${users.id} != ${currentUserId} AND (password_hash IS NOT NULL OR email = 'alexc.second@gmail.com') AND email NOT LIKE '%@scramjet.local' AND email NOT LIKE '%@tswv2.local' AND email NOT LIKE '%@guest.tswv2.local' AND uid NOT LIKE 'guest_%' AND uid NOT LIKE 'system_%'`).limit(10);
 
   const friendRows = await db.select().from(friends).where(eq(friends.userId, currentUserId));
   const friendIds = new Set(friendRows.map(f => f.friendId));
@@ -771,18 +771,98 @@ export function isUserAdmin(user: { id?: number; username?: string | null; email
 
 export async function getAdminMetrics() {
   await ensureChatTables();
-  const userCountRes = await db.execute(sql`SELECT count(*)::int as count FROM users;`);
-  const profileCountRes = await db.execute(sql`SELECT count(*)::int as count FROM profiles;`);
+  const userCountRes = await db.execute(sql`
+    SELECT count(*)::int as count 
+    FROM users 
+    WHERE (password_hash IS NOT NULL OR email = 'alexc.second@gmail.com') 
+      AND email NOT LIKE '%@scramjet.local' 
+      AND email NOT LIKE '%@tswv2.local' 
+      AND email NOT LIKE '%@guest.tswv2.local' 
+      AND uid NOT LIKE 'guest_%' 
+      AND uid NOT LIKE 'system_%';
+  `);
+
+  // Count profiles belonging strictly to real registered users
+  const profileCountRes = await db.execute(sql`
+    SELECT count(*)::int as count 
+    FROM profiles p
+    JOIN users u ON p.user_id = u.id
+    WHERE (u.password_hash IS NOT NULL OR u.email = 'alexc.second@gmail.com') 
+      AND u.email NOT LIKE '%@scramjet.local' 
+      AND u.email NOT LIKE '%@tswv2.local' 
+      AND u.email NOT LIKE '%@guest.tswv2.local' 
+      AND u.uid NOT LIKE 'guest_%' 
+      AND u.uid NOT LIKE 'system_%';
+  `);
+
   const messageCountRes = await db.execute(sql`SELECT count(*)::int as count FROM messages;`);
   const publicMsgRes = await db.execute(sql`SELECT count(*)::int as count FROM public_messages;`);
   const friendRes = await db.execute(sql`SELECT count(*)::int as count FROM friends;`);
-  const dbMetaRes = await db.execute(sql`SELECT pg_size_pretty(pg_database_size(current_database())) as dbsize, count(*)::int as connections FROM pg_stat_activity WHERE datname = current_database();`);
+  
+  let dbSize = '8.2 MB';
+  let activeConnections = 1;
+  try {
+    const sizeRes = await db.execute(sql`SELECT pg_size_pretty(pg_database_size(current_database())) as dbsize;`);
+    if (sizeRes.rows?.[0]) dbSize = String((sizeRes.rows[0] as any).dbsize || '8.2 MB');
+  } catch (e) {}
 
+  try {
+    const connRes = await db.execute(sql`SELECT count(*)::int as connections FROM pg_stat_activity WHERE datname = current_database();`);
+    if (connRes.rows?.[0]) activeConnections = Number((connRes.rows[0] as any).connections || 1);
+  } catch (e) {}
+
+  // Real breakdown of public messages by channel
+  let channelStats: Record<string, number> = { 'chat-1': 0, 'announcements': 0, 'general': 0 };
+  try {
+    const chanRes = await db.execute(sql`
+      SELECT COALESCE(channel, 'general') as channel, count(*)::int as count 
+      FROM public_messages 
+      GROUP BY channel;
+    `);
+    (chanRes.rows || []).forEach((row: any) => {
+      channelStats[row.channel] = Number(row.count || 0);
+    });
+  } catch (e) {}
+
+  // Real distribution of user roles
+  let roleStats: Record<string, number> = {};
+  try {
+    const roleRes = await db.execute(sql`
+      SELECT COALESCE(role, 'TSW User') as role, count(*)::int as count 
+      FROM users 
+      WHERE (password_hash IS NOT NULL OR email = 'alexc.second@gmail.com')
+        AND email NOT LIKE '%@scramjet.local'
+        AND email NOT LIKE '%@tswv2.local'
+        AND email NOT LIKE '%@guest.tswv2.local'
+        AND uid NOT LIKE 'guest_%'
+        AND uid NOT LIKE 'system_%'
+      GROUP BY role;
+    `);
+    (roleRes.rows || []).forEach((row: any) => {
+      roleStats[row.role] = Number(row.count || 0);
+    });
+  } catch (e) {}
+
+  // Real registered users list with individual message counts
   const recentUsersRes = await db.execute(sql`
-    SELECT id, username, email, COALESCE(role, 'TSW User') as role, created_at as "createdAt"
-    FROM users
-    ORDER BY id DESC
-    LIMIT 10;
+    SELECT 
+      u.id, 
+      u.username, 
+      u.email, 
+      COALESCE(u.role, 'TSW User') as role, 
+      u.created_at as "createdAt",
+      count(pm.id)::int as "messageCount"
+    FROM users u
+    LEFT JOIN public_messages pm ON pm.user_id = u.id
+    WHERE (u.password_hash IS NOT NULL OR u.email = 'alexc.second@gmail.com')
+      AND u.email NOT LIKE '%@scramjet.local'
+      AND u.email NOT LIKE '%@tswv2.local'
+      AND u.email NOT LIKE '%@guest.tswv2.local'
+      AND u.uid NOT LIKE 'guest_%'
+      AND u.uid NOT LIKE 'system_%'
+    GROUP BY u.id, u.username, u.email, u.role, u.created_at
+    ORDER BY u.id DESC
+    LIMIT 25;
   `);
 
   return {
@@ -790,14 +870,17 @@ export async function getAdminMetrics() {
     profiles: Number((profileCountRes.rows[0] as any)?.count || 0),
     directMessages: Number((messageCountRes.rows[0] as any)?.count || 0),
     publicMessages: Number((publicMsgRes.rows[0] as any)?.count || 0),
+    channelStats,
+    roleStats,
     friendships: Number((friendRes.rows[0] as any)?.count || 0),
-    dbSize: String((dbMetaRes.rows[0] as any)?.dbsize || '8.2 MB'),
-    activeConnections: Number((dbMetaRes.rows[0] as any)?.connections || 1),
+    dbSize,
+    activeConnections,
     recentUsers: (recentUsersRes.rows || []).map((r: any) => ({
       id: r.id,
       username: r.username || 'User',
       email: r.email,
       role: r.role || 'TSW User',
+      messageCount: Number(r.messageCount || 0),
       createdAt: r.createdAt
     }))
   };
@@ -809,7 +892,16 @@ export async function purgeExpiredPublicMessages() {
 
 export async function updateUserRole(targetUserId: number, newRole: string) {
   await ensureChatTables();
-  const validRoles = ['owner', 'admin', 'moderator', 'VIP', 'TSW User'];
+  const validRoles = [
+    'owner',
+    'admin',
+    'moderator',
+    'VIP',
+    'Discord Member',
+    'Tester',
+    'Beta User',
+    'TSW User'
+  ];
   const matchedRole = validRoles.find(r => r.toLowerCase() === newRole.toLowerCase()) || 'TSW User';
 
   const updated = await db.update(users).set({ role: matchedRole }).where(eq(users.id, targetUserId)).returning({
@@ -831,7 +923,13 @@ export async function getAllUsersForOwner() {
            COALESCE(p.avatar, 'astronaut') as avatar
     FROM users u
     LEFT JOIN profiles p ON p.user_id = u.id AND p.is_default = true
-    WHERE u.username IS NOT NULL AND u.username != ''
+    WHERE (u.password_hash IS NOT NULL OR u.email = 'alexc.second@gmail.com')
+      AND u.email NOT LIKE '%@scramjet.local'
+      AND u.email NOT LIKE '%@tswv2.local'
+      AND u.email NOT LIKE '%@guest.tswv2.local'
+      AND u.uid NOT LIKE 'guest_%'
+      AND u.uid NOT LIKE 'system_%'
+      AND u.username IS NOT NULL AND u.username != ''
     ORDER BY u.id ASC;
   `);
 

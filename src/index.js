@@ -637,7 +637,10 @@ fastify.post("/api/public-messages/:channel", async (req, reply) => {
 			const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
 			const session = verifySessionToken(token);
 			if (session && session.userId) {
-				userId = session.userId;
+				const existingUser = await getUserById(session.userId);
+				if (existingUser) {
+					userId = existingUser.id;
+				}
 			}
 		}
 
@@ -956,14 +959,6 @@ fastify.get("/api/admin/metrics", async (req, reply) => {
 		}
 		const dbMetrics = await getAdminMetrics();
 
-		// Calculate daily AI usage metrics
-		let totalAiRequests = 0;
-		let totalAiChars = 0;
-		for (const [, usage] of aiDailyUsage.entries()) {
-			totalAiRequests += (usage.requests || 0);
-			totalAiChars += (usage.chars || 0);
-		}
-
 		const uptimeSec = Math.floor(process.uptime());
 		const hours = Math.floor(uptimeSec / 3600);
 		const mins = Math.floor((uptimeSec % 3600) / 60);
@@ -980,25 +975,24 @@ fastify.get("/api/admin/metrics", async (req, reply) => {
 
 		return {
 			success: true,
-			isAdmin,
-			superAdminEmail: "alexc.second@gmail.com",
+			isAdmin: isOwner,
+			ownerEmail: "alexc.second@gmail.com",
 			activeUser: currentUser ? {
 				id: currentUser.id,
 				username: currentUser.username,
 				email: currentUser.email,
+				role: currentUser.role || 'owner',
 				isAdmin: isUserAdmin(currentUser)
 			} : null,
-			gcp: {
-				projectId: "strong-voyage-v8p5g",
-				designatedOwner: "alexc.second@gmail.com",
-				requestedRole: "roles/monitoring.editor",
-				cloudRunRegion: "us-east1",
+			system: {
+				appletId: process.env.APPLET_ID || "15c18e45-b808-43b5-a99a-29ffca78b6df",
 				serviceUrl: "https://ais-dev-irpbeztud5alnivyn63pfn-183866442448.us-east1.run.app",
-				monitoringUrl: "https://console.cloud.google.com/monitoring?project=strong-voyage-v8p5g",
-				iamTroubleshooterUrl: "https://console.cloud.google.com/iam-admin/troubleshooter/summary;permissions=monitoring.uptimeCheckConfigs.create;token=AX6qVRYTS4hGZsWN-r57SK2_xhsMSVbxO3gWCGWeR2IvNqQVt5eiGqRsmfSC99ydAWz4YgALXGuMyNH9vDKYGDWhMbOvdAHgzQje9D4r-PK4KGT1ciOJyOHY6oAo40-iSsnPVimOAqU9AOAPQ53Do8H-15SQ_fdlWvkZmnfNUv3jnD4gQPGejvK6kg"
+				databaseHost: "PostgreSQL Cloud SQL Instance",
+				databaseName: process.env.SQL_DB_NAME || "cloud_sql_development_database",
+				region: "us-east1"
 			},
 			server: {
-				status: "Healthy / Online",
+				status: "Online",
 				uptime: uptimeStr,
 				uptimeSeconds: uptimeSec,
 				nodeVersion: process.version,
@@ -1006,15 +1000,7 @@ fastify.get("/api/admin/metrics", async (req, reply) => {
 				memory: memStats,
 				port: port
 			},
-			database: dbMetrics,
-			ai: {
-				status: (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY) ? "Online / Connected" : "Not configured",
-				primaryModel: "Gemini 2.5 Flash",
-				fallbackModel: "Gemini 2.5 Flash-Lite",
-				dailyRequests: totalAiRequests,
-				dailyChars: totalAiChars,
-				dailyLimitPerUser: 20
-			}
+			database: dbMetrics
 		};
 	} catch (err) {
 		req.log.error(err);

@@ -810,6 +810,37 @@ body.sidebar-collapsed {
   opacity: .3;
   cursor: default;
 }
+/* No highlight for the refresh / reload buttons across sidebar, address bar, dialogs, and games */
+#sb-btn-reload,
+#sb-btn-reload:hover,
+#sb-btn-reload:focus,
+#sb-btn-reload:active,
+#sb-btn-reload:focus-visible,
+#btn-reload,
+#btn-reload:hover,
+#btn-reload:focus,
+#btn-reload:active,
+#btn-reload:focus-visible,
+#diag-reload,
+#diag-reload:hover,
+#diag-reload:focus,
+#diag-reload:active,
+#game-reload,
+#game-reload:hover,
+#game-reload:focus,
+#game-reload:active {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  border-color: transparent !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+#sb-btn-reload:hover:not(:disabled),
+#btn-reload:hover:not(:disabled) {
+  color: var(--steel) !important;
+  background: transparent !important;
+}
 .sb-icon-btn svg {
   width: 1.15rem;
   height: 1.15rem;
@@ -2365,13 +2396,14 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
 }
 
 /* Draggable Chat Window */
+/* Draggable Chat Window */
 #chat-modal {
   position: fixed;
   inset: 0;
   pointer-events: none;
   background: transparent;
   backdrop-filter: none;
-  z-index: 35;
+  z-index: 50;
   display: block;
 }
 #chat-modal[hidden] {
@@ -2383,7 +2415,7 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   top: 10vh;
   left: calc(var(--sb-width) + 1.5rem);
   margin: 0;
-  z-index: 36;
+  z-index: 51;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 #chat-modal .phead {
@@ -2397,6 +2429,25 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
 #chat-modal .chat-mode-tabs,
 #chat-modal .phead button {
   cursor: pointer;
+}
+
+/* Ensure ALL popups and overlays pop up OVER the chat window, never behind it */
+.overlay:not(#chat-modal),
+#profiles-modal,
+#settings,
+#owner-role-modal,
+#owner-commands-modal,
+#admin-modal,
+#gta-modal,
+#games,
+#info,
+#log,
+#report-modal,
+#report-site-modal,
+#welcome-modal,
+#tour-modal,
+#addlink {
+  z-index: 10000 !important;
 }
 
 /* Message Hover Actions (Edit & Delete) */
@@ -2569,22 +2620,70 @@ body.sidebar-collapsed .sb-menu .status svg {
   display: none;
 }
 
-/* What's New Pulsing Dot on Update Log */
+/* What's New Pulsing Dot on Update Log (positioned over top corner, never pushes layout) */
+.sb-menu-item {
+  position: relative;
+}
 .whats-new-dot {
-  width: 8px;
-  height: 8px;
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background: #38bdf8;
-  box-shadow: 0 0 10px #38bdf8;
-  margin-left: auto;
+  box-shadow: 0 0 10px #38bdf8, 0 0 4px #0284c7;
+  border: 1.5px solid #020617;
+  pointer-events: none;
   animation: whatsNewPulse 2s infinite ease-in-out;
 }
 @keyframes whatsNewPulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(1.3); }
+  50% { opacity: 0.45; transform: scale(1.3); }
 }
 
-/* Live Weather Overlay below Clock */
+/* Chat attention animation and DM notification badge */
+@keyframes chatAttentionWiggle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  15% { transform: rotate(-10deg) scale(1.1); }
+  30% { transform: rotate(10deg) scale(1.1); }
+  45% { transform: rotate(-7deg) scale(1.06); }
+  60% { transform: rotate(6deg) scale(1.03); }
+  75% { transform: rotate(-2deg) scale(1); }
+}
+.chat-has-attention {
+  animation: chatAttentionWiggle 1.5s ease-in-out infinite !important;
+  color: #38bdf8 !important;
+}
+.chat-has-attention svg {
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.85));
+}
+.chat-unread-corner-badge {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 10px #22c55e, 0 0 4px #15803d;
+  border: 1.5px solid #020617;
+  pointer-events: none;
+  animation: whatsNewPulse 1.8s infinite ease-in-out;
+}
+
+/* Live Weather Overlay below Clock with subtle fade-in and slide-up */
+@keyframes weatherFadeInSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .weather-overlay {
   display: inline-flex;
   align-items: center;
@@ -2601,6 +2700,13 @@ body.sidebar-collapsed .sb-menu .status svg {
   max-width: 92%;
   box-sizing: border-box;
   clear: both;
+  animation: weatherFadeInSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weather-overlay {
+    animation: none !important;
+  }
 }
 
 /* Guided tour: compact, practical walkthrough with a real feature spotlight */
@@ -2769,7 +2875,7 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 5v14M5 12h14"/>
     </svg>
-    <span class="sb-label">🛠️ New Tab 🛠️</span>
+    <span class="sb-label">New Tab</span>
   </button>
 
   <div class="sb-tabs-section" id="sb-tabs-list">
@@ -3538,6 +3644,28 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
   </div>
 </div>
 
+<!-- Embedded Report a Broken Site Modal -->
+<div class="overlay" id="report-site-modal" hidden role="dialog" aria-modal="true" aria-labelledby="report-site-modal-title">
+  <div class="panel report-panel" style="max-width:720px;width:100%;height:85vh;max-height:740px;display:flex;flex-direction:column;border:1px solid rgba(59,130,246,.4);box-shadow:0 24px 70px rgba(0,0,0,.85);background:#090d18;">
+    <div class="phead" style="display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.15rem;border-bottom:1px solid rgba(255,255,255,.08);">
+      <div style="display:flex;align-items:center;gap:.6rem;">
+        <span style="font-size:1.25rem;">🛠️</span>
+        <div>
+          <h2 id="report-site-modal-title" style="font-size:1.05rem;margin:0;color:#fff;">Report a Broken Site</h2>
+          <small style="color:#94a3b8;font-size:.76rem;">Help us fix unblocked web links & proxies</small>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.65rem;">
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLScupiUZuqQsngFai_QPQRWn06LpuZy3VGZOEyIUY0DAZ0qJxw/viewform" target="_blank" rel="noopener noreferrer" style="font-size:.78rem;color:#60a5fa;text-decoration:none;padding:3px 8px;border:1px solid rgba(96,165,250,.3);border-radius:4px;background:rgba(96,165,250,.08);">Open in New Tab &nearr;</a>
+        <button data-close aria-label="Close" style="background:none;border:none;color:#94a3b8;font-size:1.4rem;cursor:pointer;">&times;</button>
+      </div>
+    </div>
+    <div class="pbody" style="flex:1;padding:0;overflow:hidden;position:relative;background:#050811;">
+      <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScupiUZuqQsngFai_QPQRWn06LpuZy3VGZOEyIUY0DAZ0qJxw/viewform?usp=sharing&ouid=103909441130907100305" style="width:100%;height:100%;border:0;" title="Report a Broken Site Form">Loading report form…</iframe>
+    </div>
+  </div>
+</div>
+
 <!-- Cloud Admin & Metrics Modal -->
 <div class="overlay" id="admin-modal" hidden role="dialog" aria-modal="true" aria-labelledby="admin-modal-title">
   <div class="panel admin-panel">
@@ -3552,58 +3680,59 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
       <button id="admin-modal-close" data-close aria-label="Close">&times;</button>
     </div>
     <div class="pbody">
-      <!-- GCP IAM & Monitoring Integration Banner -->
+      <!-- Real Owner System Status & Infrastructure Banner -->
       <div class="admin-gcp-banner">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.8rem;">
           <div>
-            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem;">
-              <span style="font-weight:700;color:#fff;font-size:.95rem;">Google Cloud Project</span>
-              <code style="background:rgba(2,6,23,.6);color:#93c5fd;padding:.15rem .45rem;border-radius:4px;font-size:.8rem;">strong-voyage-v8p5g</code>
+            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;">
+              <span style="font-weight:700;color:#fff;font-size:.95rem;">TSW Cloud Infrastructure</span>
+              <span class="ai-soon-pill" style="border-color:#22c55e;color:#4ade80;font-weight:700;background:rgba(34,197,94,0.12);">● LIVE OPERATIONAL</span>
             </div>
-            <p style="color:#94a3b8;font-size:.82rem;margin:0 0 .5rem;">
-              Full admin permissions and metrics access granted for <b>alexc.second@gmail.com</b>.
+            <p style="color:#cbd5e1;font-size:.84rem;margin:0 0 .4rem;">
+              Owner controls active for <b style="color:#fef08a;">Alex Dalbey</b> (<code style="color:#93c5fd;background:rgba(2,6,23,.6);padding:.1rem .35rem;border-radius:4px;">alexc.second@gmail.com</code>).
             </p>
-            <div style="display:flex;gap:.5rem;flex-wrap:wrap;font-size:.78rem;color:#cbd5e1;">
-              <span>Role: <b style="color:#4ade80;">roles/monitoring.editor &amp; Owner</b></span>
+            <div style="display:flex;gap:.6rem;flex-wrap:wrap;font-size:.78rem;color:#94a3b8;">
+              <span>Database: <b style="color:#38bdf8;">Cloud SQL PostgreSQL</b></span>
               <span>&bull;</span>
-              <span>Region: <b>us-east1</b></span>
+              <span>DB: <code style="font-size:.75rem;color:#93c5fd;">cloud_sql_development_database</code></span>
               <span>&bull;</span>
-              <span>Applet: <code style="font-size:.75rem;color:#94a3b8;">15c18e45</code></span>
+              <span>Region: <b style="color:#cbd5e1;">us-east1</b></span>
+              <span>&bull;</span>
+              <span>Runtime: <b style="color:#a78bfa;" id="admin-banner-runtime">Node v22</b></span>
             </div>
           </div>
           <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-            <a href="https://console.cloud.google.com/monitoring?project=strong-voyage-v8p5g" target="_blank" rel="noopener noreferrer" class="admin-act-btn primary">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              Google Cloud Monitoring
-            </a>
-            <a href="https://console.cloud.google.com/iam-admin/troubleshooter/summary;permissions=monitoring.uptimeCheckConfigs.create;token=AX6qVRYTS4hGZsWN-r57SK2_xhsMSVbxO3gWCGWeR2IvNqQVt5eiGqRsmfSC99ydAWz4YgALXGuMyNH9vDKYGDWhMbOvdAHgzQje9D4r-PK4KGT1ciOJyOHY6oAo40-iSsnPVimOAqU9AOAPQ53Do8H-15SQ_fdlWvkZmnfNUv3jnD4gQPGejvK6kg" target="_blank" rel="noopener noreferrer" class="admin-act-btn secondary">
-              GCP IAM Remediate
-            </a>
+            <button type="button" id="admin-open-roles-btn" class="admin-act-btn primary" style="cursor:pointer;border:none;">
+              👑 Assign Role (/give role)
+            </button>
+            <button type="button" id="admin-refresh-btn-top" class="admin-act-btn secondary" style="cursor:pointer;border:none;">
+              ↻ Sync Telemetry
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- Live Stat Cards Grid -->
+      <!-- Live Stat Cards Grid (Real Metrics) -->
       <div class="admin-stats-grid">
         <div class="admin-stat-card">
           <div class="admin-stat-num" id="admin-db-size">--</div>
           <div class="admin-stat-label">Cloud SQL Storage</div>
-          <small style="color:#38bdf8;font-size:.75rem;">PostgreSQL Instance</small>
+          <small style="color:#38bdf8;font-size:.75rem;" id="admin-connections">-- active connections</small>
         </div>
         <div class="admin-stat-card">
           <div class="admin-stat-num" id="admin-user-count">--</div>
-          <div class="admin-stat-label">Total Users</div>
-          <small style="color:#4ade80;font-size:.75rem;" id="admin-profile-count">-- profiles</small>
+          <div class="admin-stat-label">Registered Accounts</div>
+          <small style="color:#4ade80;font-size:.75rem;" id="admin-profile-count">-- real profiles</small>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-num" id="admin-public-msgs-hero">--</div>
+          <div class="admin-stat-label">Public Chat Messages</div>
+          <small style="color:#f472b6;font-size:.75rem;" id="admin-channels-summary">--</small>
         </div>
         <div class="admin-stat-card">
           <div class="admin-stat-num" id="admin-uptime">--</div>
           <div class="admin-stat-label">Server Uptime</div>
           <small style="color:#a78bfa;font-size:.75rem;" id="admin-node-mem">Memory: --</small>
-        </div>
-        <div class="admin-stat-card">
-          <div class="admin-stat-num" id="admin-ai-requests">--</div>
-          <div class="admin-stat-label">AI Queries Today</div>
-          <small style="color:#f472b6;font-size:.75rem;" id="admin-ai-model">Gemini 2.5 Flash</small>
         </div>
       </div>
 
@@ -3615,47 +3744,54 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
         <span id="admin-status-note" style="color:#94a3b8;font-size:.78rem;">Live connection</span>
       </div>
 
-      <!-- Detailed Breakdown Section -->
+      <!-- Detailed Real Database Breakdown Section -->
       <div class="admin-section-title">
         <span>Cloud SQL Database Records</span>
-        <span style="font-size:.78rem;color:#94a3b8;" id="admin-connections">1 Active Connection</span>
+        <span style="font-size:.78rem;color:#94a3b8;">Real-time PostgreSQL telemetry</span>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem;margin-bottom:1.25rem;">
         <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
-          <div style="font-size:.75rem;color:#94a3b8;">Public Messages</div>
-          <div style="font-size:1.15rem;font-weight:700;color:#f8fafc;" id="admin-public-msgs">--</div>
+          <div style="font-size:.75rem;color:#94a3b8;">#chat-1 Messages</div>
+          <div style="font-size:1.15rem;font-weight:700;color:#38bdf8;" id="admin-chat1-msgs">--</div>
+        </div>
+        <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
+          <div style="font-size:.75rem;color:#94a3b8;">#announcements</div>
+          <div style="font-size:1.15rem;font-weight:700;color:#facc15;" id="admin-announcements-msgs">--</div>
         </div>
         <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
           <div style="font-size:.75rem;color:#94a3b8;">Direct Messages</div>
           <div style="font-size:1.15rem;font-weight:700;color:#f8fafc;" id="admin-direct-msgs">--</div>
         </div>
         <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
-          <div style="font-size:.75rem;color:#94a3b8;">Friendships</div>
+          <div style="font-size:.75rem;color:#94a3b8;">Mutual Friends</div>
           <div style="font-size:1.15rem;font-weight:700;color:#f8fafc;" id="admin-friends-count">--</div>
         </div>
         <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
-          <div style="font-size:.75rem;color:#94a3b8;">AI Daily Limit</div>
-          <div style="font-size:1.15rem;font-weight:700;color:#f8fafc;">20 / user</div>
+          <div style="font-size:.75rem;color:#94a3b8;">Server RSS Mem</div>
+          <div style="font-size:1.15rem;font-weight:700;color:#f8fafc;" id="admin-server-rss">--</div>
         </div>
       </div>
 
-      <!-- Recent Registered Users Table -->
+      <!-- Real Registered Users Table -->
       <div class="admin-section-title">
-        <span>Recent Registered Cloud Users</span>
-        <span style="font-size:.78rem;color:#94a3b8;">Showing latest 10 accounts</span>
+        <span>Registered Cloud Users</span>
+        <span style="font-size:.78rem;color:#94a3b8;">Real authenticated accounts in Cloud SQL</span>
       </div>
       <div style="overflow-x:auto;">
         <table class="admin-table">
           <thead>
             <tr>
               <th>ID</th>
-              <th>Username</th>
+              <th>Member</th>
               <th>Email</th>
+              <th>Role</th>
+              <th>Messages</th>
               <th>Created At</th>
+              <th style="text-align:right;">Actions</th>
             </tr>
           </thead>
           <tbody id="admin-users-tbody">
-            <tr><td colspan="4" style="text-align:center;color:#64748b;">Loading metrics...</td></tr>
+            <tr><td colspan="7" style="text-align:center;color:#64748b;">Loading real metrics...</td></tr>
           </tbody>
         </table>
       </div>
@@ -3685,6 +3821,9 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
             <option value="admin">🛡️ Admin (System Administrator)</option>
             <option value="moderator">⚔️ Moderator (Chat Moderation)</option>
             <option value="VIP">⭐ VIP (Supporter Badge)</option>
+            <option value="Discord Member">🎮 Discord Member (Official Discord Community)</option>
+            <option value="Tester">🧪 Tester (QA & Feature Tester)</option>
+            <option value="Beta User">🚀 Beta User (Early Access Member)</option>
             <option value="TSW User" selected>👤 TSW User (Standard Member)</option>
           </select>
         </div>
@@ -3801,7 +3940,7 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
     </div>
     <p class="msg" id="home-msg" role="status"></p>
   </div>
-  <p class="note">Some sites block proxies and won't load. <a href="https://docs.google.com/forms/d/e/1FAIpQLScupiUZuqQsngFai_QPQRWn06LpuZy3VGZOEyIUY0DAZ0qJxw/viewform" target="_blank" rel="noopener noreferrer">Report a broken site</a></p>
+  <p class="note">Some sites block proxies and won't load. <a href="https://docs.google.com/forms/d/e/1FAIpQLScupiUZuqQsngFai_QPQRWn06LpuZy3VGZOEyIUY0DAZ0qJxw/viewform" id="home-report-link" class="report-site-trigger">Report a broken site</a></p>
   <p class="discord-note"><a href="https://discord.gg/r9QaPbyJx5" target="_blank" rel="noopener noreferrer">join our discord now</a></p>
 </main>
 
@@ -3826,7 +3965,7 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
       <button class="plain" type="button" id="diag-reload">Retry</button>
       <button class="plain" type="button" id="diag-copy">Copy error details</button>
       <button class="plain" type="button" id="diag-tab">Open in new tab</button>
-      <a class="plain" id="diag-report" href="https://docs.google.com/forms/d/e/1FAIpQLScupiUZuqQsngFai_QPQRWn06LpuZy3VGZOEyIUY0DAZ0qJxw/viewform" target="_blank" rel="noopener noreferrer">Report this site</a>
+      <a class="plain report-site-trigger" id="diag-report" href="https://docs.google.com/forms/d/e/1FAIpQLScupiUZuqQsngFai_QPQRWn06LpuZy3VGZOEyIUY0DAZ0qJxw/viewform">Report this site</a>
     </div>
   </div>
 </section>
@@ -3996,7 +4135,7 @@ store.remove = store.del;
   var c = $('sky'), g = c.getContext('2d');
   var stars = [], shots = [], puffs = [], shines = [], flakes = [], bats = [], ripples = [], drops = [], bokeh = [], layers = [];
   var nebulae = [], constellations = [], stardust = [];
-  var mouseX = 0, mouseY = 0, curMouseX = 0, curMouseY = 0;
+  var mouseX = (typeof innerWidth !== 'undefined' ? innerWidth * 0.5 : 500), mouseY = (typeof innerHeight !== 'undefined' ? innerHeight * 0.45 : 350), curMouseX = mouseX, curMouseY = mouseY;
   var w = 0, h = 0, dpr = 1, next = 0, nextShine = 1500, lastRipple = 0, lastX = 0, lastY = 0, seeded = '', bgSeeded = '';
   var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var COLORS = ['#ffffff', '#ffffff', '#ffffff', '#e0f2fe', '#bae6fd', '#7dd3fc', '#38bdf8', '#c084fc', '#fde047', '#fed7aa', '#fca5a5'];
@@ -4190,30 +4329,34 @@ store.remove = store.del;
 
   function drawCosmicSaucer(t) {
     if (saucer.x === -999) {
-      saucer.x = w * 0.72;
-      saucer.y = h * 0.48;
+      saucer.x = (mouseX > 0 ? mouseX : w * 0.5);
+      saucer.y = (mouseY > 0 ? mouseY + 24 : h * 0.45);
     }
 
-    // Target position influenced smoothly by mouse position
-    var targetX = (w * 0.62) + (curMouseX - w * 0.5) * 0.32;
-    var targetY = (h * 0.44) + (curMouseY - h * 0.5) * 0.26;
+    // Cruiser smoothly tracks and follows right behind the mouse cursor
+    var targetX = (mouseX > 0 ? mouseX : w * 0.5);
+    var targetY = (mouseY > 0 ? mouseY + 24 : h * 0.45);
 
-    // Gentle floating bob
-    var bob = Math.sin(t * 0.0018) * 6;
+    // Subtle gentle float bob
+    var bob = Math.sin(t * 0.0022) * 4;
     var targetYWithBob = targetY + bob;
 
-    // Smooth easing toward target
-    var ax = (targetX - saucer.x) * 0.045;
-    var ay = (targetYWithBob - saucer.y) * 0.045;
-    saucer.vx = saucer.vx * 0.88 + ax;
-    saucer.vy = saucer.vy * 0.88 + ay;
+    // Direct tracking easing toward mouse
+    var dx = targetX - saucer.x;
+    var dy = targetYWithBob - saucer.y;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+
+    // Easing rate: chases responsive when moving, settles smoothly
+    var easeRate = Math.min(0.085, 0.045 + dist * 0.0001);
+    saucer.vx = saucer.vx * 0.82 + dx * easeRate;
+    saucer.vy = saucer.vy * 0.82 + dy * easeRate;
     saucer.x += saucer.vx;
     saucer.y += saucer.vy;
 
-    // Tilt based on horizontal velocity and slight natural yaw
-    var targetTilt = Math.max(-0.25, Math.min(0.25, saucer.vx * 0.035));
-    saucer.tilt += (targetTilt - saucer.tilt) * 0.1;
-    var baseAngle = 0.06 + saucer.tilt;
+    // Banking tilt based on horizontal velocity
+    var targetTilt = Math.max(-0.35, Math.min(0.35, saucer.vx * 0.04));
+    saucer.tilt += (targetTilt - saucer.tilt) * 0.14;
+    var baseAngle = saucer.tilt;
 
     var rad = baseAngle;
     var cosA = Math.cos(rad), sinA = Math.sin(rad);
@@ -4809,7 +4952,7 @@ store.remove = store.del;
   if (!clk) return;
 
   var customQuotes = [
-    "whoever made this is tuff 🤷‍♂️",
+    "chat-1 is broken btw",
     "i should add microtransactions💵",
     "WE hate lightspeed & securley",
     "damn",
@@ -5457,7 +5600,7 @@ $('game-exit').addEventListener('click', exitCork7);
 $('game-reload').addEventListener('click', reloadCork7);
 $('game-fullscreen').addEventListener('click', toggleGameFullscreen);
 
-['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log', 'gta-modal', 'admin-modal', 'owner-role-modal', 'owner-commands-modal'].forEach(function (id) {
+['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log', 'gta-modal', 'admin-modal', 'owner-role-modal', 'owner-commands-modal', 'report-site-modal'].forEach(function (id) {
   var el = $(id);
   if (el) {
     el.addEventListener('click', function (ev) {
@@ -5468,6 +5611,15 @@ $('game-fullscreen').addEventListener('click', toggleGameFullscreen);
         }
       }
     });
+  }
+});
+// Embedded Report a broken site click interceptor
+document.addEventListener('click', function (ev) {
+  var reportLink = ev.target.closest('.report-site-trigger');
+  if (reportLink) {
+    ev.preventDefault();
+    var rModal = $('report-site-modal');
+    if (rModal) rModal.hidden = false;
   }
 });
 var welcomeDismissBtn = $('welcome-dismiss-btn');
@@ -5482,7 +5634,7 @@ document.addEventListener('keydown', function (ev) {
     if (!$('game-tab').hidden && !document.fullscreenElement) {
       exitCork7();
     }
-    ['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log', 'gta-modal', 'admin-modal', 'owner-role-modal', 'owner-commands-modal'].forEach(function (id) {
+    ['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log', 'gta-modal', 'admin-modal', 'owner-role-modal', 'owner-commands-modal', 'report-site-modal'].forEach(function (id) {
       var el = $(id);
       if (el) {
         el.hidden = true;
@@ -5771,27 +5923,26 @@ document.addEventListener('keydown', function (ev) {
     { name: 'Instagram', url: 'https://www.instagram.com' },
     { name: 'Discord', url: 'https://discord.com/app' },
     { name: 'GTA 5', url: 'gta5://options' },
-    { name: 'Unlocked Cork7', url: 'https://cork7-restored.softsquid512.chatgpt.site' },
+    { name: 'Cork7', url: 'https://cork7-restored.softsquid512.chatgpt.site' },
     { name: 'Movies', url: 'https://sflix.to' }
   ];
 
   var DEFAULT_GENERIC_ICON = '<svg viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="5" fill="#1e293b"/><circle cx="12" cy="12" r="6.5" stroke="#38bdf8" stroke-width="1.5"/><path d="M5.5 12h13M12 5.5a9 9 0 0 1 2.8 6.5 9 9 0 0 1-2.8 6.5 9 9 0 0 1-2.8-6.5A9 9 0 0 1 12 5.5z" stroke="#38bdf8" stroke-width="1.2"/></svg>';
 
-  // Official Brand SVG Logos
-  // Use the real favicons from each service instead of hand-drawn logo approximations.
-  // These URLs return the official site icon at a larger size.
+  // Shortcut icons (reverted to original Google s2 / site favicons)
   var SHORTCUT_ICONS = {
-    'youtube': '<img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=128" alt="YouTube logo">',
-    'tiktok': '<img src="https://www.google.com/s2/favicons?domain=tiktok.com&sz=128" alt="TikTok logo">',
-    'geforce now': '<img src="https://www.google.com/s2/favicons?domain=play.geforcenow.com&sz=128" alt="GeForce NOW logo">',
-    'twitch': '<img src="https://www.google.com/s2/favicons?domain=twitch.tv&sz=128" alt="Twitch logo">',
-    'snapchat': '<img src="https://www.google.com/s2/favicons?domain=snapchat.com&sz=128" alt="Snapchat logo">',
-    'instagram': '<img src="https://www.google.com/s2/favicons?domain=instagram.com&sz=128" alt="Instagram logo">',
-    'discord': '<img src="https://www.google.com/s2/favicons?domain=discord.com&sz=128" alt="Discord logo">',
-    'gta 5': '<img src="https://www.google.com/s2/favicons?domain=rockstargames.com&sz=128" alt="Rockstar Games logo">',
-    'gta v port': '<img src="https://www.google.com/s2/favicons?domain=rockstargames.com&sz=128" alt="Rockstar Games logo">',
-    'unlocked cork7': '<img src="https://www.google.com/s2/favicons?domain=cork7-restored.softsquid512.chatgpt.site&sz=128" alt="Unlocked Cork7 logo">',
-    'movies': '<img src="https://www.google.com/s2/favicons?domain=sflix.to&sz=128" alt="SFlix site icon">'
+    'youtube': '<img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=64" alt="YouTube">',
+    'tiktok': '<img src="https://www.google.com/s2/favicons?domain=tiktok.com&sz=64" alt="TikTok">',
+    'geforce now': '<img src="https://www.google.com/s2/favicons?domain=nvidia.com&sz=64" alt="GeForce NOW">',
+    'twitch': '<img src="https://www.google.com/s2/favicons?domain=twitch.tv&sz=64" alt="Twitch">',
+    'snapchat': '<img src="https://www.google.com/s2/favicons?domain=snapchat.com&sz=64" alt="Snapchat">',
+    'instagram': '<img src="https://www.google.com/s2/favicons?domain=instagram.com&sz=64" alt="Instagram">',
+    'discord': '<img src="https://www.google.com/s2/favicons?domain=discord.com&sz=64" alt="Discord">',
+    'gta 5': '<img src="https://www.google.com/s2/favicons?domain=rockstargames.com&sz=64" alt="GTA 5">',
+    'gta v port': '<img src="https://www.google.com/s2/favicons?domain=rockstargames.com&sz=64" alt="GTA 5">',
+    'cork7': '<img src="https://cork7.com/favicon.ico" alt="Cork7" onerror="this.onerror=null;this.src=\'https://www.google.com/s2/favicons?domain=cork7.com&sz=64\'">',
+    'unlocked cork7': '<img src="https://cork7.com/favicon.ico" alt="Unlocked Cork7" onerror="this.onerror=null;this.src=\'https://www.google.com/s2/favicons?domain=cork7.com&sz=64\'">',
+    'movies': '<img src="https://www.google.com/s2/favicons?domain=sflix.to&sz=64" alt="Movies">'
   };
 
   function renderShortcuts(list) {
@@ -5851,6 +6002,15 @@ document.addEventListener('keydown', function (ev) {
           iconHtml = SHORTCUT_ICONS['gta 5'];
         } else if (key.includes('geforce')) {
           iconHtml = SHORTCUT_ICONS['geforce now'];
+        } else if (key.includes('cork')) {
+          iconHtml = SHORTCUT_ICONS['cork7'];
+        } else if (item.url && (item.url.startsWith('http://') || item.url.startsWith('https://'))) {
+          try {
+            var domainHost = new URL(item.url).hostname;
+            iconHtml = '<img src="https://www.google.com/s2/favicons?domain=' + encodeURIComponent(domainHost) + '&sz=64" alt="' + escapeHtml(item.name) + '">';
+          } catch (e) {
+            iconHtml = DEFAULT_GENERIC_ICON;
+          }
         } else {
           iconHtml = DEFAULT_GENERIC_ICON;
         }
@@ -7335,6 +7495,12 @@ document.addEventListener('keydown', function (ev) {
         badgeHtml = '<span class="public-msg-badge mod" style="background:rgba(20,184,166,.2);color:#5eead4;border:1px solid rgba(20,184,166,.4);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">⚔️ MOD</span>';
       } else if (rLower === 'vip') {
         badgeHtml = '<span class="public-msg-badge vip" style="background:rgba(168,85,247,.2);color:#d8b4fe;border:1px solid rgba(168,85,247,.4);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">⭐ VIP</span>';
+      } else if (rLower === 'discord member' || rLower === 'discord') {
+        badgeHtml = '<span class="public-msg-badge discord-member" style="background:rgba(88,101,242,.22);color:#a5b4fc;border:1px solid rgba(88,101,242,.45);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🎮 DISCORD MEMBER</span>';
+      } else if (rLower === 'tester') {
+        badgeHtml = '<span class="public-msg-badge tester" style="background:rgba(16,185,129,.2);color:#6ee7b7;border:1px solid rgba(16,185,129,.45);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🧪 TESTER</span>';
+      } else if (rLower === 'beta user' || rLower === 'beta') {
+        badgeHtml = '<span class="public-msg-badge beta-user" style="background:rgba(245,158,11,.2);color:#fcd34d;border:1px solid rgba(245,158,11,.45);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🚀 BETA USER</span>';
       } else {
         badgeHtml = '<span class="public-msg-badge user">TSW User</span>';
       }
@@ -7374,7 +7540,7 @@ document.addEventListener('keydown', function (ev) {
       if (res && res.success && Array.isArray(res.messages)) {
         var countChanged = res.messages.length !== lastPublicCount;
         lastPublicCount = res.messages.length;
-        renderPublicMessages(res.messages, shouldScroll || countChanged);
+        renderPublicMessages(res.messages, shouldScroll === true || (shouldScroll !== false && countChanged));
       }
     }).catch(function (err) {
       console.warn('Public messages fetch error:', err);
@@ -7628,7 +7794,7 @@ document.addEventListener('keydown', function (ev) {
       var text = (publicMessageInput.value || '').trim();
       if (!text) return;
 
-      var currentChannel = activePublicChannel;
+      var currentChannel = activePublicChannel || 'chat-1';
       var user = getCurrentUser();
       var isOwner = user && (
         user.role === 'owner' ||
@@ -7653,13 +7819,48 @@ document.addEventListener('keydown', function (ev) {
 
       publicMessageInput.value = '';
 
+      // Optimistic message append so it appears in chat-1 immediately without lag
+      var tempId = 'temp_' + Date.now();
+      if (publicFeedBox) {
+        var optRow = document.createElement('div');
+        optRow.className = 'public-msg-row';
+        optRow.id = tempId;
+        var optRole = user ? (user.role || 'TSW User') : 'TSW User';
+        var rL = optRole.toLowerCase();
+        var optBadge = '';
+        if (isOwner) optBadge = '<span class="public-msg-badge owner">👑 OWNER</span>';
+        else if (rL === 'admin') optBadge = '<span class="public-msg-badge admin" style="background:rgba(59,130,246,.2);color:#93c5fd;border:1px solid rgba(59,130,246,.4);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🛡️ ADMIN</span>';
+        else if (rL === 'moderator' || rL === 'mod') optBadge = '<span class="public-msg-badge mod" style="background:rgba(20,184,166,.2);color:#5eead4;border:1px solid rgba(20,184,166,.4);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">⚔️ MOD</span>';
+        else if (rL === 'vip') optBadge = '<span class="public-msg-badge vip" style="background:rgba(168,85,247,.2);color:#d8b4fe;border:1px solid rgba(168,85,247,.4);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">⭐ VIP</span>';
+        else if (rL === 'discord member' || rL === 'discord') optBadge = '<span class="public-msg-badge discord-member" style="background:rgba(88,101,242,.22);color:#a5b4fc;border:1px solid rgba(88,101,242,.45);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🎮 DISCORD MEMBER</span>';
+        else if (rL === 'tester') optBadge = '<span class="public-msg-badge tester" style="background:rgba(16,185,129,.2);color:#6ee7b7;border:1px solid rgba(16,185,129,.45);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🧪 TESTER</span>';
+        else if (rL === 'beta user' || rL === 'beta') optBadge = '<span class="public-msg-badge beta-user" style="background:rgba(245,158,11,.2);color:#fcd34d;border:1px solid rgba(245,158,11,.45);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🚀 BETA USER</span>';
+        else optBadge = '<span class="public-msg-badge user">TSW User</span>';
+
+        var authorName = user ? (user.username || 'You') : guestName;
+        optRow.innerHTML =
+          '<div class="public-msg-av">' + getLetterAvatar(authorName) + '</div>' +
+          '<div class="public-msg-content-wrap">' +
+            '<div class="public-msg-header">' +
+              '<span class="public-msg-author">@' + escapeHtml(authorName) + '</span>' +
+              optBadge +
+              '<span class="public-msg-time">Just now</span>' +
+            '</div>' +
+            '<div class="public-msg-text">' + escapeHtml(text) + '</div>' +
+          '</div>';
+        publicFeedBox.appendChild(optRow);
+        publicFeedBox.scrollTop = publicFeedBox.scrollHeight;
+      }
+
       api('/api/public-messages/' + currentChannel, 'POST', { content: text, guestName: guestName }).then(function (res) {
         if (res && res.success) {
           loadPublicMessages(currentChannel, true);
         } else if (res && res.error) {
+          var tEl = $(tempId); if (tEl) tEl.remove();
           alert(res.error);
         }
       }).catch(function (err) {
+        var tEl = $(tempId); if (tEl) tEl.remove();
         console.error('Failed to post public message:', err);
         alert(err.message || 'Failed to post message. Please try again.');
       });
@@ -7815,6 +8016,38 @@ document.addEventListener('keydown', function (ev) {
     });
   }
 
+  function sortFriends() {
+    friends.sort(function (a, b) {
+      if (a.unread && !b.unread) return -1;
+      if (!a.unread && b.unread) return 1;
+      var tA = a.lastMessageTime ? new Date(a.lastMessageTime).getTime() : 0;
+      var tB = b.lastMessageTime ? new Date(b.lastMessageTime).getTime() : 0;
+      return tB - tA;
+    });
+  }
+
+  function updateChatAttention() {
+    var hasUnread = friends.some(function (f) { return !!f.unread; });
+    var chatBtn = $('sb-chat-btn');
+    if (chatBtn) {
+      var badge = $('chat-unread-corner-badge');
+      if (hasUnread) {
+        chatBtn.classList.add('chat-has-attention');
+        if (!badge) {
+          badge = document.createElement('span');
+          badge.id = 'chat-unread-corner-badge';
+          badge.className = 'chat-unread-corner-badge';
+          badge.title = 'New direct message!';
+          chatBtn.appendChild(badge);
+        }
+        badge.style.display = 'block';
+      } else {
+        chatBtn.classList.remove('chat-has-attention');
+        if (badge) badge.style.display = 'none';
+      }
+    }
+  }
+
   function loadFriendsList() {
     var user = getCurrentUser();
     if (!user) return Promise.resolve();
@@ -7822,7 +8055,9 @@ document.addEventListener('keydown', function (ev) {
     return api('/api/friends', 'GET').then(function (res) {
       if (res && res.success && Array.isArray(res.friends)) {
         friends = res.friends;
+        sortFriends();
         renderFriendsList();
+        updateChatAttention();
         if (selectedFriend) {
           var updated = friends.find(function (f) { return f.friendId === selectedFriend.friendId; });
           if (updated) selectedFriend = updated;
@@ -7836,6 +8071,7 @@ document.addEventListener('keydown', function (ev) {
   function selectFriend(friend) {
     selectedFriend = friend;
     friend.unread = false;
+    updateChatAttention();
     renderFriendsList();
 
     if (blankStateEl) blankStateEl.style.display = 'none';
@@ -7895,6 +8131,13 @@ document.addEventListener('keydown', function (ev) {
         var countChanged = res.messages.length !== lastDmCount;
         lastDmCount = res.messages.length;
         renderMessages(res.messages, shouldScroll || countChanged);
+        if (res.messages.length > 0 && selectedFriend && selectedFriend.friendId === friendId) {
+          var latest = res.messages[res.messages.length - 1];
+          selectedFriend.lastMessage = latest.content;
+          selectedFriend.lastMessageTime = latest.createdAt;
+          sortFriends();
+          renderFriendsList();
+        }
       }
     }).catch(function (err) {
       console.warn('Messages fetch error:', err);
@@ -7950,7 +8193,10 @@ document.addEventListener('keydown', function (ev) {
           }
         }
       } else {
-        stopPolling();
+        var user = getCurrentUser();
+        if (user) {
+          loadFriendsList();
+        }
       }
     }, 2500);
   }
@@ -8056,6 +8302,8 @@ document.addEventListener('keydown', function (ev) {
       api('/api/messages/' + currentFriendId, 'POST', { content: text }).then(function (res) {
         if (res.success) {
           selectedFriend.lastMessage = text;
+          selectedFriend.lastMessageTime = new Date().toISOString();
+          sortFriends();
           renderFriendsList();
           loadMessages(currentFriendId, true);
         } else if (res.error) {
@@ -8093,6 +8341,7 @@ document.addEventListener('keydown', function (ev) {
     },
     stopPolling: stopPolling
   };
+  startPolling();
 })();
 
 /* ===================== Cloud Admin & Metrics ===================== */
@@ -8100,7 +8349,8 @@ document.addEventListener('keydown', function (ev) {
   var adminModal = $('admin-modal');
   var adminBtn = $('sb-admin-btn');
   var refreshBtn = $('admin-refresh-btn');
-  var purgeBtn = $('admin-purge-btn');
+  var refreshBtnTop = $('admin-refresh-btn-top');
+  var openRolesBtn = $('admin-open-roles-btn');
   var statusNote = $('admin-status-note');
   var adminPollTimer = null;
 
@@ -8115,42 +8365,98 @@ document.addEventListener('keydown', function (ev) {
       var data = await res.json();
       if (!data.success) throw new Error(data.error || 'Failed to retrieve metrics');
 
-      // Update stat cards
+      // Update system banner
+      if ($('admin-banner-runtime')) {
+        $('admin-banner-runtime').textContent = (data.server?.nodeVersion || 'Node') + ' · ' + (data.server?.platform || 'linux');
+      }
+
+      // Update stat cards with real database and server metrics
       if ($('admin-db-size')) $('admin-db-size').textContent = data.database?.dbSize || '8.2 MB';
+      if ($('admin-connections')) {
+        var conns = data.database?.activeConnections || 1;
+        $('admin-connections').textContent = conns + ' Active PostgreSQL Connection' + (conns === 1 ? '' : 's');
+      }
       if ($('admin-user-count')) $('admin-user-count').textContent = String(data.database?.users || 0);
-      if ($('admin-profile-count')) $('admin-profile-count').textContent = (data.database?.profiles || 0) + ' profiles';
+      if ($('admin-profile-count')) $('admin-profile-count').textContent = (data.database?.profiles || 0) + ' real profile' + ((data.database?.profiles === 1) ? '' : 's');
+      
+      var publicCount = data.database?.publicMessages || 0;
+      if ($('admin-public-msgs-hero')) $('admin-public-msgs-hero').textContent = String(publicCount);
+      var cStats = data.database?.channelStats || {};
+      var chat1Count = cStats['chat-1'] || 0;
+      var annCount = cStats['announcements'] || 0;
+      if ($('admin-channels-summary')) {
+        $('admin-channels-summary').textContent = chat1Count + ' in #chat-1 · ' + annCount + ' in #announcements';
+      }
+
       if ($('admin-uptime')) $('admin-uptime').textContent = data.server?.uptime || '--';
-      if ($('admin-node-mem')) $('admin-node-mem').textContent = 'Heap: ' + (data.server?.memory?.heapUsedMB || '--') + ' MB (' + (data.server?.memory?.heapPercent || '--') + '%)';
-      if ($('admin-ai-requests')) $('admin-ai-requests').textContent = String(data.ai?.dailyRequests || 0);
-      if ($('admin-ai-model')) $('admin-ai-model').textContent = data.ai?.primaryModel || 'Gemini 2.5 Flash';
+      if ($('admin-node-mem')) {
+        $('admin-node-mem').textContent = 'Heap: ' + (data.server?.memory?.heapUsedMB || '--') + ' / ' + (data.server?.memory?.heapTotalMB || '--') + ' MB (' + (data.server?.memory?.heapPercent || '--') + '%)';
+      }
 
       // Update breakdown
-      if ($('admin-connections')) $('admin-connections').textContent = (data.database?.activeConnections || 1) + ' Active Connection' + ((data.database?.activeConnections === 1) ? '' : 's');
-      if ($('admin-public-msgs')) $('admin-public-msgs').textContent = String(data.database?.publicMessages || 0);
+      if ($('admin-chat1-msgs')) $('admin-chat1-msgs').textContent = String(chat1Count);
+      if ($('admin-announcements-msgs')) $('admin-announcements-msgs').textContent = String(annCount);
       if ($('admin-direct-msgs')) $('admin-direct-msgs').textContent = String(data.database?.directMessages || 0);
       if ($('admin-friends-count')) $('admin-friends-count').textContent = String(data.database?.friendships || 0);
+      if ($('admin-server-rss')) $('admin-server-rss').textContent = (data.server?.memory?.rssMB || '--') + ' MB';
 
-      // Render recent users
+      // Render recent users with real database records and role badges
       var tbody = $('admin-users-tbody');
       if (tbody) {
         tbody.innerHTML = '';
         var list = data.database?.recentUsers || [];
         if (list.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#64748b;">No registered users yet.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#64748b;">No registered users yet.</td></tr>';
         } else {
           list.forEach(function (u) {
             var tr = document.createElement('tr');
             var isOwner = (u.role === 'owner') || (u.email === 'alexc.second@gmail.com') || (u.username && u.username.toLowerCase() === 'alex dalbey');
+            
+            var roleBadgeHtml = '<span class="ai-soon-pill" style="border-color:rgba(148,163,184,.25);color:#94a3b8;">TSW User</span>';
+            if (isOwner) {
+              roleBadgeHtml = '<span class="ai-soon-pill" style="border-color:#facc15;color:#fef08a;font-weight:700;background:rgba(250,204,21,0.15);">👑 OWNER</span>';
+            } else if (u.role === 'Discord Member') {
+              roleBadgeHtml = '<span class="ai-soon-pill" style="border-color:#6366f1;color:#a5b4fc;font-weight:700;background:rgba(99,102,241,0.15);">🎮 DISCORD MEMBER</span>';
+            } else if (u.role === 'Tester') {
+              roleBadgeHtml = '<span class="ai-soon-pill" style="border-color:#10b981;color:#6ee7b7;font-weight:700;background:rgba(16,185,129,0.15);">🧪 TESTER</span>';
+            } else if (u.role === 'Beta User') {
+              roleBadgeHtml = '<span class="ai-soon-pill" style="border-color:#f59e0b;color:#fde68a;font-weight:700;background:rgba(245,158,11,0.15);">🚀 BETA USER</span>';
+            } else if (u.role === 'admin') {
+              roleBadgeHtml = '<span class="ai-soon-pill" style="border-color:#38bdf8;color:#7dd3fc;font-weight:700;background:rgba(56,189,248,0.15);">🛡️ ADMIN</span>';
+            } else if (u.role === 'moderator') {
+              roleBadgeHtml = '<span class="ai-soon-pill" style="border-color:#ec4899;color:#f472b6;font-weight:700;background:rgba(236,72,153,0.15);">⚔️ MOD</span>';
+            } else if (u.role === 'VIP') {
+              roleBadgeHtml = '<span class="ai-soon-pill" style="border-color:#a855f7;color:#d8b4fe;font-weight:700;background:rgba(168,85,247,0.15);">⭐ VIP</span>';
+            }
+
             var dateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '--';
+            var msgCount = u.messageCount || 0;
+            
             tr.innerHTML = '<td>#' + escapeHtml(String(u.id)) + '</td>' +
-              '<td><b>' + escapeHtml(u.username || 'User') + '</b> ' +
-              (isOwner
-                ? '<span class="ai-soon-pill" style="border-color:#facc15;color:#facc15;font-weight:700;">OWNER</span>'
-                : '<span class="ai-soon-pill" style="border-color:rgba(148,163,184,.25);color:#94a3b8;">TSW User</span>') +
-              '</td>' +
-              '<td style="color:#94a3b8;">' + escapeHtml(u.email || '--') + '</td>' +
-              '<td style="color:#64748b;font-size:.78rem;">' + escapeHtml(dateStr) + '</td>';
+              '<td><b>' + escapeHtml(u.username || 'User') + '</b></td>' +
+              '<td style="color:#94a3b8;font-family:monospace;font-size:.8rem;">' + escapeHtml(u.email || '--') + '</td>' +
+              '<td>' + roleBadgeHtml + '</td>' +
+              '<td style="color:#cbd5e1;font-weight:600;">' + msgCount + '</td>' +
+              '<td style="color:#64748b;font-size:.78rem;">' + escapeHtml(dateStr) + '</td>' +
+              '<td style="text-align:right;">' +
+                (isOwner 
+                  ? '<span style="color:#64748b;font-size:.75rem;">Default Owner</span>' 
+                  : '<button type="button" class="admin-act-btn secondary admin-assign-role-btn" data-uid="' + u.id + '" data-uname="' + escapeHtml(u.username || '') + '" data-role="' + escapeHtml(u.role || 'TSW User') + '" style="padding:.25rem .55rem;font-size:.75rem;">Assign Role</button>') +
+              '</td>';
             tbody.appendChild(tr);
+          });
+
+          // Bind quick assign role buttons to open /give role with target user selected
+          tbody.querySelectorAll('.admin-assign-role-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var targetUid = this.getAttribute('data-uid');
+              var roleModal = $('owner-role-modal');
+              var userSel = $('give-role-user-select');
+              if (userSel) {
+                userSel.value = targetUid;
+              }
+              if (roleModal) roleModal.hidden = false;
+            });
           });
         }
       }
@@ -8179,7 +8485,7 @@ document.addEventListener('keydown', function (ev) {
     adminModal.hidden = false;
     fetchAdminMetrics();
     clearInterval(adminPollTimer);
-    adminPollTimer = setInterval(fetchAdminMetrics, 10000);
+    adminPollTimer = setInterval(fetchAdminMetrics, 8000);
   }
 
   function closeAdmin() {
@@ -8190,6 +8496,13 @@ document.addEventListener('keydown', function (ev) {
 
   if (adminBtn) adminBtn.addEventListener('click', openAdmin);
   if (refreshBtn) refreshBtn.addEventListener('click', fetchAdminMetrics);
+  if (refreshBtnTop) refreshBtnTop.addEventListener('click', fetchAdminMetrics);
+  if (openRolesBtn) {
+    openRolesBtn.addEventListener('click', function () {
+      var roleModal = $('owner-role-modal');
+      if (roleModal) roleModal.hidden = false;
+    });
+  }
 
   window.TSWOpenAdmin = openAdmin;
 })();
