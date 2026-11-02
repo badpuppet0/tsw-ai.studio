@@ -6846,6 +6846,8 @@ document.addEventListener('keydown', function (ev) {
     activeTabId = id;
     var tab = getActiveTab();
     if (!tab) return;
+    var existingTesterPanel = document.getElementById('tester-placeholder-view');
+    if (existingTesterPanel) existingTesterPanel.style.display = 'none';
 
     if (tabsListEl) {
       tabsListEl.querySelectorAll('.sb-tab').forEach(function (el) {
@@ -6862,7 +6864,7 @@ document.addEventListener('keydown', function (ev) {
     };
     if (tab.isTesterPage) {
       home.hidden = true;
-      browse.hidden = true;
+      browse.hidden = false;
       $('game-tab').hidden = true;
       view.querySelectorAll('.web-tab-view').forEach(function (v) { v.style.display = 'none'; });
       loading(false);
