@@ -1533,6 +1533,26 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   font-weight: 500;
   letter-spacing: 0.02em;
 }
+.ucc-delay-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .62rem;
+  font-weight: 700;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.16);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  padding: .15rem .45rem;
+  border-radius: 999px;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  vertical-align: middle;
+  line-height: 1.2;
+}
+.home-variant .ucc-delay-pill {
+  font-size: .56rem;
+  padding: .1rem .38rem;
+}
 .ucc-timer-grid {
   display: flex;
   align-items: center;
@@ -3112,8 +3132,14 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
         <div id="announcements-pinned-timer" style="display:none;padding:.75rem 1rem 0.25rem 1rem;flex:none;">
           <div class="update-countdown-card announcements-variant" aria-label="Announcement Countdown to Major Update">
             <div class="ucc-header">
-              <span class="ucc-badge"><span class="ucc-pulse"></span> MAJOR UPDATE COUNTDOWN</span>
-              <span class="ucc-target-date">Monday, Nov 2 @ 7:00 AM</span>
+              <div style="display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;">
+                <span class="ucc-badge"><span class="ucc-pulse" style="background:#f59e0b;box-shadow:0 0 8px #f59e0b;"></span> MAJOR UPDATE COUNTDOWN</span>
+                <span class="ucc-delay-pill" title="Delayed Due to Issues">
+                  <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:none;color:#f59e0b;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  <span>(Delayed Due to Issues)</span>
+                </span>
+              </div>
+              <span class="ucc-target-date">Tuesday, Nov 3 @ 8:00 AM</span>
             </div>
             <div class="ucc-timer-grid">
               <div class="ucc-unit">
@@ -3913,8 +3939,14 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
     <!-- Compact update countdown below shortcuts -->
     <div class="update-countdown-card home-variant" id="home-update-countdown" aria-label="Countdown to Large Update">
       <div class="ucc-header">
-        <span class="ucc-badge"><span class="ucc-pulse"></span> Large Update...</span>
-        <span class="ucc-target-date">Monday, Nov 2 @ 7:00 AM</span>
+        <div style="display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;">
+          <span class="ucc-badge"><span class="ucc-pulse" style="background:#f59e0b;box-shadow:0 0 6px #f59e0b;"></span> Large Update...</span>
+          <span class="ucc-delay-pill" title="Delayed Due to Issues">
+            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:none;color:#f59e0b;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>(Delayed Due to Issues)</span>
+          </span>
+        </div>
+        <span class="ucc-target-date">Tuesday, Nov 3 @ 8:00 AM</span>
       </div>
       <div class="ucc-timer-grid">
         <div class="ucc-unit">
@@ -4952,6 +4984,7 @@ store.remove = store.del;
   if (!clk) return;
 
   var customQuotes = [
+    "update delayed till tmrw 8 am (Delayed Due to Issues) ⚠️",
     "chat-1 is broken btw",
     "i should add microtransactions💵",
     "WE hate lightspeed & securley",
@@ -8507,10 +8540,10 @@ document.addEventListener('keydown', function (ev) {
   window.TSWOpenAdmin = openAdmin;
 })();
 
-/* ===================== Large Update Countdown (Monday, Nov 2 @ 7:00 AM) ===================== */
+/* ===================== Large Update Countdown (Tuesday, Nov 3 @ 8:00 AM - Delayed) ===================== */
 (function initUpdateCountdown() {
-  // Target: Monday, November 2, 2026 at 7:00 AM local time
-  var targetDate = new Date(2026, 10, 2, 7, 0, 0);
+  // Target: Tuesday, November 3, 2026 at 8:00 AM local time (Delayed Due to Issues)
+  var targetDate = new Date(2026, 10, 3, 8, 0, 0);
 
   function tick() {
     var now = new Date();
