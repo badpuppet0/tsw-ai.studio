@@ -112,7 +112,7 @@ export async function signUpUser(username: string, password: string, email?: str
     preferences: JSON.stringify({
       searchEngine: 'https://www.google.com/search?q=',
       stars: true,
-      shoot: true,
+      shoot: false,
       bg: 'stars'
     }),
     isDefault: true,

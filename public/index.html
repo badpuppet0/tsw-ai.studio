@@ -994,17 +994,114 @@ body.sidebar-collapsed .sb-tab .sb-tab-close {
   display: none;
 }
 
-.tester-area-folder{display:flex;flex-direction:column;gap:.25rem;margin-top:.35rem}
-.tester-folder-toggle{display:flex;align-items:center;gap:.65rem;width:100%;padding:.55rem .75rem;border:0;border-radius:10px;background:rgba(255,255,255,.035);color:var(--steel);font:inherit;font-size:.88rem;text-align:left;cursor:pointer}
-.tester-folder-toggle:hover,.tester-folder-tab:hover{background:rgba(255,255,255,.08);color:#fff}
-.tester-folder-chevron{display:inline-block;width:1.25rem;text-align:center;font-size:1.15rem;transition:transform .15s}
-.tester-folder-toggle[aria-expanded="true"] .tester-folder-chevron{transform:rotate(90deg)}
-.tester-folder-children{display:flex;flex-direction:column;gap:.25rem;padding-left:1.15rem}
-.tester-folder-tab{width:100%;padding:.5rem .75rem;border:0;border-radius:999px;background:rgba(255,255,255,.025);color:var(--steel);font:inherit;font-size:.84rem;text-align:left;cursor:pointer}
-.tester-folder-tab.active{background:#cbfbe2;color:#064e3b;font-weight:600}
-body.sidebar-collapsed .tester-area-folder{align-items:center}
-body.sidebar-collapsed .tester-folder-toggle{width:2.4rem;height:2.4rem;justify-content:center;padding:0}
-body.sidebar-collapsed .tester-folder-toggle .sb-label,body.sidebar-collapsed .tester-folder-children{display:none!important}
+/* Testing Folder Area (Tester & Owner Role Only) */
+.sb-folder-section {
+  margin: .35rem 0 .5rem 0;
+  width: 100%;
+}
+.sb-folder-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .5rem .75rem;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  border-radius: 12px;
+  color: #a7f3d0;
+  font: inherit;
+  font-size: .86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .16s ease;
+  outline: 0;
+}
+.sb-folder-header:hover {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.42);
+  color: #fff;
+}
+.sb-folder-icon {
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: none;
+  color: #34d399;
+}
+.sb-folder-badge {
+  font-size: .58rem;
+  font-weight: 700;
+  padding: .12rem .36rem;
+  border-radius: 4px;
+  background: rgba(16, 185, 129, 0.22);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #6ee7b7;
+  letter-spacing: .05em;
+  margin-left: auto;
+}
+.sb-folder-arrow {
+  transition: transform .2s ease;
+  color: #6ee7b7;
+  flex: none;
+  margin-left: .25rem;
+}
+.sb-folder-section.open .sb-folder-arrow {
+  transform: rotate(180deg);
+}
+.sb-folder-content {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  margin-top: .4rem;
+  padding-left: .7rem;
+  border-left: 2px solid rgba(16, 185, 129, 0.32);
+  margin-left: .75rem;
+}
+.sb-folder-content[hidden] {
+  display: none !important;
+}
+.sb-subtab {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .44rem .7rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .15s ease;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+  font-size: .82rem;
+  font-weight: 500;
+  outline: 0;
+  width: 100%;
+}
+.sb-subtab:hover {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #fff;
+}
+.sb-subtab-badge {
+  font-size: .62rem;
+  color: #64748b;
+  margin-left: auto;
+  font-family: system-ui, sans-serif;
+}
+body.sidebar-collapsed .sb-folder-header {
+  padding: 0;
+  width: 2.4rem;
+  height: 2.4rem;
+  justify-content: center;
+  margin: 0 auto;
+  border-radius: 10px;
+}
+body.sidebar-collapsed .sb-folder-badge,
+body.sidebar-collapsed .sb-folder-arrow,
+body.sidebar-collapsed .sb-folder-content,
+body.sidebar-collapsed .sb-folder-header .sb-tab-label {
+  display: none !important;
+}
 
 /* Spacer */
 .sb-spacer {
@@ -1780,6 +1877,27 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   background: rgba(148, 163, 184, 0.08);
   color: #94a3b8;
   border: 1px solid rgba(148, 163, 184, 0.16);
+}
+.public-msg-badge.tester,
+.prof-role-badge.tester {
+  background: rgba(16, 185, 129, 0.18);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  font-weight: 700;
+}
+.public-msg-badge.discord,
+.prof-role-badge.discord {
+  background: rgba(99, 102, 241, 0.18);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  font-weight: 700;
+}
+.public-msg-badge.beta,
+.prof-role-badge.beta {
+  background: rgba(236, 72, 153, 0.18);
+  color: #f472b6;
+  border: 1px solid rgba(236, 72, 153, 0.4);
+  font-weight: 700;
 }
 .chat-add-friend-box {
   display: flex;
@@ -2924,13 +3042,31 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
     </div>
   </div>
 
-  <div id="tester-area-folder" class="tester-area-folder" hidden>
-    <button type="button" id="tester-area-toggle" class="tester-folder-toggle" aria-expanded="false">
-      <span class="tester-folder-chevron">›</span><span class="sb-label">Tester Area</span>
+  <!-- Testing Area Folder (Tester & Owner Role Only) -->
+  <div class="sb-folder-section" id="sb-testing-folder" style="display:none !important;">
+    <button class="sb-folder-header" id="sb-testing-toggle" type="button" aria-expanded="false" title="Testing Area (Tester / Owner Only)">
+      <span class="sb-folder-icon">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+        </svg>
+      </span>
+      <span class="sb-tab-label">Testing</span>
+      <span class="sb-folder-badge">TESTER</span>
+      <svg class="sb-folder-arrow" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
     </button>
-    <div id="tester-area-children" class="tester-folder-children" hidden>
-      <button type="button" class="tester-folder-tab" data-tester-tab="games">Games</button>
-      <button type="button" class="tester-folder-tab" data-tester-tab="movies">Movies</button>
+    <div class="sb-folder-content" id="sb-testing-content" hidden>
+      <div class="sb-subtab" id="sb-test-tab-games" role="button" tabindex="0" title="Testing Tab: Games">
+        <span style="font-size:1.05rem;line-height:1;">🎮</span>
+        <span class="sb-tab-label">Games</span>
+        <span class="sb-subtab-badge">Cork7</span>
+      </div>
+      <div class="sb-subtab" id="sb-test-tab-movies" role="button" tabindex="0" title="Testing Tab: Movies">
+        <span style="font-size:1.05rem;line-height:1;">🎬</span>
+        <span class="sb-tab-label">Movies</span>
+        <span class="sb-subtab-badge">SFlix</span>
+      </div>
     </div>
   </div>
 
@@ -4202,7 +4338,7 @@ store.remove = store.del;
   function opt() {
     var o = window.TSWSky || {}, bg = BGS.indexOf(o.bg) >= 0 ? o.bg : 'stars';
     if (bg === 'video' && !window.TSWVideoOk) bg = 'stars';   /* stars until the video is really playing */
-    return { stars: o.stars !== false, shoot: o.shoot !== false, bg: bg, season: o.season || 'auto', solid: o.solid || '#0a0f1c', accent: o.accent || '#5aa2ff' };
+    return { stars: o.stars !== false, shoot: !!o.shoot, saucer: !!o.saucer, bg: bg, season: o.season || 'off', solid: o.solid || '#0a0f1c', accent: o.accent || '#5aa2ff' };
   }
   function seasonOf(o) {
     if (o.season === 'off') return '';
@@ -4909,7 +5045,7 @@ store.remove = store.del;
         g.fillRect(spk.x, spk.y, 1.5, 1.5);
       }
     }
-    if (o.bg === 'stars' && !still) {
+    if (o.bg === 'stars' && !still && o.saucer) {
       drawCosmicSaucer(t);
     }
     requestAnimationFrame(frame);
@@ -5308,17 +5444,14 @@ var STATUS_NOTICE = '';
     globe: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%235aa2ff' stroke-width='2.5'/%3E%3Cpath d='M4 16h24M16 4c-6 7-6 17 0 24M16 4c6 7 6 17 0 24' fill='none' stroke='%235aa2ff' stroke-width='2'/%3E%3C/svg%3E",
     blank: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E"
   };
-  var D = { engine: 'ddg', stars: false, shoot: false, title: '', icon: 'default', bg: 'ice', season: 'auto', solid: '#0a0f1c',
+  var D = { engine: 'ddg', stars: true, shoot: false, saucer: false, title: '', icon: 'default', bg: 'stars', season: 'off', solid: '#0a0f1c',
             vsrc: 'site', vbright: 60, accent: 'blue', clock: '12', panel: 'standard', theme: 'dark', rain: false, rainVol: 40, reducedMotion: false, panicKey: '', panicUrl: '' };
   var cfg = {};
   Object.keys(D).forEach(function (k) { cfg[k] = store.get('tsw.' + k, D[k]); });
-  // One-time default migration: replace previously saved wallpapers with Ice.
-  cfg.bg = 'ice';
-  store.set('tsw.bg', 'ice');
   if (!ENGINES[cfg.engine]) cfg.engine = 'ddg';
   if (!ICONS[cfg.icon]) cfg.icon = 'default';
   if (BGS.indexOf(cfg.bg) < 0) cfg.bg = 'stars';
-  if (['auto', 'snow', 'bats', 'off'].indexOf(cfg.season) < 0) cfg.season = 'auto';
+  if (['auto', 'snow', 'bats', 'off'].indexOf(cfg.season) < 0) cfg.season = 'off';
   if (!ACCENTS[cfg.accent]) cfg.accent = 'blue';
   if (['standard', 'glass'].indexOf(cfg.panel) < 0) cfg.panel = 'standard';
   if (['12', '24', 'off'].indexOf(cfg.clock) < 0) cfg.clock = '12';
@@ -5791,12 +5924,23 @@ document.addEventListener('keydown', function (ev) {
       (currentUser.username && currentUser.username.toLowerCase() === 'alex dalbey') ||
       (currentUser.email && currentUser.email.toLowerCase() === 'alexc.second@gmail.com')
     );
+    var isTester = currentUser && (
+      (currentUser.role && currentUser.role.toLowerCase() === 'tester') ||
+      (currentUser.role && currentUser.role.trim() === 'Tester')
+    );
+    var canSeeTesting = isOwner || isTester;
+
+    // ONLY Tester role & Owner role can see the Testing area folder on the sidebar!
+    var testingFolderEl = $('sb-testing-folder');
+    if (testingFolderEl) {
+      if (canSeeTesting) {
+        testingFolderEl.style.setProperty('display', 'block', 'important');
+      } else {
+        testingFolderEl.style.setProperty('display', 'none', 'important');
+      }
+    }
 
     // ONLY the Owner (Alex Dalbey) can see the Cloud Admin button on the sidebar!
-    var testerFolder = $('tester-area-folder');
-    var hasTesterRole = !!(currentUser && String(currentUser.role || '').toLowerCase() === 'tester');
-    if (testerFolder) testerFolder.hidden = !hasTesterRole;
-
     if (adminBtn) {
       if (isOwner) {
         adminBtn.style.setProperty('display', 'flex', 'important');
@@ -5819,8 +5963,17 @@ document.addEventListener('keydown', function (ev) {
         if (isOwner) {
           roleBadge.textContent = '👑 Owner';
           roleBadge.className = 'prof-role-badge owner';
+        } else if (isTester) {
+          roleBadge.textContent = '🧪 Tester';
+          roleBadge.className = 'prof-role-badge tester';
+        } else if (currentUser.role === 'Discord Member') {
+          roleBadge.textContent = '🎮 Discord Member';
+          roleBadge.className = 'prof-role-badge discord';
+        } else if (currentUser.role === 'Beta User') {
+          roleBadge.textContent = '🚀 Beta User';
+          roleBadge.className = 'prof-role-badge beta';
         } else {
-          roleBadge.textContent = 'TSW User';
+          roleBadge.textContent = currentUser.role || 'TSW User';
           roleBadge.className = 'prof-role-badge user';
         }
       }
@@ -5829,6 +5982,7 @@ document.addEventListener('keydown', function (ev) {
       if (viewSignedIn) viewSignedIn.hidden = true;
       if (btnName) btnName.textContent = 'Sign In';
       if (profIcon) profIcon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+      if (testingFolderEl) testingFolderEl.style.setProperty('display', 'none', 'important');
     }
     if (typeof loadProfileDetails === 'function') loadProfileDetails();
     if (typeof window.TSWRefreshPublicChannel === 'function') window.TSWRefreshPublicChannel();
@@ -6815,7 +6969,6 @@ document.addEventListener('keydown', function (ev) {
     if (!tabsListEl) return;
     tabsListEl.innerHTML = '';
     tabs.forEach(function (t) {
-      if (t.isTesterPage) return;
       var isAct = t.id === activeTabId;
       var item = document.createElement('div');
       item.className = 'sb-tab' + (isAct ? ' active' : '');
@@ -6846,8 +6999,6 @@ document.addEventListener('keydown', function (ev) {
     activeTabId = id;
     var tab = getActiveTab();
     if (!tab) return;
-    var existingTesterPanel = document.getElementById('tester-placeholder-view');
-    if (existingTesterPanel) existingTesterPanel.style.display = 'none';
 
     if (tabsListEl) {
       tabsListEl.querySelectorAll('.sb-tab').forEach(function (el) {
@@ -6862,28 +7013,7 @@ document.addEventListener('keydown', function (ev) {
       void el.offsetWidth;
       el.style.animation = '';
     };
-    if (tab.isTesterPage) {
-      home.hidden = true;
-      browse.hidden = false;
-      $('game-tab').hidden = true;
-      view.querySelectorAll('.web-tab-view').forEach(function (v) { v.style.display = 'none'; });
-      loading(false);
-      hideDiag();
-      clearTimeout(slowTimer);
-      var testerPanel = document.getElementById('tester-placeholder-view');
-      if (!testerPanel) {
-        testerPanel = document.createElement('section');
-        testerPanel.id = 'tester-placeholder-view';
-        testerPanel.style.cssText = 'width:100%;height:100%;min-height:320px;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:2rem;color:var(--steel);';
-        testerPanel.innerHTML = '<div style="font-size:1.15rem;font-weight:600;color:var(--text,#fff);margin-bottom:.5rem"></div><div style="font-size:.9rem;opacity:.75">This tester section is a placeholder for now.</div>';
-        view.appendChild(testerPanel);
-      }
-      testerPanel.querySelector('div').textContent = tab.title;
-      testerPanel.style.display = 'flex';
-      document.querySelectorAll('.tester-folder-tab').forEach(function (button) {
-        button.classList.toggle('active', button.getAttribute('data-tester-tab') === tab.testerKind);
-      });
-    } else if (tab.isGame) {
+    if (tab.isGame) {
       home.hidden = true;
       browse.hidden = true;
       $('game-tab').hidden = false;
@@ -7006,29 +7136,6 @@ document.addEventListener('keydown', function (ev) {
     });
   }
 
-  var testerFolderToggle = $('tester-area-toggle');
-  var testerFolderChildren = $('tester-area-children');
-  if (testerFolderToggle && testerFolderChildren) {
-    testerFolderToggle.addEventListener('click', function () {
-      var expanded = testerFolderToggle.getAttribute('aria-expanded') === 'true';
-      testerFolderToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
-      testerFolderChildren.hidden = expanded;
-    });
-  }
-  document.querySelectorAll('.tester-folder-tab').forEach(function (button) {
-    button.addEventListener('click', function () {
-      if (!currentUser || String(currentUser.role || '').toLowerCase() !== 'tester') return;
-      var kind = button.getAttribute('data-tester-tab');
-      var title = kind === 'movies' ? 'Movies' : 'Games';
-      var tab = tabs.find(function (item) { return item.isTesterPage && item.testerKind === kind; });
-      if (!tab) {
-        tab = { id: 'tester_' + kind, title: title, url: '', isHome: false, isGame: false, isTesterPage: true, testerKind: kind, viewEl: null };
-        tabs.push(tab);
-      }
-      switchTab(tab.id);
-    });
-  });
-
   // Open URL inside the current active tab
   function openUrl(text) {
     var url = toUrl(text);
@@ -7100,6 +7207,7 @@ document.addEventListener('keydown', function (ev) {
   }
   window.TSWGoHome = goHome;
   window.TSWCreateNewTab = createNewTab;
+  window.TSWOpenUrl = openUrl;
 
   function openTab() {
     createNewTab();
@@ -7234,6 +7342,56 @@ document.addEventListener('keydown', function (ev) {
   if (newTabBtn) {
     newTabBtn.addEventListener('click', function () {
       if (window.TSWCreateNewTab) window.TSWCreateNewTab();
+    });
+  }
+
+  // Testing Area Folder (Tester & Owner role only)
+  var testFolder = $('sb-testing-folder');
+  var testToggle = $('sb-testing-toggle');
+  var testContent = $('sb-testing-content');
+  var testTabGames = $('sb-test-tab-games');
+  var testTabMovies = $('sb-test-tab-movies');
+
+  if (testToggle && testContent) {
+    testToggle.addEventListener('click', function (e) {
+      e.preventDefault();
+      var isExpanded = testToggle.getAttribute('aria-expanded') === 'true';
+      testToggle.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+      if (isExpanded) {
+        testContent.hidden = true;
+        if (testFolder) testFolder.classList.remove('open');
+      } else {
+        testContent.hidden = false;
+        if (testFolder) testFolder.classList.add('open');
+      }
+    });
+  }
+
+  if (testTabGames) {
+    testTabGames.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (typeof window.TSWOpenCork7 === 'function') {
+        window.TSWOpenCork7();
+      } else if (typeof openCork7 === 'function') {
+        openCork7();
+      } else if (typeof openEmbeddedGame === 'function') {
+        openEmbeddedGame('Cork7 Arcade', 'https://cork7.com', 'cork7.com');
+      }
+    });
+  }
+
+  if (testTabMovies) {
+    testTabMovies.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (typeof createNewTab === 'function') {
+        createNewTab('https://sflix.to');
+      } else if (typeof window.TSWCreateNewTab === 'function') {
+        window.TSWCreateNewTab('https://sflix.to');
+      } else if (typeof openEmbeddedGame === 'function') {
+        openEmbeddedGame('Movies (SFlix)', 'https://sflix.to', 'sflix.to');
+      } else if (typeof openUrl === 'function') {
+        openUrl('https://sflix.to');
+      }
     });
   }
 
