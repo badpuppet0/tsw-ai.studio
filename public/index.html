@@ -994,6 +994,18 @@ body.sidebar-collapsed .sb-tab .sb-tab-close {
   display: none;
 }
 
+.tester-area-folder{display:flex;flex-direction:column;gap:.25rem;margin-top:.35rem}
+.tester-folder-toggle{display:flex;align-items:center;gap:.65rem;width:100%;padding:.55rem .75rem;border:0;border-radius:10px;background:rgba(255,255,255,.035);color:var(--steel);font:inherit;font-size:.88rem;text-align:left;cursor:pointer}
+.tester-folder-toggle:hover,.tester-folder-tab:hover{background:rgba(255,255,255,.08);color:#fff}
+.tester-folder-chevron{display:inline-block;width:1.25rem;text-align:center;font-size:1.15rem;transition:transform .15s}
+.tester-folder-toggle[aria-expanded="true"] .tester-folder-chevron{transform:rotate(90deg)}
+.tester-folder-children{display:flex;flex-direction:column;gap:.25rem;padding-left:1.15rem}
+.tester-folder-tab{width:100%;padding:.5rem .75rem;border:0;border-radius:999px;background:rgba(255,255,255,.025);color:var(--steel);font:inherit;font-size:.84rem;text-align:left;cursor:pointer}
+.tester-folder-tab.active{background:#cbfbe2;color:#064e3b;font-weight:600}
+body.sidebar-collapsed .tester-area-folder{align-items:center}
+body.sidebar-collapsed .tester-folder-toggle{width:2.4rem;height:2.4rem;justify-content:center;padding:0}
+body.sidebar-collapsed .tester-folder-toggle .sb-label,body.sidebar-collapsed .tester-folder-children{display:none!important}
+
 /* Spacer */
 .sb-spacer {
   flex: 1;
@@ -2909,6 +2921,16 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
       </div>
       <span class="sb-tab-label">Home</span>
       <button class="sb-tab-close" id="sb-tab-home-close" title="Reset Search" aria-label="Reset Search">&times;</button>
+    </div>
+  </div>
+
+  <div id="tester-area-folder" class="tester-area-folder" hidden>
+    <button type="button" id="tester-area-toggle" class="tester-folder-toggle" aria-expanded="false">
+      <span class="tester-folder-chevron">›</span><span class="sb-label">Tester Area</span>
+    </button>
+    <div id="tester-area-children" class="tester-folder-children" hidden>
+      <button type="button" class="tester-folder-tab" data-tester-tab="games">Games</button>
+      <button type="button" class="tester-folder-tab" data-tester-tab="movies">Movies</button>
     </div>
   </div>
 
@@ -5771,6 +5793,10 @@ document.addEventListener('keydown', function (ev) {
     );
 
     // ONLY the Owner (Alex Dalbey) can see the Cloud Admin button on the sidebar!
+    var testerFolder = $('tester-area-folder');
+    var hasTesterRole = !!(currentUser && String(currentUser.role || '').toLowerCase() === 'tester');
+    if (testerFolder) testerFolder.hidden = !hasTesterRole;
+
     if (adminBtn) {
       if (isOwner) {
         adminBtn.style.setProperty('display', 'flex', 'important');
@@ -6789,6 +6815,7 @@ document.addEventListener('keydown', function (ev) {
     if (!tabsListEl) return;
     tabsListEl.innerHTML = '';
     tabs.forEach(function (t) {
+      if (t.isTesterPage) return;
       var isAct = t.id === activeTabId;
       var item = document.createElement('div');
       item.className = 'sb-tab' + (isAct ? ' active' : '');
@@ -6833,7 +6860,28 @@ document.addEventListener('keydown', function (ev) {
       void el.offsetWidth;
       el.style.animation = '';
     };
-    if (tab.isGame) {
+    if (tab.isTesterPage) {
+      home.hidden = true;
+      browse.hidden = true;
+      $('game-tab').hidden = true;
+      view.querySelectorAll('.web-tab-view').forEach(function (v) { v.style.display = 'none'; });
+      loading(false);
+      hideDiag();
+      clearTimeout(slowTimer);
+      var testerPanel = document.getElementById('tester-placeholder-view');
+      if (!testerPanel) {
+        testerPanel = document.createElement('section');
+        testerPanel.id = 'tester-placeholder-view';
+        testerPanel.style.cssText = 'width:100%;height:100%;min-height:320px;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:2rem;color:var(--steel);';
+        testerPanel.innerHTML = '<div style="font-size:1.15rem;font-weight:600;color:var(--text,#fff);margin-bottom:.5rem"></div><div style="font-size:.9rem;opacity:.75">This tester section is a placeholder for now.</div>';
+        view.appendChild(testerPanel);
+      }
+      testerPanel.querySelector('div').textContent = tab.title;
+      testerPanel.style.display = 'flex';
+      document.querySelectorAll('.tester-folder-tab').forEach(function (button) {
+        button.classList.toggle('active', button.getAttribute('data-tester-tab') === tab.testerKind);
+      });
+    } else if (tab.isGame) {
       home.hidden = true;
       browse.hidden = true;
       $('game-tab').hidden = false;
@@ -6955,6 +7003,29 @@ document.addEventListener('keydown', function (ev) {
       }
     });
   }
+
+  var testerFolderToggle = $('tester-area-toggle');
+  var testerFolderChildren = $('tester-area-children');
+  if (testerFolderToggle && testerFolderChildren) {
+    testerFolderToggle.addEventListener('click', function () {
+      var expanded = testerFolderToggle.getAttribute('aria-expanded') === 'true';
+      testerFolderToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      testerFolderChildren.hidden = expanded;
+    });
+  }
+  document.querySelectorAll('.tester-folder-tab').forEach(function (button) {
+    button.addEventListener('click', function () {
+      if (!currentUser || String(currentUser.role || '').toLowerCase() !== 'tester') return;
+      var kind = button.getAttribute('data-tester-tab');
+      var title = kind === 'movies' ? 'Movies' : 'Games';
+      var tab = tabs.find(function (item) { return item.isTesterPage && item.testerKind === kind; });
+      if (!tab) {
+        tab = { id: 'tester_' + kind, title: title, url: '', isHome: false, isGame: false, isTesterPage: true, testerKind: kind, viewEl: null };
+        tabs.push(tab);
+      }
+      switchTab(tab.id);
+    });
+  });
 
   // Open URL inside the current active tab
   function openUrl(text) {
