@@ -911,6 +911,7 @@ export async function sendPublicMessage(channel: string, userId: number, content
 }
 
 export async function deletePublicMessage(userId: number, messageId: number, isAdmin: boolean) {
+  await ensureChatTables();
   const result = isAdmin
     ? await db.execute(sql`DELETE FROM public_messages WHERE id = ${messageId} RETURNING id;`)
     : await db.execute(sql`DELETE FROM public_messages WHERE id = ${messageId} AND user_id = ${userId} RETURNING id;`);
