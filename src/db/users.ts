@@ -368,7 +368,9 @@ export async function ensureChatTables() {
   if (!chatTablesReady) {
     chatTablesReady = (async () => {
       await db.execute(sql`ALTER TABLE messages ADD COLUMN IF NOT EXISTS reply_to_id integer;`);
+      await db.execute(sql`ALTER TABLE messages ADD COLUMN IF NOT EXISTS is_edited boolean NOT NULL DEFAULT false;`);
       await db.execute(sql`ALTER TABLE public_messages ADD COLUMN IF NOT EXISTS reply_to_id integer;`);
+      await db.execute(sql`ALTER TABLE public_messages ADD COLUMN IF NOT EXISTS is_edited boolean NOT NULL DEFAULT false;`);
       await db.execute(sql`
         CREATE TABLE IF NOT EXISTS chat_message_reactions (
           id serial PRIMARY KEY,
@@ -728,7 +730,7 @@ export async function getDirectMessages(userId: number, friendId: number) {
 
   const result = await db.execute(sql`
     SELECT id, sender_id AS "senderId", receiver_id AS "receiverId", content,
-      is_read AS "isRead", created_at AS "createdAt", reply_to_id AS "replyToId"
+      is_read AS "isRead", created_at AS "createdAt", reply_to_id AS "replyToId", is_edited AS "isEdited"
     FROM messages
     WHERE (sender_id = ${userId} AND receiver_id = ${friendId})
        OR (sender_id = ${friendId} AND receiver_id = ${userId})
@@ -742,7 +744,7 @@ export async function getDirectMessages(userId: number, friendId: number) {
     `) : { rows: [] as any[] };
     return {
       id: m.id, senderId: m.senderId, receiverId: m.receiverId,
-      content: m.content, isRead: m.isRead, createdAt: m.createdAt,
+      content: m.content, isRead: m.isRead, createdAt: m.createdAt, isEdited: !!m.isEdited,
       isMe: m.senderId === userId, replyToId: m.replyToId || null,
       replyTo: replyRows.rows?.[0] ? { id: Number((replyRows.rows[0] as any).id), content: (replyRows.rows[0] as any).content, senderId: Number((replyRows.rows[0] as any).senderId) } : null,
       reactions: await getMessageReactions('dm', m.id)
@@ -788,7 +790,8 @@ export async function editDirectMessage(userId: number, messageId: number, conte
   await ensureChatTables();
   const clean = filterProfanity(content.trim());
   if (!clean) throw new Error('Content cannot be empty');
-  await db.update(messages).set({ content: clean }).where(
+  await db.execute(sql`UPDATE messages SET content = ${clean}, is_edited = true WHERE id = ${messageId} AND sender_id = ${userId};`);
+  /* legacy update removed */ await db.update(messages).set({ content: clean }).where(
     and(eq(messages.id, messageId), eq(messages.senderId, userId))
   );
   return { success: true, content: clean };
@@ -822,7 +825,7 @@ export async function getPublicMessages(channel: string) {
   const cleanChannel = ['chat-1', 'chat-2', 'announcements'].includes(channel) ? channel : 'chat-1';
 
   const res = await db.execute(sql`
-    SELECT pm.id, pm.channel, pm.user_id as "userId", pm.content, pm.reply_to_id as "replyToId", pm.created_at as "createdAt",
+    SELECT pm.id, pm.channel, pm.user_id as "userId", pm.content, pm.reply_to_id as "replyToId", pm.is_edited as "isEdited", pm.created_at as "createdAt",
            COALESCE(u.username, 'Guest') as username,
            COALESCE(u.role, 'TSW User') as role,
            COALESCE(p.avatar, 'astronaut') as avatar
@@ -844,7 +847,7 @@ export async function getPublicMessages(channel: string) {
       id: r.id, channel: r.channel, userId: r.userId,
       username: r.username || 'Member', role: r.role || 'TSW User',
       roles: parseRoles(r.role), avatar: r.avatar || 'astronaut',
-      content: r.content, createdAt: r.createdAt,
+      content: r.content, createdAt: r.createdAt, isEdited: !!r.isEdited,
       replyToId: r.replyToId || null,
       replyTo: replyRows.rows?.[0] ? { id: Number((replyRows.rows[0] as any).id), content: (replyRows.rows[0] as any).content, username: (replyRows.rows[0] as any).username } : null,
       reactions: await getMessageReactions('public', Number(r.id))
@@ -907,7 +910,8 @@ export async function deletePublicMessage(userId: number, messageId: number, isA
 export async function editPublicMessage(userId: number, messageId: number, content: string) {
   const clean = filterProfanity((content || '').trim());
   if (!clean) throw new Error('Message content cannot be empty');
-  await db.update(publicMessages).set({ content: clean }).where(
+  await db.execute(sql`UPDATE public_messages SET content = ${clean}, is_edited = true WHERE id = ${messageId} AND user_id = ${userId};`);
+  /* legacy update removed */ await db.update(publicMessages).set({ content: clean }).where(
     and(eq(publicMessages.id, messageId), eq(publicMessages.userId, userId))
   );
   return { success: true, content: clean };
