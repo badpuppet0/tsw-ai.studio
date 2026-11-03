@@ -4001,7 +4001,7 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
           <input id="profile-picture-upload" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
           <label for="profile-banner-upload">Profile Banner</label>
           <input id="profile-banner-upload" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
-          <small style="color:#94a3b8;">Images are saved to your TSW profile. Maximum 600 KB each.</small>
+          <small style="color:#94a3b8;">Images are saved to your TSW profile. Maximum 300 KB each.</small>
           <button type="button" class="primary" id="profile-appearance-save" style="padding:.45rem 1rem;">Save Appearance</button>
           <span id="profile-appearance-status" style="display:none;color:#4ade80;font-size:.82rem;"></span>
         </div>
@@ -7011,8 +7011,8 @@ document.addEventListener('keydown', function (ev) {
         return new Promise(function(resolve,reject) {
           var file = input && input.files && input.files[0];
           if (!file) return resolve(null);
-          if (!/^image\\/(png|jpeg|webp|gif)$/.test(file.type) || file.size > 600 * 1024) {
-            return reject(new Error('Choose a PNG, JPG, WEBP, or GIF image under 600 KB.'));
+          if (!/^image\\/(png|jpeg|webp|gif)$/.test(file.type) || file.size > 300 * 1024) {
+            return reject(new Error('Choose a PNG, JPG, WEBP, or GIF image under 300 KB.'));
           }
           var reader = new FileReader();
           reader.onload = function(){ resolve(String(reader.result || '')); };
