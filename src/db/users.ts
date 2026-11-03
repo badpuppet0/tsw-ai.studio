@@ -977,6 +977,43 @@ export async function getUserProfileCard(userIdOrUsername: number | string) {
   };
 }
 
+export async function getUserModerationState(userId: number) {
+  const rows = await db.select({ preferences: profiles.preferences })
+    .from(profiles)
+    .where(and(eq(profiles.userId, userId), eq(profiles.isDefault, true)))
+    .limit(1);
+  let prefs: any = {};
+  try { prefs = JSON.parse(rows[0]?.preferences || '{}'); } catch {}
+  const moderation = prefs && typeof prefs.moderation === 'object' ? prefs.moderation : {};
+  return {
+    banned: moderation.banned === true,
+    banReason: moderation.banReason || '',
+    chatTimeoutUntil: moderation.chatTimeoutUntil || null,
+    dmTimeoutUntil: moderation.dmTimeoutUntil || null,
+    timeoutReason: moderation.timeoutReason || ''
+  };
+}
+
+export async function updateUserModerationState(userId: number, patch: Record<string, any>) {
+  let rows = await db.select().from(profiles)
+    .where(and(eq(profiles.userId, userId), eq(profiles.isDefault, true))).limit(1);
+  if (!rows.length) {
+    const user = await getUserById(userId);
+    if (!user) throw new Error('User not found');
+    await createProfile(userId, { name: user.username || 'Voyager', isDefault: true });
+    rows = await db.select().from(profiles)
+      .where(and(eq(profiles.userId, userId), eq(profiles.isDefault, true))).limit(1);
+  }
+  const profile = rows[0];
+  let prefs: any = {};
+  try { prefs = JSON.parse(profile.preferences || '{}'); } catch {}
+  const previous = prefs.moderation && typeof prefs.moderation === 'object' ? prefs.moderation : {};
+  prefs.moderation = { ...previous, ...patch };
+  await db.update(profiles).set({ preferences: JSON.stringify(prefs), updatedAt: new Date() })
+    .where(eq(profiles.id, profile.id));
+  return getUserModerationState(userId);
+}
+
 export async function updateUserBio(userId: number, bio: string) {
   await ensureChatTables();
   const cleanBio = filterProfanity(bio.trim()).slice(0, 300);
