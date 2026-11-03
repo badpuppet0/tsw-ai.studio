@@ -18,6 +18,8 @@ import {
 	loginUser,
 	verifySessionToken,
 	getUserById,
+	getUserModerationState,
+	updateUserModerationState,
 	searchUsers,
 	addFriend,
 	removeFriend,
@@ -53,12 +55,10 @@ import {
 } from "./db/users.ts";
 import { verifyAuth } from "./middleware/auth.ts";
 import { GoogleGenAI } from "@google/genai";
-import { db } from "./db/index.ts";
-import { sql } from "drizzle-orm";
 
 const publicPath = fileURLToPath(new URL("../public/", import.meta.url));
 const SERVER_BOOT_TIME = Date.now();
-const APP_VERSION = "1.6.06";
+const APP_VERSION = "1.6.07";
 
 // Wisp Configuration: Refer to the documentation at https://www.npmjs.com/package/@mercuryworkshop/wisp-js
 
@@ -420,6 +420,11 @@ async function getAuthUserId(req, reply) {
 		reply.code(401);
 		throw new Error("Session expired or invalid. Please sign in again.");
 	}
+	const moderation = await getUserModerationState(session.userId);
+	if (moderation.banned) {
+		reply.code(403);
+		throw new Error("This account has been banned from TSW.");
+	}
 	return session.userId;
 }
 
@@ -558,31 +563,6 @@ fastify.get("/api/users/mentions", async (req, reply) => {
 		reply.code(500);
 		return { success: false, error: "Failed to load mention users" };
 	}
-});
-
-// Public service status. Database-backed features are only marked operational after a live DB check.
-fastify.get("/api/system/status", async (req, reply) => {
-  reply.header("Cache-Control", "no-store, no-cache, must-revalidate");
-  let database = "operational";
-  try {
-    await db.execute(sql`SELECT 1`);
-  } catch (err) {
-    req.log.error({ err }, "Maintenance status database check failed");
-    database = "unavailable";
-  }
-  const overall = database === "operational" ? "operational" : "degraded";
-  return {
-    success: true,
-    overall,
-    checkedAt: new Date().toISOString(),
-    services: [
-      { id: "website", name: "TSW Website", status: "operational", detail: "The site is responding." },
-      { id: "database", name: "Database", status: database, detail: database === "operational" ? "Database connection is responding." : "Database connection check failed." },
-      { id: "accounts", name: "Accounts & Profiles", status: database, detail: database === "operational" ? "Account data service is reachable." : "Waiting on the database." },
-      { id: "chat", name: "Friends & Chat", status: database, detail: database === "operational" ? "Chat data service is reachable." : "Waiting on the database." },
-      { id: "proxy", name: "Browser Proxy", status: ["operational", "degraded", "maintenance", "unavailable"].includes(process.env.TSW_PROXY_STATUS) ? process.env.TSW_PROXY_STATUS : "unmonitored", detail: process.env.TSW_PROXY_STATUS_DETAIL || "Proxy session health is not currently measured." }
-    ]
-  };
 });
 
 // Real-Time Server Version and Boot Identifier (for update notification popup)
@@ -1034,6 +1014,53 @@ fastify.get("/api/owner/users", async (req, reply) => {
 		reply.code(err.message.includes("Authentication") ? 401 : 400);
 		return { success: false, error: err.message };
 	}
+});
+
+// Owner-only moderation controls. State is stored in the existing profile preferences field.
+fastify.post("/api/owner/moderate-user", async (req, reply) => {
+  try {
+    const ownerId = await getAuthUserId(req, reply);
+    const owner = await getUserById(ownerId);
+    if (!isUserAdmin(owner)) {
+      reply.code(403);
+      return { success: false, error: "Only the Owner can moderate users." };
+    }
+    const body = req.body || {};
+    const targetUserId = Number.parseInt(body.targetUserId, 10);
+    const action = String(body.action || "");
+    if (!Number.isInteger(targetUserId) || targetUserId <= 0 || targetUserId === ownerId) {
+      reply.code(400);
+      return { success: false, error: "Choose a valid user to moderate." };
+    }
+    const target = await getUserById(targetUserId);
+    if (!target) {
+      reply.code(404);
+      return { success: false, error: "User not found." };
+    }
+    let patch = {};
+    if (action === "ban") {
+      patch = { banned: true, banReason: String(body.reason || "No reason provided").slice(0, 240), bannedAt: new Date().toISOString() };
+    } else if (action === "unban") {
+      patch = { banned: false, banReason: "", bannedAt: null };
+    } else if (action === "timeout") {
+      const minutes = Math.max(1, Math.min(10080, Number.parseInt(body.minutes, 10) || 10));
+      const until = new Date(Date.now() + minutes * 60000).toISOString();
+      const scope = ["chat", "dm", "both"].includes(body.scope) ? body.scope : "both";
+      if (scope === "chat" || scope === "both") patch.chatTimeoutUntil = until;
+      if (scope === "dm" || scope === "both") patch.dmTimeoutUntil = until;
+      patch.timeoutReason = String(body.reason || "No reason provided").slice(0, 240);
+    } else if (action === "clear-timeout") {
+      patch = { chatTimeoutUntil: null, dmTimeoutUntil: null, timeoutReason: "" };
+    } else {
+      reply.code(400);
+      return { success: false, error: "Unknown moderation action." };
+    }
+    const moderation = await updateUserModerationState(targetUserId, patch);
+    return { success: true, target: { id: target.id, username: target.username }, moderation };
+  } catch (err) {
+    reply.code(err.message.includes("Authentication") ? 401 : 400);
+    return { success: false, error: err.message || "Moderation action failed." };
+  }
 });
 
 // Owner endpoint to assign role to a specific user
