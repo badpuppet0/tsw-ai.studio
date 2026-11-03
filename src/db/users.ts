@@ -408,7 +408,6 @@ export async function ensureChatTables() {
 async function getMessageReactions(messageType: 'dm' | 'public', messageId: number) {
   const res = await db.execute(sql`
     SELECT emoji, count(*)::int AS count,
-      bool_or(user_id = -1) AS unused,
       array_agg(user_id) AS "userIds"
     FROM chat_message_reactions
     WHERE message_type = ${messageType} AND message_id = ${messageId}
