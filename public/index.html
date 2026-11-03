@@ -4805,7 +4805,7 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
 .tsw-maint-head h2{font-size:1.25rem;margin:0}
 .tsw-maint-overall{display:flex;align-items:center;gap:10px;padding:14px;margin:16px 0;background:#1f2937;border-radius:10px}
 .tsw-maint-dot{width:9px;height:9px;border-radius:50%;background:#22c55e;flex:none}
-.tsw-maint-dot.degraded{background:#f59e0b}.tsw-maint-dot.unavailable{background:#ef4444}.tsw-maint-dot.unmonitored{background:#94a3b8}
+.tsw-maint-dot.degraded,.tsw-maint-dot.maintenance{background:#f59e0b}.tsw-maint-dot.unavailable{background:#ef4444}.tsw-maint-dot.unmonitored{background:#94a3b8}
 .tsw-maint-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 2px;border-bottom:1px solid #293241}
 .tsw-maint-name{font-weight:600;font-size:.9rem}.tsw-maint-detail{font-size:.78rem;color:#9ca3af;margin-top:3px}
 .tsw-maint-state{font-size:.75rem;white-space:nowrap;color:#cbd5e1}
@@ -10208,7 +10208,7 @@ document.addEventListener('keydown', function (ev) {
   var services=document.getElementById('tsw-maintenance-services');
   var checked=document.getElementById('tsw-maintenance-checked');
   if(!overlay||!open||!close||!refresh||!overall||!services)return;
-  function label(status){return status==='operational'?'Operational':status==='degraded'?'Degraded':status==='unavailable'?'Unavailable':'Not monitored';}
+  function label(status){return status==='operational'?'Operational':status==='degraded'?'Degraded':status==='maintenance'?'Being fixed':status==='unavailable'?'Unavailable':'Not monitored';}
   function load(){
     overall.innerHTML='<span class="tsw-maint-dot degraded"></span><span>Checking service status…</span>';
     fetch('/api/system/status',{cache:'no-store'}).then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.error||'Status check failed');return d;});}).then(function(data){
