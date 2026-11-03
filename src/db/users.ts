@@ -405,21 +405,6 @@ export async function ensureChatTables() {
   return chatTablesReady;
 }
 
-async function getMessageReactions(messageType: 'dm' | 'public', messageId: number) {
-  const res = await db.execute(sql`
-    SELECT emoji, count(*)::int AS count,
-      array_agg(user_id) AS "userIds"
-    FROM chat_message_reactions
-    WHERE message_type = ${messageType} AND message_id = ${messageId}
-    GROUP BY emoji ORDER BY min(created_at);
-  `);
-  return (res.rows || []).map((r: any) => ({
-    emoji: r.emoji,
-    count: Number(r.count || 0),
-    userIds: (r.userIds || []).map(Number)
-  }));
-}
-
 export async function toggleMessageReaction(userId: number, messageType: 'dm' | 'public', messageId: number, emoji: string) {
   await ensureChatTables();
   const allowed = ['👍','❤️','😂','😮','😢','🔥','🎉','👎','👏','💀'];
