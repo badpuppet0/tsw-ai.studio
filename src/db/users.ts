@@ -799,9 +799,6 @@ export async function editDirectMessage(userId: number, messageId: number, conte
   const clean = filterProfanity(content.trim());
   if (!clean) throw new Error('Content cannot be empty');
   await db.execute(sql`UPDATE messages SET content = ${clean}, is_edited = true WHERE id = ${messageId} AND sender_id = ${userId};`);
-  /* legacy update removed */ await db.update(messages).set({ content: clean }).where(
-    and(eq(messages.id, messageId), eq(messages.senderId, userId))
-  );
   return { success: true, content: clean };
 }
 
@@ -925,12 +922,10 @@ export async function deletePublicMessage(userId: number, messageId: number, isA
 }
 
 export async function editPublicMessage(userId: number, messageId: number, content: string) {
+  await ensureChatTables();
   const clean = filterProfanity((content || '').trim());
   if (!clean) throw new Error('Message content cannot be empty');
   await db.execute(sql`UPDATE public_messages SET content = ${clean}, is_edited = true WHERE id = ${messageId} AND user_id = ${userId};`);
-  /* legacy update removed */ await db.update(publicMessages).set({ content: clean }).where(
-    and(eq(publicMessages.id, messageId), eq(publicMessages.userId, userId))
-  );
   return { success: true, content: clean };
 }
 
