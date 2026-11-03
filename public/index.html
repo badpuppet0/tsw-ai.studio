@@ -6654,6 +6654,7 @@ document.addEventListener('keydown', function (ev) {
     }
 
     updateAuthUI();
+    if (typeof loadProfileDetails === 'function') loadProfileDetails();
 
     var rawShortcuts = parseJSON(prof.shortcuts, []);
     // Keep removed shortcuts out of saved profiles too.
