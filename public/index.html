@@ -2638,6 +2638,21 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   color: #fca5a5;
 }
 
+.chat-message-reply { margin:0 0 .4rem; padding:.35rem .55rem; border-left:3px solid #60a5fa; background:rgba(96,165,250,.10); border-radius:4px; color:#cbd5e1; font-size:.75rem; max-width:100%; overflow:hidden; }
+.chat-message-reply strong { color:#93c5fd; margin-right:.3rem; }
+.chat-message-reply span { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.chat-message-tools { display:flex; flex-wrap:wrap; gap:4px; align-items:center; margin-top:5px; }
+.chat-reaction { border:1px solid rgba(148,163,184,.25); background:rgba(15,23,42,.72); color:#e2e8f0; border-radius:12px; padding:2px 7px; font-size:.75rem; cursor:pointer; line-height:1.5; }
+.chat-reaction:hover { background:rgba(59,130,246,.2); border-color:rgba(96,165,250,.55); }
+.chat-reaction.active { background:rgba(37,99,235,.3); border-color:#60a5fa; color:#fff; }
+.chat-reply-btn { border:0; background:transparent; color:#94a3b8; cursor:pointer; font-size:.7rem; padding:2px 5px; }
+.chat-reply-btn:hover { color:#bfdbfe; }
+.chat-reply-composer { display:none; align-items:center; gap:.5rem; padding:.4rem .7rem; background:#111827; border:1px solid rgba(148,163,184,.2); border-radius:7px; margin:0 .5rem .4rem; font-size:.75rem; color:#cbd5e1; }
+.chat-reply-composer span { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; flex:1; }
+.chat-reply-composer button { border:0; background:transparent; color:#cbd5e1; cursor:pointer; }
+.chat-online-dot { width:8px; height:8px; border-radius:50%; display:inline-block; background:#64748b; flex:none; }
+.chat-online-dot.online { background:#22c55e; box-shadow:0 0 7px rgba(34,197,94,.6); }
+.public-chat-typing { display:none; padding:.35rem 1rem; font-size:.74rem; color:#94a3b8; border-top:1px solid rgba(255,255,255,.05); }
 /* Typing Indicator and Unread Dots */
 .chat-unread-dot {
   width: .55rem;
@@ -3689,6 +3704,7 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
             <span id="chat-typing-user">friend</span>&nbsp;is typing...
           </div>
 
+          <div class="chat-reply-composer" id="dm-reply-composer"><strong>Replying</strong><span id="dm-reply-text"></span><button type="button" id="dm-reply-cancel" aria-label="Cancel reply">×</button></div>
           <div class="chat-input-bar">
             <form class="chat-input-form" id="chat-message-form" autocomplete="off">
               <div class="chat-input-wrapper">
@@ -3754,6 +3770,8 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
           <!-- Populated by JavaScript -->
         </div>
 
+        <div class="public-chat-typing" id="public-chat-typing"></div>
+        <div class="chat-reply-composer" id="public-reply-composer"><strong>Replying</strong><span id="public-reply-text"></span><button type="button" id="public-reply-cancel" aria-label="Cancel reply">×</button></div>
         <!-- Input Bar for chat-1, chat-2, and announcements (owner) -->
         <div class="chat-input-bar" id="public-input-bar">
           <!-- Owner Quick Commands Bar (Visible only for Owner) -->
