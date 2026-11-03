@@ -492,18 +492,39 @@ export async function getIncomingFriendRequests(userId: number) {
 
 export async function acceptFriendRequest(userId: number, requesterId: number) {
   await ensureChatTables();
-  // Mark both records as accepted
-  await db.execute(sql`
-    INSERT INTO friends (user_id, friend_id, status)
-    VALUES (${userId}, ${requesterId}, 'accepted')
-    ON CONFLICT (user_id, friend_id) DO UPDATE SET status = 'accepted';
-  `);
-  await db.execute(sql`
-    INSERT INTO friends (user_id, friend_id, status)
-    VALUES (${requesterId}, ${userId}, 'accepted')
-    ON CONFLICT (user_id, friend_id) DO UPDATE SET status = 'accepted';
-  `);
+  if (!Number.isInteger(userId) || !Number.isInteger(requesterId) || userId <= 0 || requesterId <= 0 || userId === requesterId) {
+    throw new Error('Invalid friend request.');
+  }
+
+  // Accept the incoming pending row in place. This avoids colliding with the
+  // unique (user_id, friend_id) index when the reverse relationship exists.
+  const updated = await db.update(friends)
+    .set({ status: 'accepted' })
+    .where(and(
+      eq(friends.userId, requesterId),
+      eq(friends.friendId, userId),
+      eq(friends.status, 'pending')
+    ))
+    .returning();
+
+  if (updated.length === 0) {
+    const existing = await db.select({ id: friends.id, status: friends.status })
+      .from(friends)
+      .where(and(eq(friends.userId, requesterId), eq(friends.friendId, userId)));
+    if (!existing.length) throw new Error('This friend request no longer exists.');
+    if (existing[0].status !== 'accepted') throw new Error('This friend request is no longer pending.');
+  }
+
+  // Create or update the reciprocal accepted relationship.
+  await db.insert(friends)
+    .values({ userId, friendId: requesterId, status: 'accepted' })
+    .onConflictDoUpdate({
+      target: [friends.userId, friends.friendId],
+      set: { status: 'accepted' }
+    });
+
   const reqUser = await getUserById(requesterId);
+  if (!reqUser) throw new Error('The requesting account could not be found.');
   return { success: true, friend: reqUser };
 }
 
