@@ -56,7 +56,7 @@ import { GoogleGenAI } from "@google/genai";
 
 const publicPath = fileURLToPath(new URL("../public/", import.meta.url));
 const SERVER_BOOT_TIME = Date.now();
-const APP_VERSION = "1.6.03";
+const APP_VERSION = "1.6.04";
 
 // Wisp Configuration: Refer to the documentation at https://www.npmjs.com/package/@mercuryworkshop/wisp-js
 
