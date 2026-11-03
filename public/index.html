@@ -9257,7 +9257,7 @@ document.addEventListener('keydown', function (ev) {
   }
 
   function reactionButtonsHtml(message, type, myId) {
-    var defaults = ['👍','❤️','😂','😮','😢','🔥'];
+    var defaults = ['👍','❤️','😂','😮','😢','🔥','🎉','👎','👏','💀'];
     var reactions = Array.isArray(message.reactions) ? message.reactions : [];
     var byEmoji = {};
     reactions.forEach(function (r) { byEmoji[r.emoji] = r; });
@@ -9305,7 +9305,7 @@ document.addEventListener('keydown', function (ev) {
       if (type === 'dm') {
         if (typingBar) {
           var names = res && res.success && Array.isArray(res.users) ? res.users.map(function (u) { return u.username; }) : [];
-          if (names.length && selectedFriend && String(selectedFriend.friendId) === String(contextId)) {
+          if (names.length && selectedFriend && getDmTypingContext(selectedFriend.friendId) === String(contextId)) {
             if (typingUserEl) typingUserEl.textContent = names.join(', ');
             typingBar.style.display = 'flex';
           } else typingBar.style.display = 'none';
