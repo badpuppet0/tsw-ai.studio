@@ -658,6 +658,8 @@ export async function getFriendsList(userId: number) {
   const res = await db.execute(sql`
     SELECT u.id, u.username,
       COALESCE(p.avatar, 'astronaut') as avatar,
+      (cp.last_seen > NOW() - INTERVAL '75 seconds') as "isOnline",
+      cp.last_seen as "lastSeen",
       (
         SELECT content FROM messages
         WHERE (sender_id = ${userId} AND receiver_id = u.id)
@@ -677,6 +679,7 @@ export async function getFriendsList(userId: number) {
     FROM friends f
     JOIN users u ON u.id = f.friend_id
     LEFT JOIN profiles p ON p.user_id = u.id AND p.is_default = true
+    LEFT JOIN chat_presence cp ON cp.user_id = u.id
     WHERE f.user_id = ${userId} AND f.status = 'accepted'
     ORDER BY "unreadCount" DESC, "lastMessageTime" DESC NULLS LAST, u.username ASC
   `);
@@ -686,8 +689,9 @@ export async function getFriendsList(userId: number) {
     friendId: r.id,
     username: r.username,
     avatar: r.avatar || 'astronaut',
-    isOnline: true,
-    online: true,
+    isOnline: !!r.isOnline,
+    online: !!r.isOnline,
+    lastSeen: r.lastSeen || null,
     lastMessage: r.lastMessage || null,
     lastMessageTime: r.lastMessageTime || null,
     unreadCount: Number(r.unreadCount || 0),
@@ -722,11 +726,17 @@ export async function getDirectMessages(userId: number, friendId: number) {
     .set({ isRead: true })
     .where(and(eq(messages.senderId, friendId), eq(messages.receiverId, userId), eq(messages.isRead, false)));
 
-  const rows = await db.select().from(messages).where(
-    sql`(${messages.senderId} = ${userId} AND ${messages.receiverId} = ${friendId}) OR (${messages.senderId} = ${friendId} AND ${messages.receiverId} = ${userId})`
-  ).orderBy(messages.createdAt);
+  const result = await db.execute(sql`
+    SELECT id, sender_id AS "senderId", receiver_id AS "receiverId", content,
+      is_read AS "isRead", created_at AS "createdAt", reply_to_id AS "replyToId"
+    FROM messages
+    WHERE (sender_id = ${userId} AND receiver_id = ${friendId})
+       OR (sender_id = ${friendId} AND receiver_id = ${userId})
+    ORDER BY created_at ASC;
+  `);
+  const rows = (result.rows || []) as any[];
 
-  return Promise.all(rows.map(async (m) => {
+  return Promise.all(rows.map(async (m: any) => {
     const replyRows = m.replyToId ? await db.execute(sql`
       SELECT id, content, sender_id AS "senderId" FROM messages WHERE id = ${m.replyToId} LIMIT 1;
     `) : { rows: [] as any[] };
