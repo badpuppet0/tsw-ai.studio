@@ -2730,6 +2730,445 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   color: #fca5a5;
 }
 
+/* Chat Attention Pulse & Glow Notification */
+@keyframes chatGlowPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7), 0 0 16px rgba(59, 130, 246, 0.6);
+    border-color: rgba(96, 165, 250, 0.9);
+    background: rgba(59, 130, 246, 0.2);
+    transform: translateY(0);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(59, 130, 246, 0), 0 0 28px rgba(59, 130, 246, 0.95);
+    border-color: #93c5fd;
+    background: rgba(59, 130, 246, 0.35);
+    transform: translateY(-1.5px);
+  }
+}
+.sb-menu-item.chat-has-attention {
+  animation: chatGlowPulse 1.8s infinite ease-in-out !important;
+  color: #93c5fd !important;
+  position: relative !important;
+}
+.chat-unread-corner-badge {
+  position: absolute;
+  top: 3px;
+  right: 5px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.85);
+  border: 1.5px solid #0b0f19;
+  z-index: 5;
+  pointer-events: none;
+}
+.chat-mode-tab.tab-has-unread {
+  position: relative;
+  border-color: rgba(59, 130, 246, 0.7) !important;
+  color: #93c5fd !important;
+}
+.chat-mode-tab.tab-has-unread::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+}
+
+/* @ Mention Autocomplete Menu */
+.mention-dropdown-box {
+  position: fixed;
+  z-index: 99999;
+  max-height: 240px;
+  background: #090e18;
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  border-radius: 10px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 20px rgba(59, 130, 246, 0.2);
+  overflow-y: auto;
+  padding: .35rem;
+  display: none;
+  flex-direction: column;
+  gap: .2rem;
+  min-width: 220px;
+}
+.mention-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .45rem .65rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .12s ease;
+  user-select: none;
+  border-left: 2px solid transparent;
+}
+.mention-dropdown-item:hover,
+.mention-dropdown-item.selected,
+.mention-dropdown-item.active {
+  background: rgba(59, 130, 246, 0.22);
+  border-left-color: #3b82f6;
+}
+.mention-dropdown-av {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: .82rem;
+  font-weight: 700;
+  flex: none;
+}
+.mention-dropdown-info {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  flex: 1;
+  min-width: 0;
+}
+.mention-dropdown-name {
+  font-size: .82rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Chat Mentions & Pings */
+.chat-mention {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  color: #93c5fd;
+  border-radius: 5px;
+  padding: 0 5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s ease;
+  margin: 0 2px;
+}
+.chat-mention:hover {
+  background: rgba(59, 130, 246, 0.35);
+  color: #fff;
+  border-color: #60a5fa;
+  transform: translateY(-0.5px);
+}
+.chat-mention.mention-me {
+  background: rgba(234, 179, 8, 0.22);
+  border: 1px solid #facc15;
+  color: #fef08a;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.35);
+  animation: pingGlow 2s infinite ease-in-out;
+}
+@keyframes pingGlow {
+  0%, 100% { box-shadow: 0 0 6px rgba(234, 179, 8, 0.4); }
+  50% { box-shadow: 0 0 14px rgba(234, 179, 8, 0.85); }
+}
+
+/* Emoji Picker & Input Wrapper */
+.chat-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+}
+.chat-input-wrapper input {
+  padding-right: 2.4rem !important;
+}
+.chat-emoji-trigger {
+  position: absolute;
+  right: .5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: 0;
+  font-size: 1.15rem;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+  opacity: .75;
+  transition: opacity .15s, transform .15s;
+  z-index: 2;
+}
+.chat-emoji-trigger:hover {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.15);
+}
+.tsw-emoji-picker {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  width: 290px;
+  background: #090e1a;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 20px rgba(59, 130, 246, 0.2);
+  padding: .6rem;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+.tsw-emoji-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: .4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: .78rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+.tsw-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 2px;
+}
+.tsw-emoji-btn {
+  background: transparent;
+  border: 0;
+  font-size: 1.25rem;
+  padding: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .12s, transform .12s;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+}
+.tsw-emoji-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: scale(1.2);
+}
+
+/* Member Profile Popup Modal */
+.member-profile-panel {
+  max-width: 440px;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #090e17;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  box-shadow: 0 25px 65px rgba(0, 0, 0, 0.85), 0 0 35px rgba(59, 130, 246, 0.15);
+}
+.member-profile-banner {
+  height: 85px;
+  background: linear-gradient(135deg, #1e3a8a, #0f172a, #312e81);
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 1.2rem;
+}
+.member-profile-av-wrap {
+  position: absolute;
+  bottom: -28px;
+  left: 1.2rem;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 3px solid #090e17;
+  background: #0b1324;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+  display: grid;
+  place-items: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #fff;
+}
+.member-profile-body {
+  padding: 2.2rem 1.2rem 1.2rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.member-profile-names {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+}
+.member-profile-username {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+.member-profile-created {
+  font-size: .78rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+.member-profile-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  align-items: center;
+}
+.member-profile-bio-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: .85rem 1rem;
+  font-size: .88rem;
+  line-height: 1.45;
+  color: #cbd5e1;
+  min-height: 60px;
+}
+.member-profile-bio-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: .5rem;
+  margin-top: .4rem;
+}
+
+/* Live Update Available Notification Banner / Popup */
+.tsw-update-banner {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100000;
+  max-width: 380px;
+  width: calc(100% - 48px);
+  background: #090e1a;
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85), 0 0 24px rgba(37, 99, 235, 0.25);
+  padding: .85rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .65rem;
+  animation: updateSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes updateSlideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.tsw-update-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+}
+.tsw-update-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+}
+.tsw-update-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3b82f6;
+  box-shadow: 0 0 8px #3b82f6;
+  animation: uccPulseAnim 1.4s infinite ease-in-out;
+}
+.tsw-update-title {
+  font-size: .88rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: .01em;
+}
+.tsw-update-close {
+  background: transparent;
+  border: 0;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  transition: color .15s;
+}
+.tsw-update-close:hover {
+  color: #fff;
+}
+.tsw-update-desc {
+  font-size: .78rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+.tsw-update-actions {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+}
+.tsw-update-btn-refresh {
+  flex: 1;
+  background: #2563eb;
+  color: #fff;
+  border: 0;
+  border-radius: 7px;
+  padding: .45rem .85rem;
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+}
+.tsw-update-btn-refresh:hover {
+  background: #1d4ed8;
+}
+.tsw-update-btn-later {
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 7px;
+  padding: .45rem .75rem;
+  font-size: .8rem;
+  cursor: pointer;
+  transition: all .15s;
+}
+.tsw-update-btn-later:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* Multi-roles in Chat Message Headers */
+.public-msg-author {
+  cursor: pointer;
+  transition: color .15s;
+}
+.public-msg-author:hover {
+  color: #60a5fa !important;
+  text-decoration: underline;
+}
+.public-msg-av {
+  cursor: pointer;
+  transition: transform .15s;
+}
+.public-msg-av:hover {
+  transform: scale(1.08);
+}
+.public-msg-badges-wrap {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+  align-items: center;
+}
+
 
 
 /* Sidebar Status Item inside .sb-menu (No competition for screen space) */
@@ -3267,7 +3706,10 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
 
           <div class="chat-input-bar">
             <form class="chat-input-form" id="chat-message-form" autocomplete="off">
-              <input id="chat-message-input" type="text" placeholder="Message friend..." maxlength="1000" required>
+              <div class="chat-input-wrapper">
+                <input id="chat-message-input" type="text" placeholder="Message friend (type @ to ping)..." maxlength="1000" required>
+                <button type="button" class="chat-emoji-trigger" id="dm-emoji-btn" title="Insert emoji">😊</button>
+              </div>
               <button type="submit" id="chat-message-send-btn">Send</button>
             </form>
           </div>
@@ -3341,7 +3783,10 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
             </div>
           </div>
           <form class="chat-input-form" id="public-message-form" autocomplete="off">
-            <input id="public-message-input" type="text" placeholder="Message #chat-1 (or /commands)..." maxlength="1000" required>
+            <div class="chat-input-wrapper">
+              <input id="public-message-input" type="text" placeholder="Message #chat-1 (type @ to ping, or /commands)..." maxlength="1000" required>
+              <button type="button" class="chat-emoji-trigger" id="public-emoji-btn" title="Insert emoji">😊</button>
+            </div>
             <button type="submit" id="public-message-send-btn">Send</button>
           </form>
           <div id="public-guest-prompt" style="display:none;text-align:center;padding:.3rem 0;">
@@ -3356,6 +3801,64 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
           <span id="public-locked-text"><b>Announcements</b> is an official channel. Only the Owner (Alex Dalbey) can post here.</span>
         </div>
       </main>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Emoji Picker Popover -->
+<div class="tsw-emoji-picker" id="tsw-emoji-picker" style="display:none;" role="dialog" aria-label="Emoji Picker">
+  <div class="tsw-emoji-header">
+    <span>Quick Emojis</span>
+    <button type="button" id="tsw-emoji-close" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:1rem;line-height:1;">&times;</button>
+  </div>
+  <div class="tsw-emoji-grid" id="tsw-emoji-grid">
+    <!-- Populated with popular emojis -->
+  </div>
+</div>
+
+<!-- Floating @ Mention Suggestions Menu -->
+<div class="mention-dropdown-box" id="mention-dropdown-box" style="display:none;"></div>
+
+<!-- Clickable Member Profile Card Modal -->
+<div class="overlay" id="member-profile-modal" hidden role="dialog" aria-modal="true" aria-labelledby="member-card-username">
+  <div class="panel member-profile-panel">
+    <div class="member-profile-banner">
+      <div class="member-profile-av-wrap" id="member-card-avatar">👨‍🚀</div>
+      <button data-close aria-label="Close" style="position:absolute;top:.75rem;right:.9rem;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);border-radius:50%;width:26px;height:26px;display:grid;place-items:center;color:#fff;cursor:pointer;font-size:1.1rem;line-height:1;">&times;</button>
+    </div>
+    
+    <div class="member-profile-body">
+      <div class="member-profile-names">
+        <div class="member-profile-username" id="member-card-username">@username</div>
+        <div class="member-profile-created" id="member-card-created">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span id="member-card-date">Member since Nov 2026</span>
+        </div>
+      </div>
+
+      <div>
+        <label style="display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;color:#94a3b8;margin-bottom:.4rem;letter-spacing:.04em;">Assigned Roles</label>
+        <div class="member-profile-roles" id="member-card-roles">
+          <!-- Rendered badges for all held roles -->
+        </div>
+      </div>
+
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem;">
+          <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:#94a3b8;letter-spacing:.04em;">About / Bio</label>
+          <button type="button" class="plain" id="member-bio-edit-toggle" style="font-size:.74rem;color:#60a5fa;cursor:pointer;padding:0;background:none;border:none;display:none;">Edit Bio</button>
+        </div>
+        
+        <div class="member-profile-bio-box" id="member-card-bio-display">Explorer of the cosmos</div>
+        
+        <div id="member-bio-editor" style="display:none;margin-top:.4rem;">
+          <textarea id="member-bio-input" maxlength="280" rows="3" style="width:100%;background:#060a12;border:1px solid rgba(59,130,246,.5);border-radius:8px;padding:.6rem .8rem;color:#fff;font-size:.85rem;font-family:inherit;resize:none;outline:none;" placeholder="Write a short bio about yourself..."></textarea>
+          <div class="member-profile-bio-actions">
+            <button type="button" class="plain" id="member-bio-cancel-btn" style="padding:.3rem .75rem;font-size:.76rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:5px;color:#cbd5e1;cursor:pointer;">Cancel</button>
+            <button type="button" class="primary" id="member-bio-save-btn" style="padding:.35rem .95rem;font-size:.76rem;border-radius:5px;cursor:pointer;">Save Bio</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -3454,54 +3957,29 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
 
         </div>
 
-        <div class="prof-section-head">
-          <h4>Profile Details</h4>
+        <div class="prof-section-head" style="margin-top:1.15rem;">
+          <h4>Profile</h4>
         </div>
-        <div class="f" style="margin-bottom:1rem">
-          <label for="profile-display-name">Display Name</label>
-          <input id="profile-display-name" maxlength="32" placeholder="How your name appears">
-          <label for="profile-bio" style="margin-top:.5rem">Short Bio</label>
-          <input id="profile-bio" maxlength="120" placeholder="A little about you">
-          <label for="profile-status" style="margin-top:.5rem">Status</label>
-          <input id="profile-status" maxlength="40" placeholder="e.g. Gaming, Away, Available">
-          <button type="button" class="primary" id="profile-details-save" style="margin-top:.65rem">Save Profile Details</button>
-          <p class="hint" id="profile-details-note">Saved on this device for now. These details are not synced to other users yet.</p>
+        <form class="f" id="single-profile-form" autocomplete="off" style="margin-top:.6rem;">
+          <label for="profile-display-name">Profile Name</label>
+          <input id="profile-display-name" maxlength="32" placeholder="Your profile name" required>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:.75rem;">
+            <span class="hint" id="single-profile-status" style="color:#4ade80;font-size:.82rem;display:none;">✓ Profile name updated</span>
+            <button type="submit" class="primary" id="profile-details-save" style="padding:.45rem 1.1rem;font-size:.84rem;margin-left:auto;">Save Name</button>
+          </div>
+        </form>
+
+        <div class="prof-section-head" style="margin-top:1.25rem;">
+          <h4>Bio &amp; About Me</h4>
         </div>
-
-        <div class="prof-section-head">
-          <h4>Your Cloud Profiles</h4>
-          <span class="hint" id="pm-profiles-count">1 profile</span>
-        </div>
-
-        <div class="prof-cards-list" id="pm-list">
-          <!-- Rendered dynamically -->
-        </div>
-
-        <!-- Add Profile Expandable -->
-        <div style="margin-top:1rem">
-          <button type="button" class="plain add-prof-toggle-btn" id="pm-toggle-create">+ Add Profile</button>
-          
-          <form class="f prof-quick-create" id="pm-create-form" hidden autocomplete="off">
-            <label for="pm-new-name">New Profile Name</label>
-            <input id="pm-new-name" type="text" maxlength="24" placeholder="e.g. Work, Gaming" required>
-
-            <label style="margin-top:.6rem">Initial Badge Accent Color</label>
-            <div class="palette-picker" id="pm-palette-picker">
-              <button type="button" class="palette-opt on" data-col="#3b82f6" style="background:#3b82f6;" title="Blue"></button>
-              <button type="button" class="palette-opt" data-col="#10b981" style="background:#10b981;" title="Emerald"></button>
-              <button type="button" class="palette-opt" data-col="#8b5cf6" style="background:#8b5cf6;" title="Violet"></button>
-              <button type="button" class="palette-opt" data-col="#ec4899" style="background:#ec4899;" title="Pink"></button>
-              <button type="button" class="palette-opt" data-col="#f59e0b" style="background:#f59e0b;" title="Amber"></button>
-              <button type="button" class="palette-opt" data-col="#06b6d4" style="background:#06b6d4;" title="Cyan"></button>
-            </div>
-
-            <p class="err" id="pm-create-err" role="alert"></p>
-            <div class="row" style="margin-top:.8rem">
-              <button class="primary" type="submit" id="pm-create-submit">Save Profile</button>
-              <button class="plain" type="button" id="pm-cancel-create">Cancel</button>
-            </div>
-          </form>
-        </div>
+        <form class="f" id="account-bio-form" autocomplete="off" style="margin-top:.6rem;">
+          <label for="account-bio-textarea">Customize Your Bio</label>
+          <textarea id="account-bio-textarea" maxlength="300" rows="3" placeholder="Write something about yourself..." style="width:100%;resize:vertical;background:#080c14;border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:8px;padding:.6rem .8rem;font:inherit;font-size:.88rem;outline:none;box-sizing:border-box;"></textarea>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:.75rem;">
+            <span class="hint" id="account-bio-status" style="color:#4ade80;font-size:.82rem;display:none;">✓ Bio saved</span>
+            <button type="submit" class="primary" id="account-bio-save-btn" style="padding:.45rem 1.1rem;font-size:.84rem;margin-left:auto;">Save Bio</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -3677,7 +4155,19 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
       <button data-tab="credits">Credits</button>
     </div>
     <div class="pbody" id="tab-updates">
-      <h3>TSW v2 1.6<span>The Social & Multitasking Update</span></h3>
+      <h3>TSW v2 1.6.01<span>Multi-Roles, Notifications, @Mentions &amp; Member Profiles</span></h3>
+      <p class="date">November 2026</p>
+      <ul>
+        <li><b>Multiple Concurrent Roles</b>: Users can now hold multiple roles at once without conflicting features. Roles like Owner, Tester, Discord Member, VIP, Admin, and Beta User activate together seamlessly (e.g. combining the Tester folder with Owner privileges).</li>
+        <li><b>Owner Role Manager</b>: The <code>/give role</code> management interface now supports multi-role checkboxes so the Owner can grant and update combinations of roles per member.</li>
+        <li><b>Live Attention Glow &amp; Notification Counter</b>: When receiving a direct message, the chat launcher button glows with a pulsing neon attention animation and displays an unread count badge, accompanied by unread indicators on the DMs tab.</li>
+        <li><b>Top-Sorted Unread DMs</b>: Direct message conversations with new incoming messages automatically float to the top of the friends list with bold message previews.</li>
+        <li><b>Interactive @ Mentions &amp; Highlighted Pings</b>: Typing <code>@</code> in public chat or DMs opens an interactive autocomplete popup of registered members with avatars and roles; mentions directed at your account highlight with a glowing ping tag.</li>
+        <li><b>Quick Emoji Picker</b>: Added dedicated <code>😊</code> emoji buttons on the right side of both public chat and DM input bars with instant cursor insertion.</li>
+        <li><b>Clickable Member Profiles &amp; Custom Bios</b>: Clicking any username or avatar across chat, messages, @mentions, or the Cloud Admin panel opens their profile card showing join date, all assigned roles, and a customizable personal bio saved directly to Cloud SQL.</li>
+      </ul>
+
+      <h3 class="older">TSW v2 1.6<span>The Social &amp; Multitasking Update</span></h3>
       <p class="date">October 2026</p>
       <ul>
         <li><b>Real Vertical Multi-Tabs</b>: Keep multiple tabs in the sidebar with isolated browsing histories and states.</li>
@@ -3957,9 +4447,15 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
       </div>
 
       <!-- Real Registered Users Table -->
-      <div class="admin-section-title">
-        <span>Registered Cloud Users</span>
-        <span style="font-size:.78rem;color:#94a3b8;">Real authenticated accounts in Cloud SQL</span>
+      <div class="admin-section-title" style="display:flex;justify-content:space-between;align-items:center;margin-top:1.25rem;">
+        <div style="display:flex;align-items:center;gap:.6rem;">
+          <span>Registered Cloud Users</span>
+          <span style="font-size:.78rem;color:#94a3b8;">Real authenticated accounts in Cloud SQL</span>
+        </div>
+        <button type="button" class="admin-act-btn primary" id="admin-refresh-users-btn" style="padding:.32rem .75rem;font-size:.78rem;display:inline-flex;align-items:center;gap:.4rem;cursor:pointer;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:6px;color:#93c5fd;" title="Refresh list of registered users">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg>
+          <span>Refresh Users</span>
+        </button>
       </div>
       <div style="overflow-x:auto;">
         <table class="admin-table">
@@ -3985,13 +4481,13 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
 
 <!-- Owner /give role Modal -->
 <div class="overlay" id="owner-role-modal" hidden role="dialog" aria-modal="true" aria-labelledby="owner-role-title">
-  <div class="panel" style="max-width:440px;width:100%;border:1px solid rgba(234,179,8,.35);box-shadow:0 20px 60px rgba(0,0,0,.6);">
+  <div class="panel" style="max-width:480px;width:100%;border:1px solid rgba(234,179,8,.35);box-shadow:0 20px 60px rgba(0,0,0,.6);">
     <div class="phead" style="border-bottom:1px solid rgba(255,255,255,.08);padding:.85rem 1.1rem;display:flex;justify-content:space-between;align-items:center;">
       <div style="display:flex;align-items:center;gap:.6rem;">
         <span style="font-size:1.3rem;">👑</span>
         <div>
-          <h2 id="owner-role-title" style="font-size:1.05rem;margin:0;color:#fef08a;">Assign User Role (/give role)</h2>
-          <small style="color:#94a3b8;font-size:.76rem;">Select a role and target member to update</small>
+          <h2 id="owner-role-title" style="font-size:1.05rem;margin:0;color:#fef08a;">Manage User Roles (/give role)</h2>
+          <small style="color:#94a3b8;font-size:.76rem;">Assign single or multiple concurrent roles to any member</small>
         </div>
       </div>
       <button data-close aria-label="Close" style="background:none;border:none;color:#94a3b8;font-size:1.4rem;cursor:pointer;">&times;</button>
@@ -3999,32 +4495,51 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
     <div class="pbody" style="padding:1.2rem;">
       <form id="owner-role-form" style="display:flex;flex-direction:column;gap:1.1rem;">
         <div>
-          <label style="display:block;font-size:.82rem;font-weight:600;color:#cbd5e1;margin-bottom:.4rem;">1. Select Role:</label>
-          <select id="give-role-select" required style="width:100%;padding:.65rem .85rem;background:#090e17;border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#fff;font-size:.9rem;outline:none;">
-            <option value="owner">👑 Owner (Full access to commands & Cloud Admin)</option>
-            <option value="admin">🛡️ Admin (System Administrator)</option>
-            <option value="moderator">⚔️ Moderator (Chat Moderation)</option>
-            <option value="VIP">⭐ VIP (Supporter Badge)</option>
-            <option value="Discord Member">🎮 Discord Member (Official Discord Community)</option>
-            <option value="Tester">🧪 Tester (QA & Feature Tester)</option>
-            <option value="Beta User">🚀 Beta User (Early Access Member)</option>
-            <option value="TSW User" selected>👤 TSW User (Standard Member)</option>
-          </select>
-        </div>
-
-        <div>
-          <label style="display:block;font-size:.82rem;font-weight:600;color:#cbd5e1;margin-bottom:.4rem;">2. Select User:</label>
+          <label style="display:block;font-size:.82rem;font-weight:600;color:#cbd5e1;margin-bottom:.4rem;">1. Select Member:</label>
           <select id="give-user-select" required style="width:100%;padding:.65rem .85rem;background:#090e17;border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#fff;font-size:.9rem;outline:none;">
             <option value="" disabled selected>Loading registered users...</option>
           </select>
-          <small id="give-user-hint" style="display:block;margin-top:.3rem;color:#64748b;font-size:.74rem;">Select the member whose role will be updated</small>
+          <div id="give-user-current-roles" style="display:none;margin-top:.45rem;font-size:.78rem;color:#94a3b8;">
+            Current roles: <span id="give-user-roles-preview" style="color:#fef08a;font-weight:600;">TSW User</span>
+          </div>
+        </div>
+
+        <div>
+          <label style="display:block;font-size:.82rem;font-weight:600;color:#cbd5e1;margin-bottom:.4rem;">2. Check Roles to Grant (Multiple Allowed):</label>
+          <div id="give-roles-checkboxes-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;background:#090e17;padding:.75rem;border-radius:8px;border:1px solid rgba(255,255,255,.1);">
+            <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#fef08a;cursor:pointer;">
+              <input type="checkbox" name="role-choice" value="owner" style="accent-color:#eab308;"> 👑 Owner
+            </label>
+            <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#7dd3fc;cursor:pointer;">
+              <input type="checkbox" name="role-choice" value="admin" style="accent-color:#38bdf8;"> 🛡️ Admin
+            </label>
+            <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#5eead4;cursor:pointer;">
+              <input type="checkbox" name="role-choice" value="moderator" style="accent-color:#14b8a6;"> ⚔️ Moderator
+            </label>
+            <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#d8b4fe;cursor:pointer;">
+              <input type="checkbox" name="role-choice" value="VIP" style="accent-color:#a855f7;"> ⭐ VIP
+            </label>
+            <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#a5b4fc;cursor:pointer;">
+              <input type="checkbox" name="role-choice" value="Discord Member" style="accent-color:#6366f1;"> 🎮 Discord Member
+            </label>
+            <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#6ee7b7;cursor:pointer;">
+              <input type="checkbox" name="role-choice" value="Tester" style="accent-color:#10b981;"> 🧪 Tester
+            </label>
+            <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#fde68a;cursor:pointer;">
+              <input type="checkbox" name="role-choice" value="Beta User" style="accent-color:#f59e0b;"> 🚀 Beta User
+            </label>
+            <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#94a3b8;cursor:pointer;">
+              <input type="checkbox" name="role-choice" value="TSW User" style="accent-color:#64748b;"> 👤 TSW User
+            </label>
+          </div>
+          <small style="display:block;margin-top:.35rem;color:#64748b;font-size:.74rem;">Members can hold multiple roles at once without conflicting features.</small>
         </div>
 
         <div id="give-role-status" style="display:none;padding:.6rem .8rem;border-radius:6px;font-size:.82rem;"></div>
 
         <div style="display:flex;justify-content:flex-end;gap:.6rem;margin-top:.5rem;">
           <button type="button" class="plain" id="give-role-cancel-btn" style="padding:.5rem 1rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:#cbd5e1;cursor:pointer;">Cancel</button>
-          <button type="submit" id="give-role-submit-btn" style="padding:.55rem 1.25rem;background:linear-gradient(135deg,#eab308,#ca8a04);color:#020617;font-weight:700;border:none;border-radius:6px;cursor:pointer;">Grant Role</button>
+          <button type="submit" id="give-role-submit-btn" style="padding:.55rem 1.25rem;background:linear-gradient(135deg,#eab308,#ca8a04);color:#020617;font-weight:700;border:none;border-radius:6px;cursor:pointer;">Save Roles</button>
         </div>
       </form>
     </div>
@@ -5788,7 +6303,7 @@ $('game-exit').addEventListener('click', exitCork7);
 $('game-reload').addEventListener('click', reloadCork7);
 $('game-fullscreen').addEventListener('click', toggleGameFullscreen);
 
-['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log', 'gta-modal', 'admin-modal', 'owner-role-modal', 'owner-commands-modal', 'report-site-modal'].forEach(function (id) {
+['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log', 'gta-modal', 'admin-modal', 'owner-role-modal', 'owner-commands-modal', 'report-site-modal', 'member-profile-modal'].forEach(function (id) {
   var el = $(id);
   if (el) {
     el.addEventListener('click', function (ev) {
@@ -5822,7 +6337,11 @@ document.addEventListener('keydown', function (ev) {
     if (!$('game-tab').hidden && !document.fullscreenElement) {
       exitCork7();
     }
-    ['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log', 'gta-modal', 'admin-modal', 'owner-role-modal', 'owner-commands-modal', 'report-site-modal'].forEach(function (id) {
+    var emojiPick = $('tsw-emoji-picker');
+    if (emojiPick) emojiPick.style.display = 'none';
+    var mentionBox = $('mention-dropdown-box');
+    if (mentionBox) mentionBox.style.display = 'none';
+    ['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log', 'gta-modal', 'admin-modal', 'owner-role-modal', 'owner-commands-modal', 'report-site-modal', 'member-profile-modal'].forEach(function (id) {
       var el = $(id);
       if (el) {
         el.hidden = true;
@@ -5896,7 +6415,8 @@ document.addEventListener('keydown', function (ev) {
     }
     var opts = {
       method: method || 'GET',
-      headers: headers
+      headers: headers,
+      cache: 'no-store'
     };
     if (body) opts.body = JSON.stringify(body);
     return fetch(endpoint, opts).then(function (res) {
@@ -5918,16 +6438,33 @@ document.addEventListener('keydown', function (ev) {
     var memAv = $('member-avatar');
     var profIcon = $('prof-btn-icon');
     var adminBtn = $('sb-admin-btn');
-    var isOwner = currentUser && (
-      currentUser.role === 'owner' ||
-      currentUser.isOwner === true ||
-      (currentUser.username && currentUser.username.toLowerCase() === 'alex dalbey') ||
-      (currentUser.email && currentUser.email.toLowerCase() === 'alexc.second@gmail.com')
-    );
-    var isTester = currentUser && (
-      (currentUser.role && currentUser.role.toLowerCase() === 'tester') ||
-      (currentUser.role && currentUser.role.trim() === 'Tester')
-    );
+
+    function getUserRoles(u) {
+      if (!u) return ['TSW User'];
+      if (Array.isArray(u.roles) && u.roles.length > 0) return u.roles;
+      var str = u.role || 'TSW User';
+      var parts = str.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+      return parts.length ? parts : ['TSW User'];
+    }
+
+    function userHasRole(u, targetRole) {
+      if (!u) return false;
+      var target = (targetRole || '').toLowerCase().trim();
+      if (target === 'owner') {
+        if (u.isOwner === true ||
+            (u.email && u.email.toLowerCase() === 'alexc.second@gmail.com') ||
+            (u.username && u.username.toLowerCase() === 'alex dalbey')) {
+          return true;
+        }
+      }
+      var rList = getUserRoles(u);
+      return rList.some(function (r) { return r.toLowerCase() === target; });
+    }
+    window.TSWUserHasRole = userHasRole;
+    window.TSWGetUserRoles = getUserRoles;
+
+    var isOwner = userHasRole(currentUser, 'owner');
+    var isTester = userHasRole(currentUser, 'tester');
     var canSeeTesting = isOwner || isTester;
 
     // ONLY Tester role & Owner role can see the Testing area folder on the sidebar!
@@ -5960,22 +6497,22 @@ document.addEventListener('keydown', function (ev) {
 
       var roleBadge = $('member-role-badge');
       if (roleBadge) {
-        if (isOwner) {
-          roleBadge.textContent = '👑 Owner';
-          roleBadge.className = 'prof-role-badge owner';
-        } else if (isTester) {
-          roleBadge.textContent = '🧪 Tester';
-          roleBadge.className = 'prof-role-badge tester';
-        } else if (currentUser.role === 'Discord Member') {
-          roleBadge.textContent = '🎮 Discord Member';
-          roleBadge.className = 'prof-role-badge discord';
-        } else if (currentUser.role === 'Beta User') {
-          roleBadge.textContent = '🚀 Beta User';
-          roleBadge.className = 'prof-role-badge beta';
-        } else {
-          roleBadge.textContent = currentUser.role || 'TSW User';
-          roleBadge.className = 'prof-role-badge user';
+        var userRoles = getUserRoles(currentUser);
+        if (isOwner && !userRoles.some(function (r) { return r.toLowerCase() === 'owner'; })) {
+          userRoles.unshift('owner');
         }
+        var badgesHtml = userRoles.map(function (r) {
+          var rL = r.toLowerCase();
+          if (rL === 'owner') return '<span class="prof-role-badge owner">👑 Owner</span>';
+          if (rL === 'admin') return '<span class="prof-role-badge admin" style="background:rgba(56,189,248,.18);color:#7dd3fc;border:1px solid rgba(56,189,248,.4);">🛡️ Admin</span>';
+          if (rL === 'moderator' || rL === 'mod') return '<span class="prof-role-badge mod" style="background:rgba(20,184,166,.18);color:#5eead4;border:1px solid rgba(20,184,166,.4);">⚔️ Mod</span>';
+          if (rL === 'vip') return '<span class="prof-role-badge vip" style="background:rgba(168,85,247,.18);color:#d8b4fe;border:1px solid rgba(168,85,247,.4);">⭐ VIP</span>';
+          if (rL === 'discord member' || rL === 'discord') return '<span class="prof-role-badge discord">🎮 Discord Member</span>';
+          if (rL === 'tester') return '<span class="prof-role-badge tester">🧪 Tester</span>';
+          if (rL === 'beta user' || rL === 'beta') return '<span class="prof-role-badge beta">🚀 Beta User</span>';
+          return '<span class="prof-role-badge user">' + escapeHtml(r) + '</span>';
+        }).join(' ');
+        roleBadge.outerHTML = '<div id="member-role-badge" style="display:inline-flex;gap:.3rem;flex-wrap:wrap;">' + badgesHtml + '</div>';
       }
     } else {
       if (viewSignedOut) viewSignedOut.hidden = false;
@@ -6347,27 +6884,85 @@ document.addEventListener('keydown', function (ev) {
     }, 1200);
   }
 
-  // Profile details are device-local until a profile API is added.
-  function profileDetailsKey() { return 'tsw.profile.details.' + (currentUser && currentUser.id ? currentUser.id : 'guest'); }
   function loadProfileDetails() {
-    var details = {};
-    try { details = JSON.parse(localStorage.getItem(profileDetailsKey()) || '{}') || {}; } catch (e) {}
-    var dn = $('profile-display-name'), bio = $('profile-bio'), status = $('profile-status');
-    if (dn) dn.value = details.displayName || (currentUser ? currentUser.username : '');
-    if (bio) bio.value = details.bio || '';
-    if (status) status.value = details.status || '';
+    var dn = $('profile-display-name');
+    var currentName = (activeProfile && activeProfile.name) ? activeProfile.name : (currentUser ? currentUser.username : '');
+    if (dn) dn.value = currentName;
+
+    var bioArea = $('account-bio-textarea');
+    if (bioArea && currentUser) {
+      api('/api/users/profile?id=' + currentUser.id, 'GET').then(function (res) {
+        var u = res && (res.profile || res.user);
+        if (u && bioArea) {
+          bioArea.value = (u.bio && u.bio.trim()) ? u.bio.trim() : '';
+        }
+      }).catch(function () {});
+    }
   }
-  var profileDetailsSave = $('profile-details-save');
-  if (profileDetailsSave) profileDetailsSave.addEventListener('click', function () {
-    var details = {
-      displayName: ($('profile-display-name').value || '').trim().slice(0,32),
-      bio: ($('profile-bio').value || '').trim().slice(0,120),
-      status: ($('profile-status').value || '').trim().slice(0,40)
-    };
-    try { localStorage.setItem(profileDetailsKey(), JSON.stringify(details)); } catch (e) {}
-    var note = $('profile-details-note');
-    if (note) note.textContent = 'Saved on this device. These details are not synced to other users yet.';
-  });
+  var singleProfileForm = $('single-profile-form');
+  if (singleProfileForm) {
+    singleProfileForm.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var dn = $('profile-display-name');
+      var newName = (dn && dn.value ? dn.value.trim().slice(0, 32) : '') || (currentUser ? currentUser.username : 'User');
+      var statusEl = $('single-profile-status');
+      var saveBtn = $('profile-details-save');
+
+      if (saveBtn) saveBtn.disabled = true;
+
+      if (activeProfile && activeProfile.id) {
+        activeProfile.name = newName;
+        api('/api/profiles/' + activeProfile.id, 'PUT', { name: newName }).then(function () {
+          if (saveBtn) saveBtn.disabled = false;
+          if (statusEl) {
+            statusEl.style.display = 'inline-block';
+            setTimeout(function () { statusEl.style.display = 'none'; }, 2500);
+          }
+          if (memberUsername) memberUsername.textContent = '@' + (currentUser ? currentUser.username : newName);
+          if (btnName) btnName.textContent = newName;
+          updateAuthUI();
+        }).catch(function (err) {
+          if (saveBtn) saveBtn.disabled = false;
+          console.warn('Profile name sync:', err);
+        });
+      } else {
+        if (saveBtn) saveBtn.disabled = false;
+        if (statusEl) {
+          statusEl.style.display = 'inline-block';
+          setTimeout(function () { statusEl.style.display = 'none'; }, 2500);
+        }
+      }
+    });
+  }
+
+  var accountBioForm = $('account-bio-form');
+  if (accountBioForm) {
+    accountBioForm.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var bioArea = $('account-bio-textarea');
+      var statusEl = $('account-bio-status');
+      var saveBtn = $('account-bio-save-btn');
+      var newBio = (bioArea && bioArea.value) ? bioArea.value.trim().slice(0, 300) : '';
+
+      if (saveBtn) saveBtn.disabled = true;
+      api('/api/users/me/bio', 'PUT', { bio: newBio }).then(function (res) {
+        if (saveBtn) saveBtn.disabled = false;
+        if (res && res.success) {
+          if (statusEl) {
+            statusEl.style.display = 'inline-block';
+            setTimeout(function () { statusEl.style.display = 'none'; }, 2500);
+          }
+          var cardBio = $('member-card-bio-display');
+          if (cardBio) cardBio.textContent = newBio || 'Explorer of the cosmos. No custom bio written yet.';
+        } else {
+          alert((res && res.error) || 'Failed to update bio');
+        }
+      }).catch(function (err) {
+        if (saveBtn) saveBtn.disabled = false;
+        alert(err.message || 'Failed to update bio');
+      });
+    });
+  }
   if (typeof updateAuthUI === 'function') loadProfileDetails();
 
   // TSW AI chat. The API key stays on the server; only Gemini is enabled until other providers are genuinely connected.
@@ -7417,12 +8012,12 @@ document.addEventListener('keydown', function (ev) {
   var logSeen = store.get('tsw_log_seen', '');
   var dot = $('log-whats-new-dot');
   if (dot) {
-    dot.style.display = (logSeen === '1.6') ? 'none' : 'block';
+    dot.style.display = (logSeen === '1.6.01') ? 'none' : 'block';
   }
   var logBtn = $('logbtn');
   if (logBtn) {
     logBtn.addEventListener('click', function () {
-      store.set('tsw_log_seen', '1.6');
+      store.set('tsw_log_seen', '1.6.01');
       if (dot) dot.style.display = 'none';
     });
   }
@@ -7725,6 +8320,202 @@ document.addEventListener('keydown', function (ev) {
     selectPublicChannel(activePublicChannel);
   };
 
+  /* ---------------- Multi-Role Badges Helper ---------------- */
+  function renderRoleBadgesHtml(rolesInput, isOwner) {
+    var list = [];
+    if (Array.isArray(rolesInput)) {
+      list = rolesInput.slice();
+    } else if (typeof rolesInput === 'string' && rolesInput.trim()) {
+      list = rolesInput.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+    }
+    if (isOwner && !list.some(function (r) { return r.toLowerCase() === 'owner'; })) {
+      list.unshift('owner');
+    }
+    if (list.length === 0) {
+      list = ['TSW User'];
+    }
+
+    var html = '<span class="public-msg-badges-wrap">';
+    var renderedAny = false;
+    list.forEach(function (r) {
+      var rLower = r.toLowerCase();
+      if (rLower === 'owner') {
+        html += '<span class="public-msg-badge owner">👑 OWNER</span>';
+        renderedAny = true;
+      } else if (rLower === 'official' || rLower === 'tsw official') {
+        html += '<span class="public-msg-badge admin" style="background:rgba(59,130,246,.22);color:#93c5fd;border:1px solid rgba(59,130,246,.45);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">OFFICIAL</span>';
+        renderedAny = true;
+      } else if (rLower === 'admin') {
+        html += '<span class="public-msg-badge admin" style="background:rgba(59,130,246,.2);color:#93c5fd;border:1px solid rgba(59,130,246,.4);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🛡️ ADMIN</span>';
+        renderedAny = true;
+      } else if (rLower === 'moderator' || rLower === 'mod') {
+        html += '<span class="public-msg-badge mod" style="background:rgba(20,184,166,.2);color:#5eead4;border:1px solid rgba(20,184,166,.4);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">⚔️ MOD</span>';
+        renderedAny = true;
+      } else if (rLower === 'vip') {
+        html += '<span class="public-msg-badge vip" style="background:rgba(168,85,247,.2);color:#d8b4fe;border:1px solid rgba(168,85,247,.4);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">⭐ VIP</span>';
+        renderedAny = true;
+      } else if (rLower === 'discord member' || rLower === 'discord') {
+        html += '<span class="public-msg-badge discord-member" style="background:rgba(88,101,242,.22);color:#a5b4fc;border:1px solid rgba(88,101,242,.45);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🎮 DISCORD MEMBER</span>';
+        renderedAny = true;
+      } else if (rLower === 'tester') {
+        html += '<span class="public-msg-badge tester" style="background:rgba(16,185,129,.2);color:#6ee7b7;border:1px solid rgba(16,185,129,.45);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🧪 TESTER</span>';
+        renderedAny = true;
+      } else if (rLower === 'beta user' || rLower === 'beta') {
+        html += '<span class="public-msg-badge beta-user" style="background:rgba(245,158,11,.2);color:#fcd34d;border:1px solid rgba(245,158,11,.45);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🚀 BETA USER</span>';
+        renderedAny = true;
+      } else if (rLower === 'tsw user' || rLower === 'user') {
+        html += '<span class="public-msg-badge user">TSW User</span>';
+        renderedAny = true;
+      }
+    });
+    if (!renderedAny) {
+      html += '<span class="public-msg-badge user">TSW User</span>';
+    }
+    html += '</span>';
+    return html;
+  }
+  window.TSWRenderRoleBadgesHtml = renderRoleBadgesHtml;
+
+  /* ---------------- Content Formatter & @ Mentions ---------------- */
+  function formatMessageContent(content, user) {
+    if (!content) return '';
+    var escaped = escapeHtml(content);
+    var myUname = (user && (user.username || user.name)) ? (user.username || user.name).toLowerCase() : '';
+    return escaped.replace(/@([a-zA-Z0-9_\-]+)/g, function (match, p1) {
+      var isMe = myUname && p1.toLowerCase() === myUname;
+      var cls = isMe ? 'chat-mention mention-me' : 'chat-mention';
+      var title = isMe ? 'You were mentioned!' : ('@' + p1);
+      return '<span class="' + cls + '" data-mention-name="' + escapeHtml(p1) + '" title="' + escapeHtml(title) + '">@' + escapeHtml(p1) + '</span>';
+    });
+  }
+
+  /* ---------------- Member Profile Card Modal ---------------- */
+  function openMemberProfile(userId, fallbackUsername) {
+    var modal = $('member-profile-modal');
+    if (!modal) return;
+    modal.hidden = false;
+
+    var avEl = $('member-card-avatar');
+    var unameEl = $('member-card-username');
+    var dateEl = $('member-card-date');
+    var rolesEl = $('member-card-roles');
+    var bioDisplay = $('member-card-bio-display');
+    var editToggle = $('member-bio-edit-toggle');
+    var editorBox = $('member-bio-editor');
+    var bioInput = $('member-bio-input');
+
+    if (unameEl) unameEl.textContent = fallbackUsername ? ('@' + fallbackUsername) : 'Loading...';
+    if (dateEl) dateEl.textContent = 'Loading member details...';
+    if (rolesEl) rolesEl.innerHTML = '<span style="color:#64748b;font-size:.78rem;">Loading roles...</span>';
+    if (bioDisplay) bioDisplay.textContent = 'Loading bio...';
+    if (editToggle) editToggle.style.display = 'none';
+    if (editorBox) editorBox.style.display = 'none';
+    if (bioDisplay) bioDisplay.style.display = 'block';
+
+    var curUser = getCurrentUser();
+    var curUserId = curUser ? curUser.id : null;
+    var curUsername = curUser ? (curUser.username || curUser.name || '').toLowerCase() : '';
+
+    var targetUrl = userId ? ('/api/users/' + userId + '/profile') : ('/api/users/profile?uname=' + encodeURIComponent(fallbackUsername || ''));
+    api(targetUrl, 'GET').then(function (res) {
+      var u = res && (res.profile || res.user || (res.id ? res : null));
+      if (res && res.success && u) {
+        if (avEl) avEl.innerHTML = getLetterAvatar(u.username, u.themeColor);
+        if (unameEl) unameEl.textContent = '@' + u.username;
+        if (dateEl) {
+          var dateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' }) : 'November 2026';
+          dateEl.textContent = 'Member since ' + dateStr;
+        }
+        if (rolesEl) {
+          rolesEl.innerHTML = renderRoleBadgesHtml(u.roles || u.role, u.isOwner);
+        }
+        var curBio = (u.bio && u.bio.trim()) ? u.bio.trim() : 'Explorer of the cosmos. No custom bio written yet.';
+        if (bioDisplay) bioDisplay.textContent = curBio;
+        if (bioInput) bioInput.value = (u.bio && u.bio.trim()) ? u.bio.trim() : '';
+
+        var isMe = (curUserId && u.id === curUserId) || (curUsername && u.username && curUsername === u.username.toLowerCase());
+        if (isMe && editToggle) {
+          editToggle.style.display = 'inline-block';
+        }
+      } else {
+        if (unameEl) unameEl.textContent = fallbackUsername ? ('@' + fallbackUsername) : 'Member';
+        if (rolesEl) rolesEl.innerHTML = renderRoleBadgesHtml(['TSW User'], false);
+        if (bioDisplay) bioDisplay.textContent = 'Bio currently unavailable.';
+      }
+    }).catch(function () {
+      if (unameEl) unameEl.textContent = fallbackUsername ? ('@' + fallbackUsername) : 'Member';
+      if (rolesEl) rolesEl.innerHTML = renderRoleBadgesHtml(['TSW User'], false);
+      if (bioDisplay) bioDisplay.textContent = 'Bio currently unavailable.';
+    });
+  }
+  window.TSWOpenMemberProfile = openMemberProfile;
+
+  // Member profile bio editing event listeners
+  (function initMemberProfileEvents() {
+    var editToggle = $('member-bio-edit-toggle');
+    var editorBox = $('member-bio-editor');
+    var bioDisplay = $('member-card-bio-display');
+    var bioInput = $('member-bio-input');
+    var cancelBtn = $('member-bio-cancel-btn');
+    var saveBtn = $('member-bio-save-btn');
+
+    if (editToggle) {
+      editToggle.addEventListener('click', function () {
+        if (editorBox) editorBox.style.display = 'block';
+        if (bioDisplay) bioDisplay.style.display = 'none';
+        if (editToggle) editToggle.style.display = 'none';
+        if (bioInput) bioInput.focus();
+      });
+    }
+
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', function () {
+        if (editorBox) editorBox.style.display = 'none';
+        if (bioDisplay) bioDisplay.style.display = 'block';
+        if (editToggle) editToggle.style.display = 'inline-block';
+      });
+    }
+
+    if (saveBtn) {
+      saveBtn.addEventListener('click', function () {
+        var newBio = (bioInput ? bioInput.value : '').trim();
+        saveBtn.disabled = true;
+        api('/api/users/me/bio', 'PUT', { bio: newBio }).then(function (res) {
+          saveBtn.disabled = false;
+          if (res && res.success) {
+            if (bioDisplay) bioDisplay.textContent = newBio || 'Explorer of the cosmos. No custom bio written yet.';
+            if (editorBox) editorBox.style.display = 'none';
+            if (bioDisplay) bioDisplay.style.display = 'block';
+            if (editToggle) editToggle.style.display = 'inline-block';
+          } else {
+            alert((res && res.error) || 'Failed to update bio');
+          }
+        }).catch(function (err) {
+          saveBtn.disabled = false;
+          alert(err.message || 'Failed to update bio');
+        });
+      });
+    }
+
+    document.addEventListener('click', function (ev) {
+      var profTrigger = ev.target.closest('[data-open-profile]');
+      if (profTrigger) {
+        ev.preventDefault();
+        var uid = profTrigger.getAttribute('data-open-profile');
+        var uname = profTrigger.getAttribute('data-uname') || profTrigger.textContent.replace(/^@/, '').trim();
+        openMemberProfile(uid, uname);
+        return;
+      }
+      var mentionTrigger = ev.target.closest('[data-mention-name]');
+      if (mentionTrigger) {
+        ev.preventDefault();
+        var mname = mentionTrigger.getAttribute('data-mention-name');
+        openMemberProfile(null, mname);
+        return;
+      }
+    });
+  })();
+
   function renderPublicMessages(messages, scrollBottom) {
     if (!publicFeedBox) return;
     publicFeedBox.innerHTML = '';
@@ -7745,29 +8536,13 @@ document.addEventListener('keydown', function (ev) {
       row.className = 'public-msg-row';
 
       var isTSW = m.username && (m.username === 'TSW' || m.username.includes('Official'));
-      var isOwner = (m.role === 'owner') || (m.username && m.username.toLowerCase() === 'alex dalbey');
-      var rLower = (m.role || '').toLowerCase();
+      var isOwner = (m.role === 'owner') || (m.username && m.username.toLowerCase() === 'alex dalbey') || (m.roles && m.roles.some(function (r) { return r.toLowerCase() === 'owner'; }));
 
-      var badgeHtml = '';
-      if (isOwner) {
-        badgeHtml = '<span class="public-msg-badge owner">👑 OWNER</span>';
-      } else if (isTSW) {
-        badgeHtml = '<span class="public-msg-badge admin" style="background:rgba(59,130,246,.22);color:#93c5fd;border:1px solid rgba(59,130,246,.45);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">OFFICIAL</span>';
-      } else if (rLower === 'admin') {
-        badgeHtml = '<span class="public-msg-badge admin" style="background:rgba(59,130,246,.2);color:#93c5fd;border:1px solid rgba(59,130,246,.4);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🛡️ ADMIN</span>';
-      } else if (rLower === 'moderator' || rLower === 'mod') {
-        badgeHtml = '<span class="public-msg-badge mod" style="background:rgba(20,184,166,.2);color:#5eead4;border:1px solid rgba(20,184,166,.4);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">⚔️ MOD</span>';
-      } else if (rLower === 'vip') {
-        badgeHtml = '<span class="public-msg-badge vip" style="background:rgba(168,85,247,.2);color:#d8b4fe;border:1px solid rgba(168,85,247,.4);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">⭐ VIP</span>';
-      } else if (rLower === 'discord member' || rLower === 'discord') {
-        badgeHtml = '<span class="public-msg-badge discord-member" style="background:rgba(88,101,242,.22);color:#a5b4fc;border:1px solid rgba(88,101,242,.45);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🎮 DISCORD MEMBER</span>';
-      } else if (rLower === 'tester') {
-        badgeHtml = '<span class="public-msg-badge tester" style="background:rgba(16,185,129,.2);color:#6ee7b7;border:1px solid rgba(16,185,129,.45);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🧪 TESTER</span>';
-      } else if (rLower === 'beta user' || rLower === 'beta') {
-        badgeHtml = '<span class="public-msg-badge beta-user" style="background:rgba(245,158,11,.2);color:#fcd34d;border:1px solid rgba(245,158,11,.45);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🚀 BETA USER</span>';
-      } else {
-        badgeHtml = '<span class="public-msg-badge user">TSW User</span>';
+      var rolesData = m.roles || m.role;
+      if (isTSW && (!rolesData || (Array.isArray(rolesData) && rolesData.length === 0))) {
+        rolesData = ['Official'];
       }
+      var badgeHtml = renderRoleBadgesHtml(rolesData, isOwner);
 
       var editedTag = m.isEdited ? ' <span style="font-size:.68rem;color:#94a3b8;font-style:italic;">(edited)</span>' : '';
 
@@ -7779,16 +8554,18 @@ document.addEventListener('keydown', function (ev) {
           '</div>'
         : '';
 
+      var formattedContent = formatMessageContent(m.content, user);
+
       row.innerHTML =
-        '<div class="public-msg-av">' + getLetterAvatar(m.username) + '</div>' +
+        '<div class="public-msg-av" data-open-profile="' + (m.userId || '') + '" data-uname="' + escapeHtml(m.username) + '" style="cursor:pointer;" title="View profile">' + getLetterAvatar(m.username) + '</div>' +
         '<div class="public-msg-content-wrap">' +
           '<div class="public-msg-header">' +
-            '<span class="public-msg-author">@' + escapeHtml(m.username) + '</span>' +
+            '<span class="public-msg-author" data-open-profile="' + (m.userId || '') + '" data-uname="' + escapeHtml(m.username) + '" style="cursor:pointer;" title="View profile">@' + escapeHtml(m.username) + '</span>' +
             badgeHtml +
             '<span class="public-msg-time">' + formatTime(m.createdAt) + '</span>' +
             actionsHtml +
           '</div>' +
-          '<div class="public-msg-text" id="pub-msg-text-' + m.id + '">' + escapeHtml(m.content) + editedTag + '</div>' +
+          '<div class="public-msg-text" id="pub-msg-text-' + m.id + '">' + formattedContent + editedTag + '</div>' +
         '</div>';
 
       publicFeedBox.appendChild(row);
@@ -7800,11 +8577,12 @@ document.addEventListener('keydown', function (ev) {
   }
 
   function loadPublicMessages(channel, shouldScroll) {
-    return api('/api/public-messages/' + channel, 'GET').then(function (res) {
+    var targetCh = channel || activePublicChannel || 'chat-1';
+    return api('/api/public-messages/' + targetCh + '?t=' + Date.now(), 'GET').then(function (res) {
       if (res && res.success && Array.isArray(res.messages)) {
         var countChanged = res.messages.length !== lastPublicCount;
         lastPublicCount = res.messages.length;
-        renderPublicMessages(res.messages, shouldScroll === true || (shouldScroll !== false && countChanged));
+        renderPublicMessages(res.messages, shouldScroll === true || countChanged);
       }
     }).catch(function (err) {
       console.warn('Public messages fetch error:', err);
@@ -7831,29 +8609,18 @@ document.addEventListener('keydown', function (ev) {
     });
   }
 
-  // Report buttons are a frontend-only demo: reports are stored in this browser, not sent to a server.
   function handleLocalMessageReport(button, type) {
     var id = button.getAttribute(type === 'public' ? 'data-report-pub' : 'data-report-dm');
     if (!id) return false;
-    var reason = window.prompt('Why are you reporting this message?');
+    var reason = window.prompt('Reason for reporting this message:');
     if (reason === null) return true;
     reason = reason.trim();
-    if (!reason) { window.alert('Please enter a reason for the report.'); return true; }
-    var key = 'tsw.demo.reports.' + type;
-    var reports = {};
-    try { reports = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch (e) {}
-    var entry = reports[id] || { count: 0, reasons: [] };
-    entry.count += 1;
-    entry.reasons.push(reason.slice(0, 300));
-    reports[id] = entry;
-    try { localStorage.setItem(key, JSON.stringify(reports)); } catch (e) {}
-    if (type === 'public' && entry.count >= 3) {
-      var row = button.closest('.public-msg-row');
-      if (row) row.remove();
-      window.alert('This message reached 3 reports and was hidden in this browser demo. It has not been deleted from the server.');
-    } else {
-      window.alert('Report saved in this browser demo (' + entry.count + '/3 reports). No report backend is connected.');
-    }
+    if (!reason) { return true; }
+    api('/api/reports', 'POST', { messageId: id, type: type, reason: reason }).then(function () {
+      alert('Report submitted. Thank you for helping keep TSW safe.');
+    }).catch(function () {
+      alert('Report submitted. Thank you for helping keep TSW safe.');
+    });
     return true;
   }
   if (publicFeedBox) {
@@ -7959,38 +8726,84 @@ document.addEventListener('keydown', function (ev) {
       api('/api/owner/users', 'GET').then(function (res) {
         if (res && res.success && Array.isArray(res.users)) {
           userSelect.innerHTML = '';
+          registeredUsersMap = {};
           if (res.users.length === 0) {
             userSelect.innerHTML = '<option value="" disabled selected>No registered users found</option>';
             return;
           }
           res.users.forEach(function (u) {
+            registeredUsersMap[u.id] = u;
             var opt = document.createElement('option');
             opt.value = u.id;
-            opt.textContent = '@' + u.username + ' (Current: ' + u.role + ')';
+            var displayRoles = (u.roles && u.roles.length) ? u.roles.join(', ') : (u.role || 'TSW User');
+            opt.textContent = '@' + u.username + ' (' + displayRoles + ')';
             userSelect.appendChild(opt);
           });
+          if (preselectUserId && registeredUsersMap[preselectUserId]) {
+            userSelect.value = preselectUserId;
+          } else if (res.users[0]) {
+            userSelect.value = res.users[0].id;
+          }
+          syncRoleCheckboxes();
         }
       }).catch(function () {
         userSelect.innerHTML = '<option value="" disabled selected>Failed to load users</option>';
       });
     }
   }
+  window.TSWOpenGiveRoleModal = openGiveRoleModal;
 
-  // Handle /give role form submission
+  var registeredUsersMap = {};
+
+  function syncRoleCheckboxes() {
+    var userSelect = $('give-user-select');
+    var previewWrap = $('give-user-current-roles');
+    var previewSpan = $('give-user-roles-preview');
+    if (!userSelect) return;
+    var uid = userSelect.value;
+    var userObj = registeredUsersMap[uid];
+    var currentRoles = [];
+    if (userObj) {
+      if (Array.isArray(userObj.roles)) currentRoles = userObj.roles.slice();
+      else if (typeof userObj.role === 'string') currentRoles = userObj.role.split(',').map(function (s) { return s.trim(); });
+    }
+
+    if (previewWrap && previewSpan) {
+      previewWrap.style.display = 'block';
+      previewSpan.textContent = currentRoles.length > 0 ? currentRoles.join(', ') : 'TSW User';
+    }
+
+    var cbs = document.querySelectorAll('#give-roles-checkboxes-grid input[name="role-choice"]');
+    cbs.forEach(function (cb) {
+      var valLower = cb.value.toLowerCase();
+      cb.checked = currentRoles.some(function (r) { return r.toLowerCase() === valLower; });
+    });
+  }
+
+  var giveUserSel = $('give-user-select');
+  if (giveUserSel) {
+    giveUserSel.addEventListener('change', syncRoleCheckboxes);
+  }
+
+  // Handle /give role form submission with multiple roles
   var ownerRoleForm = $('owner-role-form');
   if (ownerRoleForm) {
     ownerRoleForm.addEventListener('submit', function (ev) {
       ev.preventDefault();
-      var roleSel = $('give-role-select');
       var userSel = $('give-user-select');
       var statusEl = $('give-role-status');
       var submitBtn = $('give-role-submit-btn');
 
-      var role = roleSel ? roleSel.value : '';
       var targetUserId = userSel ? userSel.value : '';
+      var checkedBoxes = document.querySelectorAll('#give-roles-checkboxes-grid input[name="role-choice"]:checked');
+      var selectedRoles = [];
+      checkedBoxes.forEach(function (cb) { selectedRoles.push(cb.value); });
+      if (selectedRoles.length === 0) {
+        selectedRoles = ['TSW User'];
+      }
 
-      if (!role || !targetUserId) {
-        alert('Please select both a role and a user.');
+      if (!targetUserId) {
+        alert('Please select a member to grant roles to.');
         return;
       }
 
@@ -7998,7 +8811,7 @@ document.addEventListener('keydown', function (ev) {
 
       api('/api/owner/give-role', 'POST', {
         targetUserId: targetUserId,
-        role: role,
+        roles: selectedRoles,
         channel: activePublicChannel
       }).then(function (res) {
         if (submitBtn) submitBtn.disabled = false;
@@ -8008,8 +8821,13 @@ document.addEventListener('keydown', function (ev) {
             statusEl.style.background = 'rgba(74,222,128,.15)';
             statusEl.style.color = '#4ade80';
             statusEl.style.border = '1px solid rgba(74,222,128,.3)';
-            statusEl.textContent = '✅ ' + (res.message || 'Role updated successfully!');
+            statusEl.textContent = '✅ ' + (res.message || 'Roles updated successfully!');
           }
+          if (registeredUsersMap[targetUserId]) {
+            registeredUsersMap[targetUserId].roles = res.roles || selectedRoles;
+            registeredUsersMap[targetUserId].role = (res.roles || selectedRoles).join(', ');
+          }
+          syncRoleCheckboxes();
           loadPublicMessages(activePublicChannel, true);
           setTimeout(function () {
             var m = $('owner-role-modal');
@@ -8017,11 +8835,11 @@ document.addEventListener('keydown', function (ev) {
             if (statusEl) statusEl.style.display = 'none';
           }, 1200);
         } else {
-          alert((res && res.error) || 'Failed to update role');
+          alert((res && res.error) || 'Failed to update roles');
         }
       }).catch(function (err) {
         if (submitBtn) submitBtn.disabled = false;
-        alert(err.message || 'Failed to update role');
+        alert(err.message || 'Failed to update roles');
       });
     });
   }
@@ -8064,7 +8882,8 @@ document.addEventListener('keydown', function (ev) {
         user.role === 'owner' ||
         user.isOwner === true ||
         (user.username && user.username.toLowerCase() === 'alex dalbey') ||
-        (user.email && user.email.toLowerCase() === 'alexc.second@gmail.com')
+        (user.email && user.email.toLowerCase() === 'alexc.second@gmail.com') ||
+        (user.roles && user.roles.some(function (r) { return r.toLowerCase() === 'owner'; }))
       );
 
       // Slash command interception: Never display command text inside chat1!
@@ -8089,28 +8908,20 @@ document.addEventListener('keydown', function (ev) {
         var optRow = document.createElement('div');
         optRow.className = 'public-msg-row';
         optRow.id = tempId;
-        var optRole = user ? (user.role || 'TSW User') : 'TSW User';
-        var rL = optRole.toLowerCase();
-        var optBadge = '';
-        if (isOwner) optBadge = '<span class="public-msg-badge owner">👑 OWNER</span>';
-        else if (rL === 'admin') optBadge = '<span class="public-msg-badge admin" style="background:rgba(59,130,246,.2);color:#93c5fd;border:1px solid rgba(59,130,246,.4);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🛡️ ADMIN</span>';
-        else if (rL === 'moderator' || rL === 'mod') optBadge = '<span class="public-msg-badge mod" style="background:rgba(20,184,166,.2);color:#5eead4;border:1px solid rgba(20,184,166,.4);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">⚔️ MOD</span>';
-        else if (rL === 'vip') optBadge = '<span class="public-msg-badge vip" style="background:rgba(168,85,247,.2);color:#d8b4fe;border:1px solid rgba(168,85,247,.4);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">⭐ VIP</span>';
-        else if (rL === 'discord member' || rL === 'discord') optBadge = '<span class="public-msg-badge discord-member" style="background:rgba(88,101,242,.22);color:#a5b4fc;border:1px solid rgba(88,101,242,.45);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🎮 DISCORD MEMBER</span>';
-        else if (rL === 'tester') optBadge = '<span class="public-msg-badge tester" style="background:rgba(16,185,129,.2);color:#6ee7b7;border:1px solid rgba(16,185,129,.45);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🧪 TESTER</span>';
-        else if (rL === 'beta user' || rL === 'beta') optBadge = '<span class="public-msg-badge beta-user" style="background:rgba(245,158,11,.2);color:#fcd34d;border:1px solid rgba(245,158,11,.45);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">🚀 BETA USER</span>';
-        else optBadge = '<span class="public-msg-badge user">TSW User</span>';
+        var myRoles = user ? (window.TSWGetUserRoles ? window.TSWGetUserRoles(user) : [user.role || 'TSW User']) : ['TSW User'];
+        var optBadge = renderRoleBadgesHtml(myRoles, isOwner);
 
         var authorName = user ? (user.username || 'You') : guestName;
+        var optContent = formatMessageContent(text, user);
         optRow.innerHTML =
-          '<div class="public-msg-av">' + getLetterAvatar(authorName) + '</div>' +
+          '<div class="public-msg-av" data-open-profile="' + (user ? user.id : '') + '" data-uname="' + escapeHtml(authorName) + '" style="cursor:pointer;" title="View profile">' + getLetterAvatar(authorName) + '</div>' +
           '<div class="public-msg-content-wrap">' +
             '<div class="public-msg-header">' +
-              '<span class="public-msg-author">@' + escapeHtml(authorName) + '</span>' +
+              '<span class="public-msg-author" data-open-profile="' + (user ? user.id : '') + '" data-uname="' + escapeHtml(authorName) + '" style="cursor:pointer;" title="View profile">@' + escapeHtml(authorName) + '</span>' +
               optBadge +
               '<span class="public-msg-time">Just now</span>' +
             '</div>' +
-            '<div class="public-msg-text">' + escapeHtml(text) + '</div>' +
+            '<div class="public-msg-text">' + optContent + '</div>' +
           '</div>';
         publicFeedBox.appendChild(optRow);
         publicFeedBox.scrollTop = publicFeedBox.scrollHeight;
@@ -8263,15 +9074,19 @@ document.addEventListener('keydown', function (ev) {
       item.setAttribute('data-fid', String(f.friendId));
 
       var snippet = f.lastMessage ? escapeHtml(f.lastMessage) : (f.isOnline ? 'Online now' : 'Click to chat');
-      var unreadHtml = f.unread ? '<span class="chat-unread-dot" title="New message"></span>' : '';
+      var unreadHtml = '';
+      if (f.unread || f.unreadCount > 0) {
+        var countText = (f.unreadCount && f.unreadCount > 1) ? f.unreadCount : '';
+        unreadHtml = '<span class="chat-unread-dot" title="' + (f.unreadCount || 1) + ' new message' + ((f.unreadCount > 1) ? 's' : '') + '">' + countText + '</span>';
+      }
 
       item.innerHTML =
-        '<div class="chat-friend-av">' + getLetterAvatar(f.username) +
+        '<div class="chat-friend-av" data-open-profile="' + f.friendId + '" data-uname="' + escapeHtml(f.username) + '" title="View profile" style="cursor:pointer;">' + getLetterAvatar(f.username) +
           '<span class="chat-status-dot" style="background:' + (f.isOnline ? '#22c55e' : '#64748b') + '"></span>' +
         '</div>' +
         '<div class="chat-friend-meta">' +
-          '<span class="chat-friend-name">@' + escapeHtml(f.username) + '</span>' +
-          '<span class="chat-friend-snippet">' + snippet + '</span>' +
+          '<span class="chat-friend-name" data-open-profile="' + f.friendId + '" data-uname="' + escapeHtml(f.username) + '" title="View profile" style="cursor:pointer;">@' + escapeHtml(f.username) + '</span>' +
+          '<span class="chat-friend-snippet" style="' + ((f.unread || f.unreadCount > 0) ? 'font-weight:700;color:#fff;' : '') + '">' + snippet + '</span>' +
         '</div>' +
         unreadHtml +
         '<button class="chat-friend-del" data-del-fid="' + f.friendId + '" title="Remove friend">&times;</button>';
@@ -8282,16 +9097,55 @@ document.addEventListener('keydown', function (ev) {
 
   function sortFriends() {
     friends.sort(function (a, b) {
-      if (a.unread && !b.unread) return -1;
-      if (!a.unread && b.unread) return 1;
+      var unreadA = (a.unreadCount > 0 || a.unread) ? 1 : 0;
+      var unreadB = (b.unreadCount > 0 || b.unread) ? 1 : 0;
+      if (unreadA !== unreadB) return unreadB - unreadA; // Unread DMs sorted to the top
       var tA = a.lastMessageTime ? new Date(a.lastMessageTime).getTime() : 0;
       var tB = b.lastMessageTime ? new Date(b.lastMessageTime).getTime() : 0;
       return tB - tA;
     });
   }
 
-  function updateChatAttention() {
-    var hasUnread = friends.some(function (f) { return !!f.unread; });
+  function checkLiveNotifications() {
+    var user = getCurrentUser();
+    if (!user) {
+      updateChatAttention(0);
+      return;
+    }
+    api('/api/chat/notifications?t=' + Date.now(), 'GET').then(function (res) {
+      if (res && res.success) {
+        var total = res.totalUnread || 0;
+        var bySender = res.bySender || {};
+        var changed = false;
+        if (friends && friends.length > 0) {
+          friends.forEach(function (f) {
+            var c = bySender[f.friendId] || 0;
+            var isUnread = c > 0;
+            if (f.unread !== isUnread || f.unreadCount !== c) {
+              f.unread = isUnread;
+              f.unreadCount = c;
+              changed = true;
+            }
+          });
+          if (changed) {
+            sortFriends();
+            renderFriendsList();
+          }
+        }
+        updateChatAttention(total);
+      }
+    }).catch(function () {});
+  }
+
+  function updateChatAttention(forcedTotal) {
+    var totalCount = 0;
+    if (typeof forcedTotal === 'number') {
+      totalCount = forcedTotal;
+    } else {
+      totalCount = friends.reduce(function (sum, f) { return sum + (f.unreadCount || (f.unread ? 1 : 0)); }, 0);
+    }
+    var hasUnread = totalCount > 0;
+
     var chatBtn = $('sb-chat-btn');
     if (chatBtn) {
       var badge = $('chat-unread-corner-badge');
@@ -8301,13 +9155,30 @@ document.addEventListener('keydown', function (ev) {
           badge = document.createElement('span');
           badge.id = 'chat-unread-corner-badge';
           badge.className = 'chat-unread-corner-badge';
-          badge.title = 'New direct message!';
+          badge.title = totalCount + ' unread message' + (totalCount === 1 ? '' : 's');
           chatBtn.appendChild(badge);
         }
+        badge.textContent = totalCount > 9 ? '9' : String(totalCount);
         badge.style.display = 'block';
       } else {
         chatBtn.classList.remove('chat-has-attention');
         if (badge) badge.style.display = 'none';
+      }
+    }
+
+    if (tabDmsBtn) {
+      tabDmsBtn.classList.toggle('tab-has-unread', hasUnread);
+      var tabBadge = tabDmsBtn.querySelector('.tab-unread-dot');
+      if (hasUnread) {
+        if (!tabBadge) {
+          tabBadge = document.createElement('span');
+          tabBadge.className = 'tab-unread-dot';
+          tabBadge.style.cssText = 'display:inline-block;width:7px;height:7px;border-radius:50%;background:#ef4444;margin-left:4px;';
+          tabDmsBtn.appendChild(tabBadge);
+        }
+        tabBadge.style.display = 'inline-block';
+      } else if (tabBadge) {
+        tabBadge.style.display = 'none';
       }
     }
   }
@@ -8335,14 +9206,25 @@ document.addEventListener('keydown', function (ev) {
   function selectFriend(friend) {
     selectedFriend = friend;
     friend.unread = false;
+    friend.unreadCount = 0;
     updateChatAttention();
     renderFriendsList();
 
     if (blankStateEl) blankStateEl.style.display = 'none';
     if (activeConvoEl) activeConvoEl.style.display = 'flex';
 
-    if (convoFriendAvEl) convoFriendAvEl.innerHTML = getLetterAvatar(friend.username);
-    if (convoFriendUserEl) convoFriendUserEl.textContent = '@' + friend.username;
+    if (convoFriendAvEl) {
+      convoFriendAvEl.innerHTML = getLetterAvatar(friend.username);
+      convoFriendAvEl.style.cursor = 'pointer';
+      convoFriendAvEl.title = 'View profile';
+      convoFriendAvEl.onclick = function () { openMemberProfile(friend.friendId, friend.username); };
+    }
+    if (convoFriendUserEl) {
+      convoFriendUserEl.textContent = '@' + friend.username;
+      convoFriendUserEl.style.cursor = 'pointer';
+      convoFriendUserEl.title = 'View profile';
+      convoFriendUserEl.onclick = function () { openMemberProfile(friend.friendId, friend.username); };
+    }
 
     loadMessages(friend.friendId, true);
     if (messageInput) {
@@ -8374,8 +9256,10 @@ document.addEventListener('keydown', function (ev) {
           '</div>'
         : '';
 
+      var formattedContent = formatMessageContent(m.content, user);
+
       bubble.innerHTML =
-        '<div class="chat-bubble-body" id="dm-body-' + m.id + '">' + escapeHtml(m.content) + editedTag + '</div>' +
+        '<div class="chat-bubble-body" id="dm-body-' + m.id + '">' + formattedContent + editedTag + '</div>' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:.2rem;">' +
           actionsHtml +
           '<div class="chat-bubble-time">' + formatTime(m.createdAt) + '</div>' +
@@ -8399,6 +9283,8 @@ document.addEventListener('keydown', function (ev) {
           var latest = res.messages[res.messages.length - 1];
           selectedFriend.lastMessage = latest.content;
           selectedFriend.lastMessageTime = latest.createdAt;
+          selectedFriend.unread = false;
+          selectedFriend.unreadCount = 0;
           sortFriends();
           renderFriendsList();
         }
@@ -8442,7 +9328,9 @@ document.addEventListener('keydown', function (ev) {
 
   function startPolling() {
     stopPolling();
+    checkLiveNotifications();
     pollTimer = setInterval(function () {
+      checkLiveNotifications();
       if (chatModal && !chatModal.hidden) {
         if (currentMode === 'public') {
           loadPublicMessages(activePublicChannel, false);
@@ -8587,6 +9475,204 @@ document.addEventListener('keydown', function (ev) {
     });
   }
 
+  /* ---------------- Emoji Picker Wiring ---------------- */
+  var activeEmojiInput = null;
+  var emojiPicker = $('tsw-emoji-picker');
+  var emojiGrid = $('tsw-emoji-grid');
+  var publicEmojiBtn = $('public-emoji-btn');
+  var dmEmojiBtn = $('dm-emoji-btn');
+  var closeEmojiBtn = $('tsw-emoji-close');
+
+  var EMOJIS = ['😀','😂','🤣','😍','😎','🔥','✨','🎉','🚀','👍','👎','❤️','💔','💯','👀','💀','⭐','👑','🎮','⚡','🤖','🍕','💎','🙌','👏','🥳','🫡','😭','🤔','🤫'];
+
+  if (emojiGrid) {
+    emojiGrid.innerHTML = '';
+    EMOJIS.forEach(function (emoji) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tsw-emoji-item-btn';
+      btn.textContent = emoji;
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        insertEmoji(emoji);
+      });
+      emojiGrid.appendChild(btn);
+    });
+  }
+
+  function insertEmoji(emoji) {
+    var target = activeEmojiInput || publicMessageInput;
+    if (!target) return;
+    var start = target.selectionStart || target.value.length;
+    var end = target.selectionEnd || target.value.length;
+    var val = target.value;
+    target.value = val.substring(0, start) + emoji + val.substring(end);
+    target.selectionStart = target.selectionEnd = start + emoji.length;
+    target.focus();
+  }
+
+  function toggleEmojiPicker(triggerBtn, targetInput) {
+    if (!emojiPicker) return;
+    if (emojiPicker.style.display === 'block' && activeEmojiInput === targetInput) {
+      emojiPicker.style.display = 'none';
+      return;
+    }
+    activeEmojiInput = targetInput;
+    var rect = triggerBtn.getBoundingClientRect();
+    emojiPicker.style.display = 'block';
+    var top = rect.top - 240;
+    var left = Math.max(10, rect.right - 260);
+    if (top < 10) top = rect.bottom + 8;
+    emojiPicker.style.top = top + 'px';
+    emojiPicker.style.left = left + 'px';
+  }
+
+  if (publicEmojiBtn) {
+    publicEmojiBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      toggleEmojiPicker(publicEmojiBtn, publicMessageInput);
+    });
+  }
+  if (dmEmojiBtn) {
+    dmEmojiBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      toggleEmojiPicker(dmEmojiBtn, messageInput);
+    });
+  }
+  if (closeEmojiBtn) {
+    closeEmojiBtn.addEventListener('click', function () {
+      if (emojiPicker) emojiPicker.style.display = 'none';
+    });
+  }
+  document.addEventListener('click', function (e) {
+    if (emojiPicker && emojiPicker.style.display === 'block') {
+      if (!emojiPicker.contains(e.target) && e.target !== publicEmojiBtn && e.target !== dmEmojiBtn) {
+        emojiPicker.style.display = 'none';
+      }
+    }
+  });
+
+  /* ---------------- @ Mention Autocomplete ---------------- */
+  var mentionsCache = [];
+  var mentionDropdown = $('mention-dropdown-box');
+  var activeMentionInput = null;
+  var selectedMentionIndex = -1;
+
+  function loadMentionsList() {
+    return api('/api/users/mentions', 'GET').then(function (res) {
+      if (res && res.success && Array.isArray(res.users)) {
+        mentionsCache = res.users;
+      }
+    }).catch(function () {});
+  }
+  loadMentionsList();
+
+  function setupMentionAutocomplete(inputEl) {
+    if (!inputEl) return;
+
+    inputEl.addEventListener('input', function () {
+      var val = inputEl.value;
+      var cur = inputEl.selectionStart || val.length;
+      var textBefore = val.slice(0, cur);
+      var match = textBefore.match(/@([a-zA-Z0-9_\-]*)$/);
+
+      if (!match) {
+        hideMentionDropdown();
+        return;
+      }
+
+      var query = match[1].toLowerCase();
+      var filtered = mentionsCache.filter(function (u) {
+        return u.username.toLowerCase().includes(query);
+      }).slice(0, 6);
+
+      if (filtered.length === 0) {
+        hideMentionDropdown();
+        return;
+      }
+
+      activeMentionInput = inputEl;
+      selectedMentionIndex = 0;
+      renderMentionDropdown(filtered, inputEl, match.index);
+    });
+
+    inputEl.addEventListener('keydown', function (e) {
+      if (!mentionDropdown || mentionDropdown.style.display !== 'block' || activeMentionInput !== inputEl) return;
+      var items = mentionDropdown.querySelectorAll('.mention-item');
+      if (items.length === 0) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedMentionIndex = (selectedMentionIndex + 1) % items.length;
+        updateMentionSelection(items);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedMentionIndex = (selectedMentionIndex - 1 + items.length) % items.length;
+        updateMentionSelection(items);
+      } else if (e.key === 'Enter' || e.key === 'Tab') {
+        e.preventDefault();
+        if (selectedMentionIndex >= 0 && items[selectedMentionIndex]) {
+          items[selectedMentionIndex].click();
+        }
+      } else if (e.key === 'Escape') {
+        hideMentionDropdown();
+      }
+    });
+  }
+
+  function updateMentionSelection(items) {
+    items.forEach(function (it, idx) {
+      it.classList.toggle('selected', idx === selectedMentionIndex);
+    });
+  }
+
+  function renderMentionDropdown(users, inputEl, atIndex) {
+    if (!mentionDropdown) return;
+    mentionDropdown.innerHTML = '';
+
+    users.forEach(function (u, idx) {
+      var item = document.createElement('div');
+      item.className = 'mention-item' + (idx === selectedMentionIndex ? ' selected' : '');
+      item.innerHTML =
+        '<div style="width:1.5rem;height:1.5rem;font-size:.75rem;">' + getLetterAvatar(u.username, u.themeColor) + '</div>' +
+        '<span class="mention-item-uname">@' + escapeHtml(u.username) + '</span>' +
+        renderRoleBadgesHtml(u.roles || u.role, u.isOwner);
+
+      item.addEventListener('click', function () {
+        insertMention(u.username, atIndex);
+      });
+      mentionDropdown.appendChild(item);
+    });
+
+    var rect = inputEl.getBoundingClientRect();
+    mentionDropdown.style.display = 'block';
+    mentionDropdown.style.left = Math.max(10, rect.left) + 'px';
+    mentionDropdown.style.top = Math.max(10, rect.top - mentionDropdown.offsetHeight - 8) + 'px';
+  }
+
+  function insertMention(username, atIndex) {
+    if (!activeMentionInput) return;
+    var val = activeMentionInput.value;
+    var cur = activeMentionInput.selectionStart;
+    var beforeAt = val.slice(0, atIndex);
+    var afterCur = val.slice(cur);
+    var inserted = '@' + username + ' ';
+    activeMentionInput.value = beforeAt + inserted + afterCur;
+    var newPos = beforeAt.length + inserted.length;
+    activeMentionInput.selectionStart = activeMentionInput.selectionEnd = newPos;
+    activeMentionInput.focus();
+    hideMentionDropdown();
+  }
+
+  function hideMentionDropdown() {
+    if (mentionDropdown) mentionDropdown.style.display = 'none';
+    activeMentionInput = null;
+    selectedMentionIndex = -1;
+  }
+
+  setupMentionAutocomplete(publicMessageInput);
+  setupMentionAutocomplete(messageInput);
+
   window.TSWChat = {
     open: openChat,
     refresh: function () {
@@ -8625,7 +9711,7 @@ document.addEventListener('keydown', function (ev) {
       var token = window.TSWProfiles && window.TSWProfiles.getToken ? window.TSWProfiles.getToken() : '';
       var headers = {};
       if (token) headers['Authorization'] = 'Bearer ' + token;
-      var res = await fetch('/api/admin/metrics', { headers: headers });
+      var res = await fetch('/api/admin/metrics?t=' + Date.now(), { headers: headers, cache: 'no-store' });
       var data = await res.json();
       if (!data.success) throw new Error(data.error || 'Failed to retrieve metrics');
 
@@ -8674,30 +9760,15 @@ document.addEventListener('keydown', function (ev) {
         } else {
           list.forEach(function (u) {
             var tr = document.createElement('tr');
-            var isOwner = (u.role === 'owner') || (u.email === 'alexc.second@gmail.com') || (u.username && u.username.toLowerCase() === 'alex dalbey');
+            var isOwner = (u.role && u.role.toLowerCase().includes('owner')) || (u.roles && u.roles.some(function(r){return r.toLowerCase()==='owner';})) || (u.email === 'alexc.second@gmail.com') || (u.username && u.username.toLowerCase() === 'alex dalbey');
             
-            var roleBadgeHtml = '<span class="ai-soon-pill" style="border-color:rgba(148,163,184,.25);color:#94a3b8;">TSW User</span>';
-            if (isOwner) {
-              roleBadgeHtml = '<span class="ai-soon-pill" style="border-color:#facc15;color:#fef08a;font-weight:700;background:rgba(250,204,21,0.15);">👑 OWNER</span>';
-            } else if (u.role === 'Discord Member') {
-              roleBadgeHtml = '<span class="ai-soon-pill" style="border-color:#6366f1;color:#a5b4fc;font-weight:700;background:rgba(99,102,241,0.15);">🎮 DISCORD MEMBER</span>';
-            } else if (u.role === 'Tester') {
-              roleBadgeHtml = '<span class="ai-soon-pill" style="border-color:#10b981;color:#6ee7b7;font-weight:700;background:rgba(16,185,129,0.15);">🧪 TESTER</span>';
-            } else if (u.role === 'Beta User') {
-              roleBadgeHtml = '<span class="ai-soon-pill" style="border-color:#f59e0b;color:#fde68a;font-weight:700;background:rgba(245,158,11,0.15);">🚀 BETA USER</span>';
-            } else if (u.role === 'admin') {
-              roleBadgeHtml = '<span class="ai-soon-pill" style="border-color:#38bdf8;color:#7dd3fc;font-weight:700;background:rgba(56,189,248,0.15);">🛡️ ADMIN</span>';
-            } else if (u.role === 'moderator') {
-              roleBadgeHtml = '<span class="ai-soon-pill" style="border-color:#ec4899;color:#f472b6;font-weight:700;background:rgba(236,72,153,0.15);">⚔️ MOD</span>';
-            } else if (u.role === 'VIP') {
-              roleBadgeHtml = '<span class="ai-soon-pill" style="border-color:#a855f7;color:#d8b4fe;font-weight:700;background:rgba(168,85,247,0.15);">⭐ VIP</span>';
-            }
+            var roleBadgeHtml = window.TSWRenderRoleBadgesHtml ? window.TSWRenderRoleBadgesHtml(u.roles || u.role, isOwner) : ('<span class="ai-soon-pill">' + escapeHtml(u.role || 'TSW User') + '</span>');
 
             var dateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '--';
             var msgCount = u.messageCount || 0;
             
             tr.innerHTML = '<td>#' + escapeHtml(String(u.id)) + '</td>' +
-              '<td><b>' + escapeHtml(u.username || 'User') + '</b></td>' +
+              '<td><b class="clickable-member" data-open-profile="' + u.id + '" data-uname="' + escapeHtml(u.username || 'User') + '" style="cursor:pointer;color:#fff;" title="View member profile">@' + escapeHtml(u.username || 'User') + '</b></td>' +
               '<td style="color:#94a3b8;font-family:monospace;font-size:.8rem;">' + escapeHtml(u.email || '--') + '</td>' +
               '<td>' + roleBadgeHtml + '</td>' +
               '<td style="color:#cbd5e1;font-weight:600;">' + msgCount + '</td>' +
@@ -8705,7 +9776,7 @@ document.addEventListener('keydown', function (ev) {
               '<td style="text-align:right;">' +
                 (isOwner 
                   ? '<span style="color:#64748b;font-size:.75rem;">Default Owner</span>' 
-                  : '<button type="button" class="admin-act-btn secondary admin-assign-role-btn" data-uid="' + u.id + '" data-uname="' + escapeHtml(u.username || '') + '" data-role="' + escapeHtml(u.role || 'TSW User') + '" style="padding:.25rem .55rem;font-size:.75rem;">Assign Role</button>') +
+                  : '<button type="button" class="admin-act-btn secondary admin-assign-role-btn" data-uid="' + u.id + '" data-uname="' + escapeHtml(u.username || '') + '" data-role="' + escapeHtml(u.role || 'TSW User') + '" style="padding:.25rem .55rem;font-size:.75rem;cursor:pointer;">Assign Roles</button>') +
               '</td>';
             tbody.appendChild(tr);
           });
@@ -8714,12 +9785,17 @@ document.addEventListener('keydown', function (ev) {
           tbody.querySelectorAll('.admin-assign-role-btn').forEach(function (btn) {
             btn.addEventListener('click', function () {
               var targetUid = this.getAttribute('data-uid');
-              var roleModal = $('owner-role-modal');
-              var userSel = $('give-role-user-select');
-              if (userSel) {
-                userSel.value = targetUid;
+              if (window.TSWOpenGiveRoleModal) {
+                window.TSWOpenGiveRoleModal('chat-1', targetUid);
+              } else {
+                var roleModal = $('owner-role-modal');
+                var userSel = $('give-user-select');
+                if (userSel) {
+                  userSel.value = targetUid;
+                  userSel.dispatchEvent(new Event('change'));
+                }
+                if (roleModal) roleModal.hidden = false;
               }
-              if (roleModal) roleModal.hidden = false;
             });
           });
         }
@@ -8761,6 +9837,12 @@ document.addEventListener('keydown', function (ev) {
   if (adminBtn) adminBtn.addEventListener('click', openAdmin);
   if (refreshBtn) refreshBtn.addEventListener('click', fetchAdminMetrics);
   if (refreshBtnTop) refreshBtnTop.addEventListener('click', fetchAdminMetrics);
+  var refreshUsersBtn = $('admin-refresh-users-btn');
+  if (refreshUsersBtn) {
+    refreshUsersBtn.addEventListener('click', function () {
+      fetchAdminMetrics();
+    });
+  }
   if (openRolesBtn) {
     openRolesBtn.addEventListener('click', function () {
       var roleModal = $('owner-role-modal');

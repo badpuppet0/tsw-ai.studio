@@ -39,12 +39,20 @@ import {
 	getOrCreateGuestUser,
 	updateUserRole,
 	getAllUsersForOwner,
-	sendOfficialBotMessage
+	sendOfficialBotMessage,
+	getUserProfileCard,
+	updateUserBio,
+	getAllMentionsList,
+	getUnreadNotifications,
+	parseRoles,
+	userHasRole
 } from "./db/users.ts";
 import { verifyAuth } from "./middleware/auth.ts";
 import { GoogleGenAI } from "@google/genai";
 
 const publicPath = fileURLToPath(new URL("../public/", import.meta.url));
+const SERVER_BOOT_TIME = Date.now();
+const APP_VERSION = "1.6.01";
 
 // Wisp Configuration: Refer to the documentation at https://www.npmjs.com/package/@mercuryworkshop/wisp-js
 
@@ -272,6 +280,7 @@ fastify.get("/api/auth/me", async (req, reply) => {
 							username: user.username,
 							email: user.email,
 							role: user.role || (isOwner ? 'owner' : 'TSW User'),
+							roles: parseRoles(user.role || (isOwner ? 'owner' : 'TSW User')),
 							isOwner,
 							isAdmin: isOwner
 						},
@@ -532,6 +541,143 @@ fastify.get("/api/users/search", async (req, reply) => {
 	}
 });
 
+// Autocomplete list of all registered users for @ mentions
+fastify.get("/api/users/mentions", async (req, reply) => {
+	reply.header("Cache-Control", "no-store");
+	try {
+		const users = await getAllMentionsList();
+		return { success: true, users };
+	} catch (err) {
+		req.log.error(err);
+		reply.code(500);
+		return { success: false, error: "Failed to load mention users" };
+	}
+});
+
+// Real-Time Server Version and Boot Identifier (for update notification popup)
+fastify.get("/api/system/version", async (req, reply) => {
+	reply.header("Cache-Control", "no-store, no-cache, must-revalidate");
+	return {
+		success: true,
+		version: APP_VERSION,
+		bootTime: SERVER_BOOT_TIME,
+		timestamp: Date.now()
+	};
+});
+
+// View a member's profile by ID or by query param (?id= or ?uname=)
+fastify.get("/api/users/profile", async (req, reply) => {
+	reply.header("Cache-Control", "no-store");
+	try {
+		const q = req.query || {};
+		const lookup = q.id || q.uname || q.username;
+		if (!lookup) {
+			reply.code(400);
+			return { success: false, error: "Missing user identifier" };
+		}
+		const profile = await getUserProfileCard(lookup);
+		return { success: true, profile, user: profile };
+	} catch (err) {
+		reply.code(404);
+		return { success: false, error: err.message || "User not found" };
+	}
+});
+
+// View a member's full profile by route param (Avatar, Username, Created Date, All Roles, Bio)
+fastify.get("/api/users/:id/profile", async (req, reply) => {
+	reply.header("Cache-Control", "no-store");
+	try {
+		const target = req.params.id;
+		const profile = await getUserProfileCard(target);
+		return { success: true, profile, user: profile };
+	} catch (err) {
+		reply.code(404);
+		return { success: false, error: err.message || "User not found" };
+	}
+});
+
+// Update current user's profile bio in Cloud SQL
+fastify.put("/api/users/me/bio", async (req, reply) => {
+	reply.header("Cache-Control", "no-store");
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const body = req.body || {};
+		const bio = (body.bio || "").toString();
+		const res = await updateUserBio(userId, bio);
+		return { success: true, bio: res.bio };
+	} catch (err) {
+		reply.code(err.message.includes("Authentication") ? 401 : 400);
+		return { success: false, error: err.message || "Failed to update bio" };
+	}
+});
+
+// Check unread DM notifications for active user
+fastify.get("/api/chat/notifications", async (req, reply) => {
+	reply.header("Cache-Control", "no-store");
+	try {
+		const authHeader = req.headers.authorization;
+		if (!authHeader) {
+			return { success: true, totalUnread: 0, bySender: {} };
+		}
+		const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
+		const session = verifySessionToken(token);
+		if (!session || !session.userId) {
+			return { success: true, totalUnread: 0, bySender: {} };
+		}
+		const notifs = await getUnreadNotifications(session.userId);
+		return { success: true, ...notifs };
+	} catch (err) {
+		return { success: false, totalUnread: 0, bySender: {} };
+	}
+});
+
+// Friend Requests: Incoming pending requests
+fastify.get("/api/friends/requests", async (req, reply) => {
+	reply.header("Cache-Control", "no-store");
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const requests = await getIncomingFriendRequests(userId);
+		return { success: true, requests };
+	} catch (err) {
+		reply.code(err.message.includes("Authentication") ? 401 : 400);
+		return { success: false, error: err.message };
+	}
+});
+
+// Friend Requests: Accept request
+fastify.post("/api/friends/accept/:requesterId", async (req, reply) => {
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const requesterId = parseInt(req.params.requesterId, 10);
+		if (isNaN(requesterId)) {
+			reply.code(400);
+			return { success: false, error: "Invalid requester ID" };
+		}
+		const result = await acceptFriendRequest(userId, requesterId);
+		return { success: true, friend: result.friend };
+	} catch (err) {
+		reply.code(400);
+		return { success: false, error: err.message };
+	}
+});
+
+// Friend Requests: Decline request
+fastify.post("/api/friends/decline/:requesterId", async (req, reply) => {
+	try {
+		const userId = await getAuthUserId(req, reply);
+		const requesterId = parseInt(req.params.requesterId, 10);
+		if (isNaN(requesterId)) {
+			reply.code(400);
+			return { success: false, error: "Invalid requester ID" };
+		}
+		await declineFriendRequest(userId, requesterId);
+		return { success: true };
+	} catch (err) {
+		reply.code(400);
+		return { success: false, error: err.message };
+	}
+});
+
 fastify.get("/api/friends", async (req, reply) => {
 	reply.header("Cache-Control", "no-store");
 	try {
@@ -672,6 +818,21 @@ fastify.post("/api/public-messages/:channel", async (req, reply) => {
 	}
 });
 
+// Community Reports Endpoint
+fastify.post("/api/reports", async (req, reply) => {
+	reply.header("Cache-Control", "no-store");
+	try {
+		const body = req.body || {};
+		const messageId = parseInt(body.messageId, 10);
+		const type = (body.type || "public").toString();
+		const reason = (body.reason || "").toString().trim().slice(0, 300);
+		return { success: true, logged: true, messageId, type, reason };
+	} catch (err) {
+		reply.code(400);
+		return { success: false, error: err.message };
+	}
+});
+
 // Owner Commands & System Controls (Only account with Owner role can execute)
 fastify.post("/api/chat/command", async (req, reply) => {
 	reply.header("Cache-Control", "no-store");
@@ -722,12 +883,11 @@ fastify.post("/api/chat/command", async (req, reply) => {
 
 		if (lower.startsWith("/give role") || lower.startsWith("/giverole")) {
 			// If targetUserId & role are passed directly
-			const roleParam = body.role || body.newRole;
+			const roleParam = body.roles || body.role || body.newRole;
 			if (body.targetUserId && roleParam) {
 				const targetId = parseInt(body.targetUserId, 10);
-				const role = roleParam.toString().trim();
-				const updated = await updateUserRole(targetId, role);
-				const botMsg = await sendOfficialBotMessage(channel, `👑 @${updated.username} was granted the role [${updated.role}] by Owner Alex Dalbey.`);
+				const updated = await updateUserRole(targetId, roleParam);
+				const botMsg = await sendOfficialBotMessage(channel, `👑 @${updated.username} was granted roles [${updated.roles.join(', ')}] by Owner Alex Dalbey.`);
 				return {
 					success: true,
 					command: "/give role",
@@ -798,70 +958,26 @@ fastify.post("/api/owner/give-role", async (req, reply) => {
 
 		const body = req.body || {};
 		const targetUserId = parseInt(body.targetUserId, 10);
-		const role = (body.role || body.newRole || "").toString().trim();
+		const rolesParam = body.roles || body.role || body.newRole;
 		const channel = (body.channel || "chat-1").toString();
 
-		if (isNaN(targetUserId) || !role) {
+		if (isNaN(targetUserId) || !rolesParam) {
 			reply.code(400);
-			return { success: false, error: "targetUserId and role are required." };
+			return { success: false, error: "targetUserId and roles are required." };
 		}
 
-		const updatedUser = await updateUserRole(targetUserId, role);
-		const botMsg = await sendOfficialBotMessage(channel, `👑 @${updatedUser.username} was granted the role [${updatedUser.role}] by Owner Alex Dalbey.`);
+		const updatedUser = await updateUserRole(targetUserId, rolesParam);
+		const rolesListStr = updatedUser.roles.join(', ');
+		const botMsg = await sendOfficialBotMessage(channel, `👑 @${updatedUser.username} was granted roles [${rolesListStr}] by Owner Alex Dalbey.`);
 
 		return {
 			success: true,
 			user: updatedUser,
 			botMessage: botMsg,
-			message: `Successfully updated @${updatedUser.username} to ${updatedUser.role}`
+			message: `Successfully updated @${updatedUser.username} to ${rolesListStr}`
 		};
 	} catch (err) {
 		reply.code(err.message.includes("Authentication") ? 401 : 400);
-		return { success: false, error: err.message };
-	}
-});
-
-// Friend Requests API Routes
-fastify.get("/api/friends/requests", async (req, reply) => {
-	reply.header("Cache-Control", "no-store");
-	try {
-		const userId = await getAuthUserId(req, reply);
-		const requests = await getIncomingFriendRequests(userId);
-		return { success: true, requests };
-	} catch (err) {
-		reply.code(400);
-		return { success: false, error: err.message };
-	}
-});
-
-fastify.post("/api/friends/accept/:requesterId", async (req, reply) => {
-	try {
-		const userId = await getAuthUserId(req, reply);
-		const requesterId = parseInt(req.params.requesterId, 10);
-		if (isNaN(requesterId)) {
-			reply.code(400);
-			return { success: false, error: "Invalid requester ID" };
-		}
-		const result = await acceptFriendRequest(userId, requesterId);
-		return { success: true, ...result };
-	} catch (err) {
-		reply.code(400);
-		return { success: false, error: err.message };
-	}
-});
-
-fastify.post("/api/friends/decline/:requesterId", async (req, reply) => {
-	try {
-		const userId = await getAuthUserId(req, reply);
-		const requesterId = parseInt(req.params.requesterId, 10);
-		if (isNaN(requesterId)) {
-			reply.code(400);
-			return { success: false, error: "Invalid requester ID" };
-		}
-		const result = await declineFriendRequest(userId, requesterId);
-		return { success: true, ...result };
-	} catch (err) {
-		reply.code(400);
 		return { success: false, error: err.message };
 	}
 });

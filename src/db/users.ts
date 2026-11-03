@@ -16,6 +16,36 @@ export interface ProfileInput {
   isDefault?: boolean;
 }
 
+export const VALID_ROLES = [
+  'owner',
+  'admin',
+  'moderator',
+  'VIP',
+  'Discord Member',
+  'Tester',
+  'Beta User',
+  'TSW User'
+];
+
+export function parseRoles(roleStr?: string | null): string[] {
+  if (!roleStr) return ['TSW User'];
+  const parts = roleStr.split(',').map(s => s.trim()).filter(Boolean);
+  if (parts.length === 0) return ['TSW User'];
+  const normalized = parts.map(p => {
+    const matched = VALID_ROLES.find(r => r.toLowerCase() === p.toLowerCase());
+    return matched || p;
+  });
+  return Array.from(new Set(normalized));
+}
+
+export function userHasRole(user: { id?: number; username?: string | null; email?: string | null; role?: string | null } | null | undefined, targetRole: string): boolean {
+  if (!user) return false;
+  const target = targetRole.toLowerCase().trim();
+  if (target === 'owner' && isUserAdmin(user)) return true;
+  const roles = parseRoles(user.role);
+  return roles.some(r => r.toLowerCase() === target);
+}
+
 export function hashPassword(password: string): string {
   const salt = crypto.randomBytes(16).toString('hex');
   const hash = crypto.scryptSync(password, salt, 64).toString('hex');
@@ -120,7 +150,7 @@ export async function signUpUser(username: string, password: string, email?: str
 
   const token = createSessionToken(user.id, cleanUsername);
   return {
-    user: { id: user.id, username: cleanUsername, email: user.email, role: user.role || role },
+    user: { id: user.id, username: cleanUsername, email: user.email, role: user.role || role, roles: parseRoles(user.role || role) },
     profile: initialProfile[0],
     token,
     isNewAccount: true,
@@ -147,9 +177,10 @@ export async function loginUser(username: string, password: string) {
   }
 
   // Ensure role is accurate if logging in as Alex Dalbey
-  if ((user.username?.toLowerCase() === 'alex dalbey' || user.email?.toLowerCase() === 'alexc.second@gmail.com') && user.role !== 'owner') {
-    await db.update(users).set({ role: 'owner' }).where(eq(users.id, user.id));
-    user.role = 'owner';
+  if ((user.username?.toLowerCase() === 'alex dalbey' || user.email?.toLowerCase() === 'alexc.second@gmail.com') && !parseRoles(user.role).includes('owner')) {
+    const newRoleStr = user.role && user.role !== 'TSW User' ? `owner, ${user.role}` : 'owner';
+    await db.update(users).set({ role: newRoleStr }).where(eq(users.id, user.id));
+    user.role = newRoleStr;
   }
 
   const userProfiles = await getUserProfiles(user.id);
@@ -157,16 +188,16 @@ export async function loginUser(username: string, password: string) {
   if (!activeProfile) {
     activeProfile = await createProfile(user.id, {
       name: user.username || 'Voyager',
-      avatar: user.role === 'owner' ? 'crown' : 'astronaut',
+      avatar: userHasRole(user, 'owner') ? 'crown' : 'astronaut',
       themeColor: '#5aa2ff',
-      bio: user.role === 'owner' ? 'TSW Creator & Owner' : 'Explorer of the cosmos',
+      bio: userHasRole(user, 'owner') ? 'TSW Creator & Owner' : 'Explorer of the cosmos',
       isDefault: true
     });
   }
 
   const token = createSessionToken(user.id, user.username || user.email.split('@')[0]);
   return {
-    user: { id: user.id, username: user.username || user.email.split('@')[0], email: user.email, role: user.role || 'TSW User' },
+    user: { id: user.id, username: user.username || user.email.split('@')[0], email: user.email, role: user.role || 'TSW User', roles: parseRoles(user.role) },
     profile: activeProfile,
     profiles: userProfiles,
     token,
@@ -344,7 +375,7 @@ export async function searchUsers(searchTerm: string, currentUserId: number) {
   const results = await db.select({
     id: users.id,
     username: users.username,
-  }).from(users).where(sql`lower(${users.username}) LIKE ${'%' + term + '%'} AND ${users.id} != ${currentUserId} AND (password_hash IS NOT NULL OR email = 'alexc.second@gmail.com') AND email NOT LIKE '%@scramjet.local' AND email NOT LIKE '%@tswv2.local' AND email NOT LIKE '%@guest.tswv2.local' AND uid NOT LIKE 'guest_%' AND uid NOT LIKE 'system_%'`).limit(10);
+  }).from(users).where(sql`lower(${users.username}) LIKE ${'%' + term + '%'} AND ${users.id} != ${currentUserId} AND (password_hash IS NOT NULL OR email = 'alexc.second@gmail.com') AND email NOT LIKE '%@scramjet.local' AND email NOT LIKE '%@guest.tswv2.local' AND uid NOT LIKE 'guest_%' AND uid NOT LIKE 'system_%'`).limit(10);
 
   const friendRows = await db.select().from(friends).where(eq(friends.userId, currentUserId));
   const friendIds = new Set(friendRows.map(f => f.friendId));
@@ -508,12 +539,16 @@ export async function getFriendsList(userId: number) {
         WHERE (sender_id = ${userId} AND receiver_id = u.id)
            OR (sender_id = u.id AND receiver_id = ${userId})
         ORDER BY created_at DESC LIMIT 1
-      ) as "lastMessageTime"
+      ) as "lastMessageTime",
+      (
+        SELECT count(*)::int FROM messages
+        WHERE sender_id = u.id AND receiver_id = ${userId} AND is_read = false
+      ) as "unreadCount"
     FROM friends f
     JOIN users u ON u.id = f.friend_id
     LEFT JOIN profiles p ON p.user_id = u.id AND p.is_default = true
     WHERE f.user_id = ${userId} AND f.status = 'accepted'
-    ORDER BY "lastMessageTime" DESC NULLS LAST, u.username ASC
+    ORDER BY "unreadCount" DESC, "lastMessageTime" DESC NULLS LAST, u.username ASC
   `);
 
   return (res.rows || []).map((r: any) => ({
@@ -525,11 +560,38 @@ export async function getFriendsList(userId: number) {
     online: true,
     lastMessage: r.lastMessage || null,
     lastMessageTime: r.lastMessageTime || null,
+    unreadCount: Number(r.unreadCount || 0),
+    unread: Number(r.unreadCount || 0) > 0,
   }));
+}
+
+export async function getUnreadNotifications(userId: number) {
+  await ensureChatTables();
+  const res = await db.execute(sql`
+    SELECT count(*)::int as "count", sender_id as "senderId"
+    FROM messages
+    WHERE receiver_id = ${userId} AND is_read = false
+    GROUP BY sender_id;
+  `);
+
+  let totalUnread = 0;
+  const bySender: Record<number, number> = {};
+  (res.rows || []).forEach((row: any) => {
+    const c = Number(row.count || 0);
+    totalUnread += c;
+    bySender[Number(row.senderId)] = c;
+  });
+
+  return { totalUnread, bySender };
 }
 
 export async function getDirectMessages(userId: number, friendId: number) {
   await ensureChatTables();
+  // Mark incoming messages from friend as read
+  await db.update(messages)
+    .set({ isRead: true })
+    .where(and(eq(messages.senderId, friendId), eq(messages.receiverId, userId), eq(messages.isRead, false)));
+
   const rows = await db.select().from(messages).where(
     sql`(${messages.senderId} = ${userId} AND ${messages.receiverId} = ${friendId}) OR (${messages.senderId} = ${friendId} AND ${messages.receiverId} = ${userId})`
   ).orderBy(messages.createdAt);
@@ -539,6 +601,7 @@ export async function getDirectMessages(userId: number, friendId: number) {
     senderId: m.senderId,
     receiverId: m.receiverId,
     content: m.content,
+    isRead: m.isRead,
     createdAt: m.createdAt,
     isMe: m.senderId === userId,
   }));
@@ -614,67 +677,6 @@ export async function getOrCreateGuestUser(clientId: string, preferredName: stri
 export async function getPublicMessages(channel: string) {
   const cleanChannel = ['chat-1', 'chat-2', 'announcements'].includes(channel) ? channel : 'chat-1';
 
-  // Seed default official announcement if announcements channel is empty
-  if (cleanChannel === 'announcements') {
-    const existing = await db.select().from(publicMessages).where(eq(publicMessages.channel, 'announcements')).limit(1);
-    if (existing.length === 0) {
-      let sysUser = await db.select().from(users).where(eq(users.username, 'TSW')).limit(1);
-      let sysId: number;
-      if (sysUser.length > 0) {
-        sysId = sysUser[0].id;
-      } else {
-        const ins = await db.insert(users).values({
-          uid: 'system_tsw_announcements',
-          username: 'TSW Official',
-          email: 'official@tswv2.com',
-          role: 'owner',
-        }).returning({ id: users.id });
-        sysId = ins[0].id;
-        await createProfile(sysId, {
-          name: 'TSW News',
-          avatar: 'lightning',
-          themeColor: '#5aa2ff',
-          isDefault: true,
-        });
-      }
-      await db.insert(publicMessages).values({
-        channel: 'announcements',
-        userId: sysId,
-        content: '📢 Welcome to TSW v2 Public Announcements! Stay tuned here for upcoming releases and official updates.',
-      });
-    }
-  }
-
-  // Seed default community chat if chat-1 is empty
-  if (cleanChannel === 'chat-1') {
-    const existing = await db.select().from(publicMessages).where(eq(publicMessages.channel, 'chat-1')).limit(1);
-    if (existing.length === 0) {
-      let commUser = await db.select().from(users).where(eq(users.username, 'TSW')).limit(1);
-      let commId: number;
-      if (commUser.length > 0) {
-        commId = commUser[0].id;
-      } else {
-        const ins = await db.insert(users).values({
-          uid: 'system_tsw_chat1',
-          username: 'TSW Community',
-          email: 'community@tswv2.com',
-          role: 'TSW User',
-        }).returning({ id: users.id });
-        commId = ins[0].id;
-      }
-      await db.insert(publicMessages).values({
-        channel: 'chat-1',
-        userId: commId,
-        content: 'Welcome to #chat-1! Connect, chat, and share tips with fellow TSW members.',
-      });
-      await db.insert(publicMessages).values({
-        channel: 'chat-1',
-        userId: commId,
-        content: 'whoever made this is tuff 🤷‍♂️',
-      });
-    }
-  }
-
   const res = await db.execute(sql`
     SELECT pm.id, pm.channel, pm.user_id as "userId", pm.content, pm.created_at as "createdAt",
            COALESCE(u.username, 'Guest') as username,
@@ -694,6 +696,7 @@ export async function getPublicMessages(channel: string) {
     userId: r.userId,
     username: r.username || 'Member',
     role: r.role || 'TSW User',
+    roles: parseRoles(r.role),
     avatar: r.avatar || 'astronaut',
     content: r.content,
     createdAt: r.createdAt,
@@ -733,6 +736,7 @@ export async function sendPublicMessage(channel: string, userId: number, content
     userId: msg.userId,
     username: user?.username || 'Member',
     role: user?.role || 'TSW User',
+    roles: parseRoles(user?.role),
     avatar: activeProfile?.avatar || 'astronaut',
     content: msg.content,
     createdAt: msg.createdAt,
@@ -776,7 +780,6 @@ export async function getAdminMetrics() {
     FROM users 
     WHERE (password_hash IS NOT NULL OR email = 'alexc.second@gmail.com') 
       AND email NOT LIKE '%@scramjet.local' 
-      AND email NOT LIKE '%@tswv2.local' 
       AND email NOT LIKE '%@guest.tswv2.local' 
       AND uid NOT LIKE 'guest_%' 
       AND uid NOT LIKE 'system_%';
@@ -789,7 +792,6 @@ export async function getAdminMetrics() {
     JOIN users u ON p.user_id = u.id
     WHERE (u.password_hash IS NOT NULL OR u.email = 'alexc.second@gmail.com') 
       AND u.email NOT LIKE '%@scramjet.local' 
-      AND u.email NOT LIKE '%@tswv2.local' 
       AND u.email NOT LIKE '%@guest.tswv2.local' 
       AND u.uid NOT LIKE 'guest_%' 
       AND u.uid NOT LIKE 'system_%';
@@ -832,7 +834,6 @@ export async function getAdminMetrics() {
       FROM users 
       WHERE (password_hash IS NOT NULL OR email = 'alexc.second@gmail.com')
         AND email NOT LIKE '%@scramjet.local'
-        AND email NOT LIKE '%@tswv2.local'
         AND email NOT LIKE '%@guest.tswv2.local'
         AND uid NOT LIKE 'guest_%'
         AND uid NOT LIKE 'system_%'
@@ -854,15 +855,14 @@ export async function getAdminMetrics() {
       count(pm.id)::int as "messageCount"
     FROM users u
     LEFT JOIN public_messages pm ON pm.user_id = u.id
-    WHERE (u.password_hash IS NOT NULL OR u.email = 'alexc.second@gmail.com')
+    WHERE (u.password_hash IS NOT NULL OR u.email = 'alexc.second@gmail.com' OR u.role != 'TSW User')
       AND u.email NOT LIKE '%@scramjet.local'
-      AND u.email NOT LIKE '%@tswv2.local'
       AND u.email NOT LIKE '%@guest.tswv2.local'
       AND u.uid NOT LIKE 'guest_%'
       AND u.uid NOT LIKE 'system_%'
     GROUP BY u.id, u.username, u.email, u.role, u.created_at
     ORDER BY u.id DESC
-    LIMIT 25;
+    LIMIT 100;
   `);
 
   return {
@@ -880,6 +880,7 @@ export async function getAdminMetrics() {
       username: r.username || 'User',
       email: r.email,
       role: r.role || 'TSW User',
+      roles: parseRoles(r.role),
       messageCount: Number(r.messageCount || 0),
       createdAt: r.createdAt
     }))
@@ -890,21 +891,18 @@ export async function purgeExpiredPublicMessages() {
   return { success: true, count: 0 };
 }
 
-export async function updateUserRole(targetUserId: number, newRole: string) {
+export async function updateUserRole(targetUserId: number, rolesInput: string | string[]) {
   await ensureChatTables();
-  const validRoles = [
-    'owner',
-    'admin',
-    'moderator',
-    'VIP',
-    'Discord Member',
-    'Tester',
-    'Beta User',
-    'TSW User'
-  ];
-  const matchedRole = validRoles.find(r => r.toLowerCase() === newRole.toLowerCase()) || 'TSW User';
+  let rawParts: string[] = [];
+  if (Array.isArray(rolesInput)) {
+    rawParts = rolesInput;
+  } else if (typeof rolesInput === 'string') {
+    rawParts = rolesInput.split(',');
+  }
+  const cleanRoles = parseRoles(rawParts.join(','));
+  const roleString = cleanRoles.join(', ');
 
-  const updated = await db.update(users).set({ role: matchedRole }).where(eq(users.id, targetUserId)).returning({
+  const updated = await db.update(users).set({ role: roleString }).where(eq(users.id, targetUserId)).returning({
     id: users.id,
     username: users.username,
     role: users.role,
@@ -913,7 +911,92 @@ export async function updateUserRole(targetUserId: number, newRole: string) {
   if (updated.length === 0) {
     throw new Error('User not found');
   }
-  return updated[0];
+  return {
+    ...updated[0],
+    roles: parseRoles(updated[0].role)
+  };
+}
+
+export async function getUserProfileCard(userIdOrUsername: number | string) {
+  await ensureChatTables();
+  let userRows: any[] = [];
+  const rawStr = String(userIdOrUsername || '').trim();
+  if (typeof userIdOrUsername === 'number' || /^\d+$/.test(rawStr)) {
+    const id = typeof userIdOrUsername === 'number' ? userIdOrUsername : parseInt(rawStr, 10);
+    userRows = await db.select().from(users).where(eq(users.id, id)).limit(1);
+  }
+  if (userRows.length === 0 && rawStr) {
+    const uname = rawStr.replace(/^@/, '').trim();
+    userRows = await db.select().from(users).where(sql`LOWER(${users.username}) = LOWER(${uname})`).limit(1);
+  }
+  if (userRows.length === 0) {
+    throw new Error('User not found');
+  }
+  const u = userRows[0];
+  const profRows = await db.select().from(profiles).where(and(eq(profiles.userId, u.id), eq(profiles.isDefault, true))).limit(1);
+  const prof = profRows[0] || (await db.select().from(profiles).where(eq(profiles.userId, u.id)).limit(1))[0];
+  const isOwner = isUserAdmin(u);
+  const roles = parseRoles(u.role);
+  if (isOwner && !roles.some(r => r.toLowerCase() === 'owner')) {
+    roles.unshift('owner');
+  }
+
+  return {
+    id: u.id,
+    username: u.username || 'Voyager',
+    email: u.email,
+    role: u.role || 'TSW User',
+    roles,
+    isOwner,
+    avatar: prof?.avatar || (isOwner ? 'crown' : 'astronaut'),
+    bio: prof?.bio || (isOwner ? 'TSW Creator & Owner' : 'Explorer of the cosmos'),
+    themeColor: prof?.themeColor || '#5aa2ff',
+    createdAt: u.createdAt
+  };
+}
+
+export async function updateUserBio(userId: number, bio: string) {
+  await ensureChatTables();
+  const cleanBio = filterProfanity(bio.trim()).slice(0, 300);
+  const profs = await db.select().from(profiles).where(eq(profiles.userId, userId));
+  if (profs.length > 0) {
+    await db.update(profiles).set({ bio: cleanBio, updatedAt: new Date() }).where(eq(profiles.userId, userId));
+  } else {
+    await db.insert(profiles).values({
+      userId,
+      name: 'Voyager',
+      bio: cleanBio,
+      isDefault: true
+    });
+  }
+  return { success: true, bio: cleanBio };
+}
+
+export async function getAllMentionsList() {
+  await ensureChatTables();
+  const res = await db.execute(sql`
+    SELECT u.id, u.username, COALESCE(u.role, 'TSW User') as role,
+           COALESCE(p.avatar, 'astronaut') as avatar,
+           COALESCE(p.theme_color, '#5aa2ff') as "themeColor"
+    FROM users u
+    LEFT JOIN profiles p ON p.user_id = u.id AND p.is_default = true
+    WHERE (u.password_hash IS NOT NULL OR u.email = 'alexc.second@gmail.com')
+      AND u.email NOT LIKE '%@scramjet.local'
+      AND u.email NOT LIKE '%@guest.tswv2.local'
+      AND u.uid NOT LIKE 'guest_%'
+      AND u.username IS NOT NULL AND u.username != ''
+    ORDER BY u.username ASC
+    LIMIT 250;
+  `);
+
+  return (res.rows || []).map((r: any) => ({
+    id: r.id,
+    username: r.username,
+    role: r.role,
+    roles: parseRoles(r.role),
+    avatar: r.avatar || 'astronaut',
+    themeColor: r.themeColor || '#5aa2ff'
+  }));
 }
 
 export async function getAllUsersForOwner() {
@@ -925,7 +1008,6 @@ export async function getAllUsersForOwner() {
     LEFT JOIN profiles p ON p.user_id = u.id AND p.is_default = true
     WHERE (u.password_hash IS NOT NULL OR u.email = 'alexc.second@gmail.com')
       AND u.email NOT LIKE '%@scramjet.local'
-      AND u.email NOT LIKE '%@tswv2.local'
       AND u.email NOT LIKE '%@guest.tswv2.local'
       AND u.uid NOT LIKE 'guest_%'
       AND u.uid NOT LIKE 'system_%'
@@ -938,6 +1020,7 @@ export async function getAllUsersForOwner() {
     username: r.username,
     email: r.email,
     role: r.role || 'TSW User',
+    roles: parseRoles(r.role),
     avatar: r.avatar || 'astronaut',
   }));
 }
