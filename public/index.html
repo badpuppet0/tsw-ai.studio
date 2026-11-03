@@ -2803,23 +2803,18 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   gap: .2rem;
   min-width: 220px;
 }
-.mention-dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: .6rem;
-  padding: .45rem .65rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all .12s ease;
-  user-select: none;
-  border-left: 2px solid transparent;
+.mention-dropdown-box { box-sizing: border-box; width: min(340px, calc(100vw - 20px)); }
+.mention-item {
+  display: flex; align-items: center; gap: .55rem; width: 100%; min-height: 42px;
+  box-sizing: border-box; padding: .45rem .6rem; border: 0;
+  border-left: 2px solid transparent; border-radius: 7px; color: #e2e8f0;
+  cursor: pointer; user-select: none; text-align: left; overflow: hidden;
 }
-.mention-dropdown-item:hover,
-.mention-dropdown-item.selected,
-.mention-dropdown-item.active {
-  background: rgba(59, 130, 246, 0.22);
-  border-left-color: #3b82f6;
-}
+.mention-item:hover, .mention-item.selected { background: rgba(59, 130, 246, .22); border-left-color: #3b82f6; }
+.mention-item > div:first-child { flex: none; }
+.mention-item .letter-av { width: 1.5rem; height: 1.5rem; font-size: .75rem; }
+.mention-item-uname { min-width: 0; flex: 1; color: #fff; font-size: .82rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mention-item .public-msg-badges-wrap { display: flex; flex-wrap: wrap; gap: 3px; justify-content: flex-end; }
 .mention-dropdown-av {
   width: 1.6rem;
   height: 1.6rem;
@@ -3426,6 +3421,14 @@ html[data-theme="light"] .discord-note a:hover {
 .settings-group:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
 html.reduced-motion *, html.reduced-motion *::before, html.reduced-motion *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .001ms !important; }
 html.reduced-motion .load.on { animation: none !important; width: 92%; transform: none; }
+.update-notice{position:fixed;z-index:100000;right:18px;bottom:18px;width:min(320px,calc(100vw - 36px));padding:16px 16px 14px;background:#111827;border:1px solid rgba(148,163,184,.24);border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.4);color:#e5e7eb;box-sizing:border-box}
+.update-notice-title{font-size:.94rem;font-weight:650;color:#fff;margin:0 28px 5px 0}
+.update-notice-copy{font-size:.8rem;line-height:1.4;color:#aeb9c9;margin-bottom:12px}
+.update-notice-refresh{border:0;border-radius:7px;padding:8px 12px;background:#d1fae5;color:#064e3b;font-family:inherit;font-size:.8rem;font-weight:600;cursor:pointer}
+.update-notice-refresh:hover{background:#a7f3d0}
+.update-notice-close{position:absolute;right:10px;top:8px;width:26px;height:26px;border:0;border-radius:6px;background:transparent;color:#94a3b8;font-size:1.2rem;cursor:pointer}
+.update-notice-close:hover{background:rgba(255,255,255,.08);color:#fff}
+@media(max-width:520px){.update-notice{right:12px;bottom:12px;width:calc(100vw - 24px)}}
 </style>
 </head>
 <body>
@@ -3985,6 +3988,12 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
   </div>
 </div>
 
+<div class="update-notice" id="update-notice" hidden role="status" aria-live="polite">
+  <button type="button" class="update-notice-close" id="update-notice-close" aria-label="Dismiss update notice">&times;</button>
+  <div class="update-notice-title">New update available</div>
+  <div class="update-notice-copy" id="update-notice-version">A newer version of TSW is ready.</div>
+  <button type="button" class="update-notice-refresh" id="update-notice-refresh">Refresh now</button>
+</div>
 <div class="toast" id="toast" role="status" hidden></div>
 
 <div class="overlay" id="settings" hidden>
@@ -7113,6 +7122,7 @@ document.addEventListener('keydown', function (ev) {
   // Open modal on user-pill click
   profBtn.addEventListener('click', function () {
     renderModalList();
+    loadProfileDetails();
     modal.hidden = false;
   });
 
@@ -9041,17 +9051,32 @@ document.addEventListener('keydown', function (ev) {
       var acceptBtn = ev.target.closest('[data-accept-id]');
       if (acceptBtn) {
         var aid = parseInt(acceptBtn.getAttribute('data-accept-id'), 10);
-        api('/api/friends/accept/' + aid, 'POST').then(function () {
-          loadFriendRequests();
-          loadFriendsList();
+        if (!Number.isFinite(aid)) return;
+        acceptBtn.disabled = true;
+        api('/api/friends/accept/' + aid, 'POST').then(function (res) {
+          if (!res || !res.success) throw new Error((res && res.error) || 'Could not accept this request.');
+          friendRequests = friendRequests.filter(function (r) { return Number(r.requesterId) !== aid; });
+          renderFriendRequests();
+          return Promise.all([loadFriendRequests(), loadFriendsList()]);
+        }).catch(function (err) {
+          acceptBtn.disabled = false;
+          alert(err.message || 'Could not accept this friend request.');
         });
         return;
       }
       var declineBtn = ev.target.closest('[data-decline-id]');
       if (declineBtn) {
         var did = parseInt(declineBtn.getAttribute('data-decline-id'), 10);
-        api('/api/friends/decline/' + did, 'POST').then(function () {
-          loadFriendRequests();
+        if (!Number.isFinite(did)) return;
+        declineBtn.disabled = true;
+        api('/api/friends/decline/' + did, 'POST').then(function (res) {
+          if (!res || !res.success) throw new Error((res && res.error) || 'Could not decline this request.');
+          friendRequests = friendRequests.filter(function (r) { return Number(r.requesterId) !== did; });
+          renderFriendRequests();
+          return loadFriendRequests();
+        }).catch(function (err) {
+          declineBtn.disabled = false;
+          alert(err.message || 'Could not decline this friend request.');
         });
       }
     });
@@ -9158,8 +9183,9 @@ document.addEventListener('keydown', function (ev) {
           badge.title = totalCount + ' unread message' + (totalCount === 1 ? '' : 's');
           chatBtn.appendChild(badge);
         }
-        badge.textContent = totalCount > 9 ? '9' : String(totalCount);
-        badge.style.display = 'block';
+        badge.textContent = String(Math.min(totalCount, 9));
+        badge.title = totalCount + ' unread message' + (totalCount === 1 ? '' : 's');
+        badge.style.display = 'flex';
       } else {
         chatBtn.classList.remove('chat-has-attention');
         if (badge) badge.style.display = 'none';
@@ -9645,9 +9671,22 @@ document.addEventListener('keydown', function (ev) {
     });
 
     var rect = inputEl.getBoundingClientRect();
-    mentionDropdown.style.display = 'block';
-    mentionDropdown.style.left = Math.max(10, rect.left) + 'px';
-    mentionDropdown.style.top = Math.max(10, rect.top - mentionDropdown.offsetHeight - 8) + 'px';
+    mentionDropdown.style.display = 'flex';
+    mentionDropdown.style.visibility = 'hidden';
+    mentionDropdown.style.left = '10px';
+    mentionDropdown.style.top = '10px';
+    var menuWidth = Math.min(340, window.innerWidth - 20);
+    mentionDropdown.style.width = menuWidth + 'px';
+    var menuHeight = mentionDropdown.offsetHeight;
+    var left = Math.max(10, Math.min(rect.left, window.innerWidth - menuWidth - 10));
+    var spaceAbove = rect.top - 10;
+    var spaceBelow = window.innerHeight - rect.bottom - 10;
+    var top = spaceAbove >= Math.min(menuHeight, 180) || spaceAbove >= spaceBelow
+      ? Math.max(10, rect.top - Math.min(menuHeight, spaceAbove) - 8)
+      : Math.min(window.innerHeight - menuHeight - 10, rect.bottom + 8);
+    mentionDropdown.style.left = left + 'px';
+    mentionDropdown.style.top = Math.max(10, top) + 'px';
+    mentionDropdown.style.visibility = 'visible';
   }
 
   function insertMention(username, atIndex) {
@@ -9889,5 +9928,46 @@ document.addEventListener('keydown', function (ev) {
   setInterval(tick, 1000);
 })();
 </script>
+/* ===================== Site Update Notice ===================== */
+(function () {
+  var notice = $('update-notice');
+  var versionText = $('update-notice-version');
+  var refreshButton = $('update-notice-refresh');
+  var closeButton = $('update-notice-close');
+  if (!notice || !refreshButton) return;
+
+  var VERSION_KEY = 'tsw.last_seen_server_version';
+  var FIRST_VERSION = '1.6.01';
+
+  function rememberVersion(version) {
+    try { store.set(VERSION_KEY, version); } catch (e) {}
+  }
+
+  fetch('/api/system/version?t=' + Date.now(), { cache: 'no-store' })
+    .then(function (response) {
+      if (!response.ok) throw new Error('Version check failed');
+      return response.json();
+    })
+    .then(function (data) {
+      if (!data || !data.success || !data.version) return;
+      var seen = store.get(VERSION_KEY, FIRST_VERSION);
+      if (String(data.version) !== String(seen)) {
+        if (versionText) versionText.textContent = 'Version ' + data.version + ' is ready. Refresh to get the latest changes.';
+        notice.hidden = false;
+        refreshButton.addEventListener('click', function () {
+          rememberVersion(data.version);
+          window.location.reload();
+        });
+        if (closeButton) closeButton.addEventListener('click', function () {
+          rememberVersion(data.version);
+          notice.hidden = true;
+        });
+      } else if (!store.get(VERSION_KEY, '')) {
+        rememberVersion(data.version);
+      }
+    })
+    .catch(function () {});
+})();
+
 </body>
 </html>
