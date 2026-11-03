@@ -8105,6 +8105,9 @@ document.addEventListener('keydown', function (ev) {
   var lastDmCount = 0;
   var lastPublicCount = 0;
   var typingTimeout = null;
+  var typingSendTimeout = null;
+  var lastPresenceSentAt = 0;
+  var replyingToMessage = null;
 
   var PUBLIC_CHANNELS_CONFIG = {
     'chat-1': {
@@ -8534,7 +8537,6 @@ document.addEventListener('keydown', function (ev) {
   function renderPublicMessages(messages, scrollBottom) {
     if (!publicFeedBox) return;
     publicFeedBox.innerHTML = '';
-
     if (!messages || messages.length === 0) {
       var emptyEl = document.createElement('div');
       emptyEl.style.cssText = 'margin:auto;text-align:center;color:#64748b;font-size:.85rem;padding:2rem 1rem;';
@@ -8542,53 +8544,30 @@ document.addEventListener('keydown', function (ev) {
       publicFeedBox.appendChild(emptyEl);
       return;
     }
-
     var user = getCurrentUser();
     var myId = user ? user.id : null;
-
     messages.forEach(function (m) {
       var row = document.createElement('div');
       row.className = 'public-msg-row';
-
       var isTSW = m.username && (m.username === 'TSW' || m.username.includes('Official'));
       var isOwner = (m.role === 'owner') || (m.username && m.username.toLowerCase() === 'alex dalbey') || (m.roles && m.roles.some(function (r) { return r.toLowerCase() === 'owner'; }));
-
       var rolesData = m.roles || m.role;
-      if (isTSW && (!rolesData || (Array.isArray(rolesData) && rolesData.length === 0))) {
-        rolesData = ['Official'];
-      }
+      if (isTSW && (!rolesData || (Array.isArray(rolesData) && rolesData.length === 0))) rolesData = ['Official'];
       var badgeHtml = renderRoleBadgesHtml(rolesData, isOwner);
-
       var editedTag = m.isEdited ? ' <span style="font-size:.68rem;color:#94a3b8;font-style:italic;">(edited)</span>' : '';
-
       var isMine = myId !== null && m.userId === myId;
-      var actionsHtml = isMine
-        ? '<div class="msg-actions">' +
-            '<button class="msg-act-btn" data-edit-pub="' + m.id + '">Edit</button>' +
-            '<button class="msg-act-btn del" data-del-pub="' + m.id + '">Delete</button>' +
-          '</div>'
-        : '';
-
-      var formattedContent = formatMessageContent(m.content, user);
-
+      var actionsHtml = isMine ? '<div class="msg-actions"><button class="msg-act-btn" data-edit-pub="' + m.id + '">Edit</button><button class="msg-act-btn del" data-del-pub="' + m.id + '">Delete</button></div>' : '';
+      var replyHtml = m.replyTo ? '<div class="chat-message-reply"><strong>Replying to @' + escapeHtml(m.replyTo.username) + '</strong><span>' + escapeHtml(m.replyTo.content) + '</span></div>' : '';
       row.innerHTML =
         '<div class="public-msg-av" data-open-profile="' + (m.userId || '') + '" data-uname="' + escapeHtml(m.username) + '" style="cursor:pointer;" title="View profile">' + getLetterAvatar(m.username) + '</div>' +
-        '<div class="public-msg-content-wrap">' +
-          '<div class="public-msg-header">' +
-            '<span class="public-msg-author" data-open-profile="' + (m.userId || '') + '" data-uname="' + escapeHtml(m.username) + '" style="cursor:pointer;" title="View profile">@' + escapeHtml(m.username) + '</span>' +
-            badgeHtml +
-            '<span class="public-msg-time">' + formatTime(m.createdAt) + '</span>' +
-            actionsHtml +
-          '</div>' +
-          '<div class="public-msg-text" id="pub-msg-text-' + m.id + '">' + formattedContent + editedTag + '</div>' +
-        '</div>';
-
+        '<div class="public-msg-content-wrap"><div class="public-msg-header">' +
+        '<span class="public-msg-author" data-open-profile="' + (m.userId || '') + '" data-uname="' + escapeHtml(m.username) + '" style="cursor:pointer;" title="View profile">@' + escapeHtml(m.username) + '</span>' +
+        badgeHtml + '<span class="public-msg-time">' + formatTime(m.createdAt) + '</span>' + actionsHtml + '</div>' +
+        replyHtml + '<div class="public-msg-text" id="pub-msg-text-' + m.id + '">' + formatMessageContent(m.content, user) + editedTag + '</div>' +
+        reactionButtonsHtml(m, 'public', myId) + '</div>';
       publicFeedBox.appendChild(row);
     });
-
-    if (scrollBottom) {
-      publicFeedBox.scrollTop = publicFeedBox.scrollHeight;
-    }
+    if (scrollBottom) publicFeedBox.scrollTop = publicFeedBox.scrollHeight;
   }
 
   function loadPublicMessages(channel, shouldScroll) {
@@ -9263,45 +9242,88 @@ document.addEventListener('keydown', function (ev) {
     }
   }
 
+  function reactionButtonsHtml(message, type, myId) {
+    var defaults = ['👍','❤️','😂','😮','😢','🔥'];
+    var reactions = Array.isArray(message.reactions) ? message.reactions : [];
+    var byEmoji = {};
+    reactions.forEach(function (r) { byEmoji[r.emoji] = r; });
+    var emojis = defaults.concat(reactions.map(function (r) { return r.emoji; }).filter(function (e) { return defaults.indexOf(e) === -1; }));
+    return '<div class="chat-message-tools">' + emojis.map(function (emoji) {
+      var r = byEmoji[emoji];
+      var count = r ? Number(r.count || 0) : 0;
+      var active = r && Array.isArray(r.userIds) && r.userIds.indexOf(myId) !== -1;
+      if (r && typeof r.reactedByMe === 'boolean') active = r.reactedByMe;
+      return '<button type="button" class="chat-reaction' + (active ? ' active' : '') + '" data-reaction-type="' + type + '" data-reaction-id="' + message.id + '" data-reaction-emoji="' + emoji + '" title="React with ' + emoji + '">' + emoji + (count ? ' ' + count : '') + '</button>';
+    }).join('') + '<button type="button" class="chat-reply-btn" data-reply-type="' + type + '" data-reply-id="' + message.id + '" title="Reply to message">Reply</button></div>';
+  }
+
+  function setReplyTarget(type, message) {
+    replyingToMessage = { type: type, id: Number(message.id), content: String(message.content || '').slice(0, 500), author: message.username || (message.senderId === (getCurrentUser() || {}).id ? 'You' : 'Friend') };
+    var composer = $(type === 'dm' ? 'dm-reply-composer' : 'public-reply-composer');
+    var label = $(type === 'dm' ? 'dm-reply-text' : 'public-reply-text');
+    if (label) label.textContent = '@' + replyingToMessage.author + ': ' + replyingToMessage.content;
+    if (composer) composer.style.display = 'flex';
+    var target = type === 'dm' ? messageInput : publicMessageInput;
+    if (target) target.focus();
+  }
+
+  function clearReplyTarget(type) {
+    if (!replyingToMessage || !type || replyingToMessage.type === type) replyingToMessage = null;
+    var ids = type === 'dm' ? ['dm-reply-composer'] : type === 'public' ? ['public-reply-composer'] : ['dm-reply-composer','public-reply-composer'];
+    ids.forEach(function (id) { var el = $(id); if (el) el.style.display = 'none'; });
+  }
+
+  function sendTypingStatus(type, contextId, isTyping) {
+    if (!getCurrentUser()) return;
+    api('/api/chat/typing', 'POST', { type: type, contextId: String(contextId), isTyping: !!isTyping }).catch(function () {});
+  }
+
+  function pollTypingStatus(type, contextId) {
+    if (!getCurrentUser() || !contextId) return;
+    api('/api/chat/typing/' + type + '/' + encodeURIComponent(String(contextId)), 'GET').then(function (res) {
+      if (type === 'dm') {
+        if (typingBar) {
+          var names = res && res.success && Array.isArray(res.users) ? res.users.map(function (u) { return u.username; }) : [];
+          if (names.length && selectedFriend && String(selectedFriend.friendId) === String(contextId)) {
+            if (typingUserEl) typingUserEl.textContent = names.join(', ');
+            typingBar.style.display = 'flex';
+          } else typingBar.style.display = 'none';
+        }
+      } else {
+        var bar = $('public-chat-typing');
+        var names = res && res.success && Array.isArray(res.users) ? res.users.map(function (u) { return u.username; }) : [];
+        if (bar) {
+          bar.textContent = names.length ? names.join(', ') + (names.length === 1 ? ' is typing…' : ' are typing…') : '';
+          bar.style.display = names.length ? 'block' : 'none';
+        }
+      }
+    }).catch(function () {});
+  }
+
   function renderMessages(messages, scrollBottom) {
     if (!chatFeedBox) return;
     var user = getCurrentUser();
     var myId = user ? user.id : null;
-
     chatFeedBox.innerHTML = '';
     if (!messages || messages.length === 0) {
       chatFeedBox.innerHTML = '<div style="margin:auto;text-align:center;color:#64748b;font-size:.85rem;">No messages yet. Send a message to start chatting!</div>';
       return;
     }
-
     messages.forEach(function (m) {
       var isMine = myId !== null && m.senderId === myId;
       var bubble = document.createElement('div');
       bubble.className = 'chat-bubble ' + (isMine ? 'mine' : 'theirs');
-
       var editedTag = m.isEdited ? ' <span style="font-size:.65rem;opacity:.7;font-style:italic;">(edited)</span>' : '';
       var actionsHtml = isMine
-        ? '<div class="msg-actions">' +
-            '<button class="msg-act-btn" data-edit-msg="' + m.id + '">Edit</button>' +
-            '<button class="msg-act-btn del" data-del-msg="' + m.id + '">Delete</button>' +
-          '</div>'
+        ? '<div class="msg-actions"><button class="msg-act-btn" data-edit-msg="' + m.id + '">Edit</button><button class="msg-act-btn del" data-del-msg="' + m.id + '">Delete</button></div>'
         : '';
-
-      var formattedContent = formatMessageContent(m.content, user);
-
-      bubble.innerHTML =
-        '<div class="chat-bubble-body" id="dm-body-' + m.id + '">' + formattedContent + editedTag + '</div>' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:.2rem;">' +
-          actionsHtml +
-          '<div class="chat-bubble-time">' + formatTime(m.createdAt) + '</div>' +
-        '</div>';
-
+      var replyHtml = m.replyTo ? '<div class="chat-message-reply"><strong>Replying to</strong><span>' + escapeHtml(m.replyTo.content) + '</span></div>' : '';
+      bubble.innerHTML = replyHtml + '<div class="chat-bubble-body" id="dm-body-' + m.id + '">' + formatMessageContent(m.content, user) + editedTag + '</div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:.2rem;">' + actionsHtml + '<div class="chat-bubble-time">' + formatTime(m.createdAt) + '</div></div>' +
+        reactionButtonsHtml(m, 'dm', myId) ;
       chatFeedBox.appendChild(bubble);
     });
-
-    if (scrollBottom) {
-      chatFeedBox.scrollTop = chatFeedBox.scrollHeight;
-    }
+    if (scrollBottom) chatFeedBox.scrollTop = chatFeedBox.scrollHeight;
   }
 
   function loadMessages(friendId, shouldScroll) {
