@@ -457,6 +457,13 @@ export async function updateChatPresence(userId: number) {
 
 export async function updateChatTyping(userId: number, contextType: 'dm' | 'public', contextId: string, isTyping: boolean) {
   await ensureChatTables();
+  if (contextType === 'public' && !['chat-1', 'chat-2', 'announcements'].includes(contextId)) throw new Error('Invalid channel');
+  if (contextType === 'dm') {
+    const ids = contextId.split('-').map(Number);
+    if (ids.length !== 2 || ids.some((id) => !Number.isInteger(id) || id < 1) || !ids.includes(userId)) throw new Error('Invalid conversation');
+    const friendship = await db.execute(sql`SELECT id FROM friends WHERE user_id = ${Math.min(ids[0], ids[1])} AND friend_id = ${Math.max(ids[0], ids[1])} AND status = 'accepted' LIMIT 1;`);
+    if (!friendship.rows?.length) throw new Error('Conversation not found');
+  }
   if (isTyping) {
     await db.execute(sql`
       INSERT INTO chat_typing (user_id, context_type, context_id, updated_at)
@@ -474,6 +481,13 @@ export async function updateChatTyping(userId: number, contextType: 'dm' | 'publ
 
 export async function getChatTyping(userId: number, contextType: 'dm' | 'public', contextId: string) {
   await ensureChatTables();
+  if (contextType === 'public' && !['chat-1', 'chat-2', 'announcements'].includes(contextId)) throw new Error('Invalid channel');
+  if (contextType === 'dm') {
+    const ids = contextId.split('-').map(Number);
+    if (ids.length !== 2 || ids.some((id) => !Number.isInteger(id) || id < 1) || !ids.includes(userId)) throw new Error('Invalid conversation');
+    const friendship = await db.execute(sql`SELECT id FROM friends WHERE user_id = ${Math.min(ids[0], ids[1])} AND friend_id = ${Math.max(ids[0], ids[1])} AND status = 'accepted' LIMIT 1;`);
+    if (!friendship.rows?.length) throw new Error('Conversation not found');
+  }
   const res = await db.execute(sql`
     SELECT u.id, u.username FROM chat_typing t
     JOIN users u ON u.id = t.user_id
