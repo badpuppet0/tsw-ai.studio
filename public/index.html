@@ -8376,6 +8376,9 @@ document.addEventListener('keydown', function (ev) {
       } else if (rLower === 'tsw user' || rLower === 'user') {
         html += '<span class="public-msg-badge user">TSW User</span>';
         renderedAny = true;
+      } else if (r) {
+        html += '<span class="public-msg-badge" style="background:rgba(148,163,184,.14);color:#cbd5e1;border:1px solid rgba(148,163,184,.28);padding:2px 7px;border-radius:4px;font-size:.68rem;font-weight:700;">' + escapeHtml(r) + '</span>';
+        renderedAny = true;
       }
     });
     if (!renderedAny) {
@@ -9928,19 +9931,20 @@ document.addEventListener('keydown', function (ev) {
   setInterval(tick, 1000);
 })();
 </script>
+<script>
 /* ===================== Site Update Notice ===================== */
 (function () {
-  var notice = $('update-notice');
-  var versionText = $('update-notice-version');
-  var refreshButton = $('update-notice-refresh');
-  var closeButton = $('update-notice-close');
+  var notice = document.getElementById('update-notice');
+  var versionText = document.getElementById('update-notice-version');
+  var refreshButton = document.getElementById('update-notice-refresh');
+  var closeButton = document.getElementById('update-notice-close');
   if (!notice || !refreshButton) return;
 
   var VERSION_KEY = 'tsw.last_seen_server_version';
   var FIRST_VERSION = '1.6.01';
 
   function rememberVersion(version) {
-    try { store.set(VERSION_KEY, version); } catch (e) {}
+    try { localStorage.setItem(VERSION_KEY, version); } catch (e) {}
   }
 
   fetch('/api/system/version?t=' + Date.now(), { cache: 'no-store' })
@@ -9950,7 +9954,7 @@ document.addEventListener('keydown', function (ev) {
     })
     .then(function (data) {
       if (!data || !data.success || !data.version) return;
-      var seen = store.get(VERSION_KEY, FIRST_VERSION);
+      var seen = localStorage.getItem(VERSION_KEY) || FIRST_VERSION;
       if (String(data.version) !== String(seen)) {
         if (versionText) versionText.textContent = 'Version ' + data.version + ' is ready. Refresh to get the latest changes.';
         notice.hidden = false;
@@ -9962,7 +9966,7 @@ document.addEventListener('keydown', function (ev) {
           rememberVersion(data.version);
           notice.hidden = true;
         });
-      } else if (!store.get(VERSION_KEY, '')) {
+      } else if (!localStorage.getItem(VERSION_KEY)) {
         rememberVersion(data.version);
       }
     })
