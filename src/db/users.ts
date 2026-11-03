@@ -967,6 +967,8 @@ export async function getUserProfileCard(userIdOrUsername: number | string) {
   const u = userRows[0];
   const profRows = await db.select().from(profiles).where(and(eq(profiles.userId, u.id), eq(profiles.isDefault, true))).limit(1);
   const prof = profRows[0] || (await db.select().from(profiles).where(eq(profiles.userId, u.id)).limit(1))[0];
+  let profilePreferences: any = {};
+  try { profilePreferences = JSON.parse(prof?.preferences || '{}'); } catch {}
   const isOwner = isUserAdmin(u);
   const roles = parseRoles(u.role);
   if (isOwner && !roles.some(r => r.toLowerCase() === 'owner')) {
@@ -983,6 +985,8 @@ export async function getUserProfileCard(userIdOrUsername: number | string) {
     avatar: prof?.avatar || (isOwner ? 'crown' : 'astronaut'),
     bio: prof?.bio || (isOwner ? 'TSW Creator & Owner' : 'Explorer of the cosmos'),
     themeColor: prof?.themeColor || '#5aa2ff',
+    profilePicture: typeof profilePreferences.profilePicture === 'string' ? profilePreferences.profilePicture : '',
+    profileBanner: typeof profilePreferences.profileBanner === 'string' ? profilePreferences.profileBanner : '',
     createdAt: u.createdAt
   };
 }
