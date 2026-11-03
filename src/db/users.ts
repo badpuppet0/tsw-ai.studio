@@ -363,139 +363,9 @@ export async function deleteProfile(profileId: number, userId: number) {
   }
 }
 
-let chatTablesReady: Promise<void> | null = null;
 export async function ensureChatTables() {
-  if (!chatTablesReady) {
-    chatTablesReady = (async () => {
-      await db.execute(sql`ALTER TABLE messages ADD COLUMN IF NOT EXISTS reply_to_id integer;`);
-      await db.execute(sql`ALTER TABLE messages ADD COLUMN IF NOT EXISTS is_edited boolean NOT NULL DEFAULT false;`);
-      await db.execute(sql`ALTER TABLE public_messages ADD COLUMN IF NOT EXISTS reply_to_id integer;`);
-      await db.execute(sql`ALTER TABLE public_messages ADD COLUMN IF NOT EXISTS is_edited boolean NOT NULL DEFAULT false;`);
-      await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS chat_message_reactions (
-          id serial PRIMARY KEY,
-          message_type text NOT NULL CHECK (message_type IN ('dm','public')),
-          message_id integer NOT NULL,
-          user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          emoji text NOT NULL,
-          created_at timestamp DEFAULT NOW(),
-          UNIQUE(message_type, message_id, user_id, emoji)
-        );
-      `);
-      await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS chat_presence (
-          user_id integer PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-          last_seen timestamp NOT NULL DEFAULT NOW()
-        );
-      `);
-      await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS chat_typing (
-          user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          context_type text NOT NULL CHECK (context_type IN ('dm','public')),
-          context_id text NOT NULL,
-          updated_at timestamp NOT NULL DEFAULT NOW(),
-          PRIMARY KEY(user_id, context_type, context_id)
-        );
-      `);
-    })().catch((err) => {
-      chatTablesReady = null;
-      throw err;
-    });
-  }
-  return chatTablesReady;
-}
-
-export async function toggleMessageReaction(userId: number, messageType: 'dm' | 'public', messageId: number, emoji: string) {
-  await ensureChatTables();
-  const allowed = ['👍','❤️','😂','😮','😢','🔥','🎉','👎','👏','💀'];
-  if (!allowed.includes(emoji)) throw new Error('That reaction is not supported');
-  if (messageType === 'dm') {
-    const owned = await db.execute(sql`
-      SELECT id FROM messages WHERE id = ${messageId}
-      AND (sender_id = ${userId} OR receiver_id = ${userId}) LIMIT 1;
-    `);
-    if (!owned.rows?.length) throw new Error('Message not found');
-  } else {
-    const exists = await db.execute(sql`SELECT id FROM public_messages WHERE id = ${messageId} LIMIT 1;`);
-    if (!exists.rows?.length) throw new Error('Message not found');
-  }
-  const existing = await db.execute(sql`
-    SELECT id FROM chat_message_reactions
-    WHERE message_type = ${messageType} AND message_id = ${messageId}
-      AND user_id = ${userId} AND emoji = ${emoji} LIMIT 1;
-  `);
-  if (existing.rows?.length) {
-    await db.execute(sql`DELETE FROM chat_message_reactions WHERE id = ${(existing.rows[0] as any).id};`);
-  } else {
-    await db.execute(sql`
-      INSERT INTO chat_message_reactions (message_type, message_id, user_id, emoji)
-      VALUES (${messageType}, ${messageId}, ${userId}, ${emoji})
-      ON CONFLICT (message_type, message_id, user_id, emoji) DO NOTHING;
-    `);
-  }
-  const rows = await db.execute(sql`
-    SELECT r.emoji, count(*)::int AS count,
-      bool_or(r.user_id = ${userId}) AS "reactedByMe"
-    FROM chat_message_reactions r
-    WHERE r.message_type = ${messageType} AND r.message_id = ${messageId}
-    GROUP BY r.emoji ORDER BY min(r.created_at);
-  `);
-  return (rows.rows || []).map((r: any) => ({
-    emoji: r.emoji, count: Number(r.count || 0), reactedByMe: !!r.reactedByMe
-  }));
-}
-
-export async function updateChatPresence(userId: number) {
-  await ensureChatTables();
-  await db.execute(sql`
-    INSERT INTO chat_presence (user_id, last_seen) VALUES (${userId}, NOW())
-    ON CONFLICT (user_id) DO UPDATE SET last_seen = NOW();
-  `);
-  await db.execute(sql`DELETE FROM chat_typing WHERE updated_at < NOW() - INTERVAL '12 seconds';`);
-  return { success: true };
-}
-
-export async function updateChatTyping(userId: number, contextType: 'dm' | 'public', contextId: string, isTyping: boolean) {
-  await ensureChatTables();
-  if (contextType === 'public' && !['chat-1', 'chat-2', 'announcements'].includes(contextId)) throw new Error('Invalid channel');
-  if (contextType === 'dm') {
-    const ids = contextId.split('-').map(Number);
-    if (ids.length !== 2 || ids.some((id) => !Number.isInteger(id) || id < 1) || !ids.includes(userId)) throw new Error('Invalid conversation');
-    const friendship = await db.execute(sql`SELECT id FROM friends WHERE user_id = ${Math.min(ids[0], ids[1])} AND friend_id = ${Math.max(ids[0], ids[1])} AND status = 'accepted' LIMIT 1;`);
-    if (!friendship.rows?.length) throw new Error('Conversation not found');
-  }
-  if (isTyping) {
-    await db.execute(sql`
-      INSERT INTO chat_typing (user_id, context_type, context_id, updated_at)
-      VALUES (${userId}, ${contextType}, ${contextId}, NOW())
-      ON CONFLICT (user_id, context_type, context_id) DO UPDATE SET updated_at = NOW();
-    `);
-  } else {
-    await db.execute(sql`
-      DELETE FROM chat_typing WHERE user_id = ${userId}
-        AND context_type = ${contextType} AND context_id = ${contextId};
-    `);
-  }
-  return { success: true };
-}
-
-export async function getChatTyping(userId: number, contextType: 'dm' | 'public', contextId: string) {
-  await ensureChatTables();
-  if (contextType === 'public' && !['chat-1', 'chat-2', 'announcements'].includes(contextId)) throw new Error('Invalid channel');
-  if (contextType === 'dm') {
-    const ids = contextId.split('-').map(Number);
-    if (ids.length !== 2 || ids.some((id) => !Number.isInteger(id) || id < 1) || !ids.includes(userId)) throw new Error('Invalid conversation');
-    const friendship = await db.execute(sql`SELECT id FROM friends WHERE user_id = ${Math.min(ids[0], ids[1])} AND friend_id = ${Math.max(ids[0], ids[1])} AND status = 'accepted' LIMIT 1;`);
-    if (!friendship.rows?.length) throw new Error('Conversation not found');
-  }
-  const res = await db.execute(sql`
-    SELECT u.id, u.username FROM chat_typing t
-    JOIN users u ON u.id = t.user_id
-    WHERE t.context_type = ${contextType} AND t.context_id = ${contextId}
-      AND t.user_id != ${userId} AND t.updated_at > NOW() - INTERVAL '8 seconds'
-    ORDER BY t.updated_at DESC LIMIT 3;
-  `);
-  return (res.rows || []).map((r: any) => ({ id: Number(r.id), username: r.username || 'Someone' }));
+  // Schema managed via Drizzle & Cloud SQL
+  return;
 }
 
 export async function searchUsers(searchTerm: string, currentUserId: number) {
@@ -658,8 +528,6 @@ export async function getFriendsList(userId: number) {
   const res = await db.execute(sql`
     SELECT u.id, u.username,
       COALESCE(p.avatar, 'astronaut') as avatar,
-      (cp.last_seen > NOW() - INTERVAL '75 seconds') as "isOnline",
-      cp.last_seen as "lastSeen",
       (
         SELECT content FROM messages
         WHERE (sender_id = ${userId} AND receiver_id = u.id)
@@ -679,7 +547,6 @@ export async function getFriendsList(userId: number) {
     FROM friends f
     JOIN users u ON u.id = f.friend_id
     LEFT JOIN profiles p ON p.user_id = u.id AND p.is_default = true
-    LEFT JOIN chat_presence cp ON cp.user_id = u.id
     WHERE f.user_id = ${userId} AND f.status = 'accepted'
     ORDER BY "unreadCount" DESC, "lastMessageTime" DESC NULLS LAST, u.username ASC
   `);
@@ -689,9 +556,8 @@ export async function getFriendsList(userId: number) {
     friendId: r.id,
     username: r.username,
     avatar: r.avatar || 'astronaut',
-    isOnline: !!r.isOnline,
-    online: !!r.isOnline,
-    lastSeen: r.lastSeen || null,
+    isOnline: true,
+    online: true,
     lastMessage: r.lastMessage || null,
     lastMessageTime: r.lastMessageTime || null,
     unreadCount: Number(r.unreadCount || 0),
@@ -726,52 +592,28 @@ export async function getDirectMessages(userId: number, friendId: number) {
     .set({ isRead: true })
     .where(and(eq(messages.senderId, friendId), eq(messages.receiverId, userId), eq(messages.isRead, false)));
 
-  const result = await db.execute(sql`
-    SELECT m.id, m.sender_id AS "senderId", m.receiver_id AS "receiverId", m.content,
-      m.is_read AS "isRead", m.created_at AS "createdAt",
-      m.reply_to_id AS "replyToId", m.is_edited AS "isEdited",
-      CASE WHEN rm.id IS NULL THEN NULL ELSE
-        json_build_object('id', rm.id, 'content', rm.content, 'senderId', rm.sender_id)
-      END AS "replyTo",
-      COALESCE((
-        SELECT json_agg(json_build_object('emoji', rx.emoji, 'count', rx.count, 'userIds', rx.user_ids))
-        FROM (
-          SELECT emoji, count(*)::int AS count, array_agg(user_id) AS user_ids
-          FROM chat_message_reactions
-          WHERE message_type = 'dm' AND message_id = m.id
-          GROUP BY emoji
-        ) rx
-      ), '[]'::json) AS reactions
-    FROM messages m
-    LEFT JOIN messages rm ON rm.id = m.reply_to_id
-    WHERE (m.sender_id = ${userId} AND m.receiver_id = ${friendId})
-       OR (m.sender_id = ${friendId} AND m.receiver_id = ${userId})
-    ORDER BY m.created_at ASC;
-  `);
-  return (result.rows || []).map((m: any) => ({
-    id: m.id, senderId: m.senderId, receiverId: m.receiverId,
-    content: m.content, isRead: m.isRead, createdAt: m.createdAt,
-    isEdited: !!m.isEdited, isMe: m.senderId === userId,
-    replyToId: m.replyToId || null, replyTo: m.replyTo || null,
-    reactions: Array.isArray(m.reactions) ? m.reactions : []
+  const rows = await db.select().from(messages).where(
+    sql`(${messages.senderId} = ${userId} AND ${messages.receiverId} = ${friendId}) OR (${messages.senderId} = ${friendId} AND ${messages.receiverId} = ${userId})`
+  ).orderBy(messages.createdAt);
+
+  return rows.map(m => ({
+    id: m.id,
+    senderId: m.senderId,
+    receiverId: m.receiverId,
+    content: m.content,
+    isRead: m.isRead,
+    createdAt: m.createdAt,
+    isMe: m.senderId === userId,
   }));
 }
 
-export async function sendDirectMessage(senderId: number, receiverId: number, content: string, replyToId?: number | null) {
+export async function sendDirectMessage(senderId: number, receiverId: number, content: string) {
   await ensureChatTables();
   const clean = filterProfanity(content.trim());
   if (!clean) throw new Error('Message content cannot be empty');
 
   const rec = await getUserById(receiverId);
   if (!rec) throw new Error('Recipient user not found');
-  if (replyToId) {
-    const reply = await db.execute(sql`
-      SELECT id FROM messages WHERE id = ${replyToId}
-        AND ((sender_id = ${senderId} AND receiver_id = ${receiverId})
-          OR (sender_id = ${receiverId} AND receiver_id = ${senderId})) LIMIT 1;
-    `);
-    if (!reply.rows?.length) throw new Error('The message you are replying to could not be found in this conversation');
-  }
 
   const inserted = await db.insert(messages).values({
     senderId,
@@ -780,7 +622,6 @@ export async function sendDirectMessage(senderId: number, receiverId: number, co
   }).returning();
 
   const msg = inserted[0];
-  if (replyToId) await db.execute(sql`UPDATE messages SET reply_to_id = ${replyToId} WHERE id = ${msg.id};`);
   return {
     id: msg.id,
     senderId: msg.senderId,
@@ -793,9 +634,9 @@ export async function sendDirectMessage(senderId: number, receiverId: number, co
 
 export async function deleteDirectMessage(userId: number, messageId: number) {
   await ensureChatTables();
-  const result = await db.execute(sql`DELETE FROM messages WHERE id = ${messageId} AND sender_id = ${userId} RETURNING id;`);
-  if (!result.rows?.length) throw new Error('Message not found or you cannot delete it');
-  await db.execute(sql`DELETE FROM chat_message_reactions WHERE message_type = 'dm' AND message_id = ${messageId};`);
+  await db.delete(messages).where(
+    and(eq(messages.id, messageId), eq(messages.senderId, userId))
+  );
   return { success: true };
 }
 
@@ -803,8 +644,9 @@ export async function editDirectMessage(userId: number, messageId: number, conte
   await ensureChatTables();
   const clean = filterProfanity(content.trim());
   if (!clean) throw new Error('Content cannot be empty');
-  const result = await db.execute(sql`UPDATE messages SET content = ${clean}, is_edited = true WHERE id = ${messageId} AND sender_id = ${userId} RETURNING id;`);
-  if (!result.rows?.length) throw new Error('Message not found or you cannot edit it');
+  await db.update(messages).set({ content: clean }).where(
+    and(eq(messages.id, messageId), eq(messages.senderId, userId))
+  );
   return { success: true, content: clean };
 }
 
@@ -833,60 +675,39 @@ export async function getOrCreateGuestUser(clientId: string, preferredName: stri
 }
 
 export async function getPublicMessages(channel: string) {
-  await ensureChatTables();
   const cleanChannel = ['chat-1', 'chat-2', 'announcements'].includes(channel) ? channel : 'chat-1';
 
   const res = await db.execute(sql`
-    SELECT pm.id, pm.channel, pm.user_id as "userId", pm.content,
-      pm.reply_to_id as "replyToId", pm.is_edited as "isEdited", pm.created_at as "createdAt",
-      COALESCE(u.username, 'Guest') as username,
-      COALESCE(u.role, 'TSW User') as role,
-      COALESCE(p.avatar, 'astronaut') as avatar,
-      CASE WHEN rm.id IS NULL THEN NULL ELSE
-        json_build_object('id', rm.id, 'content', rm.content, 'username', COALESCE(ru.username, 'Member'))
-      END AS "replyTo",
-      COALESCE((
-        SELECT json_agg(json_build_object('emoji', rx.emoji, 'count', rx.count, 'userIds', rx.user_ids))
-        FROM (
-          SELECT emoji, count(*)::int AS count, array_agg(user_id) AS user_ids
-          FROM chat_message_reactions
-          WHERE message_type = 'public' AND message_id = pm.id
-          GROUP BY emoji
-        ) rx
-      ), '[]'::json) AS reactions
+    SELECT pm.id, pm.channel, pm.user_id as "userId", pm.content, pm.created_at as "createdAt",
+           COALESCE(u.username, 'Guest') as username,
+           COALESCE(u.role, 'TSW User') as role,
+           COALESCE(p.avatar, 'astronaut') as avatar
     FROM public_messages pm
     LEFT JOIN users u ON u.id = pm.user_id
     LEFT JOIN profiles p ON p.user_id = u.id AND p.is_default = true
-    LEFT JOIN public_messages rm ON rm.id = pm.reply_to_id
-    LEFT JOIN users ru ON ru.id = rm.user_id
     WHERE pm.channel = ${cleanChannel}
     ORDER BY pm.created_at ASC
     LIMIT 200;
   `);
 
   return (res.rows || []).map((r: any) => ({
-    id: r.id, channel: r.channel, userId: r.userId,
-    username: r.username || 'Member', role: r.role || 'TSW User',
-    roles: parseRoles(r.role), avatar: r.avatar || 'astronaut',
-    content: r.content, createdAt: r.createdAt, isEdited: !!r.isEdited,
-    replyToId: r.replyToId || null, replyTo: r.replyTo || null,
-    reactions: Array.isArray(r.reactions) ? r.reactions : []
+    id: r.id,
+    channel: r.channel,
+    userId: r.userId,
+    username: r.username || 'Member',
+    role: r.role || 'TSW User',
+    roles: parseRoles(r.role),
+    avatar: r.avatar || 'astronaut',
+    content: r.content,
+    createdAt: r.createdAt,
   }));
 }
 
-export async function sendPublicMessage(channel: string, userId: number, content: string, replyToId?: number | null) {
-  await ensureChatTables();
+export async function sendPublicMessage(channel: string, userId: number, content: string) {
   const cleanChannel = ['chat-1', 'chat-2', 'announcements'].includes(channel) ? channel : 'chat-1';
   const cleanContent = filterProfanity((content || '').trim());
   if (!cleanContent) {
     throw new Error('Message content cannot be empty');
-  }
-
-  if (replyToId) {
-    const reply = await db.execute(sql`
-      SELECT id FROM public_messages WHERE id = ${replyToId} AND channel = ${cleanChannel} LIMIT 1;
-    `);
-    if (!reply.rows?.length) throw new Error('The message you are replying to could not be found in this channel');
   }
 
   // Enforce read-only for announcements channel
@@ -905,7 +726,6 @@ export async function sendPublicMessage(channel: string, userId: number, content
   }).returning();
 
   const msg = inserted[0];
-  if (replyToId) await db.execute(sql`UPDATE public_messages SET reply_to_id = ${replyToId} WHERE id = ${msg.id};`);
   const user = await getUserById(userId);
   const profilesList = await getUserProfiles(userId);
   const activeProfile = profilesList.find(p => p.isDefault) || profilesList[0];
@@ -924,21 +744,22 @@ export async function sendPublicMessage(channel: string, userId: number, content
 }
 
 export async function deletePublicMessage(userId: number, messageId: number, isAdmin: boolean) {
-  await ensureChatTables();
-  const result = isAdmin
-    ? await db.execute(sql`DELETE FROM public_messages WHERE id = ${messageId} RETURNING id;`)
-    : await db.execute(sql`DELETE FROM public_messages WHERE id = ${messageId} AND user_id = ${userId} RETURNING id;`);
-  if (!result.rows?.length) throw new Error('Message not found or you cannot delete it');
-  await db.execute(sql`DELETE FROM chat_message_reactions WHERE message_type = 'public' AND message_id = ${messageId};`);
+  if (isAdmin) {
+    await db.delete(publicMessages).where(eq(publicMessages.id, messageId));
+  } else {
+    await db.delete(publicMessages).where(
+      and(eq(publicMessages.id, messageId), eq(publicMessages.userId, userId))
+    );
+  }
   return { success: true };
 }
 
 export async function editPublicMessage(userId: number, messageId: number, content: string) {
-  await ensureChatTables();
   const clean = filterProfanity((content || '').trim());
   if (!clean) throw new Error('Message content cannot be empty');
-  const result = await db.execute(sql`UPDATE public_messages SET content = ${clean}, is_edited = true WHERE id = ${messageId} AND user_id = ${userId} RETURNING id;`);
-  if (!result.rows?.length) throw new Error('Message not found or you cannot edit it');
+  await db.update(publicMessages).set({ content: clean }).where(
+    and(eq(publicMessages.id, messageId), eq(publicMessages.userId, userId))
+  );
   return { success: true, content: clean };
 }
 
@@ -1246,3 +1067,20 @@ export async function sendOfficialBotMessage(channel: string, content: string) {
   };
 }
 
+
+
+// Chat enhancements are temporarily disabled until their Drizzle schema
+// migration is applied to the production database. Keep these safe fallbacks
+// so optional chat UI polling cannot prevent message history from loading.
+export async function toggleMessageReaction() {
+  throw new Error('Message reactions are temporarily unavailable.');
+}
+export async function updateChatPresence() {
+  return { success: true };
+}
+export async function updateChatTyping() {
+  return { success: true };
+}
+export async function getChatTyping() {
+  return [];
+}
