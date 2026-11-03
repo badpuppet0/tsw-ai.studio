@@ -53,10 +53,12 @@ import {
 } from "./db/users.ts";
 import { verifyAuth } from "./middleware/auth.ts";
 import { GoogleGenAI } from "@google/genai";
+import { db } from "./db/index.ts";
+import { sql } from "drizzle-orm";
 
 const publicPath = fileURLToPath(new URL("../public/", import.meta.url));
 const SERVER_BOOT_TIME = Date.now();
-const APP_VERSION = "1.6.05";
+const APP_VERSION = "1.6.06";
 
 // Wisp Configuration: Refer to the documentation at https://www.npmjs.com/package/@mercuryworkshop/wisp-js
 
@@ -556,6 +558,31 @@ fastify.get("/api/users/mentions", async (req, reply) => {
 		reply.code(500);
 		return { success: false, error: "Failed to load mention users" };
 	}
+});
+
+// Public service status. Database-backed features are only marked operational after a live DB check.
+fastify.get("/api/system/status", async (req, reply) => {
+  reply.header("Cache-Control", "no-store, no-cache, must-revalidate");
+  let database = "operational";
+  try {
+    await db.execute(sql`SELECT 1`);
+  } catch (err) {
+    req.log.error({ err }, "Maintenance status database check failed");
+    database = "unavailable";
+  }
+  const overall = database === "operational" ? "operational" : "degraded";
+  return {
+    success: true,
+    overall,
+    checkedAt: new Date().toISOString(),
+    services: [
+      { id: "website", name: "TSW Website", status: "operational", detail: "The site is responding." },
+      { id: "database", name: "Database", status: database, detail: database === "operational" ? "Database connection is responding." : "Database connection check failed." },
+      { id: "accounts", name: "Accounts & Profiles", status: database, detail: database === "operational" ? "Account data service is reachable." : "Waiting on the database." },
+      { id: "chat", name: "Friends & Chat", status: database, detail: database === "operational" ? "Chat data service is reachable." : "Waiting on the database." },
+      { id: "proxy", name: "Browser Proxy", status: "unmonitored", detail: "Proxy session health is not currently measured." }
+    ]
+  };
 });
 
 // Real-Time Server Version and Boot Identifier (for update notification popup)
