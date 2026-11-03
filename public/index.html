@@ -3481,11 +3481,6 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
     </div>
   </div>
 
-  <button class="sb-tab" id="sb-maintenance-btn" type="button" title="Maintenance Status" style="width:100%;border:0;background:transparent;text-align:left;cursor:pointer;">
-    <span class="sb-tab-icon" aria-hidden="true">🛠️</span>
-    <span class="sb-tab-label">Maintenance</span>
-  </button>
-
   <!-- Testing Area Folder (Tester & Owner Role Only) -->
   <div class="sb-folder-section" id="sb-testing-folder" style="display:none !important;">
     <button class="sb-folder-header" id="sb-testing-toggle" type="button" aria-expanded="false" title="Testing Area (Tester / Owner Only)">
@@ -3831,7 +3826,7 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
 <!-- Clickable Member Profile Card Modal -->
 <div class="overlay" id="member-profile-modal" hidden role="dialog" aria-modal="true" aria-labelledby="member-card-username">
   <div class="panel member-profile-panel">
-    <div class="member-profile-banner">
+    <div class="member-profile-banner" id="member-card-banner">
       <div class="member-profile-av-wrap" id="member-card-avatar">👨‍🚀</div>
       <button data-close aria-label="Close" style="position:absolute;top:.75rem;right:.9rem;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);border-radius:50%;width:26px;height:26px;display:grid;place-items:center;color:#fff;cursor:pointer;font-size:1.1rem;line-height:1;">&times;</button>
     </div>
@@ -3989,6 +3984,17 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
             <button type="submit" class="primary" id="account-bio-save-btn" style="padding:.45rem 1.1rem;font-size:.84rem;margin-left:auto;">Save Bio</button>
           </div>
         </form>
+        <div class="prof-section-head" style="margin-top:1.25rem;"><h4>Profile Appearance</h4></div>
+        <div class="f" style="margin-top:.6rem;gap:.7rem;">
+          <label for="profile-picture-upload">Profile Picture</label>
+          <input id="profile-picture-upload" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+          <label for="profile-banner-upload">Profile Banner</label>
+          <input id="profile-banner-upload" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+          <small style="color:#94a3b8;">Images are saved to your TSW profile. Maximum 600 KB each.</small>
+          <button type="button" class="primary" id="profile-appearance-save" style="padding:.45rem 1rem;">Save Appearance</button>
+          <span id="profile-appearance-status" style="display:none;color:#4ade80;font-size:.82rem;"></span>
+        </div>
+
       </div>
     </div>
   </div>
@@ -4798,20 +4804,6 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
  #tsw-ai-prompt{min-height:48px!important}
 }
 @media(prefers-reduced-motion:reduce){#ai-coming-soon-panel,#ai-coming-soon-panel:before,#tsw-ai-welcome,#tsw-ai-messages .tsw-ai-message{transition:none;animation:none}}
-</style><style id="tsw-maintenance-styles">
-#tsw-maintenance-overlay{position:fixed;inset:0;z-index:100300;background:rgba(0,0,0,.68);display:none;align-items:center;justify-content:center;padding:18px}
-#tsw-maintenance-panel{width:min(620px,100%);max-height:min(720px,90vh);overflow:auto;background:#111827;color:#f8fafc;border:1px solid #374151;border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.55);padding:22px}
-.tsw-maint-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.tsw-maint-head h2{font-size:1.25rem;margin:0}
-.tsw-maint-overall{display:flex;align-items:center;gap:10px;padding:14px;margin:16px 0;background:#1f2937;border-radius:10px}
-.tsw-maint-dot{width:9px;height:9px;border-radius:50%;background:#22c55e;flex:none}
-.tsw-maint-dot.degraded,.tsw-maint-dot.maintenance{background:#f59e0b}.tsw-maint-dot.unavailable{background:#ef4444}.tsw-maint-dot.unmonitored{background:#94a3b8}
-.tsw-maint-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 2px;border-bottom:1px solid #293241}
-.tsw-maint-name{font-weight:600;font-size:.9rem}.tsw-maint-detail{font-size:.78rem;color:#9ca3af;margin-top:3px}
-.tsw-maint-state{font-size:.75rem;white-space:nowrap;color:#cbd5e1}
-#tsw-maintenance-close{border:0;background:#273244;color:#e5e7eb;border-radius:8px;padding:7px 11px;cursor:pointer}
-#tsw-maintenance-refresh{border:1px solid #46546a;background:#202b3b;color:#fff;border-radius:8px;padding:8px 12px;cursor:pointer;margin-top:16px}
-@media(max-width:480px){#tsw-maintenance-panel{padding:16px}.tsw-maint-row{align-items:flex-start}}
 </style>
 
 
@@ -8461,7 +8453,15 @@ document.addEventListener('keydown', function (ev) {
     api(targetUrl, 'GET').then(function (res) {
       var u = res && (res.profile || res.user || (res.id ? res : null));
       if (res && res.success && u) {
-        if (avEl) avEl.innerHTML = getLetterAvatar(u.username, u.themeColor);
+        if (avEl) {
+          avEl.innerHTML = u.profilePicture ? '<img src="' + escapeHtml(u.profilePicture) + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">' : getLetterAvatar(u.username, u.themeColor);
+        }
+        var bannerEl = $('member-card-banner');
+        if (bannerEl) {
+          bannerEl.style.backgroundImage = u.profileBanner ? 'url("' + u.profileBanner + '")' : '';
+          bannerEl.style.backgroundSize = 'cover';
+          bannerEl.style.backgroundPosition = 'center';
+        }
         if (unameEl) unameEl.textContent = '@' + u.username;
         if (dateEl) {
           var dateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' }) : 'November 2026';
@@ -10187,55 +10187,6 @@ document.addEventListener('keydown', function (ev) {
 })();
 </script>
 
-<div id="tsw-maintenance-overlay" role="dialog" aria-modal="true" aria-labelledby="tsw-maintenance-title">
-  <section id="tsw-maintenance-panel">
-    <div class="tsw-maint-head"><h2 id="tsw-maintenance-title">🛠️ TSW Maintenance Status</h2><button id="tsw-maintenance-close" type="button">Close</button></div>
-    <div id="tsw-maintenance-overall" class="tsw-maint-overall"><span class="tsw-maint-dot degraded"></span><span>Checking service status…</span></div>
-    <div id="tsw-maintenance-services"></div>
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
-      <small id="tsw-maintenance-checked" style="color:#9ca3af;">Last checked: —</small>
-      <button id="tsw-maintenance-refresh" type="button">Refresh status</button>
-    </div>
-  </section>
-</div>
-<script>
-(function(){
-  var overlay=document.getElementById('tsw-maintenance-overlay');
-  var open=document.getElementById('sb-maintenance-btn');
-  var close=document.getElementById('tsw-maintenance-close');
-  var refresh=document.getElementById('tsw-maintenance-refresh');
-  var overall=document.getElementById('tsw-maintenance-overall');
-  var services=document.getElementById('tsw-maintenance-services');
-  var checked=document.getElementById('tsw-maintenance-checked');
-  if(!overlay||!open||!close||!refresh||!overall||!services)return;
-  function label(status){return status==='operational'?'Operational':status==='degraded'?'Degraded':status==='maintenance'?'Being fixed':status==='unavailable'?'Unavailable':'Not monitored';}
-  function load(){
-    overall.innerHTML='<span class="tsw-maint-dot degraded"></span><span>Checking service status…</span>';
-    fetch('/api/system/status',{cache:'no-store'}).then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.error||'Status check failed');return d;});}).then(function(data){
-      var state=data.overall||'degraded';
-      overall.innerHTML='<span class="tsw-maint-dot '+state+'"></span><strong>'+(state==='operational'?'All monitored services operational':'Some services need attention')+'</strong>';
-      services.innerHTML='';
-      (data.services||[]).forEach(function(item){
-        var row=document.createElement('div');row.className='tsw-maint-row';
-        var left=document.createElement('div');var name=document.createElement('div');name.className='tsw-maint-name';name.textContent=item.name;
-        var detail=document.createElement('div');detail.className='tsw-maint-detail';detail.textContent=item.detail||'';
-        left.appendChild(name);left.appendChild(detail);
-        var right=document.createElement('div');right.className='tsw-maint-state';right.innerHTML='<span class="tsw-maint-dot '+(item.status||'unmonitored')+'" style="display:inline-block;margin-right:6px;vertical-align:middle"></span>'+label(item.status);
-        row.appendChild(left);row.appendChild(right);services.appendChild(row);
-      });
-      checked.textContent='Last checked: '+new Date(data.checkedAt||Date.now()).toLocaleString();
-    }).catch(function(err){
-      overall.innerHTML='<span class="tsw-maint-dot unavailable"></span><strong>Status check unavailable</strong>';
-      services.textContent=err.message||'Could not retrieve service status.';
-      checked.textContent='Last checked: '+new Date().toLocaleString();
-    });
-  }
-  open.addEventListener('click',function(){overlay.style.display='flex';load();});
-  close.addEventListener('click',function(){overlay.style.display='none';});
-  overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.style.display='none';});
-  refresh.addEventListener('click',load);
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&overlay.style.display==='flex')overlay.style.display='none';});
-})();
-</script>
+
 </body>
 </html>
