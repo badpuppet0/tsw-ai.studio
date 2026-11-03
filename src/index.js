@@ -580,7 +580,7 @@ fastify.get("/api/system/status", async (req, reply) => {
       { id: "database", name: "Database", status: database, detail: database === "operational" ? "Database connection is responding." : "Database connection check failed." },
       { id: "accounts", name: "Accounts & Profiles", status: database, detail: database === "operational" ? "Account data service is reachable." : "Waiting on the database." },
       { id: "chat", name: "Friends & Chat", status: database, detail: database === "operational" ? "Chat data service is reachable." : "Waiting on the database." },
-      { id: "proxy", name: "Browser Proxy", status: "unmonitored", detail: "Proxy session health is not currently measured." }
+      { id: "proxy", name: "Browser Proxy", status: ["operational", "degraded", "maintenance", "unavailable"].includes(process.env.TSW_PROXY_STATUS) ? process.env.TSW_PROXY_STATUS : "unmonitored", detail: process.env.TSW_PROXY_STATUS_DETAIL || "Proxy session health is not currently measured." }
     ]
   };
 });
