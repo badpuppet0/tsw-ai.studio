@@ -3847,6 +3847,17 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
         </div>
       </div>
 
+      <div id="member-owner-tools" style="display:none;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:.8rem;">
+        <label style="display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;color:#fca5a5;margin-bottom:.55rem;">Owner Moderation</label>
+        <div style="display:flex;gap:.45rem;flex-wrap:wrap;">
+          <button type="button" class="plain" id="member-owner-ban" style="color:#fca5a5;">Ban</button>
+          <button type="button" class="plain" id="member-owner-unban">Unban</button>
+          <button type="button" class="plain" id="member-owner-timeout">Timeout</button>
+          <button type="button" class="plain" id="member-owner-clear-timeout">Clear Timeout</button>
+        </div>
+        <small id="member-owner-status" style="display:block;margin-top:.5rem;color:#94a3b8;"></small>
+      </div>
+
       <div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem;">
           <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:#94a3b8;letter-spacing:.04em;">About / Bio</label>
@@ -8468,6 +8479,37 @@ document.addEventListener('keydown', function (ev) {
     });
   }
 
+  function runOwnerModeration(action) {
+    var toolsEl = $('member-owner-tools');
+    var targetId = toolsEl && parseInt(toolsEl.getAttribute('data-target-user-id'), 10);
+    if (!targetId) return;
+    var reason = '';
+    var minutes = 10;
+    var scope = 'both';
+    if (action === 'ban' || action === 'timeout') {
+      reason = prompt('Reason for this moderation action:', '') || '';
+      if (action === 'timeout') {
+        minutes = parseInt(prompt('Timeout length in minutes (1–10080):', '10') || '10', 10);
+        if (!Number.isFinite(minutes) || minutes < 1) return;
+        scope = prompt('Timeout scope: chat, dm, or both', 'both') || 'both';
+        if (!['chat','dm','both'].includes(scope)) { alert('Choose chat, dm, or both.'); return; }
+      }
+    }
+    var status = $('member-owner-status');
+    if (status) status.textContent = 'Applying moderation action…';
+    api('/api/owner/moderate-user', 'POST', { targetUserId: targetId, action: action, reason: reason, minutes: minutes, scope: scope }).then(function(res) {
+      if (!res || !res.success) throw new Error((res && res.error) || 'Moderation action failed.');
+      if (status) status.textContent = action === 'ban' ? 'User banned.' : action === 'unban' ? 'User unbanned.' : action === 'timeout' ? 'Timeout applied.' : 'Timeout cleared.';
+    }).catch(function(err) {
+      if (status) status.textContent = err.message || 'Moderation action failed.';
+      else alert(err.message || 'Moderation action failed.');
+    });
+  }
+  ['ban','unban','timeout','clear-timeout'].forEach(function(action) {
+    var btn = $('member-owner-' + action);
+    if (btn) btn.addEventListener('click', function(){ runOwnerModeration(action); });
+  });
+
   /* ---------------- Member Profile Card Modal ---------------- */
   function openMemberProfile(userId, fallbackUsername) {
     var modal = $('member-profile-modal');
@@ -8520,6 +8562,13 @@ document.addEventListener('keydown', function (ev) {
         if (bioDisplay) bioDisplay.textContent = curBio;
         if (bioInput) bioInput.value = (u.bio && u.bio.trim()) ? u.bio.trim() : '';
 
+        var ownerTools = $('member-owner-tools');
+        if (ownerTools) {
+          ownerTools.style.display = curUser && curUser.isOwner && Number(u.id) !== Number(curUserId) ? 'block' : 'none';
+          ownerTools.setAttribute('data-target-user-id', String(u.id));
+          var ownerStatus = $('member-owner-status');
+          if (ownerStatus) ownerStatus.textContent = u.moderation && u.moderation.banned ? 'This user is currently banned.' : '';
+        }
         var isMe = (curUserId && u.id === curUserId) || (curUsername && u.username && curUsername === u.username.toLowerCase());
         if (isMe && editToggle) {
           editToggle.style.display = 'inline-block';
