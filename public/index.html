@@ -8641,9 +8641,10 @@ document.addEventListener('keydown', function (ev) {
       if (delBtn) {
         var id = parseInt(delBtn.getAttribute('data-del-pub'), 10);
         if (confirm('Delete this message?')) {
-          api('/api/public-messages/' + id, 'DELETE').then(function () {
-            loadPublicMessages(activePublicChannel, false);
-          });
+          api('/api/public-messages/' + id, 'DELETE').then(function (res) {
+            if (res && res.success) loadPublicMessages(activePublicChannel, false);
+            else alert((res && res.error) || 'Could not delete message.');
+          }).catch(function () { alert('Could not delete message.'); });
         }
         return;
       }
@@ -9411,9 +9412,10 @@ document.addEventListener('keydown', function (ev) {
       if (delBtn) {
         var id = parseInt(delBtn.getAttribute('data-del-msg'), 10);
         if (confirm('Delete this message?')) {
-          api('/api/messages/' + id, 'DELETE').then(function () {
-            if (selectedFriend) loadMessages(selectedFriend.friendId, false);
-          });
+          api('/api/messages/' + id, 'DELETE').then(function (res) {
+            if (res && res.success && selectedFriend) loadMessages(selectedFriend.friendId, false);
+            else alert((res && res.error) || 'Could not delete message.');
+          }).catch(function () { alert('Could not delete message.'); });
         }
         return;
       }
