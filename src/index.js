@@ -56,7 +56,7 @@ import { GoogleGenAI } from "@google/genai";
 
 const publicPath = fileURLToPath(new URL("../public/", import.meta.url));
 const SERVER_BOOT_TIME = Date.now();
-const APP_VERSION = "1.6.04";
+const APP_VERSION = "1.6.05";
 
 // Wisp Configuration: Refer to the documentation at https://www.npmjs.com/package/@mercuryworkshop/wisp-js
 
@@ -758,8 +758,7 @@ fastify.post("/api/messages/:friendId", async (req, reply) => {
 			reply.code(400);
 			return { success: false, error: "Message cannot be empty" };
 		}
-		const replyToId = body.replyToId ? parseInt(body.replyToId, 10) : null;
-		const message = await sendDirectMessage(userId, friendId, content, replyToId);
+		const message = await sendDirectMessage(userId, friendId, content);
 		return { success: true, message };
 	} catch (err) {
 		reply.code(400);
@@ -815,8 +814,7 @@ fastify.post("/api/public-messages/:channel", async (req, reply) => {
 			reply.code(400);
 			return { success: false, error: "Message cannot be empty" };
 		}
-		const replyToId = body.replyToId ? parseInt(body.replyToId, 10) : null;
-		const message = await sendPublicMessage(channel, userId, content, replyToId);
+		const message = await sendPublicMessage(channel, userId, content);
 		return { success: true, message };
 	} catch (err) {
 		reply.code(err.message.includes("Authentication") ? 401 : 400);
