@@ -8258,7 +8258,7 @@ document.addEventListener('keydown', function (ev) {
 
   /* ---------------- Public Channels Logic ---------------- */
   function selectPublicChannel(channel) {
-    clearReplyTarget('public');
+    clearReplyTarget();
     activePublicChannel = channel;
     var cfg = PUBLIC_CHANNELS_CONFIG[channel] || PUBLIC_CHANNELS_CONFIG['chat-1'];
 
@@ -9232,7 +9232,7 @@ document.addEventListener('keydown', function (ev) {
   }
 
   function selectFriend(friend) {
-    clearReplyTarget('dm');
+    clearReplyTarget();
     selectedFriend = friend;
     friend.unread = false;
     friend.unreadCount = 0;
