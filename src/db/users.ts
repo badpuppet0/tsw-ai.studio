@@ -787,9 +787,9 @@ export async function sendDirectMessage(senderId: number, receiverId: number, co
 
 export async function deleteDirectMessage(userId: number, messageId: number) {
   await ensureChatTables();
-  await db.delete(messages).where(
-    and(eq(messages.id, messageId), eq(messages.senderId, userId))
-  );
+  const result = await db.execute(sql`DELETE FROM messages WHERE id = ${messageId} AND sender_id = ${userId} RETURNING id;`);
+  if (!result.rows?.length) throw new Error('Message not found or you cannot delete it');
+  await db.execute(sql`DELETE FROM chat_message_reactions WHERE message_type = 'dm' AND message_id = ${messageId};`);
   return { success: true };
 }
 
@@ -797,7 +797,8 @@ export async function editDirectMessage(userId: number, messageId: number, conte
   await ensureChatTables();
   const clean = filterProfanity(content.trim());
   if (!clean) throw new Error('Content cannot be empty');
-  await db.execute(sql`UPDATE messages SET content = ${clean}, is_edited = true WHERE id = ${messageId} AND sender_id = ${userId};`);
+  const result = await db.execute(sql`UPDATE messages SET content = ${clean}, is_edited = true WHERE id = ${messageId} AND sender_id = ${userId} RETURNING id;`);
+  if (!result.rows?.length) throw new Error('Message not found or you cannot edit it');
   return { success: true, content: clean };
 }
 
@@ -910,13 +911,11 @@ export async function sendPublicMessage(channel: string, userId: number, content
 }
 
 export async function deletePublicMessage(userId: number, messageId: number, isAdmin: boolean) {
-  if (isAdmin) {
-    await db.delete(publicMessages).where(eq(publicMessages.id, messageId));
-  } else {
-    await db.delete(publicMessages).where(
-      and(eq(publicMessages.id, messageId), eq(publicMessages.userId, userId))
-    );
-  }
+  const result = isAdmin
+    ? await db.execute(sql`DELETE FROM public_messages WHERE id = ${messageId} RETURNING id;`)
+    : await db.execute(sql`DELETE FROM public_messages WHERE id = ${messageId} AND user_id = ${userId} RETURNING id;`);
+  if (!result.rows?.length) throw new Error('Message not found or you cannot delete it');
+  await db.execute(sql`DELETE FROM chat_message_reactions WHERE message_type = 'public' AND message_id = ${messageId};`);
   return { success: true };
 }
 
@@ -924,7 +923,8 @@ export async function editPublicMessage(userId: number, messageId: number, conte
   await ensureChatTables();
   const clean = filterProfanity((content || '').trim());
   if (!clean) throw new Error('Message content cannot be empty');
-  await db.execute(sql`UPDATE public_messages SET content = ${clean}, is_edited = true WHERE id = ${messageId} AND user_id = ${userId};`);
+  const result = await db.execute(sql`UPDATE public_messages SET content = ${clean}, is_edited = true WHERE id = ${messageId} AND user_id = ${userId} RETURNING id;`);
+  if (!result.rows?.length) throw new Error('Message not found or you cannot edit it');
   return { success: true, content: clean };
 }
 
