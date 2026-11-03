@@ -8108,6 +8108,8 @@ document.addEventListener('keydown', function (ev) {
   var typingSendTimeout = null;
   var lastPresenceSentAt = 0;
   var replyingToMessage = null;
+  var currentDmMessages = [];
+  var currentPublicMessages = [];
 
   var PUBLIC_CHANNELS_CONFIG = {
     'chat-1': {
@@ -8574,6 +8576,7 @@ document.addEventListener('keydown', function (ev) {
     var targetCh = channel || activePublicChannel || 'chat-1';
     return api('/api/public-messages/' + targetCh + '?t=' + Date.now(), 'GET').then(function (res) {
       if (res && res.success && Array.isArray(res.messages)) {
+        currentPublicMessages = res.messages;
         var countChanged = res.messages.length !== lastPublicCount;
         lastPublicCount = res.messages.length;
         renderPublicMessages(res.messages, shouldScroll === true || countChanged);
@@ -8921,7 +8924,9 @@ document.addEventListener('keydown', function (ev) {
         publicFeedBox.scrollTop = publicFeedBox.scrollHeight;
       }
 
-      api('/api/public-messages/' + currentChannel, 'POST', { content: text, guestName: guestName }).then(function (res) {
+      var replyId = replyingToMessage && replyingToMessage.type === 'public' ? replyingToMessage.id : null;
+      clearReplyTarget('public');
+      api('/api/public-messages/' + currentChannel, 'POST', { content: text, guestName: guestName, replyToId: replyId }).then(function (res) {
         if (res && res.success) {
           loadPublicMessages(currentChannel, true);
         } else if (res && res.error) {
@@ -9329,6 +9334,7 @@ document.addEventListener('keydown', function (ev) {
   function loadMessages(friendId, shouldScroll) {
     return api('/api/messages/' + friendId, 'GET').then(function (res) {
       if (res && res.success && Array.isArray(res.messages)) {
+        currentDmMessages = res.messages;
         var countChanged = res.messages.length !== lastDmCount;
         lastDmCount = res.messages.length;
         renderMessages(res.messages, shouldScroll || countChanged);
@@ -9346,6 +9352,42 @@ document.addEventListener('keydown', function (ev) {
       console.warn('Messages fetch error:', err);
     });
   }
+
+  // Reactions and replies for both chat types
+  function handleMessageTools(ev, type) {
+    var reactionBtn = ev.target.closest('[data-reaction-type]');
+    if (reactionBtn) {
+      var msgType = reactionBtn.getAttribute('data-reaction-type');
+      var msgId = parseInt(reactionBtn.getAttribute('data-reaction-id'), 10);
+      var emoji = reactionBtn.getAttribute('data-reaction-emoji');
+      if (!getCurrentUser()) { alert('Sign in to react to messages.'); return; }
+      reactionBtn.disabled = true;
+      api('/api/chat/reactions/' + msgType + '/' + msgId, 'POST', { emoji: emoji }).then(function (res) {
+        if (res && res.success) {
+          if (msgType === 'dm' && selectedFriend) loadMessages(selectedFriend.friendId, false);
+          if (msgType === 'public') loadPublicMessages(activePublicChannel, false);
+        } else alert((res && res.error) || 'Could not update reaction.');
+      }).catch(function () { alert('Could not update reaction.'); }).finally(function () { reactionBtn.disabled = false; });
+      return true;
+    }
+    var replyBtn = ev.target.closest('[data-reply-type]');
+    if (replyBtn) {
+      var replyType = replyBtn.getAttribute('data-reply-type');
+      var replyId = parseInt(replyBtn.getAttribute('data-reply-id'), 10);
+      var list = replyType === 'dm' ? currentDmMessages : currentPublicMessages;
+      var message = list.find(function (m) { return Number(m.id) === replyId; });
+      if (message) setReplyTarget(replyType, message);
+      return true;
+    }
+    return false;
+  }
+  if (publicFeedBox) publicFeedBox.addEventListener('click', function (ev) { handleMessageTools(ev, 'public'); });
+  if (chatFeedBox) chatFeedBox.addEventListener('click', function (ev) { handleMessageTools(ev, 'dm'); });
+
+  ['dm','public'].forEach(function (type) {
+    var cancel = $(type === 'dm' ? 'dm-reply-cancel' : 'public-reply-cancel');
+    if (cancel) cancel.addEventListener('click', function () { clearReplyTarget(type); });
+  });
 
   // DM actions (Edit & Delete)
   if (chatFeedBox) {
@@ -9384,9 +9426,15 @@ document.addEventListener('keydown', function (ev) {
     checkLiveNotifications();
     pollTimer = setInterval(function () {
       checkLiveNotifications();
+      var presenceUser = getCurrentUser();
+      if (presenceUser && Date.now() - lastPresenceSentAt > 25000) {
+        lastPresenceSentAt = Date.now();
+        api('/api/chat/presence', 'POST', {}).catch(function () {});
+      }
       if (chatModal && !chatModal.hidden) {
         if (currentMode === 'public') {
           loadPublicMessages(activePublicChannel, false);
+          pollTypingStatus('public', activePublicChannel);
         } else {
           var user = getCurrentUser();
           if (user) {
@@ -9394,6 +9442,7 @@ document.addEventListener('keydown', function (ev) {
             loadFriendRequests();
             if (selectedFriend) {
               loadMessages(selectedFriend.friendId, false);
+              pollTypingStatus('dm', selectedFriend.friendId);
             }
           }
         }
@@ -9504,7 +9553,9 @@ document.addEventListener('keydown', function (ev) {
       var currentFriendId = selectedFriend.friendId;
       messageInput.value = '';
 
-      api('/api/messages/' + currentFriendId, 'POST', { content: text }).then(function (res) {
+      var replyId = replyingToMessage && replyingToMessage.type === 'dm' ? replyingToMessage.id : null;
+      clearReplyTarget('dm');
+      api('/api/messages/' + currentFriendId, 'POST', { content: text, replyToId: replyId }).then(function (res) {
         if (res.success) {
           selectedFriend.lastMessage = text;
           selectedFriend.lastMessageTime = new Date().toISOString();
@@ -9517,6 +9568,27 @@ document.addEventListener('keydown', function (ev) {
       }).catch(function (err) {
         console.error('Failed to send message:', err);
       });
+    });
+  }
+
+  if (messageInput) {
+    messageInput.addEventListener('input', function () {
+      if (!selectedFriend || !getCurrentUser()) return;
+      sendTypingStatus('dm', selectedFriend.friendId, true);
+      clearTimeout(typingSendTimeout);
+      typingSendTimeout = setTimeout(function () {
+        if (selectedFriend) sendTypingStatus('dm', selectedFriend.friendId, false);
+      }, 1100);
+    });
+  }
+  if (publicMessageInput) {
+    publicMessageInput.addEventListener('input', function () {
+      if (!getCurrentUser()) return;
+      sendTypingStatus('public', activePublicChannel, true);
+      clearTimeout(typingSendTimeout);
+      typingSendTimeout = setTimeout(function () {
+        sendTypingStatus('public', activePublicChannel, false);
+      }, 1100);
     });
   }
 
