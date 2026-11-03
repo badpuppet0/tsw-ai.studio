@@ -9206,14 +9206,6 @@ document.addEventListener('keydown', function (ev) {
     return api('/api/friends', 'GET').then(function (res) {
       if (res && res.success && Array.isArray(res.friends)) {
         friends = res.friends;
-        if (selectedFriend) {
-          var refreshed = friends.find(function (f) { return f.friendId === selectedFriend.friendId; });
-          if (refreshed) {
-            selectedFriend = refreshed;
-            var presenceEl = $('chat-convo-presence');
-            if (presenceEl) presenceEl.innerHTML = '<span class="chat-online-dot' + (refreshed.isOnline ? ' online' : '') + '"></span> ' + (refreshed.isOnline ? 'Online' : (refreshed.lastSeen ? 'Last seen ' + formatTime(refreshed.lastSeen) : 'Offline'));
-          }
-        }
         sortFriends();
         renderFriendsList();
         updateChatAttention();
@@ -9548,16 +9540,6 @@ document.addEventListener('keydown', function (ev) {
   }
 
   // Typing indicator on message input
-  if (messageInput) {
-    messageInput.addEventListener('input', function () {
-      if (!selectedFriend || !typingBar) return;
-      if (typingTimeout) clearTimeout(typingTimeout);
-      typingTimeout = setTimeout(function () {
-        if (typingBar) typingBar.style.display = 'none';
-      }, 2500);
-    });
-  }
-
   // Send Direct Message
   if (messageForm) {
     messageForm.addEventListener('submit', function (ev) {
