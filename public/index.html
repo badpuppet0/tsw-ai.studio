@@ -9583,16 +9583,24 @@ document.addEventListener('keydown', function (ev) {
 
   /* ---------------- @ Mention Autocomplete ---------------- */
   var mentionsCache = [];
+  var mentionsLoaded = false;
+  var mentionsLoadPromise = null;
   var mentionDropdown = $('mention-dropdown-box');
   var activeMentionInput = null;
   var selectedMentionIndex = -1;
 
   function loadMentionsList() {
-    return api('/api/users/mentions', 'GET').then(function (res) {
+    if (mentionsLoaded) return Promise.resolve();
+    if (mentionsLoadPromise) return mentionsLoadPromise;
+    mentionsLoadPromise = api('/api/users/mentions', 'GET').then(function (res) {
       if (res && res.success && Array.isArray(res.users)) {
         mentionsCache = res.users;
+        mentionsLoaded = true;
       }
-    }).catch(function () {});
+    }).catch(function () {}).then(function () {
+      mentionsLoadPromise = null;
+    });
+    return mentionsLoadPromise;
   }
   loadMentionsList();
 
@@ -9610,9 +9618,17 @@ document.addEventListener('keydown', function (ev) {
         return;
       }
 
+      if (!mentionsLoaded) {
+        loadMentionsList().then(function () {
+          if (inputEl.isConnected && activeMentionInput === inputEl) inputEl.dispatchEvent(new Event('input'));
+        });
+        activeMentionInput = inputEl;
+        return;
+      }
+
       var query = match[1].toLowerCase();
       var filtered = mentionsCache.filter(function (u) {
-        return u.username.toLowerCase().includes(query);
+        return u.username && u.username.toLowerCase().includes(query);
       }).slice(0, 6);
 
       if (filtered.length === 0) {
@@ -9667,6 +9683,7 @@ document.addEventListener('keydown', function (ev) {
         '<span class="mention-item-uname">@' + escapeHtml(u.username) + '</span>' +
         renderRoleBadgesHtml(u.roles || u.role, u.isOwner);
 
+      item.addEventListener('mousedown', function (ev) { ev.preventDefault(); });
       item.addEventListener('click', function () {
         insertMention(u.username, atIndex);
       });
