@@ -44,6 +44,10 @@ import {
 	updateUserBio,
 	getAllMentionsList,
 	getUnreadNotifications,
+	toggleMessageReaction,
+	updateChatPresence,
+	updateChatTyping,
+	getChatTyping,
 	parseRoles,
 	userHasRole
 } from "./db/users.ts";
@@ -754,7 +758,8 @@ fastify.post("/api/messages/:friendId", async (req, reply) => {
 			reply.code(400);
 			return { success: false, error: "Message cannot be empty" };
 		}
-		const message = await sendDirectMessage(userId, friendId, content);
+		const replyToId = body.replyToId ? parseInt(body.replyToId, 10) : null;
+		const message = await sendDirectMessage(userId, friendId, content, replyToId);
 		return { success: true, message };
 	} catch (err) {
 		reply.code(400);
@@ -810,12 +815,78 @@ fastify.post("/api/public-messages/:channel", async (req, reply) => {
 			reply.code(400);
 			return { success: false, error: "Message cannot be empty" };
 		}
-		const message = await sendPublicMessage(channel, userId, content);
+		const replyToId = body.replyToId ? parseInt(body.replyToId, 10) : null;
+		const message = await sendPublicMessage(channel, userId, content, replyToId);
 		return { success: true, message };
 	} catch (err) {
 		reply.code(err.message.includes("Authentication") ? 401 : 400);
 		return { success: false, error: err.message };
 	}
+});
+
+// Chat reactions, typing and online presence
+fastify.post("/api/chat/reactions/:type/:id", async (req, reply) => {
+  try {
+    const userId = await getAuthUserId(req, reply);
+    const type = req.params.type === "dm" ? "dm" : req.params.type === "public" ? "public" : null;
+    const messageId = parseInt(req.params.id, 10);
+    const emoji = (req.body?.emoji || "").toString();
+    if (!type || !Number.isInteger(messageId) || messageId < 1) {
+      reply.code(400);
+      return { success: false, error: "Invalid message" };
+    }
+    const reactions = await toggleMessageReaction(userId, type, messageId, emoji);
+    return { success: true, reactions };
+  } catch (err) {
+    reply.code(400);
+    return { success: false, error: err.message || "Could not update reaction" };
+  }
+});
+
+fastify.post("/api/chat/presence", async (req, reply) => {
+  try {
+    const userId = await getAuthUserId(req, reply);
+    await updateChatPresence(userId);
+    return { success: true };
+  } catch (err) {
+    reply.code(401);
+    return { success: false, error: "Sign in to update presence" };
+  }
+});
+
+fastify.post("/api/chat/typing", async (req, reply) => {
+  try {
+    const userId = await getAuthUserId(req, reply);
+    const body = req.body || {};
+    const type = body.type === "dm" ? "dm" : body.type === "public" ? "public" : null;
+    const contextId = (body.contextId || "").toString().slice(0, 80);
+    if (!type || !contextId) {
+      reply.code(400);
+      return { success: false, error: "Invalid typing context" };
+    }
+    await updateChatTyping(userId, type, contextId, !!body.isTyping);
+    return { success: true };
+  } catch (err) {
+    reply.code(401);
+    return { success: false, error: "Sign in to update typing status" };
+  }
+});
+
+fastify.get("/api/chat/typing/:type/:contextId", async (req, reply) => {
+  reply.header("Cache-Control", "no-store");
+  try {
+    const userId = await getAuthUserId(req, reply);
+    const type = req.params.type === "dm" ? "dm" : req.params.type === "public" ? "public" : null;
+    if (!type) {
+      reply.code(400);
+      return { success: false, error: "Invalid typing context" };
+    }
+    const users = await getChatTyping(userId, type, req.params.contextId);
+    return { success: true, users };
+  } catch (err) {
+    reply.code(401);
+    return { success: false, error: "Sign in to check typing status" };
+  }
 });
 
 // Community Reports Endpoint
