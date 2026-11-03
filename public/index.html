@@ -9286,6 +9286,13 @@ document.addEventListener('keydown', function (ev) {
     ids.forEach(function (id) { var el = $(id); if (el) el.style.display = 'none'; });
   }
 
+  function getDmTypingContext(friendId) {
+    var user = getCurrentUser();
+    if (!user || !friendId) return '';
+    var ids = [Number(user.id), Number(friendId)].sort(function (a, b) { return a - b; });
+    return ids[0] + '-' + ids[1];
+  }
+
   function sendTypingStatus(type, contextId, isTyping) {
     if (!getCurrentUser()) return;
     api('/api/chat/typing', 'POST', { type: type, contextId: String(contextId), isTyping: !!isTyping }).catch(function () {});
@@ -9450,7 +9457,7 @@ document.addEventListener('keydown', function (ev) {
             loadFriendRequests();
             if (selectedFriend) {
               loadMessages(selectedFriend.friendId, false);
-              pollTypingStatus('dm', selectedFriend.friendId);
+              pollTypingStatus('dm', getDmTypingContext(selectedFriend.friendId));
             }
           }
         }
@@ -9572,10 +9579,10 @@ document.addEventListener('keydown', function (ev) {
   if (messageInput) {
     messageInput.addEventListener('input', function () {
       if (!selectedFriend || !getCurrentUser()) return;
-      sendTypingStatus('dm', selectedFriend.friendId, true);
+      sendTypingStatus('dm', getDmTypingContext(selectedFriend.friendId), true);
       clearTimeout(typingSendTimeout);
       typingSendTimeout = setTimeout(function () {
-        if (selectedFriend) sendTypingStatus('dm', selectedFriend.friendId, false);
+        if (selectedFriend) sendTypingStatus('dm', getDmTypingContext(selectedFriend.friendId), false);
       }, 1100);
     });
   }
