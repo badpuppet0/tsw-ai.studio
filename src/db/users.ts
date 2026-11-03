@@ -970,6 +970,7 @@ export async function getUserProfileCard(userIdOrUsername: number | string) {
   let profilePreferences: any = {};
   try { profilePreferences = JSON.parse(prof?.preferences || '{}'); } catch {}
   const isOwner = isUserAdmin(u);
+  const moderation = await getUserModerationState(u.id);
   const roles = parseRoles(u.role);
   if (isOwner && !roles.some(r => r.toLowerCase() === 'owner')) {
     roles.unshift('owner');
@@ -987,6 +988,7 @@ export async function getUserProfileCard(userIdOrUsername: number | string) {
     themeColor: prof?.themeColor || '#5aa2ff',
     profilePicture: typeof profilePreferences.profilePicture === 'string' ? profilePreferences.profilePicture : '',
     profileBanner: typeof profilePreferences.profileBanner === 'string' ? profilePreferences.profileBanner : '',
+    moderation,
     createdAt: u.createdAt
   };
 }
