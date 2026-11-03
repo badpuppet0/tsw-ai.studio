@@ -9219,7 +9219,11 @@ document.addEventListener('keydown', function (ev) {
         updateChatAttention();
         if (selectedFriend) {
           var updated = friends.find(function (f) { return f.friendId === selectedFriend.friendId; });
-          if (updated) selectedFriend = updated;
+          if (updated) {
+            selectedFriend = updated;
+            var presenceEl = $('chat-convo-presence');
+            if (presenceEl) presenceEl.innerHTML = '<span class="chat-online-dot' + (updated.isOnline ? ' online' : '') + '"></span> ' + (updated.isOnline ? 'Online' : (updated.lastSeen ? 'Last seen ' + formatTime(updated.lastSeen) : 'Offline'));
+          }
         }
       }
     }).catch(function (err) {
