@@ -759,6 +759,14 @@ export async function sendDirectMessage(senderId: number, receiverId: number, co
 
   const rec = await getUserById(receiverId);
   if (!rec) throw new Error('Recipient user not found');
+  if (replyToId) {
+    const reply = await db.execute(sql`
+      SELECT id FROM messages WHERE id = ${replyToId}
+        AND ((sender_id = ${senderId} AND receiver_id = ${receiverId})
+          OR (sender_id = ${receiverId} AND receiver_id = ${senderId})) LIMIT 1;
+    `);
+    if (!reply.rows?.length) throw new Error('The message you are replying to could not be found in this conversation');
+  }
 
   const inserted = await db.insert(messages).values({
     senderId,
@@ -822,6 +830,7 @@ export async function getOrCreateGuestUser(clientId: string, preferredName: stri
 }
 
 export async function getPublicMessages(channel: string) {
+  await ensureChatTables();
   const cleanChannel = ['chat-1', 'chat-2', 'announcements'].includes(channel) ? channel : 'chat-1';
 
   const res = await db.execute(sql`
@@ -856,10 +865,18 @@ export async function getPublicMessages(channel: string) {
 }
 
 export async function sendPublicMessage(channel: string, userId: number, content: string, replyToId?: number | null) {
+  await ensureChatTables();
   const cleanChannel = ['chat-1', 'chat-2', 'announcements'].includes(channel) ? channel : 'chat-1';
   const cleanContent = filterProfanity((content || '').trim());
   if (!cleanContent) {
     throw new Error('Message content cannot be empty');
+  }
+
+  if (replyToId) {
+    const reply = await db.execute(sql`
+      SELECT id FROM public_messages WHERE id = ${replyToId} AND channel = ${cleanChannel} LIMIT 1;
+    `);
+    if (!reply.rows?.length) throw new Error('The message you are replying to could not be found in this channel');
   }
 
   // Enforce read-only for announcements channel
