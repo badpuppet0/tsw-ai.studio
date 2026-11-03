@@ -9256,19 +9256,9 @@ document.addEventListener('keydown', function (ev) {
     }
   }
 
-  function reactionButtonsHtml(message, type, myId) {
-    var defaults = ['👍','❤️','😂','😮','😢','🔥','🎉','👎','👏','💀'];
-    var reactions = Array.isArray(message.reactions) ? message.reactions : [];
-    var byEmoji = {};
-    reactions.forEach(function (r) { byEmoji[r.emoji] = r; });
-    var emojis = defaults.concat(reactions.map(function (r) { return r.emoji; }).filter(function (e) { return defaults.indexOf(e) === -1; }));
-    return '<div class="chat-message-tools">' + emojis.map(function (emoji) {
-      var r = byEmoji[emoji];
-      var count = r ? Number(r.count || 0) : 0;
-      var active = r && Array.isArray(r.userIds) && r.userIds.indexOf(myId) !== -1;
-      if (r && typeof r.reactedByMe === 'boolean') active = r.reactedByMe;
-      return '<button type="button" class="chat-reaction' + (active ? ' active' : '') + '" data-reaction-type="' + type + '" data-reaction-id="' + message.id + '" data-reaction-emoji="' + emoji + '" title="React with ' + emoji + '">' + emoji + (count ? ' ' + count : '') + '</button>';
-    }).join('') + '<button type="button" class="chat-reply-btn" data-reply-type="' + type + '" data-reply-id="' + message.id + '" title="Reply to message">Reply</button></div>';
+  // Reactions and replies are hidden until the production database schema is migrated.
+  function reactionButtonsHtml() {
+    return '';
   }
 
   function setReplyTarget(type, message) {
