@@ -3691,7 +3691,7 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
             <div class="chat-friend-av" id="convo-friend-avatar">👨‍🚀</div>
             <div>
               <div class="chat-convo-head-name" id="convo-friend-username">@friend</div>
-              <div class="chat-convo-head-sub"><span style="width:.45rem;height:.45rem;border-radius:50%;background:#22c55e;display:inline-block;"></span> Active now</div>
+              <div class="chat-convo-head-sub" id="chat-convo-presence"><span class="chat-online-dot"></span> Offline</div>
             </div>
           </div>
 
@@ -9087,7 +9087,7 @@ document.addEventListener('keydown', function (ev) {
       item.className = 'chat-friend-item' + (isSel ? ' active' : '');
       item.setAttribute('data-fid', String(f.friendId));
 
-      var snippet = f.lastMessage ? escapeHtml(f.lastMessage) : (f.isOnline ? 'Online now' : 'Click to chat');
+      var snippet = f.lastMessage ? escapeHtml(f.lastMessage) : (f.isOnline ? 'Online now' : (f.lastSeen ? 'Last seen ' + formatTime(f.lastSeen) : 'Click to chat'));
       var unreadHtml = '';
       if (f.unread || f.unreadCount > 0) {
         var countText = (f.unreadCount && f.unreadCount > 1) ? f.unreadCount : '';
@@ -9205,6 +9205,14 @@ document.addEventListener('keydown', function (ev) {
     return api('/api/friends', 'GET').then(function (res) {
       if (res && res.success && Array.isArray(res.friends)) {
         friends = res.friends;
+        if (selectedFriend) {
+          var refreshed = friends.find(function (f) { return f.friendId === selectedFriend.friendId; });
+          if (refreshed) {
+            selectedFriend = refreshed;
+            var presenceEl = $('chat-convo-presence');
+            if (presenceEl) presenceEl.innerHTML = '<span class="chat-online-dot' + (refreshed.isOnline ? ' online' : '') + '"></span> ' + (refreshed.isOnline ? 'Online' : (refreshed.lastSeen ? 'Last seen ' + formatTime(refreshed.lastSeen) : 'Offline'));
+          }
+        }
         sortFriends();
         renderFriendsList();
         updateChatAttention();
@@ -9241,6 +9249,8 @@ document.addEventListener('keydown', function (ev) {
       convoFriendUserEl.onclick = function () { openMemberProfile(friend.friendId, friend.username); };
     }
 
+    var presenceEl = $('chat-convo-presence');
+    if (presenceEl) presenceEl.innerHTML = '<span class="chat-online-dot' + (friend.isOnline ? ' online' : '') + '"></span> ' + (friend.isOnline ? 'Online' : (friend.lastSeen ? 'Last seen ' + formatTime(friend.lastSeen) : 'Offline'));
     loadMessages(friend.friendId, true);
     if (messageInput) {
       messageInput.focus();
