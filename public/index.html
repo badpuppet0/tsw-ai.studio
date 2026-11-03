@@ -8214,6 +8214,13 @@ document.addEventListener('keydown', function (ev) {
     return '<div class="letter-av" style="background:#3b82f6;">' + letter + '</div>';
   }
 
+  function getChatAvatarHtml(name, image, color) {
+    if (image && /^data:image\\/(png|jpeg|webp|gif);base64,/.test(image)) {
+      return '<img src="' + escapeHtml(image) + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;">';
+    }
+    return getLetterAvatar(name, color);
+  }
+
   function formatTime(isoStr) {
     if (!isoStr) return '';
     try {
@@ -8677,7 +8684,7 @@ document.addEventListener('keydown', function (ev) {
       var actionsHtml = isMine ? '<div class="msg-actions"><button class="msg-act-btn" data-edit-pub="' + m.id + '">Edit</button><button class="msg-act-btn del" data-del-pub="' + m.id + '">Delete</button></div>' : '';
       var replyHtml = m.replyTo ? '<div class="chat-message-reply"><strong>Replying to @' + escapeHtml(m.replyTo.username) + '</strong><span>' + escapeHtml(m.replyTo.content) + '</span></div>' : '';
       row.innerHTML =
-        '<div class="public-msg-av" data-open-profile="' + (m.userId || '') + '" data-uname="' + escapeHtml(m.username) + '" style="cursor:pointer;" title="View profile">' + getLetterAvatar(m.username) + '</div>' +
+        '<div class="public-msg-av" data-open-profile="' + (m.userId || '') + '" data-uname="' + escapeHtml(m.username) + '" style="cursor:pointer;" title="View profile">' + getChatAvatarHtml(m.username, m.profilePicture) + '</div>' +
         '<div class="public-msg-content-wrap"><div class="public-msg-header">' +
         '<span class="public-msg-author" data-open-profile="' + (m.userId || '') + '" data-uname="' + escapeHtml(m.username) + '" style="cursor:pointer;" title="View profile">@' + escapeHtml(m.username) + '</span>' +
         badgeHtml + '<span class="public-msg-time">' + formatTime(m.createdAt) + '</span>' + actionsHtml + '</div>' +
@@ -9212,7 +9219,7 @@ document.addEventListener('keydown', function (ev) {
       }
 
       item.innerHTML =
-        '<div class="chat-friend-av" data-open-profile="' + f.friendId + '" data-uname="' + escapeHtml(f.username) + '" title="View profile" style="cursor:pointer;">' + getLetterAvatar(f.username) +
+        '<div class="chat-friend-av" data-open-profile="' + f.friendId + '" data-uname="' + escapeHtml(f.username) + '" title="View profile" style="cursor:pointer;">' + getChatAvatarHtml(f.username, f.profilePicture) +
           '<span class="chat-status-dot" style="background:' + (f.isOnline ? '#22c55e' : '#64748b') + '"></span>' +
         '</div>' +
         '<div class="chat-friend-meta">' +
