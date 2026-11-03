@@ -550,6 +550,7 @@ export async function getFriendsList(userId: number) {
   const res = await db.execute(sql`
     SELECT u.id, u.username,
       COALESCE(p.avatar, 'astronaut') as avatar,
+      COALESCE(p.preferences, '{}') as "profilePreferences",
       (
         SELECT content FROM messages
         WHERE (sender_id = ${userId} AND receiver_id = u.id)
@@ -573,18 +574,22 @@ export async function getFriendsList(userId: number) {
     ORDER BY "unreadCount" DESC, "lastMessageTime" DESC NULLS LAST, u.username ASC
   `);
 
-  return (res.rows || []).map((r: any) => ({
+  return (res.rows || []).map((r: any) => {
+    let prefs: any = {};
+    try { prefs = JSON.parse(r.profilePreferences || '{}'); } catch {}
+    return {
     id: r.id,
     friendId: r.id,
     username: r.username,
     avatar: r.avatar || 'astronaut',
+    profilePicture: typeof prefs.profilePicture === 'string' ? prefs.profilePicture : '',
     isOnline: true,
     online: true,
     lastMessage: r.lastMessage || null,
     lastMessageTime: r.lastMessageTime || null,
     unreadCount: Number(r.unreadCount || 0),
     unread: Number(r.unreadCount || 0) > 0,
-  }));
+  }; });
 }
 
 export async function getUnreadNotifications(userId: number) {
@@ -708,7 +713,8 @@ export async function getPublicMessages(channel: string) {
     SELECT pm.id, pm.channel, pm.user_id as "userId", pm.content, pm.created_at as "createdAt",
            COALESCE(u.username, 'Guest') as username,
            COALESCE(u.role, 'TSW User') as role,
-           COALESCE(p.avatar, 'astronaut') as avatar
+           COALESCE(p.avatar, 'astronaut') as avatar,
+           COALESCE(p.preferences, '{}') as "profilePreferences"
     FROM public_messages pm
     LEFT JOIN users u ON u.id = pm.user_id
     LEFT JOIN profiles p ON p.user_id = u.id AND p.is_default = true
@@ -717,7 +723,10 @@ export async function getPublicMessages(channel: string) {
     LIMIT 200;
   `);
 
-  return (res.rows || []).map((r: any) => ({
+  return (res.rows || []).map((r: any) => {
+    let prefs: any = {};
+    try { prefs = JSON.parse(r.profilePreferences || '{}'); } catch {}
+    return {
     id: r.id,
     channel: r.channel,
     userId: r.userId,
@@ -726,8 +735,9 @@ export async function getPublicMessages(channel: string) {
     roles: parseRoles(r.role),
     avatar: r.avatar || 'astronaut',
     content: r.content,
+    profilePicture: typeof prefs.profilePicture === 'string' ? prefs.profilePicture : '',
     createdAt: r.createdAt,
-  }));
+  }; });
 }
 
 export async function sendPublicMessage(channel: string, userId: number, content: string) {
