@@ -6986,6 +6986,52 @@ document.addEventListener('keydown', function (ev) {
       });
     });
   }
+  var appearanceSaveBtn = $('profile-appearance-save');
+  if (appearanceSaveBtn) {
+    appearanceSaveBtn.addEventListener('click', function () {
+      if (!activeProfile || !activeProfile.id) {
+        alert('Select a profile before saving its appearance.');
+        return;
+      }
+      var pictureInput = $('profile-picture-upload');
+      var bannerInput = $('profile-banner-upload');
+      var statusEl = $('profile-appearance-status');
+      function readImage(input) {
+        return new Promise(function(resolve,reject) {
+          var file = input && input.files && input.files[0];
+          if (!file) return resolve(null);
+          if (!/^image\\/(png|jpeg|webp|gif)$/.test(file.type) || file.size > 600 * 1024) {
+            return reject(new Error('Choose a PNG, JPG, WEBP, or GIF image under 600 KB.'));
+          }
+          var reader = new FileReader();
+          reader.onload = function(){ resolve(String(reader.result || '')); };
+          reader.onerror = function(){ reject(new Error('Could not read the selected image.')); };
+          reader.readAsDataURL(file);
+        });
+      }
+      appearanceSaveBtn.disabled = true;
+      Promise.all([readImage(pictureInput),readImage(bannerInput)]).then(function(images) {
+        var prefs = {};
+        try {
+          prefs = typeof activeProfile.preferences === 'string' ? JSON.parse(activeProfile.preferences || '{}') : (activeProfile.preferences || {});
+        } catch(e) { prefs = {}; }
+        if (images[0] !== null) prefs.profilePicture = images[0];
+        if (images[1] !== null) prefs.profileBanner = images[1];
+        return api('/api/profiles/' + activeProfile.id, 'PUT', { preferences: JSON.stringify(prefs) }).then(function(res) {
+          if (!res || !res.success) throw new Error((res && res.error) || 'Could not save profile appearance.');
+          activeProfile.preferences = JSON.stringify(prefs);
+          if (statusEl) {
+            statusEl.textContent = 'Profile appearance saved.';
+            statusEl.style.display = 'inline';
+          }
+          if (pictureInput) pictureInput.value = '';
+          if (bannerInput) bannerInput.value = '';
+        });
+      }).catch(function(err) {
+        alert(err.message || 'Could not save profile appearance.');
+      }).finally(function(){ appearanceSaveBtn.disabled = false; });
+    });
+  }
   if (typeof updateAuthUI === 'function') loadProfileDetails();
 
   // TSW AI chat. The API key stays on the server; only Gemini is enabled until other providers are genuinely connected.
