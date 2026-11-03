@@ -726,18 +726,21 @@ export async function getDirectMessages(userId: number, friendId: number) {
     sql`(${messages.senderId} = ${userId} AND ${messages.receiverId} = ${friendId}) OR (${messages.senderId} = ${friendId} AND ${messages.receiverId} = ${userId})`
   ).orderBy(messages.createdAt);
 
-  return rows.map(m => ({
-    id: m.id,
-    senderId: m.senderId,
-    receiverId: m.receiverId,
-    content: m.content,
-    isRead: m.isRead,
-    createdAt: m.createdAt,
-    isMe: m.senderId === userId,
+  return Promise.all(rows.map(async (m) => {
+    const replyRows = m.replyToId ? await db.execute(sql`
+      SELECT id, content, sender_id AS "senderId" FROM messages WHERE id = ${m.replyToId} LIMIT 1;
+    `) : { rows: [] as any[] };
+    return {
+      id: m.id, senderId: m.senderId, receiverId: m.receiverId,
+      content: m.content, isRead: m.isRead, createdAt: m.createdAt,
+      isMe: m.senderId === userId, replyToId: m.replyToId || null,
+      replyTo: replyRows.rows?.[0] ? { id: Number((replyRows.rows[0] as any).id), content: (replyRows.rows[0] as any).content, senderId: Number((replyRows.rows[0] as any).senderId) } : null,
+      reactions: await getMessageReactions('dm', m.id)
+    };
   }));
 }
 
-export async function sendDirectMessage(senderId: number, receiverId: number, content: string) {
+export async function sendDirectMessage(senderId: number, receiverId: number, content: string, replyToId?: number | null) {
   await ensureChatTables();
   const clean = filterProfanity(content.trim());
   if (!clean) throw new Error('Message content cannot be empty');
@@ -752,6 +755,7 @@ export async function sendDirectMessage(senderId: number, receiverId: number, co
   }).returning();
 
   const msg = inserted[0];
+  if (replyToId) await db.execute(sql`UPDATE messages SET reply_to_id = ${replyToId} WHERE id = ${msg.id};`);
   return {
     id: msg.id,
     senderId: msg.senderId,
@@ -808,7 +812,7 @@ export async function getPublicMessages(channel: string) {
   const cleanChannel = ['chat-1', 'chat-2', 'announcements'].includes(channel) ? channel : 'chat-1';
 
   const res = await db.execute(sql`
-    SELECT pm.id, pm.channel, pm.user_id as "userId", pm.content, pm.created_at as "createdAt",
+    SELECT pm.id, pm.channel, pm.user_id as "userId", pm.content, pm.reply_to_id as "replyToId", pm.created_at as "createdAt",
            COALESCE(u.username, 'Guest') as username,
            COALESCE(u.role, 'TSW User') as role,
            COALESCE(p.avatar, 'astronaut') as avatar
@@ -820,20 +824,25 @@ export async function getPublicMessages(channel: string) {
     LIMIT 200;
   `);
 
-  return (res.rows || []).map((r: any) => ({
-    id: r.id,
-    channel: r.channel,
-    userId: r.userId,
-    username: r.username || 'Member',
-    role: r.role || 'TSW User',
-    roles: parseRoles(r.role),
-    avatar: r.avatar || 'astronaut',
-    content: r.content,
-    createdAt: r.createdAt,
+  return Promise.all((res.rows || []).map(async (r: any) => {
+    const replyRows = r.replyToId ? await db.execute(sql`
+      SELECT pm.id, pm.content, COALESCE(u.username, 'Member') AS username
+      FROM public_messages pm LEFT JOIN users u ON u.id = pm.user_id
+      WHERE pm.id = ${r.replyToId} LIMIT 1;
+    `) : { rows: [] as any[] };
+    return {
+      id: r.id, channel: r.channel, userId: r.userId,
+      username: r.username || 'Member', role: r.role || 'TSW User',
+      roles: parseRoles(r.role), avatar: r.avatar || 'astronaut',
+      content: r.content, createdAt: r.createdAt,
+      replyToId: r.replyToId || null,
+      replyTo: replyRows.rows?.[0] ? { id: Number((replyRows.rows[0] as any).id), content: (replyRows.rows[0] as any).content, username: (replyRows.rows[0] as any).username } : null,
+      reactions: await getMessageReactions('public', Number(r.id))
+    };
   }));
 }
 
-export async function sendPublicMessage(channel: string, userId: number, content: string) {
+export async function sendPublicMessage(channel: string, userId: number, content: string, replyToId?: number | null) {
   const cleanChannel = ['chat-1', 'chat-2', 'announcements'].includes(channel) ? channel : 'chat-1';
   const cleanContent = filterProfanity((content || '').trim());
   if (!cleanContent) {
@@ -856,6 +865,7 @@ export async function sendPublicMessage(channel: string, userId: number, content
   }).returning();
 
   const msg = inserted[0];
+  if (replyToId) await db.execute(sql`UPDATE public_messages SET reply_to_id = ${replyToId} WHERE id = ${msg.id};`);
   const user = await getUserById(userId);
   const profilesList = await getUserProfiles(userId);
   const activeProfile = profilesList.find(p => p.isDefault) || profilesList[0];
