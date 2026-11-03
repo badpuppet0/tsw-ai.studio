@@ -630,6 +630,11 @@ export async function getDirectMessages(userId: number, friendId: number) {
 }
 
 export async function sendDirectMessage(senderId: number, receiverId: number, content: string) {
+  const moderation = await getUserModerationState(senderId);
+  if (moderation.banned) throw new Error('Your account is banned from TSW chat.');
+  if (moderation.dmTimeoutUntil && new Date(moderation.dmTimeoutUntil).getTime() > Date.now()) {
+    throw new Error('You are timed out from direct messages until ' + new Date(moderation.dmTimeoutUntil).toLocaleString());
+  }
   await ensureChatTables();
   const clean = filterProfanity(content.trim());
   if (!clean) throw new Error('Message content cannot be empty');
@@ -726,6 +731,11 @@ export async function getPublicMessages(channel: string) {
 }
 
 export async function sendPublicMessage(channel: string, userId: number, content: string) {
+  const moderation = await getUserModerationState(userId);
+  if (moderation.banned) throw new Error('Your account is banned from TSW chat.');
+  if (moderation.chatTimeoutUntil && new Date(moderation.chatTimeoutUntil).getTime() > Date.now()) {
+    throw new Error('You are timed out from public chat until ' + new Date(moderation.chatTimeoutUntil).toLocaleString());
+  }
   const cleanChannel = ['chat-1', 'chat-2', 'announcements'].includes(channel) ? channel : 'chat-1';
   const cleanContent = filterProfanity((content || '').trim());
   if (!cleanContent) {
