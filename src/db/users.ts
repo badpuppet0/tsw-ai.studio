@@ -363,9 +363,139 @@ export async function deleteProfile(profileId: number, userId: number) {
   }
 }
 
+let chatTablesReady: Promise<void> | null = null;
 export async function ensureChatTables() {
-  // Schema managed via Drizzle & Cloud SQL
-  return;
+  if (!chatTablesReady) {
+    chatTablesReady = (async () => {
+      await db.execute(sql`ALTER TABLE messages ADD COLUMN IF NOT EXISTS reply_to_id integer;`);
+      await db.execute(sql`ALTER TABLE public_messages ADD COLUMN IF NOT EXISTS reply_to_id integer;`);
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS chat_message_reactions (
+          id serial PRIMARY KEY,
+          message_type text NOT NULL CHECK (message_type IN ('dm','public')),
+          message_id integer NOT NULL,
+          user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          emoji text NOT NULL,
+          created_at timestamp DEFAULT NOW(),
+          UNIQUE(message_type, message_id, user_id, emoji)
+        );
+      `);
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS chat_presence (
+          user_id integer PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+          last_seen timestamp NOT NULL DEFAULT NOW()
+        );
+      `);
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS chat_typing (
+          user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          context_type text NOT NULL CHECK (context_type IN ('dm','public')),
+          context_id text NOT NULL,
+          updated_at timestamp NOT NULL DEFAULT NOW(),
+          PRIMARY KEY(user_id, context_type, context_id)
+        );
+      `);
+    })().catch((err) => {
+      chatTablesReady = null;
+      throw err;
+    });
+  }
+  return chatTablesReady;
+}
+
+async function getMessageReactions(messageType: 'dm' | 'public', messageId: number) {
+  const res = await db.execute(sql`
+    SELECT emoji, count(*)::int AS count,
+      bool_or(user_id = -1) AS unused,
+      array_agg(user_id) AS "userIds"
+    FROM chat_message_reactions
+    WHERE message_type = ${messageType} AND message_id = ${messageId}
+    GROUP BY emoji ORDER BY min(created_at);
+  `);
+  return (res.rows || []).map((r: any) => ({
+    emoji: r.emoji,
+    count: Number(r.count || 0),
+    userIds: (r.userIds || []).map(Number)
+  }));
+}
+
+export async function toggleMessageReaction(userId: number, messageType: 'dm' | 'public', messageId: number, emoji: string) {
+  await ensureChatTables();
+  const allowed = ['👍','❤️','😂','😮','😢','🔥','🎉','👎','👏','💀'];
+  if (!allowed.includes(emoji)) throw new Error('That reaction is not supported');
+  if (messageType === 'dm') {
+    const owned = await db.execute(sql`
+      SELECT id FROM messages WHERE id = ${messageId}
+      AND (sender_id = ${userId} OR receiver_id = ${userId}) LIMIT 1;
+    `);
+    if (!owned.rows?.length) throw new Error('Message not found');
+  } else {
+    const exists = await db.execute(sql`SELECT id FROM public_messages WHERE id = ${messageId} LIMIT 1;`);
+    if (!exists.rows?.length) throw new Error('Message not found');
+  }
+  const existing = await db.execute(sql`
+    SELECT id FROM chat_message_reactions
+    WHERE message_type = ${messageType} AND message_id = ${messageId}
+      AND user_id = ${userId} AND emoji = ${emoji} LIMIT 1;
+  `);
+  if (existing.rows?.length) {
+    await db.execute(sql`DELETE FROM chat_message_reactions WHERE id = ${(existing.rows[0] as any).id};`);
+  } else {
+    await db.execute(sql`
+      INSERT INTO chat_message_reactions (message_type, message_id, user_id, emoji)
+      VALUES (${messageType}, ${messageId}, ${userId}, ${emoji})
+      ON CONFLICT (message_type, message_id, user_id, emoji) DO NOTHING;
+    `);
+  }
+  const rows = await db.execute(sql`
+    SELECT r.emoji, count(*)::int AS count,
+      bool_or(r.user_id = ${userId}) AS "reactedByMe"
+    FROM chat_message_reactions r
+    WHERE r.message_type = ${messageType} AND r.message_id = ${messageId}
+    GROUP BY r.emoji ORDER BY min(r.created_at);
+  `);
+  return (rows.rows || []).map((r: any) => ({
+    emoji: r.emoji, count: Number(r.count || 0), reactedByMe: !!r.reactedByMe
+  }));
+}
+
+export async function updateChatPresence(userId: number) {
+  await ensureChatTables();
+  await db.execute(sql`
+    INSERT INTO chat_presence (user_id, last_seen) VALUES (${userId}, NOW())
+    ON CONFLICT (user_id) DO UPDATE SET last_seen = NOW();
+  `);
+  await db.execute(sql`DELETE FROM chat_typing WHERE updated_at < NOW() - INTERVAL '12 seconds';`);
+  return { success: true };
+}
+
+export async function updateChatTyping(userId: number, contextType: 'dm' | 'public', contextId: string, isTyping: boolean) {
+  await ensureChatTables();
+  if (isTyping) {
+    await db.execute(sql`
+      INSERT INTO chat_typing (user_id, context_type, context_id, updated_at)
+      VALUES (${userId}, ${contextType}, ${contextId}, NOW())
+      ON CONFLICT (user_id, context_type, context_id) DO UPDATE SET updated_at = NOW();
+    `);
+  } else {
+    await db.execute(sql`
+      DELETE FROM chat_typing WHERE user_id = ${userId}
+        AND context_type = ${contextType} AND context_id = ${contextId};
+    `);
+  }
+  return { success: true };
+}
+
+export async function getChatTyping(userId: number, contextType: 'dm' | 'public', contextId: string) {
+  await ensureChatTables();
+  const res = await db.execute(sql`
+    SELECT u.id, u.username FROM chat_typing t
+    JOIN users u ON u.id = t.user_id
+    WHERE t.context_type = ${contextType} AND t.context_id = ${contextId}
+      AND t.user_id != ${userId} AND t.updated_at > NOW() - INTERVAL '8 seconds'
+    ORDER BY t.updated_at DESC LIMIT 3;
+  `);
+  return (res.rows || []).map((r: any) => ({ id: Number(r.id), username: r.username || 'Someone' }));
 }
 
 export async function searchUsers(searchTerm: string, currentUserId: number) {
