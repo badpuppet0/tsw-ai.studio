@@ -3161,6 +3161,149 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   align-items: center;
 }
 
+/* On-site User Alert Popup */
+.user-alert-popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100050 !important;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  box-sizing: border-box;
+}
+.user-alert-popup-overlay[hidden] {
+  display: none !important;
+}
+.user-alert-popup-panel {
+  max-width: 480px;
+  width: 100%;
+  background: #090e1a;
+  border: 1px solid rgba(245, 158, 11, 0.55);
+  border-radius: 14px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95), 0 0 40px rgba(245, 158, 11, 0.22);
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: alertPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes alertPopIn {
+  from { opacity: 0; transform: scale(0.92) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.user-alert-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: .8rem;
+}
+.user-alert-badge-icon {
+  font-size: 1.5rem;
+  background: rgba(245, 158, 11, 0.15);
+  padding: .35rem .5rem;
+  border-radius: 8px;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.user-alert-heading {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fef08a;
+  margin: 0;
+}
+.user-alert-timestamp {
+  font-size: .74rem;
+  color: #94a3b8;
+}
+.user-alert-close-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.4rem;
+  cursor: pointer;
+  line-height: 1;
+}
+.user-alert-close-btn:hover {
+  color: #fff;
+}
+.user-alert-content {
+  font-size: .92rem;
+  line-height: 1.55;
+  color: #e2e8f0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 320px;
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.03);
+  padding: .85rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.user-alert-popup-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+.user-alert-dismiss-action {
+  background: #f59e0b;
+  color: #000;
+  font-weight: 700;
+  font-size: .88rem;
+  padding: .55rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.user-alert-dismiss-action:hover {
+  background: #d97706;
+}
+
+/* Chat Unread-Message Divider */
+.chat-unread-divider {
+  display: flex;
+  align-items: center;
+  margin: .85rem 0 .65rem;
+  text-align: center;
+  position: relative;
+}
+.chat-unread-divider::before,
+.chat-unread-divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid rgba(239, 68, 68, 0.45);
+}
+.chat-unread-divider span {
+  padding: .15rem .65rem;
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  font-size: .7rem;
+  font-weight: 700;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin: 0 .6rem;
+  flex: none;
+}
+
+/* Touch & Hover accessibility for message actions */
+.chat-bubble:hover .msg-actions,
+.chat-bubble:focus-within .msg-actions,
+.public-msg-row:hover .msg-actions,
+.public-msg-row:focus-within .msg-actions {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+@media (hover: none) {
+  .msg-actions {
+    opacity: 0.88 !important;
+    pointer-events: auto !important;
+  }
+}
+
 
 
 /* Sidebar Status Item inside .sb-menu (No competition for screen space) */
@@ -3869,6 +4012,17 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
         <small id="member-owner-status" style="display:block;margin-top:.5rem;color:#94a3b8;"></small>
       </div>
 
+      <!-- Visible Mutual Friends Section -->
+      <div id="member-mutual-friends-box" style="display:none;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:.75rem .9rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;">
+          <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:#93c5fd;letter-spacing:.04em;margin:0;">🤝 Mutual Friends</label>
+          <span id="member-mutual-count" style="font-size:.72rem;color:#60a5fa;font-weight:600;">0</span>
+        </div>
+        <div id="member-mutual-list" style="display:flex;flex-wrap:wrap;gap:.35rem;font-size:.8rem;">
+          <span style="color:#64748b;font-size:.75rem;">Loading mutual friends...</span>
+        </div>
+      </div>
+
       <div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem;">
           <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:#94a3b8;letter-spacing:.04em;">About / Bio</label>
@@ -4034,6 +4188,29 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
   <div class="update-notice-copy" id="update-notice-version">A newer version of TSW is ready.</div>
   <button type="button" class="update-notice-refresh" id="update-notice-refresh">Refresh now</button>
 </div>
+
+<!-- On-Site User Alert Popup (Owner Direct Broadcast) -->
+<div id="user-alert-popup" class="user-alert-popup-overlay" hidden role="alertdialog" aria-modal="true" aria-labelledby="user-alert-title">
+  <div class="user-alert-popup-panel">
+    <div class="user-alert-popup-header">
+      <div style="display:flex;align-items:center;gap:.6rem;">
+        <span class="user-alert-badge-icon">⚠️</span>
+        <div>
+          <h3 id="user-alert-title" class="user-alert-heading">Notice from Owner</h3>
+          <span id="user-alert-time" class="user-alert-timestamp">Just now</span>
+        </div>
+      </div>
+      <button type="button" id="user-alert-close-btn" class="user-alert-close-btn" aria-label="Dismiss alert">&times;</button>
+    </div>
+    <div id="user-alert-message-body" class="user-alert-content">
+      <!-- Alert message goes here -->
+    </div>
+    <div class="user-alert-popup-actions">
+      <button type="button" id="user-alert-ack-btn" class="user-alert-dismiss-action">Close &amp; Dismiss</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" hidden></div>
 
 <div class="overlay" id="settings" hidden>
@@ -4492,6 +4669,101 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
         <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
           <div style="font-size:.75rem;color:#94a3b8;">Server RSS Mem</div>
           <div style="font-size:1.15rem;font-weight:700;color:#f8fafc;" id="admin-server-rss">--</div>
+        </div>
+      </div>
+
+      <!-- Send User Alert Section (Owner Only) -->
+      <div class="admin-section-title" style="display:flex;justify-content:space-between;align-items:center;margin-top:1.4rem;">
+        <div style="display:flex;align-items:center;gap:.6rem;">
+          <span style="font-size:1.15rem;">🚨</span>
+          <span>Send User Alert</span>
+          <span class="ai-soon-pill" style="border-color:#f59e0b;color:#fbbf24;font-weight:700;background:rgba(245,158,11,0.12);">OWNER ONLY</span>
+        </div>
+        <button type="button" class="admin-act-btn secondary" id="admin-alert-refresh-users-btn" style="padding:.28rem .65rem;font-size:.76rem;cursor:pointer;">
+          ↻ Refresh Active Users
+        </button>
+      </div>
+      <div class="admin-alert-card" style="background:rgba(15,23,42,.6);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:1rem 1.15rem;margin-bottom:1.4rem;">
+        <p style="color:#cbd5e1;font-size:.82rem;margin:0 0 .85rem;line-height:1.45;">
+          Directly broadcast a high-priority on-site alert popup to any active member's screen across all pages without refreshing or interrupting their session.
+        </p>
+        <div style="display:grid;grid-template-columns:1fr;gap:.8rem;">
+          <div>
+            <label style="display:block;font-size:.78rem;font-weight:600;color:#94a3b8;margin-bottom:.35rem;">Active Member (Online Status):</label>
+            <select id="admin-alert-user-select" style="width:100%;padding:.6rem .8rem;background:#090e17;border:1px solid rgba(255,255,255,.15);border-radius:7px;color:#fff;font-size:.86rem;outline:none;">
+              <option value="" disabled selected>Loading active users...</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block;font-size:.78rem;font-weight:600;color:#94a3b8;margin-bottom:.35rem;">Alert Message:</label>
+            <textarea id="admin-alert-message" rows="3" placeholder="Type your alert message here..." style="width:100%;box-sizing:border-box;padding:.65rem .85rem;background:#090e17;border:1px solid rgba(255,255,255,.15);border-radius:7px;color:#fff;font-size:.86rem;outline:none;resize:vertical;font-family:inherit;"></textarea>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem;">
+            <div id="admin-alert-status" style="font-size:.8rem;color:#94a3b8;"></div>
+            <button type="button" id="admin-send-alert-btn" class="admin-act-btn primary" style="padding:.5rem 1.2rem;font-size:.85rem;font-weight:700;cursor:pointer;background:#f59e0b;color:#000;border:none;border-radius:6px;">
+              ⚡ Send Alert
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Staff Role & Permissions Manager -->
+      <div class="admin-section-title" style="display:flex;justify-content:space-between;align-items:center;margin-top:1.4rem;">
+        <div style="display:flex;align-items:center;gap:.6rem;">
+          <span style="font-size:1.15rem;">👑</span>
+          <span>Staff Role &amp; Permission Editor</span>
+          <span class="ai-soon-pill" style="border-color:#38bdf8;color:#7dd3fc;font-weight:700;background:rgba(56,189,248,0.12);">LIVE SYNC</span>
+        </div>
+      </div>
+      <div class="admin-staff-editor-box" style="background:rgba(15,23,42,.6);border:1px solid rgba(56,189,248,.25);border-radius:10px;padding:1rem 1.15rem;margin-bottom:1.4rem;">
+        <p style="color:#cbd5e1;font-size:.82rem;margin:0 0 .85rem;line-height:1.45;">
+          Select any registered member to review their concurrent roles and grant or revoke administrative permissions.
+        </p>
+        <div style="display:grid;grid-template-columns:1fr;gap:.8rem;">
+          <div>
+            <label style="display:block;font-size:.78rem;font-weight:600;color:#94a3b8;margin-bottom:.35rem;">Select Member:</label>
+            <select id="admin-staff-user-select" style="width:100%;padding:.6rem .8rem;background:#090e17;border:1px solid rgba(255,255,255,.15);border-radius:7px;color:#fff;font-size:.86rem;outline:none;">
+              <option value="" disabled selected>Loading registered users...</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block;font-size:.78rem;font-weight:600;color:#94a3b8;margin-bottom:.35rem;">Assigned Staff Roles (Multi-Role Allowed):</label>
+            <div id="admin-staff-roles-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.5rem;background:#090e17;padding:.75rem;border-radius:8px;border:1px solid rgba(255,255,255,.1);">
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#fef08a;cursor:pointer;">
+                <input type="checkbox" name="admin-staff-role" value="owner" style="accent-color:#eab308;"> 👑 Owner
+              </label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#7dd3fc;cursor:pointer;">
+                <input type="checkbox" name="admin-staff-role" value="admin" style="accent-color:#38bdf8;"> 🛡️ Admin
+              </label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#5eead4;cursor:pointer;">
+                <input type="checkbox" name="admin-staff-role" value="moderator" style="accent-color:#14b8a6;"> ⚔️ Mod
+              </label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#d8b4fe;cursor:pointer;">
+                <input type="checkbox" name="admin-staff-role" value="VIP" style="accent-color:#a855f7;"> ⭐ VIP
+              </label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#a5b4fc;cursor:pointer;">
+                <input type="checkbox" name="admin-staff-role" value="Discord Member" style="accent-color:#6366f1;"> 🎮 Discord
+              </label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#6ee7b7;cursor:pointer;">
+                <input type="checkbox" name="admin-staff-role" value="Tester" style="accent-color:#10b981;"> 🧪 Tester
+              </label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#cbd5e1;cursor:pointer;">
+                <input type="checkbox" name="admin-staff-role" value="Beta User" style="accent-color:#3b82f6;"> 🚀 Beta User
+              </label>
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#94a3b8;cursor:pointer;">
+                <input type="checkbox" name="admin-staff-role" value="TSW User" style="accent-color:#64748b;"> 👤 TSW User
+              </label>
+            </div>
+          </div>
+          <div id="admin-staff-permissions-preview" style="background:rgba(2,6,23,.5);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:.65rem .85rem;font-size:.78rem;color:#94a3b8;">
+            Active Permissions: <span id="admin-staff-permissions-list" style="color:#7dd3fc;font-weight:600;">Standard Member</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem;">
+            <div id="admin-staff-status" style="font-size:.8rem;color:#94a3b8;"></div>
+            <button type="button" id="admin-staff-save-btn" class="admin-act-btn primary" style="padding:.5rem 1.2rem;font-size:.85rem;font-weight:700;cursor:pointer;background:#38bdf8;color:#000;border:none;border-radius:6px;">
+              💾 Save Permissions
+            </button>
+          </div>
         </div>
       </div>
 
@@ -8573,6 +8845,11 @@ document.addEventListener('keydown', function (ev) {
     var curUserId = curUser ? curUser.id : null;
     var curUsername = curUser ? (curUser.username || curUser.name || '').toLowerCase() : '';
 
+    var mutualBox = $('member-mutual-friends-box');
+    var mutualCount = $('member-mutual-count');
+    var mutualList = $('member-mutual-list');
+    if (mutualBox) mutualBox.style.display = 'none';
+
     var targetUrl = userId ? ('/api/users/' + userId + '/profile') : ('/api/users/profile?uname=' + encodeURIComponent(fallbackUsername || ''));
     api(targetUrl, 'GET').then(function (res) {
       var u = res && (res.profile || res.user || (res.id ? res : null));
@@ -8598,6 +8875,43 @@ document.addEventListener('keydown', function (ev) {
         if (bioDisplay) bioDisplay.textContent = curBio;
         if (bioInput) bioInput.value = (u.bio && u.bio.trim()) ? u.bio.trim() : '';
 
+        // Load visible mutual friends if logged in and not viewing self
+        if (mutualBox && curUserId && Number(u.id) !== Number(curUserId)) {
+          mutualBox.style.display = 'block';
+          if (mutualCount) mutualCount.textContent = '...';
+          if (mutualList) mutualList.innerHTML = '<span style="color:#64748b;font-size:.75rem;">Finding mutual friends...</span>';
+          api('/api/friends/mutual/' + u.id, 'GET').then(function (mRes) {
+            if (mRes && mRes.success && Array.isArray(mRes.mutualFriends)) {
+              var count = mRes.mutualFriends.length;
+              if (mutualCount) mutualCount.textContent = String(count);
+              if (count === 0) {
+                if (mutualList) mutualList.innerHTML = '<span style="color:#64748b;font-size:.75rem;">No mutual friends yet</span>';
+              } else {
+                if (mutualList) {
+                  mutualList.innerHTML = '';
+                  mRes.mutualFriends.forEach(function (mf) {
+                    var chip = document.createElement('span');
+                    chip.style.cssText = 'display:inline-flex;align-items:center;gap:.3rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:.15rem .5rem;cursor:pointer;color:#e2e8f0;font-size:.76rem;';
+                    chip.innerHTML = '<span style="font-size:.7rem;">👤</span> @' + escapeHtml(mf.username);
+                    chip.title = 'View profile of @' + escapeHtml(mf.username);
+                    chip.addEventListener('click', function (ev) {
+                      ev.stopPropagation();
+                      openMemberProfile(mf.id, mf.username);
+                    });
+                    mutualList.appendChild(chip);
+                  });
+                }
+              }
+            } else {
+              if (mutualList) mutualList.innerHTML = '<span style="color:#64748b;font-size:.75rem;">None</span>';
+            }
+          }).catch(function () {
+            if (mutualBox) mutualBox.style.display = 'none';
+          });
+        } else if (mutualBox) {
+          mutualBox.style.display = 'none';
+        }
+
         var ownerTools = $('member-owner-tools');
         if (ownerTools) {
           ownerTools.style.display = curUser && curUser.isOwner && Number(u.id) !== Number(curUserId) ? 'block' : 'none';
@@ -8613,11 +8927,13 @@ document.addEventListener('keydown', function (ev) {
         if (unameEl) unameEl.textContent = fallbackUsername ? ('@' + fallbackUsername) : 'Member';
         if (rolesEl) rolesEl.innerHTML = renderRoleBadgesHtml(['TSW User'], false);
         if (bioDisplay) bioDisplay.textContent = 'Bio currently unavailable.';
+        if (mutualBox) mutualBox.style.display = 'none';
       }
     }).catch(function () {
       if (unameEl) unameEl.textContent = fallbackUsername ? ('@' + fallbackUsername) : 'Member';
       if (rolesEl) rolesEl.innerHTML = renderRoleBadgesHtml(['TSW User'], false);
       if (bioDisplay) bioDisplay.textContent = 'Bio currently unavailable.';
+      if (mutualBox) mutualBox.style.display = 'none';
     });
   }
   window.TSWOpenMemberProfile = openMemberProfile;
@@ -8700,6 +9016,13 @@ document.addEventListener('keydown', function (ev) {
     }
     var user = getCurrentUser();
     var myId = user ? user.id : null;
+    var isCurrentUserOwner = user && (
+      user.role === 'owner' ||
+      user.isOwner === true ||
+      (user.username && user.username.toLowerCase() === 'alex dalbey') ||
+      (user.email && user.email.toLowerCase() === 'alexc.second@gmail.com') ||
+      (user.roles && user.roles.some(function (r) { return r.toLowerCase() === 'owner'; }))
+    );
     messages.forEach(function (m) {
       var row = document.createElement('div');
       row.className = 'public-msg-row';
@@ -8710,7 +9033,12 @@ document.addEventListener('keydown', function (ev) {
       var badgeHtml = renderRoleBadgesHtml(rolesData, isOwner);
       var editedTag = m.isEdited ? ' <span style="font-size:.68rem;color:#94a3b8;font-style:italic;">(edited)</span>' : '';
       var isMine = myId !== null && m.userId === myId;
-      var actionsHtml = isMine ? '<div class="msg-actions"><button class="msg-act-btn" data-edit-pub="' + m.id + '">Edit</button><button class="msg-act-btn del" data-del-pub="' + m.id + '">Delete</button></div>' : '';
+      var actionsHtml = '';
+      if (isMine) {
+        actionsHtml = '<div class="msg-actions"><button class="msg-act-btn" data-edit-pub="' + m.id + '">Edit</button><button class="msg-act-btn del" data-del-pub="' + m.id + '">Delete</button></div>';
+      } else if (isCurrentUserOwner) {
+        actionsHtml = '<div class="msg-actions"><button class="msg-act-btn del" data-del-pub="' + m.id + '" title="Owner Moderation Delete">Delete</button></div>';
+      }
       var replyHtml = m.replyTo ? '<div class="chat-message-reply"><strong>Replying to @' + escapeHtml(m.replyTo.username) + '</strong><span>' + escapeHtml(m.replyTo.content) + '</span></div>' : '';
       row.innerHTML =
         '<div class="public-msg-av" data-open-profile="' + (m.userId || '') + '" data-uname="' + escapeHtml(m.username) + '" style="cursor:pointer;" title="View profile">' + getChatAvatarHtml(m.username, m.profilePicture) + '</div>' +
@@ -9302,7 +9630,56 @@ document.addEventListener('keydown', function (ev) {
         updateChatAttention(total);
       }
     }).catch(function () {});
+
+    // Check for pending on-site owner user alerts
+    checkLiveUserAlerts();
   }
+
+  var currentActiveAlertId = null;
+  function checkLiveUserAlerts() {
+    var user = getCurrentUser();
+    if (!user) return;
+    var popup = $('user-alert-popup');
+    if (!popup || !popup.hidden) return;
+
+    api('/api/users/me/alerts?t=' + Date.now(), 'GET').then(function (res) {
+      if (res && res.success && Array.isArray(res.alerts) && res.alerts.length > 0) {
+        var a = res.alerts[0];
+        currentActiveAlertId = a.id;
+        var bodyEl = $('user-alert-message-body');
+        var timeEl = $('user-alert-time');
+        var titleEl = $('user-alert-title');
+        if (bodyEl) bodyEl.textContent = a.message;
+        if (timeEl) {
+          var t = a.createdAt || a.created_at;
+          timeEl.textContent = t ? formatTime(t) : 'Just now';
+        }
+        if (titleEl) {
+          titleEl.textContent = a.senderUsername ? ('Notice from @' + a.senderUsername) : 'Notice from Owner';
+        }
+        popup.hidden = false;
+      }
+    }).catch(function () {});
+  }
+
+  (function initUserAlertPopupListeners() {
+    var popup = $('user-alert-popup');
+    var closeBtn = $('user-alert-close-btn');
+    var ackBtn = $('user-alert-ack-btn');
+
+    function dismissAlert() {
+      if (!popup) return;
+      popup.hidden = true;
+      if (currentActiveAlertId) {
+        var aid = currentActiveAlertId;
+        currentActiveAlertId = null;
+        api('/api/users/me/alerts/' + aid + '/dismiss', 'POST', {}).catch(function () {});
+      }
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', dismissAlert);
+    if (ackBtn) ackBtn.addEventListener('click', dismissAlert);
+  })();
 
   function updateChatAttention(forcedTotal) {
     var totalCount = 0;
@@ -9378,6 +9755,8 @@ document.addEventListener('keydown', function (ev) {
   function selectFriend(friend) {
     clearReplyTarget();
     selectedFriend = friend;
+    var initialUnread = friend.unreadCount || (friend.unread ? 1 : 0);
+    friend.unreadDividerCount = initialUnread;
     friend.unread = false;
     friend.unreadCount = 0;
     updateChatAttention();
@@ -9466,19 +9845,51 @@ document.addEventListener('keydown', function (ev) {
     if (!chatFeedBox) return;
     var user = getCurrentUser();
     var myId = user ? user.id : null;
+    var isCurrentUserOwner = user && (
+      user.role === 'owner' ||
+      user.isOwner === true ||
+      (user.username && user.username.toLowerCase() === 'alex dalbey') ||
+      (user.email && user.email.toLowerCase() === 'alexc.second@gmail.com') ||
+      (user.roles && user.roles.some(function (r) { return r.toLowerCase() === 'owner'; }))
+    );
     chatFeedBox.innerHTML = '';
     if (!messages || messages.length === 0) {
       chatFeedBox.innerHTML = '<div style="margin:auto;text-align:center;color:#64748b;font-size:.85rem;">No messages yet. Send a message to start chatting!</div>';
       return;
     }
-    messages.forEach(function (m) {
+
+    var dividerCount = selectedFriend ? (selectedFriend.unreadDividerCount || 0) : 0;
+    var unreadThresholdIndex = -1;
+    if (dividerCount > 0) {
+      var remaining = dividerCount;
+      for (var i = messages.length - 1; i >= 0; i--) {
+        if (messages[i].senderId !== myId) {
+          remaining--;
+          if (remaining === 0) {
+            unreadThresholdIndex = i;
+            break;
+          }
+        }
+      }
+    }
+
+    messages.forEach(function (m, idx) {
+      if (idx === unreadThresholdIndex) {
+        var divEl = document.createElement('div');
+        divEl.className = 'chat-unread-divider';
+        divEl.innerHTML = '<span>New Messages</span>';
+        chatFeedBox.appendChild(divEl);
+      }
       var isMine = myId !== null && m.senderId === myId;
       var bubble = document.createElement('div');
       bubble.className = 'chat-bubble ' + (isMine ? 'mine' : 'theirs');
       var editedTag = m.isEdited ? ' <span style="font-size:.65rem;opacity:.7;font-style:italic;">(edited)</span>' : '';
-      var actionsHtml = isMine
-        ? '<div class="msg-actions"><button class="msg-act-btn" data-edit-msg="' + m.id + '">Edit</button><button class="msg-act-btn del" data-del-msg="' + m.id + '">Delete</button></div>'
-        : '';
+      var actionsHtml = '';
+      if (isMine) {
+        actionsHtml = '<div class="msg-actions"><button class="msg-act-btn" data-edit-msg="' + m.id + '">Edit</button><button class="msg-act-btn del" data-del-msg="' + m.id + '">Delete</button></div>';
+      } else if (isCurrentUserOwner) {
+        actionsHtml = '<div class="msg-actions"><button class="msg-act-btn del" data-del-msg="' + m.id + '" title="Owner Moderation Delete">Delete</button></div>';
+      }
       var replyHtml = m.replyTo ? '<div class="chat-message-reply"><strong>Replying to</strong><span>' + escapeHtml(m.replyTo.content) + '</span></div>' : '';
       bubble.innerHTML = replyHtml + '<div class="chat-bubble-body" id="dm-body-' + m.id + '">' + formatMessageContent(m.content, user) + editedTag + '</div>' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:.2rem;">' + actionsHtml + '<div class="chat-bubble-time">' + formatTime(m.createdAt) + '</div></div>' +
@@ -10195,6 +10606,299 @@ document.addEventListener('keydown', function (ev) {
     }
   }
 
+  /* ===================== Send User Alert (Owner Only) ===================== */
+  var alertUserSelect = $('admin-alert-user-select');
+  var alertMessage = $('admin-alert-message');
+  var alertSendBtn = $('admin-send-alert-btn');
+  var alertStatus = $('admin-alert-status');
+  var alertRefreshBtn = $('admin-alert-refresh-users-btn');
+  var activeUsersCache = [];
+
+  async function loadAdminActiveUsers() {
+    if (!alertUserSelect) return;
+    try {
+      var token = window.TSWProfiles && window.TSWProfiles.getToken ? window.TSWProfiles.getToken() : '';
+      var headers = {};
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+      var res = await fetch('/api/owner/active-users?t=' + Date.now(), { headers: headers, cache: 'no-store' });
+      var data = await res.json();
+      if (!data || !data.success || !Array.isArray(data.users)) {
+        throw new Error((data && data.error) || 'Failed to load active users');
+      }
+
+      activeUsersCache = data.users;
+      alertUserSelect.innerHTML = '';
+      if (data.users.length === 0) {
+        alertUserSelect.innerHTML = '<option value="" disabled selected>No active users currently registered</option>';
+        return;
+      }
+
+      var promptOpt = document.createElement('option');
+      promptOpt.value = '';
+      promptOpt.disabled = true;
+      promptOpt.selected = true;
+      promptOpt.textContent = '-- Select an active member to alert --';
+      alertUserSelect.appendChild(promptOpt);
+
+      data.users.forEach(function (u) {
+        var opt = document.createElement('option');
+        opt.value = u.id;
+        var statusBadge = u.isOnline ? '🟢 Online' : '⚪ Offline';
+        opt.textContent = '@' + u.username + ' (' + statusBadge + (u.role ? ' · ' + u.role : '') + ')';
+        alertUserSelect.appendChild(opt);
+      });
+    } catch (err) {
+      if (alertUserSelect) alertUserSelect.innerHTML = '<option value="" disabled selected>Error: ' + escapeHtml(err.message || 'Could not load users') + '</option>';
+    }
+  }
+
+  if (alertRefreshBtn) {
+    alertRefreshBtn.addEventListener('click', function () {
+      if (alertStatus) {
+        alertStatus.style.color = '#94a3b8';
+        alertStatus.textContent = 'Refreshing active users…';
+      }
+      loadAdminActiveUsers().then(function () {
+        if (alertStatus) alertStatus.textContent = '';
+      });
+    });
+  }
+
+  if (alertSendBtn) {
+    alertSendBtn.addEventListener('click', async function () {
+      if (!alertUserSelect || !alertMessage) return;
+      var targetUserId = alertUserSelect.value;
+      var messageText = (alertMessage.value || '').trim();
+
+      if (!targetUserId) {
+        if (alertStatus) {
+          alertStatus.style.color = '#f87171';
+          alertStatus.textContent = '⚠️ Please select an active user to send the alert to.';
+        }
+        return;
+      }
+
+      if (!messageText) {
+        if (alertStatus) {
+          alertStatus.style.color = '#f87171';
+          alertStatus.textContent = '⚠️ Please type an alert message.';
+        }
+        return;
+      }
+
+      var selectedUser = activeUsersCache.find(function (u) { return String(u.id) === String(targetUserId); });
+      var uname = selectedUser ? ('@' + selectedUser.username) : 'user';
+
+      alertSendBtn.disabled = true;
+      if (alertStatus) {
+        alertStatus.style.color = '#38bdf8';
+        alertStatus.textContent = 'Dispatching alert to ' + uname + '…';
+      }
+
+      try {
+        var token = window.TSWProfiles && window.TSWProfiles.getToken ? window.TSWProfiles.getToken() : '';
+        var res = await fetch('/api/owner/send-alert', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? ('Bearer ' + token) : ''
+          },
+          body: JSON.stringify({ targetUserId: targetUserId, message: messageText })
+        });
+        var data = await res.json();
+        alertSendBtn.disabled = false;
+
+        if (data && data.success && data.delivered) {
+          if (alertStatus) {
+            alertStatus.style.color = '#4ade80';
+            alertStatus.textContent = '✅ Alert successfully delivered on-site to ' + uname + '!';
+          }
+          alertMessage.value = '';
+          setTimeout(function () {
+            if (alertStatus && alertStatus.textContent.startsWith('✅')) alertStatus.textContent = '';
+          }, 6000);
+        } else {
+          // Explicitly display error if user is offline or not found
+          var errMsg = (data && data.error) || 'Failed to deliver alert. The user went offline before delivery.';
+          if (alertStatus) {
+            alertStatus.style.color = '#f87171';
+            alertStatus.textContent = '❌ ' + errMsg;
+          }
+        }
+      } catch (err) {
+        alertSendBtn.disabled = false;
+        if (alertStatus) {
+          alertStatus.style.color = '#f87171';
+          alertStatus.textContent = '❌ Error sending alert: ' + (err.message || 'Network error');
+        }
+      }
+    });
+  }
+
+  /* ===================== Staff Role & Permission Editor ===================== */
+  var staffUserSelect = $('admin-staff-user-select');
+  var staffRolesGrid = $('admin-staff-roles-grid');
+  var staffPermissionsList = $('admin-staff-permissions-list');
+  var staffSaveBtn = $('admin-staff-save-btn');
+  var staffStatus = $('admin-staff-status');
+  var staffUsersMap = {};
+
+  function updateStaffPermissionsPreview() {
+    if (!staffRolesGrid || !staffPermissionsList) return;
+    var checkedRoles = [];
+    staffRolesGrid.querySelectorAll('input[name="admin-staff-role"]:checked').forEach(function (cb) {
+      checkedRoles.push(cb.value.toLowerCase());
+    });
+
+    if (checkedRoles.length === 0) {
+      staffPermissionsList.textContent = 'Standard Member (No Administrative Permissions)';
+      staffPermissionsList.style.color = '#94a3b8';
+      return;
+    }
+
+    var perms = [];
+    if (checkedRoles.includes('owner')) perms.push('👑 Full Admin Control', 'User Alerts', 'Role Management', 'Telemetry');
+    else if (checkedRoles.includes('admin')) perms.push('🛡️ Telemetry Access', 'Staff Roles', 'Moderation');
+
+    if (checkedRoles.includes('moderator') && !checkedRoles.includes('owner') && !checkedRoles.includes('admin')) {
+      perms.push('⚔️ Chat Moderation');
+    }
+    if (checkedRoles.includes('tester')) perms.push('🧪 Testing Folder (Games & Movies)');
+    if (checkedRoles.includes('vip')) perms.push('⭐ VIP Priority Badge');
+    if (checkedRoles.includes('discord member')) perms.push('🎮 Discord Linked');
+    if (checkedRoles.includes('beta user')) perms.push('🚀 Beta Features');
+
+    staffPermissionsList.textContent = perms.join(' · ') || 'Standard Member';
+    staffPermissionsList.style.color = checkedRoles.includes('owner') ? '#fef08a' : checkedRoles.includes('admin') ? '#7dd3fc' : '#4ade80';
+  }
+
+  async function loadAdminStaffUsers() {
+    if (!staffUserSelect) return;
+    try {
+      var token = window.TSWProfiles && window.TSWProfiles.getToken ? window.TSWProfiles.getToken() : '';
+      var headers = {};
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+      var res = await fetch('/api/owner/users?t=' + Date.now(), { headers: headers, cache: 'no-store' });
+      var data = await res.json();
+      if (!data || !data.success || !Array.isArray(data.users)) return;
+
+      staffUsersMap = {};
+      staffUserSelect.innerHTML = '';
+      if (data.users.length === 0) {
+        staffUserSelect.innerHTML = '<option value="" disabled selected>No registered users found</option>';
+        return;
+      }
+
+      var promptOpt = document.createElement('option');
+      promptOpt.value = '';
+      promptOpt.disabled = true;
+      promptOpt.selected = true;
+      promptOpt.textContent = '-- Select a member to review/edit roles --';
+      staffUserSelect.appendChild(promptOpt);
+
+      data.users.forEach(function (u) {
+        staffUsersMap[u.id] = u;
+        var opt = document.createElement('option');
+        opt.value = u.id;
+        var rolesStr = Array.isArray(u.roles) && u.roles.length ? u.roles.join(', ') : (u.role || 'TSW User');
+        opt.textContent = '@' + u.username + ' (' + rolesStr + ')';
+        staffUserSelect.appendChild(opt);
+      });
+    } catch (err) {}
+  }
+
+  if (staffUserSelect) {
+    staffUserSelect.addEventListener('change', function () {
+      var uid = staffUserSelect.value;
+      var user = staffUsersMap[uid];
+      if (!user) return;
+
+      var userRoles = [];
+      if (Array.isArray(user.roles)) userRoles = user.roles.map(function (r) { return r.toLowerCase(); });
+      else if (typeof user.role === 'string') userRoles = user.role.split(',').map(function (r) { return r.trim().toLowerCase(); });
+
+      if (staffRolesGrid) {
+        staffRolesGrid.querySelectorAll('input[name="admin-staff-role"]').forEach(function (cb) {
+          cb.checked = userRoles.includes(cb.value.toLowerCase());
+        });
+      }
+      updateStaffPermissionsPreview();
+      if (staffStatus) staffStatus.textContent = '';
+    });
+  }
+
+  if (staffRolesGrid) {
+    staffRolesGrid.addEventListener('change', updateStaffPermissionsPreview);
+  }
+
+  if (staffSaveBtn) {
+    staffSaveBtn.addEventListener('click', async function () {
+      if (!staffUserSelect || !staffRolesGrid) return;
+      var targetUserId = staffUserSelect.value;
+      if (!targetUserId) {
+        if (staffStatus) {
+          staffStatus.style.color = '#f87171';
+          staffStatus.textContent = '⚠️ Select a member first.';
+        }
+        return;
+      }
+
+      var checkedRoles = [];
+      staffRolesGrid.querySelectorAll('input[name="admin-staff-role"]:checked').forEach(function (cb) {
+        checkedRoles.push(cb.value);
+      });
+      if (checkedRoles.length === 0) checkedRoles = ['TSW User'];
+
+      staffSaveBtn.disabled = true;
+      if (staffStatus) {
+        staffStatus.style.color = '#38bdf8';
+        staffStatus.textContent = 'Saving permissions…';
+      }
+
+      try {
+        var token = window.TSWProfiles && window.TSWProfiles.getToken ? window.TSWProfiles.getToken() : '';
+        var res = await fetch('/api/owner/give-role', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? ('Bearer ' + token) : ''
+          },
+          body: JSON.stringify({
+            targetUserId: targetUserId,
+            roles: checkedRoles,
+            channel: 'chat-1'
+          })
+        });
+        var data = await res.json();
+        staffSaveBtn.disabled = false;
+        if (data && data.success) {
+          if (staffStatus) {
+            staffStatus.style.color = '#4ade80';
+            staffStatus.textContent = '✅ ' + (data.message || 'Permissions updated successfully!');
+          }
+          if (staffUsersMap[targetUserId]) {
+            staffUsersMap[targetUserId].roles = data.roles || checkedRoles;
+            staffUsersMap[targetUserId].role = (data.roles || checkedRoles).join(', ');
+          }
+          fetchAdminMetrics();
+          loadAdminActiveUsers();
+          loadAdminStaffUsers();
+        } else {
+          if (staffStatus) {
+            staffStatus.style.color = '#f87171';
+            staffStatus.textContent = '❌ ' + ((data && data.error) || 'Failed to update roles');
+          }
+        }
+      } catch (err) {
+        staffSaveBtn.disabled = false;
+        if (staffStatus) {
+          staffStatus.style.color = '#f87171';
+          staffStatus.textContent = '❌ ' + (err.message || 'Error updating permissions');
+        }
+      }
+    });
+  }
+
   function openAdmin() {
     var user = window.TSWProfiles && window.TSWProfiles.getUser ? window.TSWProfiles.getUser() : null;
     var isOwner = user && (
@@ -10210,8 +10914,13 @@ document.addEventListener('keydown', function (ev) {
     if (!adminModal) return;
     adminModal.hidden = false;
     fetchAdminMetrics();
+    loadAdminActiveUsers();
+    loadAdminStaffUsers();
     clearInterval(adminPollTimer);
-    adminPollTimer = setInterval(fetchAdminMetrics, 8000);
+    adminPollTimer = setInterval(function () {
+      fetchAdminMetrics();
+      loadAdminActiveUsers();
+    }, 8000);
   }
 
   function closeAdmin() {

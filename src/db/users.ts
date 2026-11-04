@@ -371,6 +371,7 @@ export async function ensureChatTables() {
   await db.execute(sql`CREATE TABLE IF NOT EXISTS chat_typing (user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, chat_type TEXT NOT NULL, context_id TEXT NOT NULL, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), PRIMARY KEY(user_id,chat_type,context_id))`);
   await db.execute(sql`CREATE TABLE IF NOT EXISTS chat_reports (id BIGSERIAL PRIMARY KEY, reporter_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, reported_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL, message_type TEXT, message_id INTEGER, reason TEXT NOT NULL, details TEXT DEFAULT '', status TEXT NOT NULL DEFAULT 'open', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`);
   await db.execute(sql`CREATE TABLE IF NOT EXISTS chat_moderation_logs (id BIGSERIAL PRIMARY KEY, actor_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, target_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, action TEXT NOT NULL, reason TEXT DEFAULT '', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`);
+  await db.execute(sql`CREATE TABLE IF NOT EXISTS user_alerts (id BIGSERIAL PRIMARY KEY, target_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, sender_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, message TEXT NOT NULL, delivered BOOLEAN NOT NULL DEFAULT false, read BOOLEAN NOT NULL DEFAULT false, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`);
   chatTablesReady = true;
 }
 
@@ -673,11 +674,15 @@ export async function sendDirectMessage(senderId: number, receiverId: number, co
   };
 }
 
-export async function deleteDirectMessage(userId: number, messageId: number) {
+export async function deleteDirectMessage(userId: number, messageId: number, isAdmin: boolean = false) {
   await ensureChatTables();
-  await db.delete(messages).where(
-    and(eq(messages.id, messageId), eq(messages.senderId, userId))
-  );
+  if (isAdmin) {
+    await db.delete(messages).where(eq(messages.id, messageId));
+  } else {
+    await db.delete(messages).where(
+      and(eq(messages.id, messageId), eq(messages.senderId, userId))
+    );
+  }
   return { success: true };
 }
 
@@ -826,34 +831,63 @@ export function isUserAdmin(user: { id?: number; username?: string | null; email
 
 export async function getAdminMetrics() {
   await ensureChatTables();
-  const userCountRes = await db.execute(sql`
-    SELECT count(*)::int as count 
-    FROM users 
-    WHERE (password_hash IS NOT NULL OR email = 'alexc.second@gmail.com') 
-      AND email NOT LIKE '%@scramjet.local' 
-      AND email NOT LIKE '%@guest.tswv2.local' 
-      AND uid NOT LIKE 'guest_%' 
-      AND uid NOT LIKE 'system_%';
-  `);
-
-  // Count profiles belonging strictly to real registered users
-  const profileCountRes = await db.execute(sql`
-    SELECT count(*)::int as count 
-    FROM profiles p
-    JOIN users u ON p.user_id = u.id
-    WHERE (u.password_hash IS NOT NULL OR u.email = 'alexc.second@gmail.com') 
-      AND u.email NOT LIKE '%@scramjet.local' 
-      AND u.email NOT LIKE '%@guest.tswv2.local' 
-      AND u.uid NOT LIKE 'guest_%' 
-      AND u.uid NOT LIKE 'system_%';
-  `);
-
-  const messageCountRes = await db.execute(sql`SELECT count(*)::int as count FROM messages;`);
-  const publicMsgRes = await db.execute(sql`SELECT count(*)::int as count FROM public_messages;`);
-  const friendRes = await db.execute(sql`SELECT count(*)::int as count FROM friends;`);
-  
+  let usersCount = 0;
+  let profilesCount = 0;
+  let messagesCount = 0;
+  let publicMsgCount = 0;
+  let friendshipsCount = 0;
+  let recentUsers: any[] = [];
   let dbSize = '8.2 MB';
   let activeConnections = 1;
+  let channelStats: Record<string, number> = { 'chat-1': 0, 'announcements': 0, 'general': 0 };
+  let roleStats: Record<string, number> = {};
+
+  try {
+    const userCountRes = await db.execute(sql`
+      SELECT count(*)::int as count 
+      FROM users 
+      WHERE (password_hash IS NOT NULL OR email = 'alexc.second@gmail.com') 
+        AND email NOT LIKE '%@scramjet.local' 
+        AND email NOT LIKE '%@guest.tswv2.local' 
+        AND uid NOT LIKE 'guest_%' 
+        AND uid NOT LIKE 'system_%';
+    `);
+    usersCount = Number((userCountRes.rows?.[0] as any)?.count || 0);
+  } catch (e) {
+    console.warn("userCountRes error:", e);
+  }
+
+  try {
+    const profileCountRes = await db.execute(sql`
+      SELECT count(*)::int as count 
+      FROM profiles p
+      JOIN users u ON p.user_id = u.id
+      WHERE (u.password_hash IS NOT NULL OR u.email = 'alexc.second@gmail.com') 
+        AND u.email NOT LIKE '%@scramjet.local' 
+        AND u.email NOT LIKE '%@guest.tswv2.local' 
+        AND u.uid NOT LIKE 'guest_%' 
+        AND u.uid NOT LIKE 'system_%';
+    `);
+    profilesCount = Number((profileCountRes.rows?.[0] as any)?.count || 0);
+  } catch (e) {
+    console.warn("profileCountRes error:", e);
+  }
+
+  try {
+    const messageCountRes = await db.execute(sql`SELECT count(*)::int as count FROM messages;`);
+    messagesCount = Number((messageCountRes.rows?.[0] as any)?.count || 0);
+  } catch (e) {}
+
+  try {
+    const publicMsgRes = await db.execute(sql`SELECT count(*)::int as count FROM public_messages;`);
+    publicMsgCount = Number((publicMsgRes.rows?.[0] as any)?.count || 0);
+  } catch (e) {}
+
+  try {
+    const friendRes = await db.execute(sql`SELECT count(*)::int as count FROM friends;`);
+    friendshipsCount = Number((friendRes.rows?.[0] as any)?.count || 0);
+  } catch (e) {}
+  
   try {
     const sizeRes = await db.execute(sql`SELECT pg_size_pretty(pg_database_size(current_database())) as dbsize;`);
     if (sizeRes.rows?.[0]) dbSize = String((sizeRes.rows[0] as any).dbsize || '8.2 MB');
@@ -864,8 +898,6 @@ export async function getAdminMetrics() {
     if (connRes.rows?.[0]) activeConnections = Number((connRes.rows[0] as any).connections || 1);
   } catch (e) {}
 
-  // Real breakdown of public messages by channel
-  let channelStats: Record<string, number> = { 'chat-1': 0, 'announcements': 0, 'general': 0 };
   try {
     const chanRes = await db.execute(sql`
       SELECT COALESCE(channel, 'general') as channel, count(*)::int as count 
@@ -877,8 +909,6 @@ export async function getAdminMetrics() {
     });
   } catch (e) {}
 
-  // Real distribution of user roles
-  let roleStats: Record<string, number> = {};
   try {
     const roleRes = await db.execute(sql`
       SELECT COALESCE(role, 'TSW User') as role, count(*)::int as count 
@@ -895,38 +925,25 @@ export async function getAdminMetrics() {
     });
   } catch (e) {}
 
-  // Real registered users list with individual message counts
-  const recentUsersRes = await db.execute(sql`
-    SELECT 
-      u.id, 
-      u.username, 
-      u.email, 
-      COALESCE(u.role, 'TSW User') as role, 
-      u.created_at as "createdAt",
-      count(pm.id)::int as "messageCount"
-    FROM users u
-    LEFT JOIN public_messages pm ON pm.user_id = u.id
-    WHERE (u.password_hash IS NOT NULL OR u.email = 'alexc.second@gmail.com' OR u.role != 'TSW User')
-      AND u.email NOT LIKE '%@scramjet.local'
-      AND u.email NOT LIKE '%@guest.tswv2.local'
-      AND u.uid NOT LIKE 'guest_%'
-      AND u.uid NOT LIKE 'system_%'
-    GROUP BY u.id, u.username, u.email, u.role, u.created_at
-    ORDER BY u.id DESC
-    LIMIT 100;
-  `);
-
-  return {
-    users: Number((userCountRes.rows[0] as any)?.count || 0),
-    profiles: Number((profileCountRes.rows[0] as any)?.count || 0),
-    directMessages: Number((messageCountRes.rows[0] as any)?.count || 0),
-    publicMessages: Number((publicMsgRes.rows[0] as any)?.count || 0),
-    channelStats,
-    roleStats,
-    friendships: Number((friendRes.rows[0] as any)?.count || 0),
-    dbSize,
-    activeConnections,
-    recentUsers: (recentUsersRes.rows || []).map((r: any) => ({
+  try {
+    const recentUsersRes = await db.execute(sql`
+      SELECT 
+        u.id, 
+        u.username, 
+        u.email, 
+        COALESCE(u.role, 'TSW User') as role, 
+        u.created_at as "createdAt",
+        (SELECT count(*)::int FROM public_messages WHERE user_id = u.id) as "messageCount"
+      FROM users u
+      WHERE (u.password_hash IS NOT NULL OR u.email = 'alexc.second@gmail.com' OR COALESCE(u.role, 'TSW User') != 'TSW User')
+        AND u.email NOT LIKE '%@scramjet.local'
+        AND u.email NOT LIKE '%@guest.tswv2.local'
+        AND u.uid NOT LIKE 'guest_%'
+        AND u.uid NOT LIKE 'system_%'
+      ORDER BY u.id DESC
+      LIMIT 100;
+    `);
+    recentUsers = (recentUsersRes.rows || []).map((r: any) => ({
       id: r.id,
       username: r.username || 'User',
       email: r.email,
@@ -934,7 +951,22 @@ export async function getAdminMetrics() {
       roles: parseRoles(r.role),
       messageCount: Number(r.messageCount || 0),
       createdAt: r.createdAt
-    }))
+    }));
+  } catch (e) {
+    console.warn("recentUsersRes error:", e);
+  }
+
+  return {
+    users: usersCount,
+    profiles: profilesCount,
+    directMessages: messagesCount,
+    publicMessages: publicMsgCount,
+    channelStats,
+    roleStats,
+    friendships: friendshipsCount,
+    dbSize,
+    activeConnections,
+    recentUsers
   };
 }
 
@@ -1240,3 +1272,128 @@ export async function setChatReportStatus(reportId:number,status:string) {
   await ensureChatTables();
   await db.execute(sql`UPDATE chat_reports SET status=${status} WHERE id=${reportId}`);
 }
+
+export async function getActiveUsersForOwner() {
+  await ensureChatTables();
+  const res = await db.execute(sql`
+    SELECT u.id, u.username, u.email, COALESCE(u.role, 'TSW User') as role,
+           COALESCE(p.avatar, 'astronaut') as avatar,
+           COALESCE(p.theme_color, '#5aa2ff') as "themeColor",
+           cp.last_seen_at as "lastSeen"
+    FROM users u
+    LEFT JOIN profiles p ON p.user_id = u.id AND p.is_default = true
+    LEFT JOIN chat_presence cp ON cp.user_id = u.id
+    WHERE (u.password_hash IS NOT NULL OR u.email = 'alexc.second@gmail.com')
+      AND u.email NOT LIKE '%@scramjet.local'
+      AND u.email NOT LIKE '%@guest.tswv2.local'
+      AND u.uid NOT LIKE 'guest_%'
+      AND u.uid NOT LIKE 'system_%'
+      AND u.username IS NOT NULL AND u.username != ''
+    ORDER BY (cp.last_seen_at > NOW() - INTERVAL '90 seconds') DESC, cp.last_seen_at DESC NULLS LAST, u.username ASC;
+  `);
+
+  const now = Date.now();
+  return (res.rows || []).map((r: any) => {
+    const isOnline = !!r.lastSeen && (now - new Date(r.lastSeen).getTime() < 90000);
+    return {
+      id: r.id,
+      username: r.username,
+      email: r.email,
+      role: r.role || 'TSW User',
+      roles: parseRoles(r.role),
+      avatar: r.avatar || 'astronaut',
+      themeColor: r.themeColor || '#5aa2ff',
+      lastSeen: r.lastSeen || null,
+      isOnline,
+      online: isOnline,
+    };
+  });
+}
+
+export async function sendUserAlert(senderId: number, targetUserId: number, message: string) {
+  await ensureChatTables();
+  const cleanMsg = filterProfanity((message || '').trim()).slice(0, 1000);
+  if (!cleanMsg) {
+    throw new Error('Alert message cannot be empty.');
+  }
+
+  // Verify target user exists
+  const targetUser = await getUserById(targetUserId);
+  if (!targetUser) {
+    throw new Error('Target user does not exist.');
+  }
+
+  // Check presence
+  const pres = await db.execute(sql`
+    SELECT last_seen_at FROM chat_presence WHERE user_id = ${targetUserId} LIMIT 1;
+  `);
+  const lastSeen = pres.rows?.[0]?.last_seen_at;
+  const isOnline = !!lastSeen && (Date.now() - new Date(lastSeen).getTime() < 90000);
+
+  // If user is offline, DO NOT silently report delivered!
+  if (!isOnline) {
+    return {
+      success: false,
+      delivered: false,
+      error: `User @${targetUser.username} is currently offline. Alerts can only be delivered to active users.`
+    };
+  }
+
+  const ins = await db.execute(sql`
+    INSERT INTO user_alerts (target_user_id, sender_id, message, delivered, read)
+    VALUES (${targetUserId}, ${senderId}, ${cleanMsg}, true, false)
+    RETURNING id, created_at;
+  `);
+
+  const alertRow = (ins.rows || [])[0] as any;
+  return {
+    success: true,
+    delivered: true,
+    alertId: alertRow?.id,
+    targetUsername: targetUser.username,
+    createdAt: alertRow?.created_at,
+    message: `Alert successfully delivered to @${targetUser.username}!`
+  };
+}
+
+export async function getPendingUserAlerts(userId: number) {
+  await ensureChatTables();
+  const res = await db.execute(sql`
+    SELECT a.id, a.message, a.created_at as "createdAt", u.username as sender
+    FROM user_alerts a
+    JOIN users u ON u.id = a.sender_id
+    WHERE a.target_user_id = ${userId} AND a.read = false
+    ORDER BY a.created_at ASC
+    LIMIT 10;
+  `);
+
+  const alerts = (res.rows || []).map((r: any) => ({
+    id: r.id,
+    message: r.message,
+    sender: r.sender || 'Alex Dalbey (Owner)',
+    createdAt: r.createdAt
+  }));
+
+  // Mark pending alerts as delivered
+  if (alerts.length > 0) {
+    const ids = alerts.map((a: any) => a.id);
+    await db.execute(sql`
+      UPDATE user_alerts
+      SET delivered = true
+      WHERE id = ANY(${ids});
+    `);
+  }
+
+  return alerts;
+}
+
+export async function dismissUserAlert(userId: number, alertId: number) {
+  await ensureChatTables();
+  await db.execute(sql`
+    UPDATE user_alerts
+    SET read = true
+    WHERE id = ${alertId} AND target_user_id = ${userId};
+  `);
+  return { success: true };
+}
+

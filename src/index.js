@@ -57,7 +57,11 @@ import {
 	getChatReports,
 	setChatReportStatus,
 	parseRoles,
-	userHasRole
+	userHasRole,
+	getActiveUsersForOwner,
+	sendUserAlert,
+	getPendingUserAlerts,
+	dismissUserAlert
 } from "./db/users.ts";
 import { verifyAuth } from "./middleware/auth.ts";
 import { GoogleGenAI } from "@google/genai";
@@ -1153,7 +1157,9 @@ fastify.delete("/api/messages/:id", async (req, reply) => {
 			reply.code(400);
 			return { success: false, error: "Invalid message ID" };
 		}
-		const result = await deleteDirectMessage(userId, messageId);
+		const user = await getUserById(userId);
+		const isAdmin = isUserAdmin(user);
+		const result = await deleteDirectMessage(userId, messageId, isAdmin);
 		return { success: true, ...result };
 	} catch (err) {
 		reply.code(400);
@@ -1314,6 +1320,138 @@ fastify.post("/api/admin/purge-expired", async (req, reply) => {
 	}
 });
 
+fastify.get("/api/friends/mutual/:id", async (req, reply) => {
+  try {
+    const uid = await getAuthUserId(req, reply);
+    const id = Number.parseInt(req.params.id, 10);
+    if (!Number.isInteger(id) || id < 1) {
+      reply.code(400);
+      return { success: false, error: "Invalid user" };
+    }
+    return { success: true, friends: await getMutualFriends(uid, id) };
+  } catch (err) {
+    reply.code(400);
+    return { success: false, error: err.message };
+  }
+});
+
+fastify.get("/api/owner/chat-logs", async (req, reply) => {
+  try {
+    const uid = await getAuthUserId(req, reply);
+    if (!isUserAdmin(await getUserById(uid))) {
+      reply.code(403);
+      return { success: false, error: "Owner access required" };
+    }
+    return { success: true, logs: await getChatModerationLogs() };
+  } catch (err) {
+    reply.code(400);
+    return { success: false, error: err.message };
+  }
+});
+
+fastify.patch("/api/owner/chat-reports/:id", async (req, reply) => {
+  try {
+    const uid = await getAuthUserId(req, reply);
+    if (!isUserAdmin(await getUserById(uid))) {
+      reply.code(403);
+      return { success: false, error: "Owner access required" };
+    }
+    const id = Number.parseInt(req.params.id, 10);
+    const status = ["open", "reviewed", "dismissed"].includes(req.body?.status) ? req.body.status : null;
+    if (!id || !status) {
+      reply.code(400);
+      return { success: false, error: "Invalid report update" };
+    }
+    await setChatReportStatus(id, status);
+    return { success: true };
+  } catch (err) {
+    reply.code(400);
+    return { success: false, error: err.message };
+  }
+});
+
+// Owner Only: Active users list for Send User Alert
+fastify.get("/api/owner/active-users", async (req, reply) => {
+  reply.header("Cache-Control", "no-store");
+  try {
+    const uid = await getAuthUserId(req, reply);
+    const user = await getUserById(uid);
+    if (!isUserAdmin(user)) {
+      reply.code(403);
+      return { success: false, error: "Owner access required." };
+    }
+    const users = await getActiveUsersForOwner();
+    return { success: true, users };
+  } catch (err) {
+    reply.code(err.message.includes("Authentication") ? 401 : 400);
+    return { success: false, error: err.message };
+  }
+});
+
+// Owner Only: Send high-priority user alert popup
+fastify.post("/api/owner/send-alert", async (req, reply) => {
+  reply.header("Cache-Control", "no-store");
+  try {
+    const uid = await getAuthUserId(req, reply);
+    const user = await getUserById(uid);
+    if (!isUserAdmin(user)) {
+      reply.code(403);
+      return { success: false, error: "Owner access required." };
+    }
+    const body = req.body || {};
+    const targetUserId = parseInt(body.targetUserId, 10);
+    const message = String(body.message || "").trim();
+    if (!Number.isInteger(targetUserId) || targetUserId < 1) {
+      reply.code(400);
+      return { success: false, error: "Please select an active member." };
+    }
+    if (!message) {
+      reply.code(400);
+      return { success: false, error: "Alert message cannot be empty." };
+    }
+    const result = await sendUserAlert(uid, targetUserId, message);
+    if (!result.success || !result.delivered) {
+      reply.code(400);
+      return result;
+    }
+    return result;
+  } catch (err) {
+    reply.code(err.message.includes("Authentication") ? 401 : 400);
+    return { success: false, error: err.message };
+  }
+});
+
+// Authenticated User: Check for pending alerts
+fastify.get("/api/users/me/alerts", async (req, reply) => {
+  reply.header("Cache-Control", "no-store");
+  try {
+    const uid = await getAuthUserId(req, reply);
+    const alerts = await getPendingUserAlerts(uid);
+    return { success: true, alerts };
+  } catch (err) {
+    reply.code(err.message.includes("Authentication") ? 401 : 400);
+    return { success: false, alerts: [] };
+  }
+});
+
+// Authenticated User: Dismiss/acknowledge alert
+fastify.post("/api/users/me/alerts/:id/dismiss", async (req, reply) => {
+  reply.header("Cache-Control", "no-store");
+  try {
+    const uid = await getAuthUserId(req, reply);
+    const alertId = parseInt(req.params.id, 10);
+    if (isNaN(alertId)) {
+      reply.code(400);
+      return { success: false, error: "Invalid alert ID" };
+    }
+    await dismissUserAlert(uid, alertId);
+    return { success: true };
+  } catch (err) {
+    reply.code(err.message.includes("Authentication") ? 401 : 400);
+    return { success: false, error: err.message };
+  }
+});
+
 fastify.setNotFoundHandler((res, reply) => {
 	return reply.code(404).type("text/html").sendFile("404.html");
 });
@@ -1345,16 +1483,3 @@ fastify.listen({
 	host: "0.0.0.0",
 });
 
-
-fastify.get("/api/friends/mutual/:id", async (req, reply) => {
-  try { const uid=await getAuthUserId(req,reply); const id=Number.parseInt(req.params.id,10); if(!Number.isInteger(id)||id<1) {reply.code(400);return {success:false,error:"Invalid user"};} return {success:true,friends:await getMutualFriends(uid,id)}; }
-  catch(err){reply.code(400);return {success:false,error:err.message};}
-});
-fastify.get("/api/owner/chat-logs", async (req,reply)=>{
-  try { const uid=await getAuthUserId(req,reply); if(!isUserAdmin(await getUserById(uid))){reply.code(403);return {success:false,error:"Owner access required"};} return {success:true,logs:await getChatModerationLogs()}; }
-  catch(err){reply.code(400);return {success:false,error:err.message};}
-});
-fastify.patch("/api/owner/chat-reports/:id", async(req,reply)=>{
-  try {const uid=await getAuthUserId(req,reply);if(!isUserAdmin(await getUserById(uid))){reply.code(403);return {success:false,error:"Owner access required"};}const id=Number.parseInt(req.params.id,10);const status=["open","reviewed","dismissed"].includes(req.body?.status)?req.body.status:null;if(!id||!status){reply.code(400);return {success:false,error:"Invalid report update"};}await setChatReportStatus(id,status);return {success:true};}
-  catch(err){reply.code(400);return {success:false,error:err.message};}
-});
