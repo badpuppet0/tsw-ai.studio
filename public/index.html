@@ -11027,6 +11027,55 @@ document.addEventListener('keydown', function (ev) {
 })();
 </script>
 
+<script>
+/* Keep signed-in presence and owner alerts working even when Chat is closed. */
+(function initGlobalPresenceAndAlerts() {
+  var lastPresence = 0;
+  var alertCheckBusy = false;
+
+  function getProfileApi() {
+    return window.TSWProfiles && window.TSWProfiles.api ? window.TSWProfiles : null;
+  }
+
+  function heartbeatAndCheckAlerts() {
+    var profiles = getProfileApi();
+    if (!profiles || !profiles.getUser || !profiles.getUser() || !profiles.getToken || !profiles.getToken()) return;
+
+    var now = Date.now();
+    if (now - lastPresence >= 20000) {
+      lastPresence = now;
+      profiles.api('/api/chat/presence', 'POST', {}).catch(function () {
+        lastPresence = 0;
+      });
+    }
+
+    if (alertCheckBusy) return;
+    var popup = document.getElementById('user-alert-popup');
+    if (!popup || !popup.hidden) return;
+    alertCheckBusy = true;
+    profiles.api('/api/users/me/alerts?t=' + now, 'GET').then(function (res) {
+      if (!res || !res.success || !Array.isArray(res.alerts) || !res.alerts.length || !popup.hidden) return;
+      var alertItem = res.alerts[0];
+      window.__tswCurrentGlobalAlertId = alertItem.id;
+      var body = document.getElementById('user-alert-message-body');
+      var time = document.getElementById('user-alert-time');
+      var title = document.getElementById('user-alert-title');
+      if (body) body.textContent = alertItem.message || '';
+      if (time) {
+        var created = alertItem.createdAt ? new Date(alertItem.createdAt) : new Date();
+        time.textContent = isNaN(created.getTime()) ? 'Just now' : created.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      }
+      if (title) title.textContent = alertItem.sender ? 'Notice from @' + alertItem.sender : 'Notice from Owner';
+      popup.hidden = false;
+    }).catch(function () {}).finally(function () {
+      alertCheckBusy = false;
+    });
+  }
+
+  heartbeatAndCheckAlerts();
+  window.setInterval(heartbeatAndCheckAlerts, 5000);
+})();
+</script>
 
 </body>
 </html>
