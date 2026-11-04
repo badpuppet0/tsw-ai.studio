@@ -9670,9 +9670,10 @@ document.addEventListener('keydown', function (ev) {
     function dismissAlert() {
       if (!popup) return;
       popup.hidden = true;
-      if (currentActiveAlertId) {
-        var aid = currentActiveAlertId;
+      var aid = currentActiveAlertId || window.__tswCurrentGlobalAlertId;
+      if (aid) {
         currentActiveAlertId = null;
+        window.__tswCurrentGlobalAlertId = null;
         api('/api/users/me/alerts/' + aid + '/dismiss', 'POST', {}).catch(function () {});
       }
     }
