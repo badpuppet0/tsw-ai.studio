@@ -11043,10 +11043,19 @@ document.addEventListener('keydown', function (ev) {
     if (!profiles || !profiles.getUser || !profiles.getUser() || !profiles.getToken || !profiles.getToken()) return;
 
     var now = Date.now();
+    var token = profiles.getToken();
+    var headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' };
+    if (profiles.getClientId) headers['x-client-id'] = profiles.getClientId();
+
     if (now - lastPresence >= 20000) {
       lastPresence = now;
-      profiles.api('/api/chat/presence', 'POST', {}).catch(function () {
+      fetch('/api/chat/presence', {
+        method: 'POST', headers: headers, body: '{}', credentials: 'same-origin', cache: 'no-store'
+      }).then(function (response) {
+        if (!response.ok) throw new Error('Presence update failed: ' + response.status);
+      }).catch(function (error) {
         lastPresence = 0;
+        console.warn('[TSW] Presence heartbeat failed:', error);
       });
     }
 
@@ -11054,10 +11063,16 @@ document.addEventListener('keydown', function (ev) {
     var popup = document.getElementById('user-alert-popup');
     if (!popup || !popup.hidden) return;
     alertCheckBusy = true;
-    profiles.api('/api/users/me/alerts?t=' + now, 'GET').then(function (res) {
+    fetch('/api/users/me/alerts?t=' + now, {
+      method: 'GET', headers: headers, credentials: 'same-origin', cache: 'no-store'
+    }).then(function (response) {
+      if (!response.ok) throw new Error('Alert check failed: ' + response.status);
+      return response.json();
+    }).then(function (res) {
       if (!res || !res.success || !Array.isArray(res.alerts) || !res.alerts.length || !popup.hidden) return;
       var alertItem = res.alerts[0];
       window.__tswCurrentGlobalAlertId = alertItem.id;
+      window.__tswCurrentAlertQueue = res.alerts.slice(1);
       var body = document.getElementById('user-alert-message-body');
       var time = document.getElementById('user-alert-time');
       var title = document.getElementById('user-alert-title');
@@ -11068,7 +11083,10 @@ document.addEventListener('keydown', function (ev) {
       }
       if (title) title.textContent = alertItem.sender ? 'Notice from @' + alertItem.sender : 'Notice from Owner';
       popup.hidden = false;
-    }).catch(function () {}).finally(function () {
+      popup.style.display = 'flex';
+    }).catch(function (error) {
+      console.warn('[TSW] Alert delivery check failed:', error);
+    }).finally(function () {
       alertCheckBusy = false;
     });
   }
