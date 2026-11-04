@@ -896,17 +896,47 @@ fastify.get("/api/chat/typing/:type/:contextId", async (req, reply) => {
 
 // Community Reports Endpoint
 fastify.post("/api/reports", async (req, reply) => {
-	reply.header("Cache-Control", "no-store");
-	try {
-		const body = req.body || {};
-		const messageId = parseInt(body.messageId, 10);
-		const type = (body.type || "public").toString();
-		const reason = (body.reason || "").toString().trim().slice(0, 300);
-		return { success: true, logged: true, messageId, type, reason };
-	} catch (err) {
-		reply.code(400);
-		return { success: false, error: err.message };
-	}
+  reply.header("Cache-Control", "no-store");
+  try {
+    const reporterId = await getAuthUserId(req, reply);
+    await ensureChatTables();
+    const body = req.body || {};
+    const messageId = Number.parseInt(body.messageId, 10);
+    const type = body.type === "dm" ? "dm" : "public";
+    const reason = String(body.reason || "").trim().slice(0, 300);
+    if (!Number.isInteger(messageId) || messageId < 1 || !reason) {
+      reply.code(400);
+      return { success: false, error: "Choose a message and provide a reason." };
+    }
+    let targetUserId = null;
+    if (type === "public") {
+      const found = await db.execute(sql`SELECT user_id FROM public_messages WHERE id = ${messageId} LIMIT 1`);
+      targetUserId = found.rows?.[0]?.user_id || null;
+    } else {
+      const found = await db.execute(sql`SELECT sender_id FROM messages WHERE id = ${messageId} AND (sender_id = ${reporterId} OR receiver_id = ${reporterId}) LIMIT 1`);
+      targetUserId = found.rows?.[0]?.sender_id || null;
+    }
+    if (!targetUserId) {
+      reply.code(404);
+      return { success: false, error: "Message not found." };
+    }
+    await db.execute(sql`INSERT INTO chat_reports (reporter_id,reported_user_id,message_type,message_id,reason) VALUES (${reporterId},${targetUserId},${type},${messageId},${reason})`);
+    return { success: true };
+  } catch (err) {
+    reply.code(400);
+    return { success: false, error: err.message || "Could not submit report." };
+  }
+});
+
+fastify.get("/api/owner/chat-reports", async (req, reply) => {
+  try {
+    const userId = await getAuthUserId(req, reply);
+    const user = await getUserById(userId);
+    if (!isUserAdmin(user)) { reply.code(403); return { success: false, error: "Owner access required." }; }
+    await ensureChatTables();
+    const result = await db.execute(sql`SELECT r.id,r.message_type AS "messageType",r.message_id AS "messageId",r.reason,r.details,r.status,r.created_at AS "createdAt",u.username AS "reporter",t.username AS "reportedUser" FROM chat_reports r JOIN users u ON u.id=r.reporter_id LEFT JOIN users t ON t.id=r.reported_user_id ORDER BY r.created_at DESC LIMIT 200`);
+    return { success: true, reports: result.rows || [] };
+  } catch (err) { reply.code(400); return { success: false, error: err.message }; }
 });
 
 // Owner Commands & System Controls (Only account with Owner role can execute)
