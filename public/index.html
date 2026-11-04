@@ -8716,7 +8716,7 @@ document.addEventListener('keydown', function (ev) {
   };
 
   /* ---------------- Multi-Role Badges Helper ---------------- */
-  function renderRoleBadgesHtml(rolesInput, isOwner) {
+  function renderRoleBadgesHtml(rolesInput, isOwner, singleChatRole) {
     var list = [];
     if (Array.isArray(rolesInput)) {
       list = rolesInput.slice();
@@ -8728,6 +8728,21 @@ document.addEventListener('keydown', function (ev) {
     }
     if (list.length === 0) {
       list = ['TSW User'];
+    }
+
+    // Chat and DM headers show only the highest role from the role scale.
+    // The profile card continues to show every assigned role.
+    if (singleChatRole) {
+      var roleScale = ['owner', 'admin', 'moderator', 'vip', 'discord member', 'tester', 'beta user', 'tsw user'];
+      var ranked = list.map(function (role) {
+        return { role: role, rank: roleScale.indexOf(String(role).toLowerCase()) };
+      }).filter(function (item) { return item.rank >= 0; });
+      if (ranked.length) {
+        ranked.sort(function (a, b) { return a.rank - b.rank; });
+        list = [ranked[0].role];
+      } else {
+        list = [list[0]];
+      }
     }
 
     var html = '<span class="public-msg-badges-wrap">';
@@ -9030,7 +9045,7 @@ document.addEventListener('keydown', function (ev) {
       var isOwner = (m.role === 'owner') || (m.username && m.username.toLowerCase() === 'alex dalbey') || (m.roles && m.roles.some(function (r) { return r.toLowerCase() === 'owner'; }));
       var rolesData = m.roles || m.role;
       if (isTSW && (!rolesData || (Array.isArray(rolesData) && rolesData.length === 0))) rolesData = ['Official'];
-      var badgeHtml = renderRoleBadgesHtml(rolesData, isOwner);
+      var badgeHtml = renderRoleBadgesHtml(rolesData, isOwner, true);
       var editedTag = m.isEdited ? ' <span style="font-size:.68rem;color:#94a3b8;font-style:italic;">(edited)</span>' : '';
       var isMine = myId !== null && m.userId === myId;
       var actionsHtml = '';
@@ -9387,7 +9402,7 @@ document.addEventListener('keydown', function (ev) {
         optRow.className = 'public-msg-row';
         optRow.id = tempId;
         var myRoles = user ? (window.TSWGetUserRoles ? window.TSWGetUserRoles(user) : [user.role || 'TSW User']) : ['TSW User'];
-        var optBadge = renderRoleBadgesHtml(myRoles, isOwner);
+        var optBadge = renderRoleBadgesHtml(myRoles, isOwner, true);
 
         var authorName = user ? (user.username || 'You') : guestName;
         var optContent = formatMessageContent(text, user);
