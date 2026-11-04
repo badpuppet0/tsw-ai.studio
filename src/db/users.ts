@@ -830,7 +830,8 @@ export function isUserAdmin(user: { id?: number; username?: string | null; email
 }
 
 export async function getAdminMetrics() {
-  await ensureChatTables();
+  // Metrics read only the core application tables; do not run chat-table setup here.
+  // This keeps the owner dashboard available even if an optional chat migration fails.
   let usersCount = 0;
   let profilesCount = 0;
   let messagesCount = 0;
