@@ -51,6 +51,11 @@ import {
 	updateChatTyping,
 	getChatTyping,
 	ensureChatTables,
+	getMutualFriends,
+	logChatModeration,
+	getChatModerationLogs,
+	getChatReports,
+	setChatReportStatus,
 	parseRoles,
 	userHasRole
 } from "./db/users.ts";
@@ -61,7 +66,7 @@ import { sql } from "drizzle-orm";
 
 const publicPath = fileURLToPath(new URL("../public/", import.meta.url));
 const SERVER_BOOT_TIME = Date.now();
-const APP_VERSION = "1.6.09";
+const APP_VERSION = "1.6.10";
 
 // Wisp Configuration: Refer to the documentation at https://www.npmjs.com/package/@mercuryworkshop/wisp-js
 
@@ -1089,6 +1094,7 @@ fastify.post("/api/owner/moderate-user", async (req, reply) => {
       return { success: false, error: "Unknown moderation action." };
     }
     const moderation = await updateUserModerationState(targetUserId, patch);
+    await logChatModeration(ownerId, targetUserId, action, String(body.reason || ''));
     return { success: true, target: { id: target.id, username: target.username }, moderation };
   } catch (err) {
     reply.code(err.message.includes("Authentication") ? 401 : 400);
@@ -1337,4 +1343,18 @@ if (isNaN(port)) port = 3000;
 fastify.listen({
 	port: port,
 	host: "0.0.0.0",
+});
+
+
+fastify.get("/api/friends/mutual/:id", async (req, reply) => {
+  try { const uid=await getAuthUserId(req,reply); const id=Number.parseInt(req.params.id,10); if(!Number.isInteger(id)||id<1) {reply.code(400);return {success:false,error:"Invalid user"};} return {success:true,friends:await getMutualFriends(uid,id)}; }
+  catch(err){reply.code(400);return {success:false,error:err.message};}
+});
+fastify.get("/api/owner/chat-logs", async (req,reply)=>{
+  try { const uid=await getAuthUserId(req,reply); if(!isUserAdmin(await getUserById(uid))){reply.code(403);return {success:false,error:"Owner access required"};} return {success:true,logs:await getChatModerationLogs()}; }
+  catch(err){reply.code(400);return {success:false,error:err.message};}
+});
+fastify.patch("/api/owner/chat-reports/:id", async(req,reply)=>{
+  try {const uid=await getAuthUserId(req,reply);if(!isUserAdmin(await getUserById(uid))){reply.code(403);return {success:false,error:"Owner access required"};}const id=Number.parseInt(req.params.id,10);const status=["open","reviewed","dismissed"].includes(req.body?.status)?req.body.status:null;if(!id||!status){reply.code(400);return {success:false,error:"Invalid report update"};}await setChatReportStatus(id,status);return {success:true};}
+  catch(err){reply.code(400);return {success:false,error:err.message};}
 });
