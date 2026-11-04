@@ -363,9 +363,15 @@ export async function deleteProfile(profileId: number, userId: number) {
   }
 }
 
+let chatTablesReady = false;
 export async function ensureChatTables() {
-  // Schema managed via Drizzle & Cloud SQL
-  return;
+  if (chatTablesReady) return;
+  await db.execute(sql`CREATE TABLE IF NOT EXISTS chat_message_reactions (id BIGSERIAL PRIMARY KEY, message_type TEXT NOT NULL, message_id INTEGER NOT NULL, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, emoji TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), UNIQUE(message_type,message_id,user_id,emoji))`);
+  await db.execute(sql`CREATE TABLE IF NOT EXISTS chat_presence (user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`);
+  await db.execute(sql`CREATE TABLE IF NOT EXISTS chat_typing (user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, chat_type TEXT NOT NULL, context_id TEXT NOT NULL, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), PRIMARY KEY(user_id,chat_type,context_id))`);
+  await db.execute(sql`CREATE TABLE IF NOT EXISTS chat_reports (id BIGSERIAL PRIMARY KEY, reporter_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, reported_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL, message_type TEXT, message_id INTEGER, reason TEXT NOT NULL, details TEXT DEFAULT '', status TEXT NOT NULL DEFAULT 'open', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`);
+  await db.execute(sql`CREATE TABLE IF NOT EXISTS chat_moderation_logs (id BIGSERIAL PRIMARY KEY, actor_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, target_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, action TEXT NOT NULL, reason TEXT DEFAULT '', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`);
+  chatTablesReady = true;
 }
 
 export async function searchUsers(searchTerm: string, currentUserId: number) {
@@ -1157,15 +1163,52 @@ export async function sendOfficialBotMessage(channel: string, content: string) {
 // Chat enhancements are temporarily disabled until their Drizzle schema
 // migration is applied to the production database. Keep these safe fallbacks
 // so optional chat UI polling cannot prevent message history from loading.
-export async function toggleMessageReaction() {
-  throw new Error('Message reactions are temporarily unavailable.');
+export async function toggleMessageReaction(userId: number, type: 'dm' | 'public', messageId: number, emoji: string) {
+  await ensureChatTables();
+  const cleanEmoji = String(emoji || '').trim().slice(0, 16);
+  if (!cleanEmoji || !messageId) throw new Error('Choose a valid reaction.');
+  const table = type === 'dm' ? 'messages' : 'public_messages';
+  const owned = await db.execute(type === 'dm'
+    ? sql`SELECT id FROM messages WHERE id = ${messageId} AND (sender_id = ${userId} OR receiver_id = ${userId}) LIMIT 1`
+    : sql`SELECT id FROM public_messages WHERE id = ${messageId} LIMIT 1`);
+  if (!owned.rows?.length) throw new Error('Message not found.');
+  const existing = await db.execute(sql`SELECT id FROM chat_message_reactions WHERE message_type = ${type} AND message_id = ${messageId} AND user_id = ${userId} AND emoji = ${cleanEmoji} LIMIT 1`);
+  if (existing.rows?.length) {
+    await db.execute(sql`DELETE FROM chat_message_reactions WHERE id = ${(existing.rows[0] as any).id}`);
+  } else {
+    await db.execute(sql`INSERT INTO chat_message_reactions (message_type,message_id,user_id,emoji) VALUES (${type},${messageId},${userId},${cleanEmoji}) ON CONFLICT DO NOTHING`);
+  }
+  const result = await db.execute(sql`SELECT emoji, count(*)::int AS count, bool_or(user_id = ${userId}) AS mine FROM chat_message_reactions WHERE message_type = ${type} AND message_id = ${messageId} GROUP BY emoji ORDER BY emoji`);
+  return result.rows || [];
 }
-export async function updateChatPresence() {
+export async function updateChatPresence(userId: number) {
+  await ensureChatTables();
+  await db.execute(sql`INSERT INTO chat_presence (user_id,last_seen_at) VALUES (${userId},NOW()) ON CONFLICT (user_id) DO UPDATE SET last_seen_at = NOW()`);
   return { success: true };
 }
-export async function updateChatTyping() {
+export async function updateChatTyping(userId: number, type: string, contextId: string, isTyping: boolean) {
+  await ensureChatTables();
+  if (isTyping) {
+    await db.execute(sql`INSERT INTO chat_typing (user_id,chat_type,context_id,updated_at) VALUES (${userId},${type},${contextId},NOW()) ON CONFLICT (user_id,chat_type,context_id) DO UPDATE SET updated_at = NOW()`);
+  } else {
+    await db.execute(sql`DELETE FROM chat_typing WHERE user_id = ${userId} AND chat_type = ${type} AND context_id = ${contextId}`);
+  }
   return { success: true };
 }
-export async function getChatTyping() {
-  return [];
+export async function getChatTyping(userId: number, type: string, contextId: string) {
+  await ensureChatTables();
+  const result = await db.execute(sql`SELECT u.id, u.username FROM chat_typing t JOIN users u ON u.id = t.user_id WHERE t.chat_type = ${type} AND t.context_id = ${contextId} AND t.user_id <> ${userId} AND t.updated_at > NOW() - INTERVAL '8 seconds'`);
+  return result.rows || [];
+}
+export async function getPresenceForUsers(userIds: number[]) {
+  if (!userIds.length) return {};
+  await ensureChatTables();
+  const result = await db.execute(sql`SELECT user_id AS id,last_seen_at AS "lastSeen" FROM chat_presence WHERE user_id = ANY(${userIds})`);
+  const now = Date.now();
+  const out: Record<number, any> = {};
+  for (const row of (result.rows || []) as any[]) {
+    const seen = new Date(row.lastSeen).getTime();
+    out[Number(row.id)] = { lastSeen: row.lastSeen, isOnline: now - seen < 90000 };
+  }
+  return out;
 }
