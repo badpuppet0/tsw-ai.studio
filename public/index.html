@@ -4006,6 +4006,12 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
             <button type="submit" class="primary" id="account-bio-save-btn" style="padding:.45rem 1.1rem;font-size:.84rem;margin-left:auto;">Save Bio</button>
           </div>
         </form>
+        <div class="prof-section-head" style="margin-top:1.25rem;"><h4>Profile Theme</h4></div>
+        <div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;margin:.6rem 0 1rem;">
+          <label for="profile-theme-color">Accent color</label>
+          <input type="color" id="profile-theme-color" value="#5aa2ff" style="width:48px;height:36px;padding:2px;background:#080c14;border:1px solid rgba(255,255,255,.15);border-radius:7px;">
+          <span style="font-size:.78rem;color:#94a3b8;">Used on your profile card</span>
+        </div>
         <div class="prof-section-head" style="margin-top:1.25rem;"><h4>Profile Appearance</h4></div>
         <div class="f" style="margin-top:.6rem;gap:.7rem;">
           <label for="profile-picture-upload">Profile Picture</label>
@@ -7008,6 +7014,18 @@ document.addEventListener('keydown', function (ev) {
       });
     });
   }
+  var themeColorInput = $('profile-theme-color');
+  if (themeColorInput && activeProfile && activeProfile.themeColor) themeColorInput.value = activeProfile.themeColor;
+  if (themeColorInput) themeColorInput.addEventListener('change', function() {
+    if (!activeProfile || !activeProfile.id) return;
+    var color = themeColorInput.value;
+    api('/api/profiles/' + activeProfile.id, 'PUT', { themeColor: color }).then(function(res) {
+      if (!res || !res.success) throw new Error((res && res.error) || 'Could not save profile theme.');
+      activeProfile.themeColor = color;
+      var status = $('profile-appearance-status');
+      if (status) { status.textContent = 'Profile theme saved.'; status.style.display = 'inline'; }
+    }).catch(function(err) { alert(err.message || 'Could not save profile theme.'); });
+  });
   var appearanceSaveBtn = $('profile-appearance-save');
   if (appearanceSaveBtn) {
     appearanceSaveBtn.addEventListener('click', function () {
