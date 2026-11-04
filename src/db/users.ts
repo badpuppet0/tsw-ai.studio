@@ -1215,3 +1215,28 @@ export async function getPresenceForUsers(userIds: number[]) {
   }
   return out;
 }
+
+
+export async function getMutualFriends(userId: number, otherId: number) {
+  await ensureChatTables();
+  const result = await db.execute(sql`SELECT u.id,u.username FROM friends a JOIN friends b ON b.friend_id=a.friend_id JOIN users u ON u.id=a.friend_id WHERE a.user_id=${userId} AND b.user_id=${otherId} AND a.status='accepted' AND b.status='accepted' AND u.id<>${userId} AND u.id<>${otherId} ORDER BY u.username LIMIT 50`);
+  return result.rows || [];
+}
+export async function logChatModeration(actorId:number,targetId:number,action:string,reason:string) {
+  await ensureChatTables();
+  await db.execute(sql`INSERT INTO chat_moderation_logs(actor_id,target_user_id,action,reason) VALUES(${actorId},${targetId},${action},${String(reason||'').slice(0,300)})`);
+}
+export async function getChatModerationLogs() {
+  await ensureChatTables();
+  const result=await db.execute(sql`SELECT l.id,l.action,l.reason,l.created_at AS "createdAt",a.username AS actor,t.username AS target FROM chat_moderation_logs l JOIN users a ON a.id=l.actor_id JOIN users t ON t.id=l.target_user_id ORDER BY l.created_at DESC LIMIT 200`);
+  return result.rows||[];
+}
+export async function getChatReports() {
+  await ensureChatTables();
+  const result=await db.execute(sql`SELECT r.id,r.message_type AS "messageType",r.message_id AS "messageId",r.reason,r.status,r.created_at AS "createdAt",u.username AS reporter,t.username AS "reportedUser" FROM chat_reports r JOIN users u ON u.id=r.reporter_id LEFT JOIN users t ON t.id=r.reported_user_id ORDER BY r.created_at DESC LIMIT 200`);
+  return result.rows||[];
+}
+export async function setChatReportStatus(reportId:number,status:string) {
+  await ensureChatTables();
+  await db.execute(sql`UPDATE chat_reports SET status=${status} WHERE id=${reportId}`);
+}
