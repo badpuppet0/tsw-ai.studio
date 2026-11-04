@@ -50,15 +50,18 @@ import {
 	updateChatPresence,
 	updateChatTyping,
 	getChatTyping,
+	ensureChatTables,
 	parseRoles,
 	userHasRole
 } from "./db/users.ts";
 import { verifyAuth } from "./middleware/auth.ts";
 import { GoogleGenAI } from "@google/genai";
+import { db } from "./db/index.ts";
+import { sql } from "drizzle-orm";
 
 const publicPath = fileURLToPath(new URL("../public/", import.meta.url));
 const SERVER_BOOT_TIME = Date.now();
-const APP_VERSION = "1.6.08";
+const APP_VERSION = "1.6.09";
 
 // Wisp Configuration: Refer to the documentation at https://www.npmjs.com/package/@mercuryworkshop/wisp-js
 
