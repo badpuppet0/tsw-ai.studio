@@ -557,6 +557,7 @@ export async function getFriendsList(userId: number) {
     SELECT u.id, u.username,
       COALESCE(p.avatar, 'astronaut') as avatar,
       COALESCE(p.preferences, '{}') as "profilePreferences",
+      cp.last_seen_at as "lastSeen",
       (
         SELECT content FROM messages
         WHERE (sender_id = ${userId} AND receiver_id = u.id)
@@ -576,6 +577,7 @@ export async function getFriendsList(userId: number) {
     FROM friends f
     JOIN users u ON u.id = f.friend_id
     LEFT JOIN profiles p ON p.user_id = u.id AND p.is_default = true
+    LEFT JOIN chat_presence cp ON cp.user_id = u.id
     WHERE f.user_id = ${userId} AND f.status = 'accepted'
     ORDER BY "unreadCount" DESC, "lastMessageTime" DESC NULLS LAST, u.username ASC
   `);
@@ -589,8 +591,9 @@ export async function getFriendsList(userId: number) {
     username: r.username,
     avatar: r.avatar || 'astronaut',
     profilePicture: typeof prefs.profilePicture === 'string' ? prefs.profilePicture : '',
-    isOnline: true,
-    online: true,
+    isOnline: !!r.lastSeen && (Date.now() - new Date(r.lastSeen).getTime() < 90000),
+    online: !!r.lastSeen && (Date.now() - new Date(r.lastSeen).getTime() < 90000),
+    lastSeen: r.lastSeen || null,
     lastMessage: r.lastMessage || null,
     lastMessageTime: r.lastMessageTime || null,
     unreadCount: Number(r.unreadCount || 0),
