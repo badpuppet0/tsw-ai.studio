@@ -376,6 +376,32 @@ html, body { height: 100%; background: var(--void); color: var(--ink); overflow:
 .overlay[hidden] { display: none; }
 .panel { width: min(32rem, 100%); max-height: min(80vh, 36rem); display: flex; flex-direction: column;
   background: var(--panel); border: 1px solid var(--edge); border-radius: 16px; overflow: hidden; transition: background .2s, border-color .2s, box-shadow .2s; }
+
+/* Full-page Settings workspace */
+#settings.overlay { display:block; padding:0; background:var(--void); backdrop-filter:none; z-index:20; }
+#settings .settings-fullscreen-panel { width:100%; height:100%; max-height:none; border:0; border-radius:0; background:var(--void); }
+#settings .phead { position:sticky; top:0; z-index:2; min-height:4.5rem; padding:1rem clamp(1.25rem,4vw,3rem); background:var(--panel); border-bottom:1px solid var(--edge); }
+#settings .phead h2 { font-size:1.2rem; font-weight:600; }
+#settings .pbody { width:min(860px,100%); margin:0 auto; padding:clamp(1.25rem,4vw,3rem); }
+#settings .settings-group { margin:2rem 0 .7rem; padding-bottom:.65rem; border-bottom:1px solid var(--edge); font-size:1rem; font-weight:600; color:var(--ink); }
+#settings .settings-group:first-child { margin-top:0; }
+#settings .hint { max-width:62ch; line-height:1.55; }
+#settings .f input[type=text], #settings .f select { min-height:2.8rem; }
+#settings .settings-data-actions { display:flex; flex-wrap:wrap; gap:.65rem; margin-top:1rem; }
+#settings .settings-data-actions .plain { margin:0; border-radius:9px; padding:.65rem 1rem; }
+#settings .settings-data-status { min-height:1.3rem; margin-top:.65rem; color:var(--steel); font-size:.82rem; }
+#settings .settings-data-note { color:var(--steel); font-size:.82rem; line-height:1.55; margin-top:.5rem; }
+#settings .row { margin-top:2rem; padding-top:1rem; border-top:1px solid var(--edge); }
+#privacy-policy .panel { width:min(640px,100%); max-height:min(82vh,720px); }
+#privacy-policy .pbody { line-height:1.65; color:#b8c1d4; }
+.status[data-s="warn"] .dot { background:#f5c542; box-shadow:0 0 0 3px rgba(245,197,66,.12); }
+.status[data-s="warn"] { color:#f3d98b; border-color:rgba(245,197,66,.35); }
+@media(max-width:640px) {
+  #settings .phead { min-height:3.8rem; padding: .75rem 1rem; }
+  #settings .pbody { padding:1.1rem 1rem 2rem; }
+  #settings .settings-data-actions { flex-direction:column; }
+  #settings .settings-data-actions .plain { width:100%; text-align:center; }
+}
 /* Optional glass style for popup panels; standard remains the default. */
 html.glass-panels .panel { background: rgba(12, 17, 29, .68); border-color: rgba(190, 210, 245, .2); backdrop-filter: blur(22px) saturate(135%); -webkit-backdrop-filter: blur(22px) saturate(135%); box-shadow: 0 18px 60px rgba(0, 0, 0, .28); }
 html.glass-panels .phead button:hover { background: rgba(255,255,255,.08); }
@@ -4370,7 +4396,7 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
 <div class="toast" id="toast" role="status" hidden></div>
 
 <div class="overlay" id="settings" hidden>
-  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="set-h">
+  <div class="panel settings-fullscreen-panel" role="dialog" aria-modal="true" aria-labelledby="set-h">
     <div class="phead"><h2 id="set-h">Settings</h2><button data-close aria-label="Close">&times;</button></div>
     <div class="pbody f">
       <h3 class="settings-group">Shortcuts &amp; browsing</h3>
@@ -4445,10 +4471,37 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
       <button type="button" class="plain" id="install-btn" hidden style="margin-top:0">Install TSW v2 as an app</button>
       <p class="hint">If the button is not shown, look for an install option in your browser's menu. On iPhone or iPad, tap Share, then Add to Home Screen.</p>
       <p class="hint" style="margin-top:1.2rem">Settings and shortcuts sync to your signed-in account automatically.</p>
+
+      <h3 class="settings-group">Data &amp; privacy</h3>
+      <p class="hint">Download a backup of your TSW preferences, or restore one from a backup file. This backup includes settings only — not chat messages, account details, or server data.</p>
+      <div class="settings-data-actions">
+        <button type="button" class="plain" id="settings-export-btn">Download settings backup</button>
+        <button type="button" class="plain" id="settings-import-btn">Import settings backup</button>
+        <input type="file" id="settings-import-file" accept="application/json,.json" hidden>
+        <button type="button" class="plain" id="settings-privacy-btn">Privacy policy</button>
+      </div>
+      <p class="settings-data-status" id="settings-data-status" role="status" aria-live="polite"></p>
+      <p class="settings-data-note">Your settings backup stays on the device you download it to. Importing replaces the current TSW preferences on this device and syncs supported preferences to your account when signed in.</p>
+
       <div class="row">
         <button type="button" class="plain" id="set-reset">Reset to defaults</button>
         <button type="button" class="plain" id="tour-replay-btn">Replay tour</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="privacy-policy" hidden>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="privacy-policy-title">
+    <div class="phead"><h2 id="privacy-policy-title">Privacy policy</h2><button data-close aria-label="Close">&times;</button></div>
+    <div class="pbody">
+      <p><strong>Information TSW stores.</strong> When you create or use an account, TSW stores account identifiers and profile information. Chat features store messages and related activity so conversations and moderation features can work. Preferences may be saved on this device and synced to your account.</p>
+      <p><strong>Public chat.</strong> Messages sent in public channels are visible to people who can access those channels and may be reviewed by authorized staff. Do not post passwords, personal contact details, or other sensitive information.</p>
+      <p><strong>Direct messages.</strong> Direct messages are stored by TSW and are not end-to-end encrypted. They should not be treated as private from the service operator or authorized moderation staff.</p>
+      <p><strong>Service providers.</strong> TSW relies on its hosting, database, authentication, and proxy services to operate. Those providers may process technical information needed to deliver the service.</p>
+      <p><strong>Your choices.</strong> You can change available profile and preference settings, and download a settings-only backup from this page. That backup does not include account records or chat history.</p>
+      <p><strong>Questions.</strong> Contact the TSW site owner through the contact method provided on the site if you have a privacy question or data request.</p>
+      <p class="hint">This is a plain-language summary of current site behavior, not legal advice. Review it before publishing as a formal policy.</p>
     </div>
   </div>
 </div>
@@ -6464,7 +6517,7 @@ store.remove = store.del;
 /* Set STATUS_NOTICE to a short message to show the yellow "maintenance" state, e.g.
    var STATUS_NOTICE = 'Maintenance tonight. Sites may fail.';
    Set it back to '' to return to green. Red and green are detected automatically. */
-var STATUS_NOTICE = '';
+var STATUS_NOTICE = 'TSW is updating. Some features may be temporarily unavailable.';
 (function () {
   var box = $('status'), text = $('status-text'), wake = $('wake'), wakeText = $('wake-p'), wakeX = $('wake-x');
   var engineOk = null, pingOk = true, lastActive = Date.now(), lastPing = 0, waking = false, wakeId = 0;
@@ -6871,6 +6924,78 @@ var STATUS_NOTICE = '';
     fill(); apply(); window.TSWVideo.reset();
   });
   $('cog').addEventListener('click', function () { fill(); ov.hidden = false; $('set-engine').focus(); });
+
+  // Export/import a validated preferences-only backup. No messages or account records are included.
+  var exportBtn = $('settings-export-btn');
+  var importBtn = $('settings-import-btn');
+  var importFile = $('settings-import-file');
+  var dataStatus = $('settings-data-status');
+  var privacyBtn = $('settings-privacy-btn');
+  if (privacyBtn) privacyBtn.addEventListener('click', function () { $('privacy-policy').hidden = false; });
+  if (exportBtn) exportBtn.addEventListener('click', function () {
+    try {
+      var backup = { type: 'tsw-settings-backup', version: 1, exportedAt: new Date().toISOString(), settings: cfg };
+      var blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'tsw-settings-backup.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      if (dataStatus) dataStatus.textContent = 'Settings backup downloaded.';
+    } catch (err) {
+      if (dataStatus) dataStatus.textContent = 'Could not create the backup on this device.';
+    }
+  });
+  if (importBtn && importFile) importBtn.addEventListener('click', function () { importFile.click(); });
+  if (importFile) importFile.addEventListener('change', function () {
+    var file = importFile.files && importFile.files[0];
+    importFile.value = '';
+    if (!file) return;
+    if (file.size > 100000) { if (dataStatus) dataStatus.textContent = 'That backup file is too large.'; return; }
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var backup = JSON.parse(String(reader.result || ''));
+        if (!backup || backup.type !== 'tsw-settings-backup' || backup.version !== 1 || !backup.settings || typeof backup.settings !== 'object') {
+          throw new Error('This is not a supported TSW settings backup.');
+        }
+        var incoming = backup.settings;
+        var allowed = {
+          engine:['ddg','google','bing','brave','startpage'],
+          bg:['mesh','stars','solid','video','ice','aurora'],
+          season:['auto','snow','bats','off'],
+          accent:['blue','green','pink','orange','violet'],
+          panel:['standard','glass'], clock:['12','24','off'], theme:['dark','light'],
+          icon:['default','doc','globe','blank']
+        };
+        Object.keys(D).forEach(function (key) {
+          if (!Object.prototype.hasOwnProperty.call(incoming, key)) return;
+          var value = incoming[key];
+          if (allowed[key] && allowed[key].indexOf(value) < 0) return;
+          if (typeof D[key] === 'boolean' && typeof value !== 'boolean') return;
+          if (typeof D[key] === 'number' && (typeof value !== 'number' || !isFinite(value))) return;
+          if (typeof D[key] === 'string' && typeof value !== 'string') return;
+          if (key === 'title') value = value.slice(0, 40);
+          if (key === 'solid' && !/^#[0-9a-fA-F]{6}$/.test(value)) return;
+          if (key === 'panicUrl' && value) {
+            try { var parsed = new URL(value); if (!/^https?:$/.test(parsed.protocol)) return; value = parsed.href; }
+            catch (e) { return; }
+          }
+          if (key === 'panicKey' && value && !/^(F[1-9]|F1[0-2]|Escape|[A-Za-z0-9])$/.test(value)) return;
+          if (key === 'rainVol') value = Math.max(5, Math.min(100, Math.round(value)));
+          if (key === 'vbright') value = Math.max(20, Math.min(100, Math.round(value)));
+          cfg[key] = value;
+          store.set('tsw.' + key, value);
+        });
+        fill(); apply(); syncCloudSettings(); window.TSWVideo.reset();
+        if (dataStatus) dataStatus.textContent = 'Settings backup imported.';
+      } catch (err) {
+        if (dataStatus) dataStatus.textContent = err.message || 'Could not import that backup.';
+      }
+    };
+    reader.onerror = function () { if (dataStatus) dataStatus.textContent = 'Could not read that file.'; };
+    reader.readAsText(file);
+  });
 
   /* install as an app (only offered by browsers that support it) */
   var deferred = null;
@@ -11664,7 +11789,7 @@ document.addEventListener('keydown', function (ev) {
 
   function heartbeatAndCheckAlerts() {
     var profiles = getProfileApi();
-    if (!profiles || !profiles.getUser || !profiles.getUser() || !profiles.getToken || !profiles.getToken()) return;
+    if (!profiles || !profiles.getToken || !profiles.getToken()) return;
 
     var now = Date.now();
     var token = profiles.getToken();
