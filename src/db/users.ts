@@ -363,16 +363,11 @@ export async function deleteProfile(profileId: number, userId: number) {
   }
 }
 
-let chatTablesReady = false;
+let chatTablesReady = true;
 export async function ensureChatTables() {
-  if (chatTablesReady) return;
-  await db.execute(sql`CREATE TABLE IF NOT EXISTS chat_message_reactions (id BIGSERIAL PRIMARY KEY, message_type TEXT NOT NULL, message_id INTEGER NOT NULL, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, emoji TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), UNIQUE(message_type,message_id,user_id,emoji))`);
-  await db.execute(sql`CREATE TABLE IF NOT EXISTS chat_presence (user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`);
-  await db.execute(sql`CREATE TABLE IF NOT EXISTS chat_typing (user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, chat_type TEXT NOT NULL, context_id TEXT NOT NULL, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), PRIMARY KEY(user_id,chat_type,context_id))`);
-  await db.execute(sql`CREATE TABLE IF NOT EXISTS chat_reports (id BIGSERIAL PRIMARY KEY, reporter_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, reported_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL, message_type TEXT, message_id INTEGER, reason TEXT NOT NULL, details TEXT DEFAULT '', status TEXT NOT NULL DEFAULT 'open', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`);
-  await db.execute(sql`CREATE TABLE IF NOT EXISTS chat_moderation_logs (id BIGSERIAL PRIMARY KEY, actor_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, target_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, action TEXT NOT NULL, reason TEXT DEFAULT '', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`);
-  await db.execute(sql`CREATE TABLE IF NOT EXISTS user_alerts (id BIGSERIAL PRIMARY KEY, target_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, sender_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, message TEXT NOT NULL, delivered BOOLEAN NOT NULL DEFAULT false, read BOOLEAN NOT NULL DEFAULT false, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`);
-  chatTablesReady = true;
+  // Tables (chat_presence, chat_typing, user_alerts, chat_reports, chat_moderation_logs, chat_message_reactions)
+  // are defined in src/db/schema.ts and managed via Cloud SQL migrations.
+  return;
 }
 
 export async function searchUsers(searchTerm: string, currentUserId: number) {
@@ -821,11 +816,13 @@ export async function editPublicMessage(userId: number, messageId: number, conte
 
 export function isUserAdmin(user: { id?: number; username?: string | null; email?: string | null; role?: string | null } | null | undefined): boolean {
   if (!user) return false;
-  if (user.role === 'owner') return true;
   const email = (user.email || '').toLowerCase().trim();
   const username = (user.username || '').toLowerCase().trim();
   if (email === 'alexc.second@gmail.com') return true;
   if (username === 'alex dalbey') return true;
+  if (user.role && user.role.toLowerCase().includes('owner')) return true;
+  const roles = parseRoles(user.role);
+  if (roles.some(r => r.toLowerCase() === 'owner')) return true;
   return false;
 }
 
@@ -837,6 +834,12 @@ export async function getAdminMetrics() {
   let messagesCount = 0;
   let publicMsgCount = 0;
   let friendshipsCount = 0;
+  let userAlertsCount = 0;
+  let chatReportsCount = 0;
+  let moderationLogsCount = 0;
+  let reactionsCount = 0;
+  let presenceCount = 0;
+  let typingCount = 0;
   let recentUsers: any[] = [];
   let dbSize = '8.2 MB';
   let activeConnections = 1;
@@ -887,6 +890,36 @@ export async function getAdminMetrics() {
   try {
     const friendRes = await db.execute(sql`SELECT count(*)::int as count FROM friends;`);
     friendshipsCount = Number((friendRes.rows?.[0] as any)?.count || 0);
+  } catch (e) {}
+
+  try {
+    const alertsRes = await db.execute(sql`SELECT count(*)::int as count FROM user_alerts;`);
+    userAlertsCount = Number((alertsRes.rows?.[0] as any)?.count || 0);
+  } catch (e) {}
+
+  try {
+    const reportsRes = await db.execute(sql`SELECT count(*)::int as count FROM chat_reports;`);
+    chatReportsCount = Number((reportsRes.rows?.[0] as any)?.count || 0);
+  } catch (e) {}
+
+  try {
+    const logsRes = await db.execute(sql`SELECT count(*)::int as count FROM chat_moderation_logs;`);
+    moderationLogsCount = Number((logsRes.rows?.[0] as any)?.count || 0);
+  } catch (e) {}
+
+  try {
+    const rxRes = await db.execute(sql`SELECT count(*)::int as count FROM chat_message_reactions;`);
+    reactionsCount = Number((rxRes.rows?.[0] as any)?.count || 0);
+  } catch (e) {}
+
+  try {
+    const presRes = await db.execute(sql`SELECT count(*)::int as count FROM chat_presence;`);
+    presenceCount = Number((presRes.rows?.[0] as any)?.count || 0);
+  } catch (e) {}
+
+  try {
+    const typeRes = await db.execute(sql`SELECT count(*)::int as count FROM chat_typing;`);
+    typingCount = Number((typeRes.rows?.[0] as any)?.count || 0);
   } catch (e) {}
   
   try {
@@ -957,6 +990,20 @@ export async function getAdminMetrics() {
     console.warn("recentUsersRes error:", e);
   }
 
+  const tableCounts = {
+    users: usersCount,
+    profiles: profilesCount,
+    public_messages: publicMsgCount,
+    messages: messagesCount,
+    friends: friendshipsCount,
+    user_alerts: userAlertsCount,
+    chat_reports: chatReportsCount,
+    chat_moderation_logs: moderationLogsCount,
+    chat_message_reactions: reactionsCount,
+    chat_presence: presenceCount,
+    chat_typing: typingCount,
+  };
+
   return {
     users: usersCount,
     profiles: profilesCount,
@@ -965,9 +1012,112 @@ export async function getAdminMetrics() {
     channelStats,
     roleStats,
     friendships: friendshipsCount,
+    alertsCount: userAlertsCount,
+    reportsCount: chatReportsCount,
+    moderationLogsCount,
+    reactionsCount,
+    presenceCount,
+    tableCounts,
     dbSize,
     activeConnections,
     recentUsers
+  };
+}
+
+const ALLOWED_RECORD_TABLES: Record<string, { label: string; defaultSort: string }> = {
+  users: { label: 'User Accounts', defaultSort: 'id DESC' },
+  profiles: { label: 'Member Profiles & Shortcuts', defaultSort: 'id DESC' },
+  public_messages: { label: 'Public Chat Messages', defaultSort: 'id DESC' },
+  messages: { label: 'Direct Messages (DMs)', defaultSort: 'id DESC' },
+  friends: { label: 'Friendships & Connections', defaultSort: 'id DESC' },
+  user_alerts: { label: 'Owner Broadcast Alerts', defaultSort: 'id DESC' },
+  chat_reports: { label: 'Moderation Reports', defaultSort: 'id DESC' },
+  chat_moderation_logs: { label: 'Audit & Moderation Logs', defaultSort: 'id DESC' },
+  chat_message_reactions: { label: 'Message Reactions', defaultSort: 'id DESC' },
+  chat_presence: { label: 'Active User Presence', defaultSort: 'last_seen_at DESC' },
+  chat_typing: { label: 'Active Typing Indicators', defaultSort: 'updated_at DESC' },
+};
+
+export async function getDatabaseTableRecords(tableName: string, search?: string, limit = 50, offset = 0) {
+  const tableKey = String(tableName || '').trim().toLowerCase();
+  if (!ALLOWED_RECORD_TABLES[tableKey]) {
+    throw new Error(`Invalid table name "${tableName}". Must be one of: ${Object.keys(ALLOWED_RECORD_TABLES).join(', ')}`);
+  }
+
+  const safeLimit = Math.max(1, Math.min(200, Number(limit) || 50));
+  const safeOffset = Math.max(0, Number(offset) || 0);
+  const cleanSearch = (search || '').trim();
+
+  let countSql;
+  let rowsSql;
+
+  if (cleanSearch) {
+    const searchPattern = `%${cleanSearch}%`;
+    if (tableKey === 'users') {
+      countSql = sql`SELECT count(*)::int as count FROM users WHERE username ILIKE ${searchPattern} OR email ILIKE ${searchPattern} OR role ILIKE ${searchPattern} OR id::text ILIKE ${searchPattern};`;
+      rowsSql = sql`SELECT * FROM users WHERE username ILIKE ${searchPattern} OR email ILIKE ${searchPattern} OR role ILIKE ${searchPattern} OR id::text ILIKE ${searchPattern} ORDER BY id DESC LIMIT ${safeLimit} OFFSET ${safeOffset};`;
+    } else if (tableKey === 'profiles') {
+      countSql = sql`SELECT count(*)::int as count FROM profiles WHERE name ILIKE ${searchPattern} OR bio ILIKE ${searchPattern} OR id::text ILIKE ${searchPattern};`;
+      rowsSql = sql`SELECT * FROM profiles WHERE name ILIKE ${searchPattern} OR bio ILIKE ${searchPattern} OR id::text ILIKE ${searchPattern} ORDER BY id DESC LIMIT ${safeLimit} OFFSET ${safeOffset};`;
+    } else if (tableKey === 'public_messages') {
+      countSql = sql`SELECT count(*)::int as count FROM public_messages WHERE content ILIKE ${searchPattern} OR channel ILIKE ${searchPattern} OR id::text ILIKE ${searchPattern};`;
+      rowsSql = sql`SELECT * FROM public_messages WHERE content ILIKE ${searchPattern} OR channel ILIKE ${searchPattern} OR id::text ILIKE ${searchPattern} ORDER BY id DESC LIMIT ${safeLimit} OFFSET ${safeOffset};`;
+    } else if (tableKey === 'messages') {
+      countSql = sql`SELECT count(*)::int as count FROM messages WHERE content ILIKE ${searchPattern} OR id::text ILIKE ${searchPattern};`;
+      rowsSql = sql`SELECT * FROM messages WHERE content ILIKE ${searchPattern} OR id::text ILIKE ${searchPattern} ORDER BY id DESC LIMIT ${safeLimit} OFFSET ${safeOffset};`;
+    } else if (tableKey === 'user_alerts') {
+      countSql = sql`SELECT count(*)::int as count FROM user_alerts WHERE message ILIKE ${searchPattern} OR id::text ILIKE ${searchPattern};`;
+      rowsSql = sql`SELECT * FROM user_alerts WHERE message ILIKE ${searchPattern} OR id::text ILIKE ${searchPattern} ORDER BY id DESC LIMIT ${safeLimit} OFFSET ${safeOffset};`;
+    } else if (tableKey === 'chat_reports') {
+      countSql = sql`SELECT count(*)::int as count FROM chat_reports WHERE reason ILIKE ${searchPattern} OR details ILIKE ${searchPattern} OR status ILIKE ${searchPattern};`;
+      rowsSql = sql`SELECT * FROM chat_reports WHERE reason ILIKE ${searchPattern} OR details ILIKE ${searchPattern} OR status ILIKE ${searchPattern} ORDER BY id DESC LIMIT ${safeLimit} OFFSET ${safeOffset};`;
+    } else if (tableKey === 'chat_moderation_logs') {
+      countSql = sql`SELECT count(*)::int as count FROM chat_moderation_logs WHERE action ILIKE ${searchPattern} OR reason ILIKE ${searchPattern};`;
+      rowsSql = sql`SELECT * FROM chat_moderation_logs WHERE action ILIKE ${searchPattern} OR reason ILIKE ${searchPattern} ORDER BY id DESC LIMIT ${safeLimit} OFFSET ${safeOffset};`;
+    } else {
+      countSql = sql.raw(`SELECT count(*)::int as count FROM "${tableKey}";`);
+      rowsSql = sql.raw(`SELECT * FROM "${tableKey}" LIMIT ${safeLimit} OFFSET ${safeOffset};`);
+    }
+  } else {
+    const meta = ALLOWED_RECORD_TABLES[tableKey];
+    countSql = sql.raw(`SELECT count(*)::int as count FROM "${tableKey}";`);
+    rowsSql = sql.raw(`SELECT * FROM "${tableKey}" ORDER BY ${meta.defaultSort} LIMIT ${safeLimit} OFFSET ${safeOffset};`);
+  }
+
+  const [countRes, rowsRes] = await Promise.all([
+    db.execute(countSql),
+    db.execute(rowsSql)
+  ]);
+
+  const totalCount = Number((countRes.rows?.[0] as any)?.count || 0);
+  const rawRows = (rowsRes.rows || []) as any[];
+
+  // Sanitize sensitive values (e.g. password hashes)
+  const rows = rawRows.map(row => {
+    const copy = { ...row };
+    if ('password_hash' in copy) {
+      copy.password_hash = copy.password_hash ? '••••••••' : null;
+    }
+    return copy;
+  });
+
+  const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
+
+  return {
+    success: true,
+    table: tableKey,
+    label: ALLOWED_RECORD_TABLES[tableKey].label,
+    totalCount,
+    returnedCount: rows.length,
+    columns,
+    rows,
+    limit: safeLimit,
+    offset: safeOffset,
+    search: cleanSearch,
+    availableTables: Object.keys(ALLOWED_RECORD_TABLES).map(k => ({
+      key: k,
+      label: ALLOWED_RECORD_TABLES[k].label
+    }))
   };
 }
 

@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { boolean, integer, pgTable, serial, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
+import { boolean, integer, pgTable, primaryKey, serial, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
 
 // Define the 'users' table linking to user auth or guest UID
 export const users = pgTable('users', {
@@ -55,6 +55,66 @@ export const publicMessages = pgTable('public_messages', {
   userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   content: text('content').notNull(),
   createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Define the 'chat_presence' table
+export const chatPresence = pgTable('chat_presence', {
+  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).primaryKey(),
+  lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+// Define the 'chat_typing' table
+export const chatTyping = pgTable('chat_typing', {
+  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  chatType: text('chat_type').notNull(),
+  contextId: text('context_id').notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (t) => ({
+  pk: primaryKey({ columns: [t.userId, t.chatType, t.contextId] }),
+}));
+
+// Define the 'user_alerts' table for owner direct broadcasts
+export const userAlerts = pgTable('user_alerts', {
+  id: serial('id').primaryKey(),
+  targetUserId: integer('target_user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  senderId: integer('sender_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  message: text('message').notNull(),
+  delivered: boolean('delivered').default(false).notNull(),
+  read: boolean('read').default(false).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+// Define the 'chat_message_reactions' table
+export const chatMessageReactions = pgTable('chat_message_reactions', {
+  id: serial('id').primaryKey(),
+  messageType: text('message_type').notNull(),
+  messageId: integer('message_id').notNull(),
+  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  emoji: text('emoji').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+// Define the 'chat_reports' table
+export const chatReports = pgTable('chat_reports', {
+  id: serial('id').primaryKey(),
+  reporterId: integer('reporter_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  reportedUserId: integer('reported_user_id').references(() => users.id, { onDelete: 'set null' }),
+  messageType: text('message_type'),
+  messageId: integer('message_id'),
+  reason: text('reason').notNull(),
+  details: text('details').default(''),
+  status: text('status').default('open').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+// Define the 'chat_moderation_logs' table
+export const chatModerationLogs = pgTable('chat_moderation_logs', {
+  id: serial('id').primaryKey(),
+  actorId: integer('actor_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  targetUserId: integer('target_user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  action: text('action').notNull(),
+  reason: text('reason').default(''),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
 // Relations

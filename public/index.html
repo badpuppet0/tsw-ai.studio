@@ -1193,16 +1193,109 @@ body.sidebar-collapsed .sb-folder-header .sb-tab-label {
 
 /* Cloud Admin & Metrics */
 .admin-panel {
-  width: min(880px, 95vw);
-  max-height: 88vh;
+  width: min(1080px, 96vw);
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: #090e1a;
+  border: 1px solid rgba(96, 165, 250, 0.28);
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.85), 0 0 40px rgba(59, 130, 246, 0.15);
+  border-radius: 14px;
 }
-.admin-panel .pbody {
-  overflow-y: auto;
+.admin-top-stats-strip {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .65rem 1.15rem;
+  background: rgba(15, 23, 42, 0.75);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+  flex-wrap: wrap;
+}
+.admin-top-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 7px;
+  padding: .28rem .6rem;
+  font-size: .78rem;
+  color: #94a3b8;
+}
+.admin-top-stat-pill b {
+  color: #fff;
+  font-weight: 700;
+}
+.admin-split-layout {
+  display: flex;
+  flex: 1;
   min-height: 0;
-  padding: 1.25rem;
+  overflow: hidden;
+}
+.admin-side-nav {
+  width: 220px;
+  flex: 0 0 220px;
+  background: #070a13;
+  border-right: 1px solid rgba(148, 163, 184, 0.12);
+  padding: .85rem .65rem;
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  overflow-y: auto;
+}
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  padding: .6rem .8rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #94a3b8;
+  font: inherit;
+  font-size: .83rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all .15s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+.admin-nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+.admin-nav-item.active {
+  background: rgba(59, 130, 246, 0.18);
+  border-color: rgba(96, 165, 250, 0.35);
+  color: #93c5fd;
+  font-weight: 600;
+}
+.admin-nav-badge {
+  font-size: .65rem;
+  font-weight: 700;
+  padding: .1rem .4rem;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+.admin-main-viewport {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 1.25rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+}
+.admin-tab-pane {
+  display: none;
+  flex-direction: column;
+}
+.admin-tab-pane.active {
+  display: flex;
 }
 .admin-gcp-banner {
   background: linear-gradient(135deg, rgba(30,58,138,.35) 0%, rgba(15,23,42,.6) 100%);
@@ -1265,6 +1358,22 @@ body.sidebar-collapsed .sb-folder-header .sb-tab-label {
   font-weight: 600;
   font-size: .75rem;
   text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.admin-select-clean, .admin-input-clean {
+  background: #090e17;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 7px;
+  color: #fff;
+  font-size: .84rem;
+  padding: .5rem .75rem;
+  outline: none;
+  font-family: inherit;
+}
+.admin-input-clean:focus, .admin-select-clean:focus {
+  border-color: #60a5fa;
 }
 .admin-act-btn {
   display: inline-flex;
@@ -1293,6 +1402,24 @@ body.sidebar-collapsed .sb-folder-header .sb-tab-label {
 }
 .admin-act-btn.secondary:hover {
   background: rgba(59,130,246,.25);
+}
+@media (max-width: 768px) {
+  .admin-split-layout {
+    flex-direction: column;
+  }
+  .admin-side-nav {
+    width: 100%;
+    flex: none;
+    border-right: none;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    flex-direction: row;
+    overflow-x: auto;
+    padding: .5rem .75rem;
+  }
+  .admin-nav-item {
+    white-space: nowrap;
+    width: auto;
+  }
 }
 
 
@@ -4598,232 +4725,436 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
 <!-- Cloud Admin & Metrics Modal -->
 <div class="overlay" id="admin-modal" hidden role="dialog" aria-modal="true" aria-labelledby="admin-modal-title">
   <div class="panel admin-panel">
-    <div class="phead">
+    <div class="phead" style="border-bottom:1px solid rgba(148,163,184,.14);padding:.85rem 1.25rem;">
       <div style="display:flex;align-items:center;gap:.65rem;">
         <span style="font-size:1.35rem;">🛡️</span>
         <div>
-          <h2 id="admin-modal-title" style="font-size:1.1rem;margin:0;">Cloud Admin &amp; Metrics</h2>
-          <small style="color:#60a5fa;font-size:.78rem;font-weight:500;">Owner / Admin: alexc.second@gmail.com</small>
+          <h2 id="admin-modal-title" style="font-size:1.1rem;margin:0;">Cloud Admin &amp; System Control</h2>
+          <small style="color:#60a5fa;font-size:.78rem;font-weight:500;">Owner: alexc.second@gmail.com · PostgreSQL Cloud SQL (us-east1)</small>
         </div>
       </div>
       <button id="admin-modal-close" data-close aria-label="Close">&times;</button>
     </div>
-    <div class="pbody">
-      <!-- Real Owner System Status & Infrastructure Banner -->
-      <div class="admin-gcp-banner">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.8rem;">
-          <div>
-            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;">
-              <span style="font-weight:700;color:#fff;font-size:.95rem;">TSW Cloud Infrastructure</span>
-              <span class="ai-soon-pill" style="border-color:#22c55e;color:#4ade80;font-weight:700;background:rgba(34,197,94,0.12);">● LIVE OPERATIONAL</span>
+
+    <!-- Main Important Stats at Top with Quick Toggle Button -->
+    <div class="admin-top-stats-strip">
+      <div class="admin-top-stat-pill">
+        <span>👥 Users:</span> <b id="admin-top-users">--</b>
+      </div>
+      <div class="admin-top-stat-pill">
+        <span>⚡ DB Conns:</span> <b id="admin-top-conns">--</b>
+      </div>
+      <div class="admin-top-stat-pill">
+        <span>💬 Public:</span> <b id="admin-top-pubmsgs">--</b>
+      </div>
+      <div class="admin-top-stat-pill">
+        <span>✉️ DMs:</span> <b id="admin-top-dms">--</b>
+      </div>
+      <div class="admin-top-stat-pill">
+        <span>💾 DB Size:</span> <b id="admin-top-dbsize">--</b>
+      </div>
+      <div class="admin-top-stat-pill">
+        <span>⏱️ Uptime:</span> <b id="admin-top-uptime">--</b>
+      </div>
+      <button type="button" id="admin-stats-toggle-top-btn" class="admin-act-btn secondary" style="margin-left:auto;padding:.3rem .75rem;font-size:.78rem;cursor:pointer;" title="Toggle between overview and detailed statistics">
+        📊 Toggle App Statistics
+      </button>
+    </div>
+
+    <!-- Side-by-side Layout with Navigation Tabs on the Side -->
+    <div class="admin-split-layout">
+      <!-- Side Navigation Tabs -->
+      <nav class="admin-side-nav" aria-label="Admin Navigation Tabs">
+        <button type="button" class="admin-nav-item active" data-admin-tab="stats">
+          <span>📊 App Statistics</span>
+          <span class="admin-nav-badge">Telemetry</span>
+        </button>
+        <button type="button" class="admin-nav-item" data-admin-tab="records">
+          <span>🗄️ Database Records</span>
+          <span class="admin-nav-badge" style="background:rgba(34,197,94,.18);color:#4ade80;border-color:rgba(34,197,94,.3);">Table Viewer</span>
+        </button>
+        <button type="button" class="admin-nav-item" data-admin-tab="users">
+          <span>👥 Registered Users</span>
+          <span class="admin-nav-badge" id="admin-nav-users-badge">--</span>
+        </button>
+        <button type="button" class="admin-nav-item" data-admin-tab="roles">
+          <span>👑 Staff Roles</span>
+          <span class="admin-nav-badge">Editor</span>
+        </button>
+        <button type="button" class="admin-nav-item" data-admin-tab="alerts">
+          <span>🚨 User Alerts</span>
+          <span class="admin-nav-badge" style="background:rgba(245,158,11,.18);color:#fbbf24;border-color:rgba(245,158,11,.3);">Owner</span>
+        </button>
+
+        <div style="margin-top:auto;padding-top:1rem;display:flex;flex-direction:column;gap:.5rem;border-top:1px solid rgba(148,163,184,.12);">
+          <button type="button" id="admin-refresh-btn-top" class="admin-act-btn secondary" style="width:100%;justify-content:center;font-size:.78rem;padding:.4rem .6rem;">
+            ↻ Sync Telemetry
+          </button>
+          <button type="button" id="admin-open-roles-btn" class="admin-act-btn primary" style="width:100%;justify-content:center;font-size:.78rem;padding:.4rem .6rem;">
+            👑 /give role
+          </button>
+        </div>
+      </nav>
+
+      <!-- Main Viewport for Active Tab Content -->
+      <div class="admin-main-viewport">
+
+        <!-- TAB 1: App Statistics & Comprehensive Telemetry -->
+        <div id="admin-pane-stats" class="admin-tab-pane active">
+          <!-- Infrastructure Banner -->
+          <div class="admin-gcp-banner">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.8rem;">
+              <div>
+                <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;">
+                  <span style="font-weight:700;color:#fff;font-size:.95rem;">TSW Cloud Infrastructure</span>
+                  <span class="ai-soon-pill" style="border-color:#22c55e;color:#4ade80;font-weight:700;background:rgba(34,197,94,0.12);">● LIVE OPERATIONAL</span>
+                </div>
+                <p style="color:#cbd5e1;font-size:.84rem;margin:0 0 .4rem;">
+                  Owner active for <b style="color:#fef08a;">Alex Dalbey</b> (<code style="color:#93c5fd;background:rgba(2,6,23,.6);padding:.1rem .35rem;border-radius:4px;">alexc.second@gmail.com</code>).
+                </p>
+                <div style="display:flex;gap:.6rem;flex-wrap:wrap;font-size:.78rem;color:#94a3b8;">
+                  <span>DB: <b style="color:#38bdf8;">Cloud SQL PostgreSQL</b></span>
+                  <span>&bull;</span>
+                  <span>Instance: <code style="font-size:.75rem;color:#93c5fd;">cloud_sql_development_database</code></span>
+                  <span>&bull;</span>
+                  <span>Region: <b style="color:#cbd5e1;">us-east1</b></span>
+                  <span>&bull;</span>
+                  <span>Runtime: <b style="color:#a78bfa;" id="admin-banner-runtime">Node v22</b></span>
+                </div>
+              </div>
+              <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+                <button type="button" id="admin-stats-toggle-detail" class="admin-act-btn secondary" style="cursor:pointer;font-size:.8rem;padding:.4rem .75rem;">
+                  🔬 Deep Telemetry View
+                </button>
+              </div>
             </div>
-            <p style="color:#cbd5e1;font-size:.84rem;margin:0 0 .4rem;">
-              Owner controls active for <b style="color:#fef08a;">Alex Dalbey</b> (<code style="color:#93c5fd;background:rgba(2,6,23,.6);padding:.1rem .35rem;border-radius:4px;">alexc.second@gmail.com</code>).
+          </div>
+
+          <!-- Primary App Metrics Grid -->
+          <div class="admin-stats-grid">
+            <div class="admin-stat-card">
+              <div class="admin-stat-num" id="admin-db-size">--</div>
+              <div class="admin-stat-label">Cloud SQL Storage</div>
+              <small style="color:#38bdf8;font-size:.75rem;" id="admin-connections">-- active connections</small>
+            </div>
+            <div class="admin-stat-card">
+              <div class="admin-stat-num" id="admin-user-count">--</div>
+              <div class="admin-stat-label">Registered Accounts</div>
+              <small style="color:#4ade80;font-size:.75rem;" id="admin-profile-count">-- real profiles</small>
+            </div>
+            <div class="admin-stat-card">
+              <div class="admin-stat-num" id="admin-public-msgs-hero">--</div>
+              <div class="admin-stat-label">Public Chat Messages</div>
+              <small style="color:#f472b6;font-size:.75rem;" id="admin-channels-summary">--</small>
+            </div>
+            <div class="admin-stat-card">
+              <div class="admin-stat-num" id="admin-uptime">--</div>
+              <div class="admin-stat-label">Server Uptime</div>
+              <small style="color:#a78bfa;font-size:.75rem;" id="admin-node-mem">Memory: --</small>
+            </div>
+          </div>
+
+          <!-- Quick Actions & Status Bar -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
+            <div style="display:flex;gap:.5rem;">
+              <button type="button" id="admin-refresh-btn" class="plain" style="margin:0;padding:.45rem .85rem;font-size:.82rem;">↻ Refresh Metrics</button>
+            </div>
+            <span id="admin-status-note" style="color:#94a3b8;font-size:.78rem;">Live connection</span>
+          </div>
+
+          <!-- Complete Database Records Table Counts Breakdown (Every Table in Cloud SQL) -->
+          <div class="admin-section-title">
+            <span>All Database Table Records (11 Tables)</span>
+            <span style="font-size:.78rem;color:#94a3b8;">Real-time row counts in Cloud SQL</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:.6rem;margin-bottom:1.35rem;" id="admin-all-table-counts-grid">
+            <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
+              <div style="font-size:.74rem;color:#94a3b8;">users</div>
+              <div style="font-size:1.15rem;font-weight:700;color:#60a5fa;" id="admin-cnt-users">--</div>
+            </div>
+            <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
+              <div style="font-size:.74rem;color:#94a3b8;">profiles</div>
+              <div style="font-size:1.15rem;font-weight:700;color:#38bdf8;" id="admin-cnt-profiles">--</div>
+            </div>
+            <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
+              <div style="font-size:.74rem;color:#94a3b8;">public_messages</div>
+              <div style="font-size:1.15rem;font-weight:700;color:#34d399;" id="admin-cnt-pubmsgs">--</div>
+            </div>
+            <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
+              <div style="font-size:.74rem;color:#94a3b8;">messages (DMs)</div>
+              <div style="font-size:1.15rem;font-weight:700;color:#f472b6;" id="admin-direct-msgs">--</div>
+            </div>
+            <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
+              <div style="font-size:.74rem;color:#94a3b8;">friends</div>
+              <div style="font-size:1.15rem;font-weight:700;color:#facc15;" id="admin-friends-count">--</div>
+            </div>
+            <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
+              <div style="font-size:.74rem;color:#94a3b8;">user_alerts</div>
+              <div style="font-size:1.15rem;font-weight:700;color:#fbbf24;" id="admin-cnt-alerts">--</div>
+            </div>
+            <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
+              <div style="font-size:.74rem;color:#94a3b8;">chat_reports</div>
+              <div style="font-size:1.15rem;font-weight:700;color:#f87171;" id="admin-cnt-reports">--</div>
+            </div>
+            <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
+              <div style="font-size:.74rem;color:#94a3b8;">chat_moderation_logs</div>
+              <div style="font-size:1.15rem;font-weight:700;color:#cbd5e1;" id="admin-cnt-modlogs">--</div>
+            </div>
+            <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
+              <div style="font-size:.74rem;color:#94a3b8;">reactions</div>
+              <div style="font-size:1.15rem;font-weight:700;color:#a78bfa;" id="admin-cnt-reactions">--</div>
+            </div>
+            <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
+              <div style="font-size:.74rem;color:#94a3b8;">presence (online)</div>
+              <div style="font-size:1.15rem;font-weight:700;color:#4ade80;" id="admin-cnt-presence">--</div>
+            </div>
+            <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
+              <div style="font-size:.74rem;color:#94a3b8;">typing states</div>
+              <div style="font-size:1.15rem;font-weight:700;color:#94a3b8;" id="admin-cnt-typing">--</div>
+            </div>
+          </div>
+
+          <!-- Extended Detailed Telemetry Section (Toggleable or Visible in Full View) -->
+          <div id="admin-deep-telemetry-section">
+            <div class="admin-section-title">
+              <span>Channel &amp; Role Breakdown</span>
+              <span style="font-size:.78rem;color:#94a3b8;">Distribution metrics</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:1.35rem;">
+              <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.75rem .95rem;">
+                <div style="font-size:.78rem;font-weight:600;color:#94a3b8;margin-bottom:.5rem;">Public Channels Activity</div>
+                <div style="display:flex;flex-direction:column;gap:.35rem;font-size:.82rem;">
+                  <div style="display:flex;justify-content:space-between;color:#cbd5e1;">
+                    <span>#chat-1:</span> <b id="admin-chat1-msgs" style="color:#38bdf8;">--</b>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;color:#cbd5e1;">
+                    <span>#announcements:</span> <b id="admin-announcements-msgs" style="color:#facc15;">--</b>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;color:#cbd5e1;">
+                    <span>#general / others:</span> <b id="admin-general-msgs" style="color:#94a3b8;">--</b>
+                  </div>
+                </div>
+              </div>
+              <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.75rem .95rem;">
+                <div style="font-size:.78rem;font-weight:600;color:#94a3b8;margin-bottom:.5rem;">Server Memory &amp; Engine</div>
+                <div style="display:flex;flex-direction:column;gap:.35rem;font-size:.82rem;">
+                  <div style="display:flex;justify-content:space-between;color:#cbd5e1;">
+                    <span>Heap Used / Total:</span> <b id="admin-stat-heap" style="color:#a78bfa;">--</b>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;color:#cbd5e1;">
+                    <span>RSS Memory:</span> <b id="admin-server-rss" style="color:#38bdf8;">--</b>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;color:#cbd5e1;">
+                    <span>Fastify Engine:</span> <b style="color:#4ade80;">v5.12 · Port 3000</b>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: Database Records Inspector (Full Table Browser) -->
+        <div id="admin-pane-records" class="admin-tab-pane">
+          <div class="admin-section-title" style="margin-top:0;">
+            <div style="display:flex;align-items:center;gap:.6rem;">
+              <span style="font-size:1.2rem;">🗄️</span>
+              <span>All Database Records Inspector</span>
+              <span class="ai-soon-pill" style="border-color:#22c55e;color:#4ade80;font-weight:700;background:rgba(34,197,94,0.12);">LIVE POSTGRESQL</span>
+            </div>
+          </div>
+          <p style="color:#94a3b8;font-size:.82rem;margin:0 0 .85rem;line-height:1.45;">
+            Inspect raw rows directly across all 11 Cloud SQL database tables with live filtering and search.
+          </p>
+
+          <!-- Table Controls -->
+          <div style="background:rgba(15,23,42,.6);border:1px solid rgba(148,163,184,.18);border-radius:10px;padding:.85rem 1rem;margin-bottom:1rem;">
+            <div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
+              <div style="display:flex;align-items:center;gap:.4rem;">
+                <label for="admin-records-table-select" style="font-size:.78rem;font-weight:600;color:#cbd5e1;">Table:</label>
+                <select id="admin-records-table-select" class="admin-select-clean">
+                  <option value="users">users (User Accounts)</option>
+                  <option value="profiles">profiles (Member Profiles &amp; Shortcuts)</option>
+                  <option value="public_messages">public_messages (Channels Messages)</option>
+                  <option value="messages">messages (Direct Messages)</option>
+                  <option value="friends">friends (Friendships)</option>
+                  <option value="user_alerts">user_alerts (Broadcast Alerts)</option>
+                  <option value="chat_reports">chat_reports (Flagged Content)</option>
+                  <option value="chat_moderation_logs">chat_moderation_logs (Audit Trail)</option>
+                  <option value="chat_message_reactions">chat_message_reactions (Reactions)</option>
+                  <option value="chat_presence">chat_presence (Real-Time Presence)</option>
+                  <option value="chat_typing">chat_typing (Active Typing)</option>
+                </select>
+              </div>
+
+              <div style="flex:1;min-width:180px;">
+                <input type="text" id="admin-records-search" class="admin-input-clean" placeholder="Filter rows by ID, text, username..." style="width:100%;box-sizing:border-box;">
+              </div>
+
+              <div style="display:flex;align-items:center;gap:.45rem;">
+                <select id="admin-records-limit" class="admin-select-clean" style="width:auto;">
+                  <option value="25">25 rows</option>
+                  <option value="50" selected>50 rows</option>
+                  <option value="100">100 rows</option>
+                  <option value="200">200 rows</option>
+                </select>
+                <button type="button" id="admin-records-refresh-btn" class="admin-act-btn secondary" style="padding:.48rem .85rem;font-size:.8rem;cursor:pointer;">
+                  ↻ Refresh
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Record Meta Info -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.55rem;font-size:.78rem;color:#94a3b8;padding:0 .2rem;">
+            <span id="admin-records-count-info">Loading records…</span>
+            <span id="admin-records-time-info" style="color:#64748b;">PostgreSQL Live Connection</span>
+          </div>
+
+          <!-- Dynamic Database Records Table Container -->
+          <div style="overflow-x:auto;max-height:480px;border:1px solid rgba(148,163,184,.14);border-radius:8px;background:rgba(11,15,25,.6);">
+            <table class="admin-table" id="admin-records-table" style="min-width:600px;">
+              <thead id="admin-records-thead">
+                <tr><th>Loading schema…</th></tr>
+              </thead>
+              <tbody id="admin-records-tbody">
+                <tr><td style="text-align:center;color:#64748b;padding:2rem;">Select a table to inspect live records.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 3: Registered Cloud Users Table -->
+        <div id="admin-pane-users" class="admin-tab-pane">
+          <div class="admin-section-title" style="margin-top:0;">
+            <div style="display:flex;align-items:center;gap:.6rem;">
+              <span style="font-size:1.2rem;">👥</span>
+              <span>Registered Cloud Users</span>
+              <span style="font-size:.78rem;color:#94a3b8;">Real authenticated accounts in Cloud SQL</span>
+            </div>
+            <button type="button" class="admin-act-btn primary" id="admin-refresh-users-btn" style="padding:.32rem .75rem;font-size:.78rem;display:inline-flex;align-items:center;gap:.4rem;cursor:pointer;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:6px;color:#93c5fd;" title="Refresh list of registered users">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg>
+              <span>Refresh Users</span>
+            </button>
+          </div>
+          <div style="overflow-x:auto;max-height:500px;border:1px solid rgba(148,163,184,.14);border-radius:8px;background:rgba(11,15,25,.5);">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Member</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Messages</th>
+                  <th>Created At</th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-tbody">
+                <tr><td colspan="7" style="text-align:center;color:#64748b;">Loading real metrics...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 4: Staff Role & Permissions Editor -->
+        <div id="admin-pane-roles" class="admin-tab-pane">
+          <div class="admin-section-title" style="margin-top:0;">
+            <div style="display:flex;align-items:center;gap:.6rem;">
+              <span style="font-size:1.2rem;">👑</span>
+              <span>Staff Role &amp; Permission Editor</span>
+              <span class="ai-soon-pill" style="border-color:#38bdf8;color:#7dd3fc;font-weight:700;background:rgba(56,189,248,0.12);">LIVE SYNC</span>
+            </div>
+          </div>
+          <div class="admin-staff-editor-box" style="background:rgba(15,23,42,.6);border:1px solid rgba(56,189,248,.25);border-radius:10px;padding:1.1rem 1.25rem;">
+            <p style="color:#cbd5e1;font-size:.82rem;margin:0 0 .95rem;line-height:1.45;">
+              Select any registered member to review their concurrent roles and grant or revoke administrative permissions.
             </p>
-            <div style="display:flex;gap:.6rem;flex-wrap:wrap;font-size:.78rem;color:#94a3b8;">
-              <span>Database: <b style="color:#38bdf8;">Cloud SQL PostgreSQL</b></span>
-              <span>&bull;</span>
-              <span>DB: <code style="font-size:.75rem;color:#93c5fd;">cloud_sql_development_database</code></span>
-              <span>&bull;</span>
-              <span>Region: <b style="color:#cbd5e1;">us-east1</b></span>
-              <span>&bull;</span>
-              <span>Runtime: <b style="color:#a78bfa;" id="admin-banner-runtime">Node v22</b></span>
+            <div style="display:grid;grid-template-columns:1fr;gap:.9rem;">
+              <div>
+                <label style="display:block;font-size:.78rem;font-weight:600;color:#94a3b8;margin-bottom:.35rem;">Select Member:</label>
+                <select id="admin-staff-user-select" style="width:100%;padding:.6rem .8rem;background:#090e17;border:1px solid rgba(255,255,255,.15);border-radius:7px;color:#fff;font-size:.86rem;outline:none;">
+                  <option value="" disabled selected>Loading registered users...</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block;font-size:.78rem;font-weight:600;color:#94a3b8;margin-bottom:.35rem;">Assigned Staff Roles (Multi-Role Allowed):</label>
+                <div id="admin-staff-roles-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.5rem;background:#090e17;padding:.75rem;border-radius:8px;border:1px solid rgba(255,255,255,.1);">
+                  <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#fef08a;cursor:pointer;">
+                    <input type="checkbox" name="admin-staff-role" value="owner" style="accent-color:#eab308;"> 👑 Owner
+                  </label>
+                  <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#7dd3fc;cursor:pointer;">
+                    <input type="checkbox" name="admin-staff-role" value="admin" style="accent-color:#38bdf8;"> 🛡️ Admin
+                  </label>
+                  <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#5eead4;cursor:pointer;">
+                    <input type="checkbox" name="admin-staff-role" value="moderator" style="accent-color:#14b8a6;"> ⚔️ Mod
+                  </label>
+                  <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#d8b4fe;cursor:pointer;">
+                    <input type="checkbox" name="admin-staff-role" value="VIP" style="accent-color:#a855f7;"> ⭐ VIP
+                  </label>
+                  <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#a5b4fc;cursor:pointer;">
+                    <input type="checkbox" name="admin-staff-role" value="Discord Member" style="accent-color:#6366f1;"> 🎮 Discord
+                  </label>
+                  <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#6ee7b7;cursor:pointer;">
+                    <input type="checkbox" name="admin-staff-role" value="Tester" style="accent-color:#10b981;"> 🧪 Tester
+                  </label>
+                  <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#cbd5e1;cursor:pointer;">
+                    <input type="checkbox" name="admin-staff-role" value="Beta User" style="accent-color:#3b82f6;"> 🚀 Beta User
+                  </label>
+                  <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#94a3b8;cursor:pointer;">
+                    <input type="checkbox" name="admin-staff-role" value="TSW User" style="accent-color:#64748b;"> 👤 TSW User
+                  </label>
+                </div>
+              </div>
+              <div id="admin-staff-permissions-preview" style="background:rgba(2,6,23,.5);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:.65rem .85rem;font-size:.78rem;color:#94a3b8;">
+                Active Permissions: <span id="admin-staff-permissions-list" style="color:#7dd3fc;font-weight:600;">Standard Member</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem;">
+                <div id="admin-staff-status" style="font-size:.8rem;color:#94a3b8;"></div>
+                <button type="button" id="admin-staff-save-btn" class="admin-act-btn primary" style="padding:.5rem 1.2rem;font-size:.85rem;font-weight:700;cursor:pointer;background:#38bdf8;color:#000;border:none;border-radius:6px;">
+                  💾 Save Permissions
+                </button>
+              </div>
             </div>
           </div>
-          <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-            <button type="button" id="admin-open-roles-btn" class="admin-act-btn primary" style="cursor:pointer;border:none;">
-              👑 Assign Role (/give role)
-            </button>
-            <button type="button" id="admin-refresh-btn-top" class="admin-act-btn secondary" style="cursor:pointer;border:none;">
-              ↻ Sync Telemetry
-            </button>
-          </div>
         </div>
-      </div>
 
-      <!-- Live Stat Cards Grid (Real Metrics) -->
-      <div class="admin-stats-grid">
-        <div class="admin-stat-card">
-          <div class="admin-stat-num" id="admin-db-size">--</div>
-          <div class="admin-stat-label">Cloud SQL Storage</div>
-          <small style="color:#38bdf8;font-size:.75rem;" id="admin-connections">-- active connections</small>
-        </div>
-        <div class="admin-stat-card">
-          <div class="admin-stat-num" id="admin-user-count">--</div>
-          <div class="admin-stat-label">Registered Accounts</div>
-          <small style="color:#4ade80;font-size:.75rem;" id="admin-profile-count">-- real profiles</small>
-        </div>
-        <div class="admin-stat-card">
-          <div class="admin-stat-num" id="admin-public-msgs-hero">--</div>
-          <div class="admin-stat-label">Public Chat Messages</div>
-          <small style="color:#f472b6;font-size:.75rem;" id="admin-channels-summary">--</small>
-        </div>
-        <div class="admin-stat-card">
-          <div class="admin-stat-num" id="admin-uptime">--</div>
-          <div class="admin-stat-label">Server Uptime</div>
-          <small style="color:#a78bfa;font-size:.75rem;" id="admin-node-mem">Memory: --</small>
-        </div>
-      </div>
-
-      <!-- Quick Actions Bar -->
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
-        <div style="display:flex;gap:.5rem;">
-          <button type="button" id="admin-refresh-btn" class="plain" style="margin:0;padding:.45rem .85rem;font-size:.82rem;">↻ Refresh Metrics</button>
-        </div>
-        <span id="admin-status-note" style="color:#94a3b8;font-size:.78rem;">Live connection</span>
-      </div>
-
-      <!-- Detailed Real Database Breakdown Section -->
-      <div class="admin-section-title">
-        <span>Cloud SQL Database Records</span>
-        <span style="font-size:.78rem;color:#94a3b8;">Real-time PostgreSQL telemetry</span>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem;margin-bottom:1.25rem;">
-        <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
-          <div style="font-size:.75rem;color:#94a3b8;">#chat-1 Messages</div>
-          <div style="font-size:1.15rem;font-weight:700;color:#38bdf8;" id="admin-chat1-msgs">--</div>
-        </div>
-        <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
-          <div style="font-size:.75rem;color:#94a3b8;">#announcements</div>
-          <div style="font-size:1.15rem;font-weight:700;color:#facc15;" id="admin-announcements-msgs">--</div>
-        </div>
-        <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
-          <div style="font-size:.75rem;color:#94a3b8;">Direct Messages</div>
-          <div style="font-size:1.15rem;font-weight:700;color:#f8fafc;" id="admin-direct-msgs">--</div>
-        </div>
-        <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
-          <div style="font-size:.75rem;color:#94a3b8;">Mutual Friends</div>
-          <div style="font-size:1.15rem;font-weight:700;color:#f8fafc;" id="admin-friends-count">--</div>
-        </div>
-        <div style="background:rgba(15,23,42,.4);border:1px solid rgba(148,163,184,.12);border-radius:8px;padding:.65rem .85rem;">
-          <div style="font-size:.75rem;color:#94a3b8;">Server RSS Mem</div>
-          <div style="font-size:1.15rem;font-weight:700;color:#f8fafc;" id="admin-server-rss">--</div>
-        </div>
-      </div>
-
-      <!-- Send User Alert Section (Owner Only) -->
-      <div class="admin-section-title" style="display:flex;justify-content:space-between;align-items:center;margin-top:1.4rem;">
-        <div style="display:flex;align-items:center;gap:.6rem;">
-          <span style="font-size:1.15rem;">🚨</span>
-          <span>Send User Alert</span>
-          <span class="ai-soon-pill" style="border-color:#f59e0b;color:#fbbf24;font-weight:700;background:rgba(245,158,11,0.12);">OWNER ONLY</span>
-        </div>
-        <button type="button" class="admin-act-btn secondary" id="admin-alert-refresh-users-btn" style="padding:.28rem .65rem;font-size:.76rem;cursor:pointer;">
-          ↻ Refresh Active Users
-        </button>
-      </div>
-      <div class="admin-alert-card" style="background:rgba(15,23,42,.6);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:1rem 1.15rem;margin-bottom:1.4rem;">
-        <p style="color:#cbd5e1;font-size:.82rem;margin:0 0 .85rem;line-height:1.45;">
-          Directly broadcast a high-priority on-site alert popup to any active member's screen across all pages without refreshing or interrupting their session.
-        </p>
-        <div style="display:grid;grid-template-columns:1fr;gap:.8rem;">
-          <div>
-            <label style="display:block;font-size:.78rem;font-weight:600;color:#94a3b8;margin-bottom:.35rem;">Active Member (Online Status):</label>
-            <select id="admin-alert-user-select" style="width:100%;padding:.6rem .8rem;background:#090e17;border:1px solid rgba(255,255,255,.15);border-radius:7px;color:#fff;font-size:.86rem;outline:none;">
-              <option value="" disabled selected>Loading active users...</option>
-            </select>
-          </div>
-          <div>
-            <label style="display:block;font-size:.78rem;font-weight:600;color:#94a3b8;margin-bottom:.35rem;">Alert Message:</label>
-            <textarea id="admin-alert-message" rows="3" placeholder="Type your alert message here..." style="width:100%;box-sizing:border-box;padding:.65rem .85rem;background:#090e17;border:1px solid rgba(255,255,255,.15);border-radius:7px;color:#fff;font-size:.86rem;outline:none;resize:vertical;font-family:inherit;"></textarea>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem;">
-            <div id="admin-alert-status" style="font-size:.8rem;color:#94a3b8;"></div>
-            <button type="button" id="admin-send-alert-btn" class="admin-act-btn primary" style="padding:.5rem 1.2rem;font-size:.85rem;font-weight:700;cursor:pointer;background:#f59e0b;color:#000;border:none;border-radius:6px;">
-              ⚡ Send Alert
+        <!-- TAB 5: Send User Alert Section (Owner Only) -->
+        <div id="admin-pane-alerts" class="admin-tab-pane">
+          <div class="admin-section-title" style="margin-top:0;">
+            <div style="display:flex;align-items:center;gap:.6rem;">
+              <span style="font-size:1.2rem;">🚨</span>
+              <span>Send User Alert</span>
+              <span class="ai-soon-pill" style="border-color:#f59e0b;color:#fbbf24;font-weight:700;background:rgba(245,158,11,0.12);">OWNER ONLY</span>
+            </div>
+            <button type="button" class="admin-act-btn secondary" id="admin-alert-refresh-users-btn" style="padding:.28rem .65rem;font-size:.76rem;cursor:pointer;">
+              ↻ Refresh Active Users
             </button>
           </div>
-        </div>
-      </div>
-
-      <!-- Staff Role & Permissions Manager -->
-      <div class="admin-section-title" style="display:flex;justify-content:space-between;align-items:center;margin-top:1.4rem;">
-        <div style="display:flex;align-items:center;gap:.6rem;">
-          <span style="font-size:1.15rem;">👑</span>
-          <span>Staff Role &amp; Permission Editor</span>
-          <span class="ai-soon-pill" style="border-color:#38bdf8;color:#7dd3fc;font-weight:700;background:rgba(56,189,248,0.12);">LIVE SYNC</span>
-        </div>
-      </div>
-      <div class="admin-staff-editor-box" style="background:rgba(15,23,42,.6);border:1px solid rgba(56,189,248,.25);border-radius:10px;padding:1rem 1.15rem;margin-bottom:1.4rem;">
-        <p style="color:#cbd5e1;font-size:.82rem;margin:0 0 .85rem;line-height:1.45;">
-          Select any registered member to review their concurrent roles and grant or revoke administrative permissions.
-        </p>
-        <div style="display:grid;grid-template-columns:1fr;gap:.8rem;">
-          <div>
-            <label style="display:block;font-size:.78rem;font-weight:600;color:#94a3b8;margin-bottom:.35rem;">Select Member:</label>
-            <select id="admin-staff-user-select" style="width:100%;padding:.6rem .8rem;background:#090e17;border:1px solid rgba(255,255,255,.15);border-radius:7px;color:#fff;font-size:.86rem;outline:none;">
-              <option value="" disabled selected>Loading registered users...</option>
-            </select>
-          </div>
-          <div>
-            <label style="display:block;font-size:.78rem;font-weight:600;color:#94a3b8;margin-bottom:.35rem;">Assigned Staff Roles (Multi-Role Allowed):</label>
-            <div id="admin-staff-roles-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.5rem;background:#090e17;padding:.75rem;border-radius:8px;border:1px solid rgba(255,255,255,.1);">
-              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#fef08a;cursor:pointer;">
-                <input type="checkbox" name="admin-staff-role" value="owner" style="accent-color:#eab308;"> 👑 Owner
-              </label>
-              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#7dd3fc;cursor:pointer;">
-                <input type="checkbox" name="admin-staff-role" value="admin" style="accent-color:#38bdf8;"> 🛡️ Admin
-              </label>
-              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#5eead4;cursor:pointer;">
-                <input type="checkbox" name="admin-staff-role" value="moderator" style="accent-color:#14b8a6;"> ⚔️ Mod
-              </label>
-              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#d8b4fe;cursor:pointer;">
-                <input type="checkbox" name="admin-staff-role" value="VIP" style="accent-color:#a855f7;"> ⭐ VIP
-              </label>
-              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#a5b4fc;cursor:pointer;">
-                <input type="checkbox" name="admin-staff-role" value="Discord Member" style="accent-color:#6366f1;"> 🎮 Discord
-              </label>
-              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#6ee7b7;cursor:pointer;">
-                <input type="checkbox" name="admin-staff-role" value="Tester" style="accent-color:#10b981;"> 🧪 Tester
-              </label>
-              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#cbd5e1;cursor:pointer;">
-                <input type="checkbox" name="admin-staff-role" value="Beta User" style="accent-color:#3b82f6;"> 🚀 Beta User
-              </label>
-              <label style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;color:#94a3b8;cursor:pointer;">
-                <input type="checkbox" name="admin-staff-role" value="TSW User" style="accent-color:#64748b;"> 👤 TSW User
-              </label>
+          <div class="admin-alert-card" style="background:rgba(15,23,42,.6);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:1.1rem 1.25rem;">
+            <p style="color:#cbd5e1;font-size:.82rem;margin:0 0 .85rem;line-height:1.45;">
+              Directly broadcast a high-priority on-site alert popup to any active member's screen across all pages without refreshing or interrupting their session.
+            </p>
+            <div style="display:grid;grid-template-columns:1fr;gap:.8rem;">
+              <div>
+                <label style="display:block;font-size:.78rem;font-weight:600;color:#94a3b8;margin-bottom:.35rem;">Active Member (Online Status):</label>
+                <select id="admin-alert-user-select" style="width:100%;padding:.6rem .8rem;background:#090e17;border:1px solid rgba(255,255,255,.15);border-radius:7px;color:#fff;font-size:.86rem;outline:none;">
+                  <option value="" disabled selected>Loading active users...</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block;font-size:.78rem;font-weight:600;color:#94a3b8;margin-bottom:.35rem;">Alert Message:</label>
+                <textarea id="admin-alert-message" rows="3" placeholder="Type your alert message here..." style="width:100%;box-sizing:border-box;padding:.65rem .85rem;background:#090e17;border:1px solid rgba(255,255,255,.15);border-radius:7px;color:#fff;font-size:.86rem;outline:none;resize:vertical;font-family:inherit;"></textarea>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem;">
+                <div id="admin-alert-status" style="font-size:.8rem;color:#94a3b8;"></div>
+                <button type="button" id="admin-send-alert-btn" class="admin-act-btn primary" style="padding:.5rem 1.2rem;font-size:.85rem;font-weight:700;cursor:pointer;background:#f59e0b;color:#000;border:none;border-radius:6px;">
+                  ⚡ Send Alert
+                </button>
+              </div>
             </div>
           </div>
-          <div id="admin-staff-permissions-preview" style="background:rgba(2,6,23,.5);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:.65rem .85rem;font-size:.78rem;color:#94a3b8;">
-            Active Permissions: <span id="admin-staff-permissions-list" style="color:#7dd3fc;font-weight:600;">Standard Member</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem;">
-            <div id="admin-staff-status" style="font-size:.8rem;color:#94a3b8;"></div>
-            <button type="button" id="admin-staff-save-btn" class="admin-act-btn primary" style="padding:.5rem 1.2rem;font-size:.85rem;font-weight:700;cursor:pointer;background:#38bdf8;color:#000;border:none;border-radius:6px;">
-              💾 Save Permissions
-            </button>
-          </div>
         </div>
-      </div>
 
-      <!-- Real Registered Users Table -->
-      <div class="admin-section-title" style="display:flex;justify-content:space-between;align-items:center;margin-top:1.25rem;">
-        <div style="display:flex;align-items:center;gap:.6rem;">
-          <span>Registered Cloud Users</span>
-          <span style="font-size:.78rem;color:#94a3b8;">Real authenticated accounts in Cloud SQL</span>
-        </div>
-        <button type="button" class="admin-act-btn primary" id="admin-refresh-users-btn" style="padding:.32rem .75rem;font-size:.78rem;display:inline-flex;align-items:center;gap:.4rem;cursor:pointer;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:6px;color:#93c5fd;" title="Refresh list of registered users">
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg>
-          <span>Refresh Users</span>
-        </button>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Member</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Messages</th>
-              <th>Created At</th>
-              <th style="text-align:right;">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="admin-users-tbody">
-            <tr><td colspan="7" style="text-align:center;color:#64748b;">Loading real metrics...</td></tr>
-          </tbody>
-        </table>
       </div>
     </div>
   </div>
@@ -9198,7 +9529,7 @@ document.addEventListener('keydown', function (ev) {
     });
   }
 
-  function openGiveRoleModal(channel) {
+  function openGiveRoleModal(channel, preselectUserId) {
     var modal = $('owner-role-modal');
     if (!modal) return;
     modal.hidden = false;
@@ -10525,8 +10856,83 @@ document.addEventListener('keydown', function (ev) {
   var refreshBtnTop = $('admin-refresh-btn-top');
   var openRolesBtn = $('admin-open-roles-btn');
   var statusNote = $('admin-status-note');
+  var adminCloseBtn = $('admin-modal-close');
   var adminPollTimer = null;
+  var currentAdminTab = 'stats';
 
+  /* ===================== Side Navigation Tabs ===================== */
+  function switchAdminTab(targetTab) {
+    if (!targetTab) return;
+    currentAdminTab = targetTab;
+    if (adminModal) {
+      var navButtons = adminModal.querySelectorAll('.admin-nav-item[data-admin-tab]');
+      navButtons.forEach(function (btn) {
+        var isMatch = btn.getAttribute('data-admin-tab') === targetTab;
+        btn.classList.toggle('active', isMatch);
+      });
+      var panes = adminModal.querySelectorAll('.admin-tab-pane');
+      panes.forEach(function (pane) {
+        var paneId = 'admin-pane-' + targetTab;
+        pane.classList.toggle('active', pane.id === paneId);
+      });
+    }
+
+    if (targetTab === 'records') {
+      loadDatabaseRecords();
+    } else if (targetTab === 'stats') {
+      fetchAdminMetrics();
+    } else if (targetTab === 'users') {
+      fetchAdminMetrics();
+    } else if (targetTab === 'roles') {
+      loadAdminStaffUsers();
+    } else if (targetTab === 'alerts') {
+      loadAdminActiveUsers();
+    }
+  }
+
+  if (adminModal) {
+    var navTabs = adminModal.querySelectorAll('.admin-nav-item[data-admin-tab]');
+    navTabs.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var tabKey = this.getAttribute('data-admin-tab');
+        if (tabKey) switchAdminTab(tabKey);
+      });
+    });
+  }
+
+  /* ===================== Statistics View Toggles ===================== */
+  var statsToggleTopBtn = $('admin-stats-toggle-top-btn');
+  var statsToggleDetail = $('admin-stats-toggle-detail');
+  var deepTelemetrySection = $('admin-deep-telemetry-section');
+  var isDeepTelemetryVisible = true;
+
+  function toggleDetailedStats() {
+    if (!deepTelemetrySection) return;
+    isDeepTelemetryVisible = !isDeepTelemetryVisible;
+    deepTelemetrySection.style.display = isDeepTelemetryVisible ? 'block' : 'none';
+    if (statsToggleTopBtn) {
+      statsToggleTopBtn.textContent = isDeepTelemetryVisible ? '📊 Detailed Stats: ON' : '📊 Detailed Stats: OFF';
+    }
+    if (statsToggleDetail) {
+      statsToggleDetail.textContent = isDeepTelemetryVisible ? '🔬 Collapse Deep Telemetry' : '🔬 Expand Deep Telemetry';
+    }
+  }
+
+  if (statsToggleTopBtn) {
+    statsToggleTopBtn.addEventListener('click', function () {
+      if (currentAdminTab !== 'stats') {
+        switchAdminTab('stats');
+      } else {
+        toggleDetailedStats();
+      }
+    });
+  }
+
+  if (statsToggleDetail) {
+    statsToggleDetail.addEventListener('click', toggleDetailedStats);
+  }
+
+  /* ===================== Fetch Live Telemetry & Metrics ===================== */
   async function fetchAdminMetrics() {
     if (!adminModal || adminModal.hidden) return;
     if (statusNote) statusNote.textContent = 'Fetching live telemetry…';
@@ -10543,34 +10949,65 @@ document.addEventListener('keydown', function (ev) {
         $('admin-banner-runtime').textContent = (data.server?.nodeVersion || 'Node') + ' · ' + (data.server?.platform || 'linux');
       }
 
-      // Update stat cards with real database and server metrics
-      if ($('admin-db-size')) $('admin-db-size').textContent = data.database?.dbSize || '8.2 MB';
-      if ($('admin-connections')) {
-        var conns = data.database?.activeConnections || 1;
-        $('admin-connections').textContent = conns + ' Active PostgreSQL Connection' + (conns === 1 ? '' : 's');
-      }
-      if ($('admin-user-count')) $('admin-user-count').textContent = String(data.database?.users || 0);
-      if ($('admin-profile-count')) $('admin-profile-count').textContent = (data.database?.profiles || 0) + ' real profile' + ((data.database?.profiles === 1) ? '' : 's');
-      
+      // Top Important Metrics Strip
+      var totalUsers = data.database?.users || 0;
+      var activeConns = data.database?.activeConnections || 1;
       var publicCount = data.database?.publicMessages || 0;
+      var dmsCount = data.database?.directMessages || 0;
+      var dbSizeStr = data.database?.dbSize || '8.2 MB';
+      var uptimeStr = data.server?.uptime || '--';
+
+      if ($('admin-top-users')) $('admin-top-users').textContent = String(totalUsers);
+      if ($('admin-top-conns')) $('admin-top-conns').textContent = String(activeConns);
+      if ($('admin-top-pubmsgs')) $('admin-top-pubmsgs').textContent = String(publicCount);
+      if ($('admin-top-dms')) $('admin-top-dms').textContent = String(dmsCount);
+      if ($('admin-top-dbsize')) $('admin-top-dbsize').textContent = dbSizeStr;
+      if ($('admin-top-uptime')) $('admin-top-uptime').textContent = uptimeStr;
+      if ($('admin-nav-users-badge')) $('admin-nav-users-badge').textContent = String(totalUsers);
+
+      // Primary Stats Cards
+      if ($('admin-db-size')) $('admin-db-size').textContent = dbSizeStr;
+      if ($('admin-connections')) {
+        $('admin-connections').textContent = activeConns + ' Active PostgreSQL Connection' + (activeConns === 1 ? '' : 's');
+      }
+      if ($('admin-user-count')) $('admin-user-count').textContent = String(totalUsers);
+      if ($('admin-profile-count')) $('admin-profile-count').textContent = (data.database?.profiles || 0) + ' real profile' + ((data.database?.profiles === 1) ? '' : 's');
       if ($('admin-public-msgs-hero')) $('admin-public-msgs-hero').textContent = String(publicCount);
+
       var cStats = data.database?.channelStats || {};
       var chat1Count = cStats['chat-1'] || 0;
       var annCount = cStats['announcements'] || 0;
+      var genCount = cStats['general'] || 0;
       if ($('admin-channels-summary')) {
         $('admin-channels-summary').textContent = chat1Count + ' in #chat-1 · ' + annCount + ' in #announcements';
       }
 
-      if ($('admin-uptime')) $('admin-uptime').textContent = data.server?.uptime || '--';
+      if ($('admin-uptime')) $('admin-uptime').textContent = uptimeStr;
       if ($('admin-node-mem')) {
         $('admin-node-mem').textContent = 'Heap: ' + (data.server?.memory?.heapUsedMB || '--') + ' / ' + (data.server?.memory?.heapTotalMB || '--') + ' MB (' + (data.server?.memory?.heapPercent || '--') + '%)';
       }
 
-      // Update breakdown
+      // 11 Table Counts Grid
+      var tCounts = data.database?.tableCounts || {};
+      if ($('admin-cnt-users')) $('admin-cnt-users').textContent = String(tCounts.users ?? totalUsers);
+      if ($('admin-cnt-profiles')) $('admin-cnt-profiles').textContent = String(tCounts.profiles ?? data.database?.profiles ?? 0);
+      if ($('admin-cnt-pubmsgs')) $('admin-cnt-pubmsgs').textContent = String(tCounts.public_messages ?? publicCount);
+      if ($('admin-direct-msgs')) $('admin-direct-msgs').textContent = String(tCounts.messages ?? dmsCount);
+      if ($('admin-friends-count')) $('admin-friends-count').textContent = String(tCounts.friends ?? data.database?.friendships ?? 0);
+      if ($('admin-cnt-alerts')) $('admin-cnt-alerts').textContent = String(tCounts.user_alerts ?? data.database?.alertsCount ?? 0);
+      if ($('admin-cnt-reports')) $('admin-cnt-reports').textContent = String(tCounts.chat_reports ?? data.database?.reportsCount ?? 0);
+      if ($('admin-cnt-modlogs')) $('admin-cnt-modlogs').textContent = String(tCounts.chat_moderation_logs ?? data.database?.moderationLogsCount ?? 0);
+      if ($('admin-cnt-reactions')) $('admin-cnt-reactions').textContent = String(tCounts.chat_message_reactions ?? data.database?.reactionsCount ?? 0);
+      if ($('admin-cnt-presence')) $('admin-cnt-presence').textContent = String(tCounts.chat_presence ?? data.database?.presenceCount ?? 0);
+      if ($('admin-cnt-typing')) $('admin-cnt-typing').textContent = String(tCounts.chat_typing ?? data.database?.typingCount ?? 0);
+
+      // Deep Breakdown
       if ($('admin-chat1-msgs')) $('admin-chat1-msgs').textContent = String(chat1Count);
       if ($('admin-announcements-msgs')) $('admin-announcements-msgs').textContent = String(annCount);
-      if ($('admin-direct-msgs')) $('admin-direct-msgs').textContent = String(data.database?.directMessages || 0);
-      if ($('admin-friends-count')) $('admin-friends-count').textContent = String(data.database?.friendships || 0);
+      if ($('admin-general-msgs')) $('admin-general-msgs').textContent = String(genCount);
+      if ($('admin-stat-heap')) {
+        $('admin-stat-heap').textContent = (data.server?.memory?.heapUsedMB || '--') + ' / ' + (data.server?.memory?.heapTotalMB || '--') + ' MB';
+      }
       if ($('admin-server-rss')) $('admin-server-rss').textContent = (data.server?.memory?.rssMB || '--') + ' MB';
 
       // Render recent users with real database records and role badges
@@ -10630,6 +11067,157 @@ document.addEventListener('keydown', function (ev) {
     } catch (err) {
       if (statusNote) statusNote.textContent = 'Telemetry warning: ' + (err.message || 'Offline');
     }
+  }
+
+  /* ===================== Database Records Inspector ===================== */
+  var recordsTableSelect = $('admin-records-table-select');
+  var recordsSearchInput = $('admin-records-search');
+  var recordsLimitSelect = $('admin-records-limit');
+  var recordsRefreshBtn = $('admin-records-refresh-btn');
+  var recordsCountInfo = $('admin-records-count-info');
+  var recordsTimeInfo = $('admin-records-time-info');
+  var recordsThead = $('admin-records-thead');
+  var recordsTbody = $('admin-records-tbody');
+  var isRecordsLoading = false;
+  var recordsSearchDebounce = null;
+
+  async function loadDatabaseRecords() {
+    if (!recordsTableSelect || !recordsTbody || isRecordsLoading) return;
+    var tableName = recordsTableSelect.value || 'users';
+    var searchQuery = recordsSearchInput ? recordsSearchInput.value.trim() : '';
+    var limit = recordsLimitSelect ? recordsLimitSelect.value : '50';
+
+    isRecordsLoading = true;
+    if (recordsCountInfo) recordsCountInfo.textContent = 'Querying Cloud SQL for "' + tableName + '"…';
+    if (recordsRefreshBtn) recordsRefreshBtn.disabled = true;
+
+    try {
+      var token = window.TSWProfiles && window.TSWProfiles.getToken ? window.TSWProfiles.getToken() : '';
+      var headers = {};
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+
+      var url = '/api/admin/database-records?table=' + encodeURIComponent(tableName) +
+                '&search=' + encodeURIComponent(searchQuery) +
+                '&limit=' + encodeURIComponent(limit) +
+                '&t=' + Date.now();
+
+      var res = await fetch(url, { headers: headers, cache: 'no-store' });
+      var data = await res.json();
+      isRecordsLoading = false;
+      if (recordsRefreshBtn) recordsRefreshBtn.disabled = false;
+
+      if (!data || !data.success) {
+        throw new Error((data && data.error) || 'Failed to fetch database records');
+      }
+
+      // Update meta status
+      if (recordsCountInfo) {
+        var countText = 'Showing ' + data.returnedCount + ' of ' + data.totalCount + ' total rows in ' + data.table;
+        if (searchQuery) countText += ' (filtered by "' + escapeHtml(searchQuery) + '")';
+        recordsCountInfo.textContent = countText;
+      }
+      if (recordsTimeInfo) {
+        recordsTimeInfo.textContent = 'Updated ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' }) + ' · Cloud SQL';
+      }
+
+      // Build table header
+      var columns = data.columns || [];
+      if (recordsThead) {
+        recordsThead.innerHTML = '';
+        var trHead = document.createElement('tr');
+        if (columns.length === 0) {
+          trHead.innerHTML = '<th>No Columns</th>';
+        } else {
+          columns.forEach(function (col) {
+            var th = document.createElement('th');
+            th.textContent = col;
+            trHead.appendChild(th);
+          });
+        }
+        recordsThead.appendChild(trHead);
+      }
+
+      // Build table rows
+      recordsTbody.innerHTML = '';
+      var rows = data.rows || [];
+      if (rows.length === 0) {
+        var colSpan = Math.max(1, columns.length);
+        var emptyTr = document.createElement('tr');
+        emptyTr.innerHTML = '<td colspan="' + colSpan + '" style="text-align:center;padding:2.5rem 1rem;color:#94a3b8;font-size:.85rem;">' +
+          (searchQuery ? ('No records found in <b>' + escapeHtml(tableName) + '</b> matching "' + escapeHtml(searchQuery) + '".') : ('Table <b>' + escapeHtml(tableName) + '</b> currently has 0 rows.')) +
+          '</td>';
+        recordsTbody.appendChild(emptyTr);
+        return;
+      }
+
+      rows.forEach(function (row) {
+        var tr = document.createElement('tr');
+        columns.forEach(function (col) {
+          var td = document.createElement('td');
+          var val = row[col];
+
+          if (val === null || val === undefined) {
+            td.innerHTML = '<span style="color:#64748b;font-style:italic;">null</span>';
+          } else if (typeof val === 'boolean') {
+            td.innerHTML = val ? '<span style="color:#4ade80;font-weight:600;">true</span>' : '<span style="color:#f87171;font-weight:600;">false</span>';
+          } else if (col === 'password_hash') {
+            td.innerHTML = '<span style="color:#64748b;letter-spacing:2px;font-family:monospace;">••••••••</span>';
+          } else if (typeof val === 'object') {
+            var jsonStr = JSON.stringify(val);
+            td.innerHTML = '<code style="font-size:.72rem;color:#93c5fd;max-width:240px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + escapeHtml(jsonStr) + '">' + escapeHtml(jsonStr) + '</code>';
+          } else {
+            var strVal = String(val);
+            if (col.includes('at') || col.includes('created') || col.includes('updated') || col.includes('seen')) {
+              var d = new Date(val);
+              if (!isNaN(d.getTime())) {
+                strVal = d.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              }
+            }
+            if (strVal.length > 70) {
+              td.innerHTML = '<span title="' + escapeHtml(strVal) + '" style="max-width:260px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(strVal) + '</span>';
+            } else {
+              td.textContent = strVal;
+            }
+          }
+          tr.appendChild(td);
+        });
+        recordsTbody.appendChild(tr);
+      });
+    } catch (err) {
+      isRecordsLoading = false;
+      if (recordsRefreshBtn) recordsRefreshBtn.disabled = false;
+      if (recordsCountInfo) recordsCountInfo.textContent = 'Error loading ' + tableName + ': ' + (err.message || 'Network error');
+      if (recordsTbody) {
+        recordsTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#f87171;padding:2rem;">⚠️ ' + escapeHtml(err.message || 'Failed to load records from Cloud SQL') + '</td></tr>';
+      }
+    }
+  }
+
+  if (recordsTableSelect) {
+    recordsTableSelect.addEventListener('change', function () {
+      loadDatabaseRecords();
+    });
+  }
+
+  if (recordsLimitSelect) {
+    recordsLimitSelect.addEventListener('change', function () {
+      loadDatabaseRecords();
+    });
+  }
+
+  if (recordsRefreshBtn) {
+    recordsRefreshBtn.addEventListener('click', function () {
+      loadDatabaseRecords();
+    });
+  }
+
+  if (recordsSearchInput) {
+    recordsSearchInput.addEventListener('input', function () {
+      clearTimeout(recordsSearchDebounce);
+      recordsSearchDebounce = setTimeout(function () {
+        loadDatabaseRecords();
+      }, 350);
+    });
   }
 
   /* ===================== Send User Alert (Owner Only) ===================== */
@@ -10925,6 +11513,7 @@ document.addEventListener('keydown', function (ev) {
     });
   }
 
+  /* ===================== Admin Modal Lifecycle ===================== */
   function openAdmin() {
     var user = window.TSWProfiles && window.TSWProfiles.getUser ? window.TSWProfiles.getUser() : null;
     var isOwner = user && (
@@ -10942,10 +11531,16 @@ document.addEventListener('keydown', function (ev) {
     fetchAdminMetrics();
     loadAdminActiveUsers();
     loadAdminStaffUsers();
+    if (currentAdminTab === 'records') {
+      loadDatabaseRecords();
+    }
     clearInterval(adminPollTimer);
     adminPollTimer = setInterval(function () {
-      fetchAdminMetrics();
-      loadAdminActiveUsers();
+      if (currentAdminTab === 'stats' || currentAdminTab === 'users') {
+        fetchAdminMetrics();
+      } else if (currentAdminTab === 'alerts') {
+        loadAdminActiveUsers();
+      }
     }, 8000);
   }
 
@@ -10956,8 +11551,12 @@ document.addEventListener('keydown', function (ev) {
   }
 
   if (adminBtn) adminBtn.addEventListener('click', openAdmin);
+  if (adminCloseBtn) adminCloseBtn.addEventListener('click', closeAdmin);
   if (refreshBtn) refreshBtn.addEventListener('click', fetchAdminMetrics);
-  if (refreshBtnTop) refreshBtnTop.addEventListener('click', fetchAdminMetrics);
+  if (refreshBtnTop) refreshBtnTop.addEventListener('click', function () {
+    fetchAdminMetrics();
+    if (currentAdminTab === 'records') loadDatabaseRecords();
+  });
   var refreshUsersBtn = $('admin-refresh-users-btn');
   if (refreshUsersBtn) {
     refreshUsersBtn.addEventListener('click', function () {

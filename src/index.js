@@ -61,7 +61,8 @@ import {
 	getActiveUsersForOwner,
 	sendUserAlert,
 	getPendingUserAlerts,
-	dismissUserAlert
+	dismissUserAlert,
+	getDatabaseTableRecords
 } from "./db/users.ts";
 import { verifyAuth } from "./middleware/auth.ts";
 import { GoogleGenAI } from "@google/genai";
@@ -1290,6 +1291,40 @@ fastify.get("/api/admin/metrics", async (req, reply) => {
 		req.log.error(err);
 		reply.code(500);
 		return { success: false, error: "Failed to load cloud metrics" };
+	}
+});
+
+// Database Records Inspector (Owner Only)
+fastify.get("/api/admin/database-records", async (req, reply) => {
+	reply.header("Cache-Control", "no-store, no-cache, must-revalidate");
+	try {
+		const authHeader = req.headers.authorization;
+		let currentUser = null;
+		if (authHeader) {
+			const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
+			const session = verifySessionToken(token);
+			if (session && session.userId) {
+				currentUser = await getUserById(session.userId);
+			}
+		}
+
+		if (!isUserAdmin(currentUser)) {
+			reply.code(403);
+			return { success: false, error: "Access denied. Only the Owner (Alex Dalbey) can view database records." };
+		}
+
+		const query = req.query || {};
+		const table = query.table || "users";
+		const search = typeof query.search === "string" ? query.search : "";
+		const limit = parseInt(query.limit, 10) || 50;
+		const offset = parseInt(query.offset, 10) || 0;
+
+		const records = await getDatabaseTableRecords(table, search, limit, offset);
+		return records;
+	} catch (err) {
+		req.log.error(err, "Failed to load database records");
+		reply.code(500);
+		return { success: false, error: err.message || "Failed to load database records" };
 	}
 });
 
