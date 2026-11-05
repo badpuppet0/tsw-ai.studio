@@ -7111,7 +7111,7 @@ $('game-exit').addEventListener('click', exitCork7);
 $('game-reload').addEventListener('click', reloadCork7);
 $('game-fullscreen').addEventListener('click', toggleGameFullscreen);
 
-['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log', 'gta-modal', 'admin-modal', 'owner-role-modal', 'owner-commands-modal', 'report-site-modal', 'member-profile-modal'].forEach(function (id) {
+['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log', 'gta-modal', 'admin-modal', 'owner-role-modal', 'owner-commands-modal', 'report-site-modal', 'member-profile-modal', 'privacy-policy'].forEach(function (id) {
   var el = $(id);
   if (el) {
     el.addEventListener('click', function (ev) {
@@ -7149,7 +7149,7 @@ document.addEventListener('keydown', function (ev) {
     if (emojiPick) emojiPick.style.display = 'none';
     var mentionBox = $('mention-dropdown-box');
     if (mentionBox) mentionBox.style.display = 'none';
-    ['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log', 'gta-modal', 'admin-modal', 'owner-role-modal', 'owner-commands-modal', 'report-site-modal', 'member-profile-modal'].forEach(function (id) {
+    ['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log', 'gta-modal', 'admin-modal', 'owner-role-modal', 'owner-commands-modal', 'report-site-modal', 'member-profile-modal', 'privacy-policy'].forEach(function (id) {
       var el = $(id);
       if (el) {
         el.hidden = true;
