@@ -6848,7 +6848,7 @@ var STATUS_NOTICE = 'Updating…';
   addEventListener('keydown', function (ev) {
     if (!panicRecording) return;
     ev.preventDefault();
-    ev.stopPropagation();
+    ev.stopImmediatePropagation();
     panicRecording = false;
     put('panicKey', ev.key);
     if (panicRecordBtn) panicRecordBtn.textContent = 'Record a key';
