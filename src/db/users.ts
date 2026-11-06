@@ -171,7 +171,7 @@ export async function loginUser(username: string, password: string) {
   }
 
   const user = existing[0];
-  const isValid = verifyPassword(password, user.passwordHash);
+  const isValid = verifyPassword(password, user.passwordHash as string);
   if (!isValid) {
     throw new Error('Invalid username or password');
   }
@@ -1478,7 +1478,7 @@ export async function sendUserAlert(senderId: number, targetUserId: number, mess
   const pres = await db.execute(sql`
     SELECT last_seen_at FROM chat_presence WHERE user_id = ${targetUserId} LIMIT 1;
   `);
-  const lastSeen = pres.rows?.[0]?.last_seen_at;
+  const lastSeen = pres.rows?.[0]?.last_seen_at as string | number | Date | null | undefined;
   const isOnline = !!lastSeen && (Date.now() - new Date(lastSeen).getTime() < 90000);
 
   // If user is offline, DO NOT silently report delivered!
