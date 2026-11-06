@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createServer } from "node:http";
 import { fileURLToPath } from "url";
 import { hostname } from "node:os";

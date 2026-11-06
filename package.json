@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tsx src/index.js",
-    "start": "tsx src/index.js",
+    "dev": "tsx src/index.ts",
+    "start": "tsx src/index.ts",
     "build": "echo 'No build required'",
-    "preview": "tsx src/index.js",
+    "preview": "tsx src/index.ts",
     "clean": "rm -rf dist",
     "lint": "node -e 'console.log(\"Syntax valid\")'"
   },
