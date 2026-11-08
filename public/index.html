@@ -7583,6 +7583,8 @@ document.addEventListener('keydown', function (ev) {
 
     links.innerHTML = '';
     items.forEach(function (item, i) {
+      // Correct older saved Roblox entries that still point to roblox.com.
+      if ((item.name || '').trim().toLowerCase() === 'roblox') item.url = 'https://73.ip.nowgg.fun/';
       var isMovies = (item.name || '').toLowerCase() === 'movies';
       var card = document.createElement('div');
       card.className = 'shortcut-card' + (isMovies ? ' is-disabled' : '');
@@ -8155,6 +8157,7 @@ document.addEventListener('keydown', function (ev) {
     if (card) {
       var url = card.getAttribute('data-url');
       var name = (card.getAttribute('data-name') || '').toLowerCase();
+      if (name === 'roblox') url = 'https://73.ip.nowgg.fun/';
       if (name === 'movies' || card.classList.contains('is-disabled')) {
         var msgEl = $('home-msg');
         if (msgEl) {
@@ -8773,6 +8776,7 @@ document.addEventListener('keydown', function (ev) {
     if (!c) return;
     var url = c.getAttribute('data-url');
     var name = (c.getAttribute('data-name') || '').toLowerCase();
+    if (name === 'roblox') url = 'https://73.ip.nowgg.fun/';
     if (name === 'movies' || c.classList.contains('is-disabled')) {
       homeMsg.textContent = 'Movies is coming soon in an upcoming update!';
       setTimeout(function () { if (homeMsg.textContent === 'Movies is coming soon in an upcoming update!') homeMsg.textContent = ''; }, 3000);
