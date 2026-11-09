@@ -3628,6 +3628,134 @@ button { transition: background-color .15s ease, border-color .15s ease, color .
   #game-tab .game-embed-wrap { width:100%; }
 }
 
+
+/* ===================== TSW Christmas theme ===================== */
+:root {
+  --void: #07110f;
+  --panel: #101b18;
+  --edge: rgba(190, 220, 195, .16);
+  --steel: #a0b5a8;
+  --ink: #edf5ed;
+  --blue: #c83f4d;
+  --blue-dim: #8e2938;
+  --blue-hi: #e15b65;
+  --bar: 3.25rem;
+  --holiday-green: #27634b;
+  --holiday-gold: #e2bd70;
+}
+html, body {
+  background:
+    radial-gradient(ellipse at 50% 16%, rgba(37, 91, 67, .25), transparent 48%),
+    radial-gradient(ellipse at 8% 88%, rgba(153, 43, 54, .12), transparent 42%),
+    var(--void);
+}
+#sky { opacity: .78; }
+.mark { text-shadow: 0 0 34px rgba(226,189,112,.12); }
+.mark b { color: var(--holiday-gold); }
+.tag { color: #a8b9aa; }
+.field {
+  background: radial-gradient(circle 120px at var(--mouse-x, -999px) var(--mouse-y, -999px), rgba(200,63,77,.2), rgba(12,25,20,.94) 75%);
+  border-color: rgba(226,189,112,.28);
+  box-shadow: 0 0 0 1px rgba(39,99,75,.18), 0 12px 38px rgba(0,0,0,.2);
+}
+.field:hover, .field:focus-within {
+  border-color: rgba(226,189,112,.62);
+  box-shadow: 0 0 25px rgba(200,63,77,.15), 0 0 0 3px rgba(226,189,112,.08);
+}
+.field::before {
+  background: radial-gradient(circle, rgba(226,189,112,.42) 0%, rgba(200,63,77,.14) 50%, transparent 70%);
+}
+.go, .primary {
+  background: linear-gradient(135deg, #d6535d, #a92f43);
+  color: #fff8e9;
+  box-shadow: inset 0 1px rgba(255,255,255,.18), 0 3px 12px rgba(145,35,51,.2);
+}
+.go:hover, .primary:hover { background: linear-gradient(135deg, #e46a70, #bd3a4b); }
+.shortcut-card {
+  background: linear-gradient(145deg, rgba(20,42,32,.94), rgba(13,25,21,.96));
+  border-color: rgba(184,211,185,.13);
+  box-shadow: inset 0 1px rgba(255,255,255,.025);
+}
+.shortcut-card:hover {
+  background: linear-gradient(145deg, rgba(32,73,52,.96), rgba(25,43,33,.98));
+  border-color: rgba(226,189,112,.42);
+  box-shadow: 0 7px 22px rgba(0,0,0,.34), 0 0 18px rgba(39,99,75,.12);
+}
+.shortcut-card .sc-label { color: #b1c5b4; }
+.shortcut-add-card {
+  border-color: rgba(226,189,112,.25);
+  color: #b8c7b9;
+}
+.shortcut-add-card:hover { border-color: var(--holiday-gold); color: #fff4d8; }
+.cog, .status {
+  background: rgba(13,28,22,.82);
+  border-color: rgba(226,189,112,.2);
+}
+.cog:hover { border-color: rgba(226,189,112,.55); color: #f5dfaa; }
+.status[data-s="up"] { color: #b9d9c3; }
+.status[data-s="up"] .dot { background: #69c58a; }
+.status[data-s="down"] { color: #f0b4b4; }
+.panel, .gta-panel {
+  background: linear-gradient(145deg, #14251d, #0c1713);
+  border-color: rgba(226,189,112,.2);
+  box-shadow: 0 25px 70px rgba(0,0,0,.72);
+}
+.tabs button.on { border-bottom-color: var(--holiday-gold); color: #f5dfaa; }
+.plain { border-color: rgba(226,189,112,.22); }
+.plain:hover, .f input[type=text]:focus, .f select:focus { border-color: var(--holiday-gold); }
+.f input[type=text], .f select, .bar .addr { background: #091510; border-color: rgba(190,220,195,.17); }
+.bar { background: rgba(14,29,22,.98); border-bottom-color: rgba(226,189,112,.18); }
+.bar .addr:focus { border-color: var(--holiday-gold); }
+.load { background: linear-gradient(90deg, #27634b, #e2bd70, #c83f4d); }
+.gta-opt-card:hover { background: rgba(39,99,75,.2); border-color: var(--holiday-gold); }
+.gta-opt-num { background: rgba(226,189,112,.12); color: var(--holiday-gold); }
+.gta-opt-go { color: var(--holiday-gold); }
+.note { color: #71877a; }
+/* A fine string of warm holiday lights above the home content */
+#home::before {
+  content: "";
+  position: absolute;
+  top: max(1.1rem, env(safe-area-inset-top));
+  left: 50%;
+  width: min(31rem, 78vw);
+  height: 15px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  opacity: .88;
+  background:
+    radial-gradient(ellipse at 8% 80%, #d85a60 0 3px, transparent 4px),
+    radial-gradient(ellipse at 25% 80%, #e2bd70 0 3px, transparent 4px),
+    radial-gradient(ellipse at 42% 80%, #6cbd8b 0 3px, transparent 4px),
+    radial-gradient(ellipse at 59% 80%, #d85a60 0 3px, transparent 4px),
+    radial-gradient(ellipse at 76% 80%, #e2bd70 0 3px, transparent 4px),
+    radial-gradient(ellipse at 93% 80%, #6cbd8b 0 3px, transparent 4px);
+  filter: drop-shadow(0 0 4px rgba(226,189,112,.55));
+}
+#home::after {
+  content: "";
+  position: absolute;
+  top: max(1.55rem, env(safe-area-inset-top));
+  left: 50%;
+  width: min(32rem, 82vw);
+  height: 9px;
+  transform: translateX(-50%);
+  border-top: 1px solid rgba(226,189,112,.32);
+  border-radius: 50%;
+  pointer-events: none;
+}
+@keyframes holidayTwinkle {
+  0%, 100% { opacity: .72; filter: drop-shadow(0 0 3px rgba(226,189,112,.3)); }
+  50% { opacity: 1; filter: drop-shadow(0 0 7px rgba(226,189,112,.75)); }
+}
+#home::before { animation: holidayTwinkle 3.8s ease-in-out infinite; }
+@media (max-width: 520px) {
+  #home { padding-top: 2.6rem; }
+  #home::before { top: max(.8rem, env(safe-area-inset-top)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #home::before { animation: none; }
+}
+
 </style>
 
 <style id="tsw-chat-polish">
