@@ -3608,6 +3608,25 @@ button { transition: background-color .15s ease, border-color .15s ease, color .
   font-size:9px; font-weight:600; line-height:1.25;
   letter-spacing:.02em; pointer-events:none;
 }
+
+/* Full-screen Games workspace, matching the Settings page layout. */
+#game-tab { position:fixed; inset:0; z-index:20; display:flex; flex-direction:column; padding:0; background:var(--void); }
+#game-tab[hidden] { display:none; }
+#game-tab .game-workspace-head { position:relative; z-index:2; flex:none; min-height:4.5rem; display:flex; align-items:center; justify-content:space-between; padding:1rem clamp(1.25rem,4vw,3rem); background:var(--panel); border-bottom:1px solid var(--edge); }
+#game-tab .game-workspace-head h2 { font-size:1.2rem; font-weight:600; }
+#game-tab .game-workspace-head button { width:2.25rem; height:2.25rem; display:grid; place-items:center; border:0; border-radius:8px; background:transparent; color:var(--steel); font-size:1.7rem; line-height:1; cursor:pointer; }
+#game-tab .game-workspace-head button:hover { background:#151a28; color:var(--ink); }
+#game-tab #game-view { flex:1; min-height:0; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.65rem; overflow:auto; padding:clamp(1rem,3vw,2.5rem); }
+#game-tab .game-embed-wrap { position:relative; width:min(100%,900px); aspect-ratio:16/9; flex:none; overflow:hidden; }
+#game-tab .game-embed-wrap iframe { position:absolute; inset:0; width:100%; height:100%; border:0; border-radius:8px; background:#000; }
+#game-tab .game-embed-more { width:min(100%,900px); font-size:12px; color:var(--steel); }
+#game-tab .game-embed-more a { color:var(--steel); text-decoration:none; }
+#game-tab .game-embed-more a:hover { color:var(--blue-hi); text-decoration:underline; }
+@media(max-width:640px) {
+  #game-tab .game-workspace-head { min-height:3.8rem; padding:.75rem 1rem; }
+  #game-tab #game-view { padding:1rem .75rem; }
+  #game-tab .game-embed-wrap { width:100%; }
+}
 </style>
 
 <style id="tsw-chat-polish">
@@ -4353,39 +4372,6 @@ button { transition: background-color .15s ease, border-color .15s ease, color .
   </div>
 </div>
 
-<div class="overlay" id="games" hidden>
-  <div class="panel games-modal-panel" role="dialog" aria-modal="true" aria-labelledby="gm-h">
-    <div class="phead">
-      <div>
-        <h2 id="gm-h" style="margin:0;font-size:1.05rem;font-weight:600;">Games</h2>
-        <div style="font-size:.78rem;color:var(--steel);margin-top:.15rem;">Cork7 Arcade</div>
-      </div>
-      <button data-close aria-label="Close">&times;</button>
-    </div>
-    <div class="pbody" style="padding:1rem;">
-      <p style="color:var(--steel);font-size:.82rem;margin:0 0 1rem;">Choose a game source. It opens in TSW's built-in player, so you can try games without leaving the site.</p>
-      <div class="game-sources-grid">
-        <button class="game-library-card cork7-game-card" data-game-title="GN Math" data-game-url="https://gn-math.dev" data-game-domain="GN Math" aria-label="Open GN Math games">
-          <span class="game-cover-wrap"><span class="game-cover-fallback">GN</span></span>
-          <span class="game-card-title">GN Math</span><span class="game-card-play">Browse games</span>
-        </button>
-        <button class="game-library-card cork7-game-card" data-game-title="Seraph" data-game-url="https://c930n.github.io/seraph/index.html" data-game-domain="Seraph" aria-label="Open Seraph games">
-          <span class="game-cover-wrap"><span class="game-cover-fallback">S</span></span>
-          <span class="game-card-title">Seraph</span><span class="game-card-play">Browse games</span>
-        </button>
-        <button class="game-library-card cork7-game-card" data-game-title="Cork7 Arcade" data-game-url="https://cork7.com" data-game-domain="Cork7" aria-label="Open Cork7 Arcade">
-          <span class="game-cover-wrap"><img class="game-cover cork7-logo" src="https://cork7.com/favicon.ico" alt="Cork7 Arcade logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="game-cover-fallback" style="display:none">Cork7</span></span>
-          <span class="game-card-title">Cork7 Arcade</span><span class="game-card-play">Browse games</span>
-        </button>
-        <button class="game-library-card cork7-game-card" data-game-title="x8rr Games" data-game-url="https://github.com/x8rr/games" data-game-domain="x8rr Games" aria-label="Open x8rr Games source">
-          <span class="game-cover-wrap"><span class="game-cover-fallback">x8rr</span></span>
-          <span class="game-card-title">x8rr Games</span><span class="game-card-play">Open source</span>
-        </button>
-      </div>
-      <p style="color:var(--steel);font-size:.75rem;margin:1rem 0 0;">Some sources block embedding or may not load every game. More sources can be added once their correct catalog URLs are confirmed.</p>
-    </div>
-  </div>
-</div>
 <div class="overlay" id="info" hidden>
   <div class="panel" role="dialog" aria-modal="true" aria-labelledby="info-h">
     <div class="phead"><h2 id="info-h">Server info</h2><button data-close aria-label="Close">&times;</button></div>
@@ -5333,21 +5319,17 @@ button { transition: background-color .15s ease, border-color .15s ease, color .
 </style>
 
 
-<section id="game-tab" hidden>
-  <div class="game-bar">
-    <div class="game-title-wrap">
-      <button class="game-act-btn" id="btn-game-toggle-sb" type="button" title="Toggle Sidebar" aria-label="Toggle Sidebar" style="padding:.32rem .55rem"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 3v18"/></svg></button>
-      <span class="game-badge"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 10v5M4.5 12.5h5"/><circle cx="16" cy="11.5" r=".7"/><circle cx="18.5" cy="13.5" r=".7"/></svg> Cork7</span>
-      <span class="game-site-pill">cork7.com</span>
-      <span id="game-status-pill" class="game-status-pill">Ready</span>
-    </div>
-    <div class="game-actions">
-      <button class="game-act-btn" id="game-reload" type="button" title="Restart Cork7"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg> Restart</button>
-      <button class="game-act-btn" id="game-fullscreen" type="button" title="Toggle Fullscreen"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg> Fullscreen</button>
-      <button class="game-act-btn exit" id="game-exit" type="button" title="Exit to Home"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Exit Game</button>
-    </div>
+<section id="game-tab" hidden aria-label="Games">
+  <div class="game-workspace-head">
+    <h2>Games</h2>
+    <button id="game-exit" type="button" aria-label="Close Games" title="Close">&times;</button>
   </div>
-  <div id="game-view"></div>
+  <div id="game-view">
+    <div class="game-embed-wrap">
+      <iframe id="nite-game-frame" src="https://nite.games/embed/minecraft" title="Minecraft" allow="fullscreen; autoplay; gamepad; pointer-lock"></iframe>
+    </div>
+    <p class="game-embed-more"><a href="https://nite.games/game/minecraft" target="_blank" rel="noopener noreferrer">Play more free games on Nite.Games</a></p>
+  </div>
 </section>
 
 <!-- Proxy engine scripts: order matters. These files are served by the Scramjet-App server. -->
@@ -6860,11 +6842,51 @@ var STATUS_NOTICE = 'Updating…';
   };
 })();
 
-/* ===================== Cork7 Dedicated Game Tab ===================== */
-var tswCurrentGame = { title: 'Cork7 Arcade', url: 'https://cork7.com', domain: 'Cork7' };
-function initGameLibrary() { /* Only Cork7 is available for now. */ }
+/* ===================== Full-screen Games Workspace ===================== */
+var tswCurrentGame = { title: 'Minecraft', url: 'https://nite.games/embed/minecraft', domain: 'Nite.Games' };
+
 function openEmbeddedGame(title, url, domain) {
   ['settings', 'addlink', 'games', 'info', 'log', 'gta-modal', 'admin-modal'].forEach(function (id) {
+    var el = $(id); if (el) el.hidden = true;
+  });
+  tswCurrentGame = { title: title || 'Minecraft', url: url || 'https://nite.games/embed/minecraft', domain: domain || 'Nite.Games' };
+  if (typeof window.TSWMarkActiveTabAsGame === 'function') window.TSWMarkActiveTabAsGame(tswCurrentGame.title, tswCurrentGame.url);
+  var frame = $('nite-game-frame');
+  if (frame) {
+    frame.title = tswCurrentGame.title;
+    frame.src = tswCurrentGame.url;
+  }
+  $('game-tab').hidden = false;
+}
+
+function openCork7() {
+  openEmbeddedGame('Minecraft', 'https://nite.games/embed/minecraft', 'Nite.Games');
+}
+
+function exitCork7() {
+  $('game-tab').hidden = true;
+  if (typeof window.TSWExitGameTab === 'function') window.TSWExitGameTab();
+  var frame = $('nite-game-frame');
+  if (frame) frame.src = 'about:blank';
+  if (document.fullscreenElement && document.exitFullscreen) {
+    try { document.exitFullscreen(); } catch (e) {}
+  }
+}
+
+function reloadCork7() {
+  var frame = $('nite-game-frame');
+  if (frame) frame.src = tswCurrentGame.url;
+}
+
+window.TSWOpenCork7 = openCork7;
+
+/* The Games sidebar button opens the full-screen workspace directly. */
+var gamesBtnEl = $('gamesbtn');
+if (gamesBtnEl) gamesBtnEl.addEventListener('click', openCork7);
+
+$('game-exit').addEventListener('click', exitCork7);
+
+['settings', 'addlink', 'games', 'info', 'log', 'gta-modal', 'admin-modal'].forEach(function (id) {
     var el = $(id); if (el) el.hidden = true;
   });
   tswCurrentGame = { title: title, url: url, domain: domain || new URL(url).hostname };
@@ -8726,7 +8748,7 @@ document.addEventListener('keydown', function (ev) {
   });
   if (sbRel) sbRel.addEventListener('click', function () {
     if (!$('game-tab').hidden) {
-      var gr = $('game-reload'); if (gr) gr.click();
+      reloadCork7();
     } else if (!$('browse').hidden) {
       var br = $('btn-reload'); if (br) br.click();
     } else {
