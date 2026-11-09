@@ -6846,7 +6846,7 @@ var STATUS_NOTICE = 'Updating…';
 var tswCurrentGame = { title: 'Minecraft', url: 'https://nite.games/embed/minecraft', domain: 'Nite.Games' };
 
 function openEmbeddedGame(title, url, domain) {
-  ['settings', 'addlink', 'games', 'info', 'log', 'gta-modal', 'admin-modal'].forEach(function (id) {
+  ['settings', 'addlink', 'info', 'log', 'gta-modal', 'admin-modal'].forEach(function (id) {
     var el = $(id); if (el) el.hidden = true;
   });
   tswCurrentGame = { title: title || 'Minecraft', url: url || 'https://nite.games/embed/minecraft', domain: domain || 'Nite.Games' };
@@ -6880,103 +6880,9 @@ function reloadCork7() {
 
 window.TSWOpenCork7 = openCork7;
 
-/* The Games sidebar button opens the full-screen workspace directly. */
 var gamesBtnEl = $('gamesbtn');
 if (gamesBtnEl) gamesBtnEl.addEventListener('click', openCork7);
-
 $('game-exit').addEventListener('click', exitCork7);
-
-['settings', 'addlink', 'games', 'info', 'log', 'gta-modal', 'admin-modal'].forEach(function (id) {
-    var el = $(id); if (el) el.hidden = true;
-  });
-  tswCurrentGame = { title: title, url: url, domain: domain || new URL(url).hostname };
-  if (typeof window.TSWMarkActiveTabAsGame === 'function') window.TSWMarkActiveTabAsGame(title, url);
-  $('game-tab').hidden = false;
-  var gView = $('game-view'), pill = $('game-status-pill');
-  var titleEl = $('game-tab').querySelector('.game-badge');
-  var domainEl = $('game-tab').querySelector('.game-site-pill');
-  if (titleEl) titleEl.textContent = title;
-  if (domainEl) domainEl.textContent = domain || new URL(url).hostname;
-  var reloadBtn = $('game-reload');
-  if (reloadBtn) reloadBtn.title = 'Reload ' + title;
-  if (pill) pill.textContent = 'Loading…';
-  gView.innerHTML = '';
-  var e = window.TSWEngine;
-  function createDirectFrame() {
-    gView.innerHTML = '';
-    var ifr = document.createElement('iframe');
-    ifr.src = url;
-    ifr.setAttribute('allow', 'fullscreen; autoplay; gamepad');
-    ifr.setAttribute('loading', 'eager');
-    ifr.setAttribute('referrerpolicy', 'no-referrer');
-    ifr.addEventListener('load', function () { if (pill) pill.textContent = 'Loaded'; });
-    gView.appendChild(ifr);
-  }
-  if (e && e.open) {
-    Promise.resolve(e.ready).then(function () {
-      try { e.open(url, gView); if (pill) pill.textContent = 'Opening…'; }
-      catch (err) { createDirectFrame(); }
-    }).catch(createDirectFrame);
-  } else createDirectFrame();
-}
-function openCork7() { openEmbeddedGame('Cork7 Arcade', 'https://cork7.com', 'Cork7'); }
-
-function exitCork7() {
-  $('game-tab').hidden = true;
-  if (typeof window.TSWExitGameTab === 'function') {
-    window.TSWExitGameTab();
-  }
-  $('game-view').innerHTML = '';
-  if (document.fullscreenElement) {
-    try { document.exitFullscreen(); } catch (e) {}
-  }
-}
-
-function reloadCork7() {
-  var gView = $('game-view'), ifr = gView.querySelector('iframe'), pill = $('game-status-pill');
-  if (pill) pill.textContent = 'Reloading…';
-  if (ifr) {
-    try { ifr.src = ifr.src; setTimeout(function () { if (pill) pill.textContent = 'Loaded'; }, 900); }
-    catch (e) { openEmbeddedGame(tswCurrentGame.title, tswCurrentGame.url, tswCurrentGame.domain); }
-  } else openEmbeddedGame(tswCurrentGame.title, tswCurrentGame.url, tswCurrentGame.domain);
-}
-
-function toggleGameFullscreen() {
-  var el = $('game-tab');
-  if (!document.fullscreenElement) {
-    if (el.requestFullscreen) el.requestFullscreen().catch(function () {});
-  } else {
-    if (document.exitFullscreen) document.exitFullscreen().catch(function () {});
-  }
-}
-
-window.TSWOpenCork7 = openCork7;
-
-// Open Games Modal when clicking the Games button in the sidebar
-var gamesBtnEl = $('gamesbtn');
-if (gamesBtnEl) {
-  gamesBtnEl.addEventListener('click', function () {
-    var gm = $('games');
-    if (gm) gm.hidden = false;
-  });
-}
-
-var gamesModalEl = $('games');
-if (gamesModalEl) {
-  gamesModalEl.addEventListener('click', function (ev) {
-    var gameCard = ev.target.closest('[data-game-url]');
-    if (gameCard) {
-      ev.stopPropagation();
-      gamesModalEl.hidden = true;
-      openEmbeddedGame(gameCard.getAttribute('data-game-title'), gameCard.getAttribute('data-game-url'), gameCard.getAttribute('data-game-domain'));
-    }
-  });
-  if (gamesBtnEl) gamesBtnEl.addEventListener('click', initGameLibrary);
-  initGameLibrary();
-}
-$('game-exit').addEventListener('click', exitCork7);
-$('game-reload').addEventListener('click', reloadCork7);
-$('game-fullscreen').addEventListener('click', toggleGameFullscreen);
 
 ['settings', 'addlink', 'games', 'info', 'profiles-modal', 'welcome-modal', 'chat-modal', 'log', 'gta-modal', 'admin-modal', 'owner-role-modal', 'owner-commands-modal', 'report-site-modal', 'member-profile-modal', 'privacy-policy'].forEach(function (id) {
   var el = $(id);
