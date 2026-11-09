@@ -1665,215 +1665,6 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   color: #e2e8f0;
   word-break: break-word;
 }
-/* Update Countdown Cards (Hype update ticker) */
-.update-countdown-card {
-  background: rgba(15, 23, 42, 0.72);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(96, 165, 250, 0.22);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5), 0 0 16px -4px rgba(59, 130, 246, 0.2);
-  padding: 0.65rem 1rem;
-  transition: all 0.25s ease;
-  user-select: none;
-}
-.update-countdown-card.home-variant {
-  margin: 1rem auto 1.25rem auto;
-  max-width: 440px;
-  width: 90%;
-}
-/* Home countdown: compact, understated, and below the shortcuts. */
-.update-countdown-card.home-variant {
-  margin: .55rem auto 0;
-  max-width: 340px;
-  width: min(92%, 340px);
-  padding: .45rem .7rem;
-  background: rgba(9, 12, 19, .82);
-  border: 1px solid rgba(148, 163, 184, .16);
-  border-radius: 9px;
-  box-shadow: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-.home-variant .ucc-header {
-  margin-bottom: .25rem;
-  gap: .35rem;
-}
-.home-variant .ucc-badge {
-  color: #aab4c5;
-  font-size: .66rem;
-  font-weight: 600;
-  letter-spacing: .01em;
-  text-transform: none;
-}
-.home-variant .ucc-pulse {
-  width: 6px;
-  height: 6px;
-  background: #8b98aa;
-  box-shadow: none;
-  animation: none;
-}
-.home-variant .ucc-target-date {
-  font-size: .65rem;
-  color: #778296;
-  letter-spacing: 0;
-}
-.home-variant .ucc-timer-grid { gap: .28rem; }
-.home-variant .ucc-unit {
-  min-width: 40px;
-  padding: .15rem .35rem;
-  border: 0;
-  border-radius: 5px;
-  background: rgba(255, 255, 255, .035);
-}
-.home-variant .ucc-num {
-  font-size: 1rem;
-  font-weight: 650;
-  color: #d9e0eb;
-  text-shadow: none;
-}
-.home-variant .ucc-label {
-  font-size: .5rem;
-  letter-spacing: .04em;
-  color: #7f899b;
-}
-.home-variant .ucc-colon {
-  font-size: .85rem;
-  color: #667085;
-}
-@media (max-width: 480px) {
-  .update-countdown-card.home-variant { margin-top: .45rem; padding: .4rem .5rem; }
-  .home-variant .ucc-target-date { font-size: .6rem; }
-  .home-variant .ucc-unit { min-width: 34px; }
-}
-.update-countdown-card.announcements-variant {
-  margin: 0;
-  width: 100%;
-  background: rgba(15, 23, 42, 0.85);
-  border-color: rgba(234, 179, 8, 0.3);
-  box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.5), 0 0 14px -4px rgba(234, 179, 8, 0.2);
-}
-.ucc-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.45rem;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-.ucc-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #93c5fd;
-}
-.announcements-variant .ucc-badge {
-  color: #fde047;
-}
-.ucc-pulse {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #3b82f6;
-  box-shadow: 0 0 8px #3b82f6;
-  animation: uccPulseAnim 1.6s ease-in-out infinite;
-}
-.announcements-variant .ucc-pulse {
-  background: #eab308;
-  box-shadow: 0 0 8px #eab308;
-}
-@keyframes uccPulseAnim {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.35; transform: scale(0.8); }
-}
-.ucc-target-date {
-  font-size: 0.74rem;
-  color: #94a3b8;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-}
-.ucc-delay-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: .3rem;
-  font-size: .62rem;
-  font-weight: 700;
-  color: #fbbf24;
-  background: rgba(245, 158, 11, 0.16);
-  border: 1px solid rgba(245, 158, 11, 0.4);
-  padding: .15rem .45rem;
-  border-radius: 999px;
-  letter-spacing: .02em;
-  white-space: nowrap;
-  vertical-align: middle;
-  line-height: 1.2;
-}
-.home-variant .ucc-delay-pill {
-  font-size: .56rem;
-  padding: .1rem .38rem;
-}
-.ucc-timer-grid {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-}
-.ucc-unit {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: rgba(2, 6, 23, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  padding: 0.3rem 0.6rem;
-  min-width: 52px;
-}
-.ucc-num {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: #f8fafc;
-  line-height: 1.1;
-  font-variant-numeric: tabular-nums;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  text-shadow: 0 0 10px rgba(96, 165, 250, 0.4);
-}
-.announcements-variant .ucc-num {
-  text-shadow: 0 0 10px rgba(234, 179, 8, 0.35);
-}
-.ucc-label {
-  font-size: 0.58rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #94a3b8;
-  margin-top: 0.15rem;
-}
-.ucc-colon {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: rgba(148, 163, 184, 0.5);
-  line-height: 1;
-  margin-top: -0.5rem;
-}
-[data-theme="light"] .update-countdown-card {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(37, 99, 235, 0.25);
-  box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.08);
-}
-[data-theme="light"] .ucc-badge { color: #2563eb; }
-[data-theme="light"] .announcements-variant .ucc-badge { color: #b45309; }
-[data-theme="light"] .ucc-target-date { color: #475569; }
-[data-theme="light"] .ucc-unit {
-  background: rgba(241, 245, 249, 0.9);
-  border-color: rgba(0, 0, 0, 0.08);
-}
-[data-theme="light"] .ucc-num { color: #0f172a; text-shadow: none; }
-[data-theme="light"] .ucc-label { color: #64748b; }
-[data-theme="light"] .ucc-colon { color: rgba(100, 116, 139, 0.5); }
-
 .public-locked-bar {
   padding: .75rem 1.1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.07);
@@ -3723,6 +3514,32 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
 .update-notice-close{position:absolute;right:10px;top:8px;width:26px;height:26px;border:0;border-radius:6px;background:transparent;color:#94a3b8;font-size:1.2rem;cursor:pointer}
 .update-notice-close:hover{background:rgba(255,255,255,.08);color:#fff}
 @media(max-width:520px){.update-notice{right:12px;bottom:12px;width:calc(100vw - 24px)}}
+
+/* TSW visual baseline: simple surfaces, clear borders, restrained motion */
+:root {
+  --void: #05070d; --panel: #0d1119; --edge: #252b36;
+  --steel: #929baa; --ink: #e4e8ef; --blue: #6595d4;
+  --blue-dim: #36577f; --blue-hi: #82ace0;
+}
+.field {
+  background: #0d1119; border-radius: 8px;
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+  transition: border-color .15s ease;
+}
+.field:hover, .field:focus-within { border-color: #526b8b; box-shadow: none; }
+.field::before { display: none; }
+.go { border-radius: 7px; background: #426b9d; color: #fff; }
+.go:hover { background: #527eaf; }
+.shortcut-card, .panel, .settings-fullscreen-panel, .chat-panel,
+.modal-panel, .profile-card, .settings-section { box-shadow: none; }
+.shortcut-card {
+  border-radius: 9px; background: #0d1119; border-color: #252b36;
+  transition: background .15s ease, border-color .15s ease;
+}
+.shortcut-card:hover { background: #131a25; border-color: #526b8b; transform: none; }
+button, input, select, textarea { font-family: inherit; }
+button { transition: background-color .15s ease, border-color .15s ease, color .15s ease; }
+
 </style>
 
 <style id="tsw-chat-polish">
@@ -4062,43 +3879,6 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
             <div>
               <div class="chat-convo-head-name" id="public-header-title"># chat-1</div>
               <div class="chat-convo-head-sub" id="public-header-sub" style="color:#94a3b8;">Public channel for all members</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pinned Countdown Banner for Announcements -->
-        <div id="announcements-pinned-timer" style="display:none;padding:.75rem 1rem 0.25rem 1rem;flex:none;">
-          <div class="update-countdown-card announcements-variant" aria-label="Announcement Countdown to Major Update">
-            <div class="ucc-header">
-              <div style="display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;">
-                <span class="ucc-badge"><span class="ucc-pulse" style="background:#f59e0b;box-shadow:0 0 8px #f59e0b;"></span> MAJOR UPDATE COUNTDOWN</span>
-                <span class="ucc-delay-pill" title="Delayed Due to Issues">
-                  <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:none;color:#f59e0b;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                  <span>(Delayed Due to Issues)</span>
-                </span>
-              </div>
-              <span class="ucc-target-date">Tuesday, Nov 3 @ 8:00 AM</span>
-            </div>
-            <div class="ucc-timer-grid">
-              <div class="ucc-unit">
-                <span class="ucc-num ucc-days-val">00</span>
-                <span class="ucc-label">DAYS</span>
-              </div>
-              <span class="ucc-colon">:</span>
-              <div class="ucc-unit">
-                <span class="ucc-num ucc-hours-val">00</span>
-                <span class="ucc-label">HOURS</span>
-              </div>
-              <span class="ucc-colon">:</span>
-              <div class="ucc-unit">
-                <span class="ucc-num ucc-mins-val">00</span>
-                <span class="ucc-label">MIN</span>
-              </div>
-              <span class="ucc-colon">:</span>
-              <div class="ucc-unit">
-                <span class="ucc-num ucc-secs-val">00</span>
-                <span class="ucc-label">SEC</span>
-              </div>
             </div>
           </div>
         </div>
@@ -5342,40 +5122,6 @@ html.reduced-motion .load.on { animation: none !important; width: 92%; transform
       <!-- Loaded dynamically from active Cloud SQL profile -->
     </nav>
 
-    <!-- Compact update countdown below shortcuts -->
-    <div class="update-countdown-card home-variant" id="home-update-countdown" aria-label="Countdown to Large Update">
-      <div class="ucc-header">
-        <div style="display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;">
-          <span class="ucc-badge"><span class="ucc-pulse" style="background:#f59e0b;box-shadow:0 0 6px #f59e0b;"></span> Large Update...</span>
-          <span class="ucc-delay-pill" title="Delayed Due to Issues">
-            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:none;color:#f59e0b;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            <span>(Delayed Due to Issues)</span>
-          </span>
-        </div>
-        <span class="ucc-target-date">Tuesday, Nov 3 @ 8:00 AM</span>
-      </div>
-      <div class="ucc-timer-grid">
-        <div class="ucc-unit">
-          <span class="ucc-num ucc-days-val" id="ucc-days">00</span>
-          <span class="ucc-label">DAYS</span>
-        </div>
-        <span class="ucc-colon">:</span>
-        <div class="ucc-unit">
-          <span class="ucc-num ucc-hours-val" id="ucc-hours">00</span>
-          <span class="ucc-label">HRS</span>
-        </div>
-        <span class="ucc-colon">:</span>
-        <div class="ucc-unit">
-          <span class="ucc-num ucc-mins-val" id="ucc-mins">00</span>
-          <span class="ucc-label">MIN</span>
-        </div>
-        <span class="ucc-colon">:</span>
-        <div class="ucc-unit">
-          <span class="ucc-num ucc-secs-val" id="ucc-secs">00</span>
-          <span class="ucc-label">SEC</span>
-        </div>
-      </div>
-    </div>
     <p class="msg" id="home-msg" role="status"></p>
   </div>
   <p class="note">Some sites block proxies and won't load. <a href="https://docs.google.com/forms/d/e/1FAIpQLScupiUZuqQsngFai_QPQRWn06LpuZy3VGZOEyIUY0DAZ0qJxw/viewform" id="home-report-link" class="report-site-trigger">Report a broken site</a></p>
@@ -9181,12 +8927,6 @@ document.addEventListener('keydown', function (ev) {
     if (publicHeaderTitle) publicHeaderTitle.textContent = cfg.title;
     if (publicHeaderSub) publicHeaderSub.textContent = cfg.sub;
 
-    // Show pinned timer only in announcements
-    var pinnedTimer = $('announcements-pinned-timer');
-    if (pinnedTimer) {
-      pinnedTimer.style.display = (channel === 'announcements') ? 'block' : 'none';
-    }
-
     var user = getCurrentUser();
     var isOwner = user && (
       user.role === 'owner' ||
@@ -11742,41 +11482,6 @@ document.addEventListener('keydown', function (ev) {
   window.TSWOpenAdmin = openAdmin;
 })();
 
-/* ===================== Large Update Countdown (Tuesday, Nov 3 @ 8:00 AM - Delayed) ===================== */
-(function initUpdateCountdown() {
-  // Target: Tuesday, November 3, 2026 at 8:00 AM local time (Delayed Due to Issues)
-  var targetDate = new Date(2026, 10, 3, 8, 0, 0);
-
-  function tick() {
-    var now = new Date();
-    var diff = targetDate.getTime() - now.getTime();
-    var days = 0, hours = 0, mins = 0, secs = 0;
-    if (diff > 0) {
-      days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      secs = Math.floor((diff % (1000 * 60)) / 1000);
-    }
-
-    var dStr = String(days).padStart(2, '0');
-    var hStr = String(hours).padStart(2, '0');
-    var mStr = String(mins).padStart(2, '0');
-    var sStr = String(secs).padStart(2, '0');
-
-    var daysEls = document.querySelectorAll('.ucc-days-val');
-    var hoursEls = document.querySelectorAll('.ucc-hours-val');
-    var minsEls = document.querySelectorAll('.ucc-mins-val');
-    var secsEls = document.querySelectorAll('.ucc-secs-val');
-
-    for (var i = 0; i < daysEls.length; i++) daysEls[i].textContent = dStr;
-    for (var j = 0; j < hoursEls.length; j++) hoursEls[j].textContent = hStr;
-    for (var k = 0; k < minsEls.length; k++) minsEls[k].textContent = mStr;
-    for (var l = 0; l < secsEls.length; l++) secsEls[l].textContent = sStr;
-  }
-
-  tick();
-  setInterval(tick, 1000);
-})();
 </script>
 <script>
 /* ===================== Site Update Notice ===================== */
