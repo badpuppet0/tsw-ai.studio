@@ -3578,6 +3578,36 @@ button { transition: background-color .15s ease, border-color .15s ease, color .
   .field, .shortcut-card, .go, button, .plain { transition: none; }
   .shortcut-card:hover, .go:active, button:active, .plain:active { transform: none; }
 }
+/* Cursor-following glow inside the search field */
+.field {
+  background-color: #0d1119;
+  background-image: radial-gradient(150px circle at var(--mouse-x, -999px) var(--mouse-y, -999px), rgba(101,149,212,.23), transparent 72%);
+  background-repeat: no-repeat;
+}
+.field:hover::before, .field:focus-within::before { opacity: .22; }
+#settings .settings-fullscreen-panel { display:flex; flex-direction:column; min-height:0; }
+#settings .pbody {
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+  scrollbar-width:thin;
+  scrollbar-color:#526b8b #0a0e15;
+}
+#settings .pbody::-webkit-scrollbar { width:10px; }
+#settings .pbody::-webkit-scrollbar-track { background:#0a0e15; border-left:1px solid #202938; }
+#settings .pbody::-webkit-scrollbar-thumb {
+  background:#394b63; border:2px solid #0a0e15; border-radius:6px;
+}
+#settings .pbody::-webkit-scrollbar-thumb:hover { background:#607fa6; }
+.shortcut-card .sc-new-pill {
+  position:absolute; top:7px; left:7px; z-index:1;
+  padding:2px 6px; border:1px solid #496b91; border-radius:4px;
+  background:#172536; color:#b8d2f0;
+  font-size:9px; font-weight:600; line-height:1.25;
+  letter-spacing:.02em; pointer-events:none;
+}
 </style>
 
 <style id="tsw-chat-polish">
@@ -7404,6 +7434,7 @@ document.addEventListener('keydown', function (ev) {
         '<div class="sc-icon">' + iconHtml + '</div>' +
         '<div class="sc-label">' + escapeHtml(item.name) + '</div>' +
         (isMovies ? '<span class="sc-soon-pill">Soon</span>' : '') +
+        ((item.name || '').trim().toLowerCase() === 'roblox' ? '<span class="sc-new-pill">New</span>' : '') +
         '<button type="button" class="sc-del" data-remove="' + i + '" title="Remove ' + escapeHtml(item.name) + '" aria-label="Remove ' + escapeHtml(item.name) + '">&times;</button>';
 
       links.appendChild(card);
