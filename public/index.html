@@ -3627,6 +3627,28 @@ button { transition: background-color .15s ease, border-color .15s ease, color .
   #game-tab #game-view { padding:1rem .75rem; }
   #game-tab .game-embed-wrap { width:100%; }
 }
+
+/* Small Christmas light string wrapped around the search bar. */
+#home-form .christmas-lights {
+  position:absolute; inset:0; z-index:2; pointer-events:none; border-radius:inherit;
+}
+#home-form .christmas-lights::before,
+#home-form .christmas-lights::after {
+  content:""; position:absolute; left:12px; right:12px; height:9px;
+  background:
+    radial-gradient(circle, #ff5555 0 2.2px, transparent 2.8px) 0 0/34px 9px repeat-x,
+    radial-gradient(circle, #ffd45a 0 2.2px, transparent 2.8px) 8px 0/34px 9px repeat-x,
+    radial-gradient(circle, #5ee58a 0 2.2px, transparent 2.8px) 17px 0/34px 9px repeat-x,
+    radial-gradient(circle, #65baff 0 2.2px, transparent 2.8px) 25px 0/34px 9px repeat-x;
+  filter:drop-shadow(0 0 3px rgba(255,255,255,.24));
+  opacity:.9;
+}
+#home-form .christmas-lights::before { top:1px; }
+#home-form .christmas-lights::after { bottom:1px; transform:rotate(180deg); }
+#home-form input, #home-form .go { position:relative; z-index:3; }
+@media (prefers-reduced-motion:reduce) {
+  #home-form .christmas-lights::before, #home-form .christmas-lights::after { filter:none; }
+}
 </style>
 
 <style id="tsw-chat-polish">
@@ -5165,6 +5187,7 @@ button { transition: background-color .15s ease, border-color .15s ease, color .
     <p class="clock" id="clock"></p>
     <div class="weather-overlay" id="home-weather" role="status" style="display:none;"></div>
     <form class="field" id="home-form" autocomplete="off">
+      <span class="christmas-lights" aria-hidden="true"></span>
       <input id="home-input" type="text" inputmode="url" autocapitalize="off" spellcheck="false"
              placeholder="Search or enter a web address" aria-label="Search or enter a web address">
       <button class="go" type="submit" aria-label="Open">
@@ -6312,7 +6335,7 @@ store.remove = store.del;
 /* Set STATUS_NOTICE to a short message to show the yellow "maintenance" state, e.g.
    var STATUS_NOTICE = 'Maintenance tonight. Sites may fail.';
    Set it back to '' to return to green. Red and green are detected automatically. */
-var STATUS_NOTICE = 'Updating…';
+var STATUS_NOTICE = '';
 (function () {
   var box = $('status'), text = $('status-text'), wake = $('wake'), wakeText = $('wake-p'), wakeX = $('wake-x');
   var engineOk = null, pingOk = true, lastActive = Date.now(), lastPing = 0, waking = false, wakeId = 0;
@@ -6337,8 +6360,35 @@ var STATUS_NOTICE = 'Updating…';
   function check() {
     var ctl = new AbortController(), t = setTimeout(function () { ctl.abort(); }, 10000), t0 = performance.now();
     return fetch('/register-sw.js', { cache: 'no-store', signal: ctl.signal })
-      .then(function (r) { return r.ok ? r.text() : Promise.reject(); })
-      .then(function (txt) { clearTimeout(t); lastMs = Math.round(performance.now() - t0); return txt.indexOf('registerSW') > -1; })
+      .then(function (r) { return r.ok ? r.text() : Promise.reject(new Error('Proxy assets unavailable')); })
+      .then(function (txt) {
+        clearTimeout(t);
+        lastMs = Math.round(performance.now() - t0);
+        if (txt.indexOf('registerSW') === -1) return false;
+        /* Verify the Wisp WebSocket Scramjet actually uses, not just the static page. */
+        return new Promise(function (resolve) {
+          var ws, settled = false;
+          var timeout = setTimeout(function () {
+            if (settled) return; settled = true;
+            try { if (ws) ws.close(); } catch (e) {}
+            resolve(false);
+          }, 5000);
+          try {
+            var protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(protocol + '//' + location.host + '/wisp/');
+            ws.onopen = function () {
+              if (settled) return; settled = true; clearTimeout(timeout);
+              try { ws.close(); } catch (e) {}
+              resolve(true);
+            };
+            ws.onerror = function () {
+              if (settled) return; settled = true; clearTimeout(timeout); resolve(false);
+            };
+          } catch (e) {
+            if (!settled) { settled = true; clearTimeout(timeout); resolve(false); }
+          }
+        });
+      })
       .catch(function () { clearTimeout(t); return false; });
   }
   /* ---- history of checks, kept in this browser only ---- */
