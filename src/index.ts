@@ -93,8 +93,15 @@ const fastify = Fastify({
 				handler(req, res);
 			})
 			.on("upgrade", (req, socket, head) => {
-				if (req.url.endsWith("/wisp/")) wisp.routeRequest(req, socket, head);
-				else socket.end();
+				// Proxies/CDNs may append query parameters to the WebSocket URL.
+				// Match the pathname so valid /wisp/ upgrades are not rejected.
+				let upgradePath = "";
+				try { upgradePath = new URL(req.url || "/", "http://localhost").pathname; } catch (e) {}
+				if (upgradePath === "/wisp/") {
+					wisp.routeRequest(req, socket, head);
+				} else {
+					socket.end();
+				}
 			});
 	},
 });
