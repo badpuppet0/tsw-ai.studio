@@ -3628,26 +3628,51 @@ button { transition: background-color .15s ease, border-color .15s ease, color .
   #game-tab .game-embed-wrap { width:100%; }
 }
 
-/* Small Christmas light string wrapped around the search bar. */
+/* 3D Christmas string lights draped around the search field. */
+#home-form { position:relative; isolation:isolate; }
 #home-form .christmas-lights {
-  position:absolute; inset:0; z-index:2; pointer-events:none; border-radius:inherit;
+  position:absolute; inset:-7px -8px; z-index:4; pointer-events:none;
+  border-radius:inherit; overflow:visible;
 }
-#home-form .christmas-lights::before,
+#home-form .christmas-lights::before {
+  content:""; position:absolute; inset:0; border-radius:inherit;
+  border:2px solid transparent;
+  border-top-color:rgba(26,31,35,.95);
+  border-bottom-color:rgba(26,31,35,.95);
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.8));
+}
 #home-form .christmas-lights::after {
-  content:""; position:absolute; left:12px; right:12px; height:9px;
+  content:""; position:absolute; inset:-5px -2px;
+  border-radius:inherit;
   background:
-    radial-gradient(circle, #ff5555 0 2.2px, transparent 2.8px) 0 0/34px 9px repeat-x,
-    radial-gradient(circle, #ffd45a 0 2.2px, transparent 2.8px) 8px 0/34px 9px repeat-x,
-    radial-gradient(circle, #5ee58a 0 2.2px, transparent 2.8px) 17px 0/34px 9px repeat-x,
-    radial-gradient(circle, #65baff 0 2.2px, transparent 2.8px) 25px 0/34px 9px repeat-x;
-  filter:drop-shadow(0 0 3px rgba(255,255,255,.24));
-  opacity:.9;
+    radial-gradient(ellipse at 35% 18%,#fff 0 8%,#ffb9b9 18%,#f21f35 48%,#8b0618 76%,transparent 79%) 2% 0/13px 19px no-repeat,
+    radial-gradient(ellipse at 35% 18%,#fff 0 8%,#fff0a2 18%,#ffc928 48%,#956000 76%,transparent 79%) 14% 0/13px 19px no-repeat,
+    radial-gradient(ellipse at 35% 18%,#fff 0 8%,#baffcf 18%,#21d66a 48%,#075d2b 76%,transparent 79%) 26% 0/13px 19px no-repeat,
+    radial-gradient(ellipse at 35% 18%,#fff 0 8%,#b9e4ff 18%,#2699ff 48%,#064a91 76%,transparent 79%) 38% 0/13px 19px no-repeat,
+    radial-gradient(ellipse at 35% 18%,#fff 0 8%,#ffb9b9 18%,#f21f35 48%,#8b0618 76%,transparent 79%) 50% 0/13px 19px no-repeat,
+    radial-gradient(ellipse at 35% 18%,#fff 0 8%,#fff0a2 18%,#ffc928 48%,#956000 76%,transparent 79%) 62% 0/13px 19px no-repeat,
+    radial-gradient(ellipse at 35% 18%,#fff 0 8%,#baffcf 18%,#21d66a 48%,#075d2b 76%,transparent 79%) 74% 0/13px 19px no-repeat,
+    radial-gradient(ellipse at 35% 18%,#fff 0 8%,#b9e4ff 18%,#2699ff 48%,#064a91 76%,transparent 79%) 86% 0/13px 19px no-repeat,
+    radial-gradient(ellipse at 35% 18%,#fff 0 8%,#ffb9b9 18%,#f21f35 48%,#8b0618 76%,transparent 79%) 98% 0/13px 19px no-repeat,
+    radial-gradient(ellipse at 35% 18%,#fff 0 8%,#b9e4ff 18%,#2699ff 48%,#064a91 76%,transparent 79%) 2% 100%/13px 19px no-repeat,
+    radial-gradient(ellipse at 35% 18%,#fff 0 8%,#baffcf 18%,#21d66a 48%,#075d2b 76%,transparent 79%) 14% 100%/13px 19px no-repeat,
+    radial-gradient(ellipse at 35% 18%,#fff 0 8%,#fff0a2 18%,#ffc928 48%,#956000 76%,transparent 79%) 26% 100%/13px 19px no-repeat,
+    radial-gradient(ellipse at 35% 18%,#fff 0 8%,#ffb9b9 18%,#f21f35 48%,#8b0618 76%,transparent 79%) 38% 100%/13px 19px no-repeat,
+    radial-gradient(ellipse at 35% 18%,#fff 0 8%,#b9e4ff 18%,#2699ff 48%,#064a91 76%,transparent 79%) 50% 100%/13px 19px no-repeat,
+    radial-gradient(ellipse at 35% 18%,#fff 0 8%,#baffcf 18%,#21d66a 48%,#075d2b 76%,transparent 79%) 62% 100%/13px 19px no-repeat,
+    radial-gradient(ellipse at 35% 18%,#fff 0 8%,#fff0a2 18%,#ffc928 48%,#956000 76%,transparent 79%) 74% 100%/13px 19px no-repeat,
+    radial-gradient(ellipse at 35% 18%,#fff 0 8%,#ffb9b9 18%,#f21f35 48%,#8b0618 76%,transparent 79%) 86% 100%/13px 19px no-repeat,
+    radial-gradient(ellipse at 35% 18%,#fff 0 8%,#b9e4ff 18%,#2699ff 48%,#064a91 76%,transparent 79%) 98% 100%/13px 19px no-repeat;
+  filter:drop-shadow(0 0 4px rgba(255,255,255,.38)) drop-shadow(0 2px 2px rgba(0,0,0,.8));
+  animation:tsw-bulb-twinkle 2.8s ease-in-out infinite alternate;
 }
-#home-form .christmas-lights::before { top:1px; }
-#home-form .christmas-lights::after { bottom:1px; transform:rotate(180deg); }
 #home-form input, #home-form .go { position:relative; z-index:3; }
+@keyframes tsw-bulb-twinkle {
+  0%,100% { opacity:.9; filter:drop-shadow(0 0 3px rgba(255,255,255,.25)) drop-shadow(0 2px 2px rgba(0,0,0,.8)); }
+  50% { opacity:1; filter:drop-shadow(0 0 7px rgba(255,220,150,.65)) drop-shadow(0 2px 2px rgba(0,0,0,.8)); }
+}
 @media (prefers-reduced-motion:reduce) {
-  #home-form .christmas-lights::before, #home-form .christmas-lights::after { filter:none; }
+  #home-form .christmas-lights::after { animation:none; }
 }
 </style>
 
