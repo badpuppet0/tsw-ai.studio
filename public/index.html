@@ -3710,22 +3710,7 @@ html,body{background:#080d0b}
 .plain:hover{border-color:#a14b50}
 #privacy-policy .pbody,.pbody ul{color:#c4cec5}
 </style>
-<style id="tsw-christmas-details">
-/* Small multicolour bulbs with a steady warm glow. */
-#home-form.field{position:relative;overflow:visible;isolation:isolate;border-color:#53634e;box-shadow:0 0 0 1px rgba(193,166,105,.13)}
-#home-form.field::before{content:"";display:block!important;position:absolute;z-index:2;pointer-events:none;inset:-9px -5px;border-radius:17px;border:1px solid rgba(170,157,119,.48);background:
-radial-gradient(ellipse 3px 4px at 5px 5px,#fff0b8 0 48%,#e8a93b 65%,transparent 100%) 0 0/36px 12px repeat-x,
-radial-gradient(ellipse 3px 4px at 5px 5px,#ffd5d5 0 48%,#d84b55 65%,transparent 100%) 18px calc(100% - 1px)/36px 12px repeat-x,
-radial-gradient(ellipse 3px 4px at 5px 5px,#d9ffe1 0 48%,#36a96b 65%,transparent 100%) 36px 0/36px 12px repeat-x,
-radial-gradient(ellipse 3px 4px at 5px 5px,#d7e8ff 0 48%,#4c8dd5 65%,transparent 100%) 54px calc(100% - 1px)/36px 12px repeat-x;
-filter:drop-shadow(0 0 3px rgba(255,222,143,.45))}
-#home-form.field::after{content:"";position:absolute;z-index:2;pointer-events:none;left:8px;right:8px;top:-6px;height:4px;border-radius:50%;background:repeating-linear-gradient(90deg,#9b3f42 0 4px,transparent 4px 36px,#c8a96b 36px 40px,transparent 40px 72px);opacity:.9}
-#home-form.field:hover,#home-form.field:focus-within{box-shadow:0 0 0 1px rgba(193,166,105,.13);border-color:#53634e}
-#home-form.field::before,#home-form.field:hover::before,#home-form.field:focus-within::before{opacity:1;filter:drop-shadow(0 0 3px rgba(255,222,143,.45))}
-#home-form .go{background:#9d4148}
-#home-form .go:hover{background:#b45155}
-#home-form input{position:relative;z-index:1}
-</style>
+
 
 <style id="tsw-settings-navigation">
 #settings .settings-layout{display:grid;grid-template-columns:190px minmax(0,860px);justify-content:center;align-items:start;gap:2rem;height:calc(100% - 4.5rem);min-height:0}
@@ -3743,6 +3728,13 @@ filter:drop-shadow(0 0 3px rgba(255,222,143,.45))}
  #settings .settings-nav button.active{border-color:#a14b50;background:rgba(182,75,80,.16)}
  #settings .settings-content{padding:1.1rem 1rem 2rem}
 }
+</style>
+
+<style id="tsw-christmas-finish">
+/* A small Santa hat on the home wordmark; keep the rest of the layout clean. */
+#home .mark{position:relative;display:inline-block}
+#home .mark::before{content:"";position:absolute;z-index:2;width:35px;height:27px;left:calc(50% - 1.75em);top:-13px;transform:rotate(-19deg);transform-origin:bottom right;background:#b83e45;clip-path:polygon(0 100%,19% 52%,52% 0,100% 100%);filter:drop-shadow(0 1px 1px rgba(0,0,0,.35));pointer-events:none}
+#home .mark::after{content:"";position:absolute;z-index:3;width:32px;height:7px;left:calc(50% - 1.85em);top:8px;transform:rotate(-19deg);border-radius:6px;background:#f1eee4;box-shadow:19px -17px 0 -1px #f1eee4;pointer-events:none}
 </style>
 </head>
 <body>
