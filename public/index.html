@@ -3509,15 +3509,6 @@ html[data-theme="light"] .discord-note a:hover {
 .settings-group:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
 html.reduced-motion *, html.reduced-motion *::before, html.reduced-motion *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .001ms !important; }
 html.reduced-motion .load.on { animation: none !important; width: 92%; transform: none; }
-.update-notice{position:fixed;z-index:100000;left:50%;top:50%;transform:translate(-50%,-50%);width:min(380px,calc(100vw - 32px));padding:22px;background:#111827;border:1px solid rgba(148,163,184,.24);border-radius:14px;box-shadow:0 18px 60px rgba(0,0,0,.58);color:#e5e7eb;box-sizing:border-box;text-align:left}
-.update-notice-title{font-size:.94rem;font-weight:650;color:#fff;margin:0 28px 5px 0}
-.update-notice-copy{font-size:.8rem;line-height:1.4;color:#aeb9c9;margin-bottom:12px}
-.update-notice-refresh{border:0;border-radius:7px;padding:8px 12px;background:#d1fae5;color:#064e3b;font-family:inherit;font-size:.8rem;font-weight:600;cursor:pointer}
-.update-notice-refresh:hover{background:#a7f3d0}
-.update-notice-close{position:absolute;right:10px;top:8px;width:26px;height:26px;border:0;border-radius:6px;background:transparent;color:#94a3b8;font-size:1.2rem;cursor:pointer}
-.update-notice-close:hover{background:rgba(255,255,255,.08);color:#fff}
-@media(max-width:520px){.update-notice{width:calc(100vw - 32px);padding:20px}}
-
 /* TSW visual baseline: simple surfaces, clear borders, restrained motion */
 :root {
   --void: #05070d; --panel: #0d1119; --edge: #252b36;
@@ -3722,6 +3713,15 @@ html,body{background:#080d0b}
 .update-notice-refresh{background:#a7444b;color:#fff7ed}
 .update-notice-refresh:hover{background:#bd5a5e}
 #privacy-policy .pbody,.pbody ul{color:#c4cec5}
+</style>
+<style id="tsw-christmas-details">
+/* Small, restrained Christmas bulbs around the search field. */
+#home-form.field{position:relative;overflow:visible;isolation:isolate;border-color:#53634e;box-shadow:0 0 0 1px rgba(193,166,105,.13)}
+#home-form.field::before{content:"";display:block!important;position:absolute;z-index:2;pointer-events:none;inset:-7px -5px;border-radius:17px;border:1px solid rgba(170,157,119,.52);background:radial-gradient(circle,#f0d58a 0 2px,transparent 3px) 5px -4px/34px 12px repeat-x,radial-gradient(circle,#b84e4e 0 2px,transparent 3px) 22px calc(100% + 4px)/34px 12px repeat-x;filter:drop-shadow(0 0 2px rgba(239,205,126,.45))}
+#home-form.field::after{content:"";position:absolute;z-index:2;pointer-events:none;left:9px;right:9px;top:-5px;height:3px;border-radius:50%;background:repeating-linear-gradient(90deg,#9b3f42 0 4px,transparent 4px 34px,#c8a96b 34px 38px,transparent 38px 68px);opacity:.75}
+#home-form .go{background:#9d4148}
+#home-form .go:hover{background:#b45155}
+#home-form input{position:relative;z-index:1}
 </style>
 </head>
 <body>
@@ -4287,12 +4287,7 @@ html,body{background:#080d0b}
   </div>
 </div>
 
-<div class="update-notice" id="update-notice" hidden role="dialog" aria-modal="true" aria-labelledby="update-notice-heading">
-  <div class="update-notice-title" id="update-notice-heading">New Update</div>
-  <div class="update-notice-copy" id="update-notice-version">A newer version of TSW is ready.</div>
-  <button type="button" class="update-notice-refresh" id="update-notice-refresh">Refresh now</button>
-  <button type="button" class="update-notice-close" id="update-notice-close" aria-label="Dismiss update notice">&times;</button>
-</div>
+
 
 <!-- On-Site User Alert Popup (Owner Direct Broadcast) -->
 <div id="user-alert-popup" class="user-alert-popup-overlay" hidden role="alertdialog" aria-modal="true" aria-labelledby="user-alert-title">
@@ -4377,12 +4372,12 @@ html,body{background:#080d0b}
       <select id="set-clock"><option value="12">12-hour</option><option value="24">24-hour</option><option value="off">Off</option></select>
       <label for="set-season">Seasonal effects</label>
       <select id="set-season"><option value="auto">Automatic</option><option value="snow">Snow</option><option value="bats">Bats</option><option value="off">Off</option></select>
-      <p class="hint">Automatic shows snow in winter and bats around Halloween.</p>
+      
       <label class="check"><input type="checkbox" id="set-stars"> Stars</label>
       <label class="check"><input type="checkbox" id="set-shoot"> Shooting stars and rockets</label>
       <label for="set-disguise">Tab disguise</label>
       <select id="set-disguise"><option value="none">Custom / TSW</option><option value="schoology">Schoology</option><option value="classroom">Google Classroom</option><option value="docs">Google Docs</option><option value="canvas">Canvas</option><option value="khan">Khan Academy</option><option value="clever">Clever</option><option value="powerschool">PowerSchool</option><option value="quizlet">Quizlet</option><option value="edpuzzle">Edpuzzle</option><option value="ixl">IXL</option><option value="nearpod">Nearpod</option><option value="moodle">Moodle</option><option value="teams">Microsoft Teams</option><option value="seesaw">Seesaw</option><option value="amplify">Amplify</option><option value="savvas">Savvas</option><option value="mhe">McGraw Hill</option></select>
-      <p class="hint">Changes the browser tab name and icon to match the selected school site.</p>
+      
       <label for="set-title">Custom tab title</label>
       <input id="set-title" type="text" maxlength="40" placeholder="TSW v2" autocomplete="off">
       <label for="set-icon">Custom tab icon</label>
@@ -4485,6 +4480,8 @@ html,body{background:#080d0b}
         <li>Made the site more stable to support significant growth in users.</li>
         <li>Redone UIs and updated systems across the site.</li>
         <li>Added Movies to the homepage shortcuts and navigation.</li>
+        <li>Added more tab disguises with matching names and icons for popular educational websites.</li>
+        <li>Added a Christmas theme with falling snow and lights around the search bar.</li>
       </ul>
 
       <h3 class="older">TSW v2 1.6<span>The Social &amp; Multitasking Update</span></h3>
@@ -5231,8 +5228,6 @@ html,body{background:#080d0b}
 
     <p class="msg" id="home-msg" role="status"></p>
   </div>
-  <p class="note">Some sites block proxies and won't load. <a href="https://docs.google.com/forms/d/e/1FAIpQLScupiUZuqQsngFai_QPQRWn06LpuZy3VGZOEyIUY0DAZ0qJxw/viewform" id="home-report-link" class="report-site-trigger">Report a broken site</a></p>
-  <p class="discord-note"><a href="https://discord.gg/r9QaPbyJx5" target="_blank" rel="noopener noreferrer">join our discord now</a></p>
 </main>
 
 <section id="browse" hidden>
@@ -6587,7 +6582,7 @@ var STATUS_NOTICE = '';
     globe: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%235aa2ff' stroke-width='2.5'/%3E%3Cpath d='M4 16h24M16 4c-6 7-6 17 0 24M16 4c6 7 6 17 0 24' fill='none' stroke='%235aa2ff' stroke-width='2'/%3E%3C/svg%3E",
     blank: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E"
   };
-  var D = { engine: 'ddg', stars: true, shoot: false, saucer: false, title: '', icon: 'default', disguise: 'none', bg: 'stars', season: 'off', solid: '#0a0f1c',
+  var D = { engine: 'ddg', stars: true, shoot: false, saucer: false, title: '', icon: 'default', disguise: 'none', bg: 'stars', season: 'snow', solid: '#0a0f1c',
             vsrc: 'site', vbright: 60, accent: 'blue', clock: '12', panel: 'standard', theme: 'dark', rain: false, rainVol: 40, reducedMotion: false, panicKey: '', panicUrl: '' };
   var cfg = {};
   Object.keys(D).forEach(function (k) { cfg[k] = store.get('tsw.' + k, D[k]); });
@@ -6595,7 +6590,7 @@ var STATUS_NOTICE = '';
   if (!ICONS[cfg.icon]) cfg.icon = 'default';
   if (['none','schoology','classroom','docs','canvas','khan','clever','powerschool','quizlet','edpuzzle','ixl','nearpod','moodle','teams','seesaw','amplify','savvas','mhe'].indexOf(cfg.disguise) < 0) cfg.disguise = 'none';
   if (BGS.indexOf(cfg.bg) < 0) cfg.bg = 'stars';
-  if (['auto', 'snow', 'bats', 'off'].indexOf(cfg.season) < 0) cfg.season = 'off';
+  if (['auto', 'snow', 'bats', 'off'].indexOf(cfg.season) < 0) cfg.season = 'snow';
   if (!ACCENTS[cfg.accent]) cfg.accent = 'blue';
   if (['standard', 'glass'].indexOf(cfg.panel) < 0) cfg.panel = 'standard';
   if (['12', '24', 'off'].indexOf(cfg.clock) < 0) cfg.clock = '12';
@@ -11563,51 +11558,6 @@ document.addEventListener('keydown', function (ev) {
 
 </script>
 <script>
-/* ===================== Site Update Notice ===================== */
-(function () {
-  var notice = document.getElementById('update-notice');
-  var versionText = document.getElementById('update-notice-version');
-  var refreshButton = document.getElementById('update-notice-refresh');
-  var closeButton = document.getElementById('update-notice-close');
-  if (!notice || !refreshButton) return;
-
-  var VERSION_KEY = 'tsw.last_seen_server_version';
-  var FIRST_VERSION = '1.6.10';
-
-  function readSeenVersion() {
-    try { return localStorage.getItem(VERSION_KEY) || FIRST_VERSION; } catch (e) { return FIRST_VERSION; }
-  }
-  function rememberVersion(version) {
-    try { localStorage.setItem(VERSION_KEY, String(version)); } catch (e) {}
-  }
-
-  fetch('/api/system/version?t=' + Date.now(), { cache: 'no-store' })
-    .then(function (response) {
-      if (!response.ok) throw new Error('Version check failed');
-      return response.json();
-    })
-    .then(function (data) {
-      if (!data || !data.success || !data.version) return;
-      var currentVersion = String(data.version);
-      if (currentVersion !== String(readSeenVersion())) {
-        if (versionText) versionText.textContent = 'TSW v2 ' + currentVersion + ' is ready. Refresh to load the latest version.';
-        notice.hidden = false;
-        refreshButton.onclick = function () {
-          rememberVersion(currentVersion);
-          var url = new URL(window.location.href);
-          url.searchParams.set('tsw-refresh', Date.now().toString());
-          window.location.replace(url.toString());
-        };
-        if (closeButton) closeButton.onclick = function () {
-          rememberVersion(currentVersion);
-          notice.hidden = true;
-        };
-      } else {
-        notice.hidden = true;
-      }
-    })
-    .catch(function () { notice.hidden = true; });
-})();
 </script>
 
 <script>
