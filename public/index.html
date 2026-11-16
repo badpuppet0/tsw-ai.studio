@@ -3731,10 +3731,11 @@ html,body{background:#080d0b}
 </style>
 
 <style id="tsw-christmas-finish">
-/* A small Santa hat on the home wordmark; keep the rest of the layout clean. */
+/* Proper illustrated Santa hat sitting on the TSW wordmark. */
 #home .mark{position:relative;display:inline-block}
-#home .mark::before{content:"";position:absolute;z-index:2;width:35px;height:27px;left:calc(50% - 1.75em);top:-13px;transform:rotate(-19deg);transform-origin:bottom right;background:#b83e45;clip-path:polygon(0 100%,19% 52%,52% 0,100% 100%);filter:drop-shadow(0 1px 1px rgba(0,0,0,.35));pointer-events:none}
-#home .mark::after{content:"";position:absolute;z-index:3;width:32px;height:7px;left:calc(50% - 1.85em);top:8px;transform:rotate(-19deg);border-radius:6px;background:#f1eee4;box-shadow:19px -17px 0 -1px #f1eee4;pointer-events:none}
+#home .santa-hat{position:absolute;width:61px;height:53px;left:calc(50% - 78px);top:-39px;z-index:4;transform:rotate(-13deg);pointer-events:none;overflow:visible}
+#home .santa-hat svg{display:block;width:100%;height:100%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.38))}
+@media(max-width:480px){#home .santa-hat{left:calc(50% - 69px);top:-34px;width:53px;height:47px}}
 </style>
 </head>
 <body>
@@ -5223,7 +5224,7 @@ html,body{background:#080d0b}
 
 <main id="home">
   <div class="hero">
-    <h1 class="mark">TSW<b>v2</b></h1>
+    <h1 class="mark"><span class="santa-hat" aria-hidden="true"><svg viewBox="0 0 72 62" xmlns="http://www.w3.org/2000/svg"><path d="M8 43C12 25 26 9 48 4c-3 14 1 26 14 34-15 8-35 12-54 5Z" fill="#c92832" stroke="#8f1722" stroke-width="2" stroke-linejoin="round"/><path d="M18 32c8-11 18-19 30-25-3 13 2 24 14 31-13 5-27 7-41 5-5-2-6-7-3-11Z" fill="#e53942"/><path d="M7 42c12 3 35 1 55-6 5 2 7 7 4 11-15 9-41 14-59 6-5-2-5-8 0-11Z" fill="#fff8eb" stroke="#d8d0c4" stroke-width="2"/><path d="M60 35c-1-7 3-13 9-13 7 0 8 9 2 14-3 3-7 3-11-1Z" fill="#fff8eb" stroke="#d8d0c4" stroke-width="2"/></svg></span>TSW<b>v2</b></h1>
     <p class="clock" id="clock"></p>
     <div class="weather-overlay" id="home-weather" role="status" style="display:none;"></div>
     <form class="field" id="home-form" autocomplete="off">
