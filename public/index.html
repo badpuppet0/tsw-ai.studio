@@ -3636,6 +3636,26 @@ button { transition: background-color .15s ease, border-color .15s ease, color .
 
 
 /* Christmas theme removed: restore the original blue/charcoal TSW palette. */
+/* Shared scrollbar treatment for all scrollable popup panels. */
+.overlay .pbody {
+  min-height: 0;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #526b8b #0a0e15;
+}
+.overlay .pbody::-webkit-scrollbar { width: 10px; }
+.overlay .pbody::-webkit-scrollbar-track {
+  background: #0a0e15;
+  border-left: 1px solid #202938;
+}
+.overlay .pbody::-webkit-scrollbar-thumb {
+  background: #394b63;
+  border: 2px solid #0a0e15;
+  border-radius: 6px;
+}
+.overlay .pbody::-webkit-scrollbar-thumb:hover { background: #607fa6; }
+
 </style>
 
 <style id="tsw-chat-polish">
