@@ -1115,6 +1115,9 @@ body.sidebar-collapsed .sb-tab .sb-tab-close {
   margin-left: auto;
   font-family: system-ui, sans-serif;
 }
+.sb-subtab-icon { width:1.25rem; height:1.25rem; flex:none; display:grid; place-items:center; color:#a8b9aa; }
+.sb-subtab-icon img, .sb-subtab-icon svg { width:100%; height:100%; display:block; object-fit:contain; }
+.sb-new-badge { padding:.12rem .38rem; border-radius:5px; background:rgba(200,63,77,.18); border:1px solid rgba(200,63,77,.4); color:#ff9aa2; font-size:.58rem; font-weight:800; letter-spacing:.05em; }
 body.sidebar-collapsed .sb-folder-header {
   padding: 0;
   width: 2.4rem;
@@ -3867,14 +3870,14 @@ html, body {
     </button>
     <div class="sb-folder-content" id="sb-testing-content" hidden>
       <div class="sb-subtab" id="sb-test-tab-games" role="button" tabindex="0" title="Testing Tab: Games">
-        <span style="font-size:1.05rem;line-height:1;">🎮</span>
+        <span class="sb-subtab-icon"><img src="https://pub-c77eb84ebd5c408aa81bb7f3302cac57.r2.dev/attached_assets/game_icons/Minecraft.webp" alt="Minecraft"></span>
         <span class="sb-tab-label">Games</span>
-        <span class="sb-subtab-badge">Cork7</span>
+        <span class="sb-subtab-badge">Minecraft</span>
       </div>
       <div class="sb-subtab" id="sb-test-tab-movies" role="button" tabindex="0" title="Testing Tab: Movies">
-        <span style="font-size:1.05rem;line-height:1;">🎬</span>
+        <span class="sb-subtab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5l3 5M14 5l3 5M3 10h18M7 19l3-5M14 19l3-5"/></svg></span>
         <span class="sb-tab-label">Movies</span>
-        <span class="sb-subtab-badge">SFlix</span>
+        <span class="sb-subtab-badge sb-new-badge">NEW</span>
       </div>
     </div>
   </div>
@@ -5455,10 +5458,10 @@ html, body {
     <button id="game-exit" type="button" aria-label="Close Games" title="Close">&times;</button>
   </div>
   <div id="game-view">
-    <div class="game-embed-wrap">
-      <iframe id="nite-game-frame" src="https://nite.games/embed/minecraft" title="Minecraft" allow="fullscreen; autoplay; gamepad; pointer-lock"></iframe>
+    <div class="game-embed-wrap" style="position:relative;width:100%;max-width:900px;aspect-ratio:16/9;">
+      <iframe id="nite-game-frame" src="https://nite.games/embed/minecraft" title="Minecraft" style="position:absolute;inset:0;width:100%;height:100%;border:none;border-radius:8px;" allow="fullscreen; autoplay; gamepad; pointer-lock"></iframe>
     </div>
-    <p class="game-embed-more"><a href="https://nite.games/game/minecraft" target="_blank" rel="noopener noreferrer">Play more free games on Nite.Games</a></p>
+    <p class="game-embed-more" style="font-size:12px;margin-top:8px;"><a href="https://nite.games/game/minecraft" target="_blank" rel="noopener noreferrer">Play more free games on Nite.Games</a></p>
   </div>
 </section>
 
@@ -8790,13 +8793,13 @@ document.addEventListener('keydown', function (ev) {
     testTabMovies.addEventListener('click', function (e) {
       e.preventDefault();
       if (typeof createNewTab === 'function') {
-        createNewTab('https://sflix.to');
+        createNewTab('https://cno.to/');
       } else if (typeof window.TSWCreateNewTab === 'function') {
-        window.TSWCreateNewTab('https://sflix.to');
+        window.TSWCreateNewTab('https://cno.to/');
       } else if (typeof openEmbeddedGame === 'function') {
-        openEmbeddedGame('Movies (SFlix)', 'https://sflix.to', 'sflix.to');
+        openEmbeddedGame('Movies', 'https://cno.to/', 'cno.to');
       } else if (typeof openUrl === 'function') {
-        openUrl('https://sflix.to');
+        openUrl('https://cno.to/');
       }
     });
   }
