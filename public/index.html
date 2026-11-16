@@ -1621,6 +1621,7 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
 /* Public Message Feed & Rows */
 .public-feed-box {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 1rem 1.1rem;
   display: flex;
@@ -2004,6 +2005,8 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
   background: #0b0f19;
 }
 .chat-convo-head {
@@ -2013,6 +2016,7 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   padding: .85rem 1.1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   background: rgba(255, 255, 255, 0.015);
+  flex-shrink: 0;
 }
 .chat-convo-head-name {
   font-weight: 600;
@@ -2075,6 +2079,17 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   padding: .75rem 1.1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.07);
   background: rgba(2, 6, 23, 0.5);
+  flex-shrink: 0;
+}
+.chat-inline-err {
+  margin-bottom: .45rem;
+  padding: .4rem .65rem;
+  border-radius: 7px;
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(248, 113, 113, 0.38);
+  color: #fca5a5;
+  font-size: .78rem;
+  line-height: 1.35;
 }
 .chat-input-form {
   display: flex;
@@ -2843,6 +2858,7 @@ body.sidebar-collapsed .sb-menu-item .sb-soon-badge {
   display: flex;
   align-items: center;
   flex: 1;
+  min-width: 0;
   width: 100%;
 }
 .chat-input-wrapper input {
@@ -3463,12 +3479,38 @@ html[data-theme="light"] .chat-bubble.theirs .chat-bubble-body {
   background: #e2e8f0;
   color: #0f172a;
 }
+html[data-theme="light"] .public-msg-author {
+  color: #0f172a;
+}
+html[data-theme="light"] .public-msg-text {
+  color: #1e293b;
+}
+html[data-theme="light"] .chat-input-bar,
+html[data-theme="light"] .public-locked-bar {
+  background: #ffffff;
+  border-top-color: #e2e8f0;
+  color: #475569;
+}
+html[data-theme="light"] .chat-input-form {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+html[data-theme="light"] .chat-input-form input {
+  color: #0f172a;
+}
+html[data-theme="light"] .chat-input-form input::placeholder {
+  color: #64748b;
+}
 html[data-theme="light"] .public-channel-item {
   background: #f8fafc;
   border-color: #e2e8f0;
 }
 html[data-theme="light"] .public-channel-item:hover {
   background: #f1f5f9;
+}
+html[data-theme="light"] .public-channel-item.active {
+  background: rgba(37, 99, 235, 0.12);
+  border-color: #2563eb;
 }
 html[data-theme="light"] .public-channel-name {
   color: #0f172a;
@@ -3731,16 +3773,18 @@ html,body{background:#080d0b}
 </style>
 
 <style id="tsw-christmas-finish">
-/* Anchor the hat to the first letter itself so it sits on the T, not the logo container. */
+/* Realistic Santa hat anchored directly onto the top of the T in TSWv2. */
 #home .mark{position:relative;display:inline-block}
-#home .logo-initial{position:relative;display:inline-block;line-height:1}
-#home .santa-hat{position:absolute;display:block;width:55px;height:43px;left:-9px;top:-31px;z-index:5;transform:rotate(-10deg);transform-origin:bottom left;pointer-events:none;overflow:visible}
-#home .santa-hat svg{display:block;width:100%;height:100%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.16))}
+#home .logo-initial{position:relative;display:inline-block;line-height:1;letter-spacing:0;margin-right:.32em}
+#home .santa-hat{position:absolute;display:block;width:1.05em;height:.88em;left:-.21em;top:-.46em;z-index:5;transform:rotate(-7deg);transform-origin:38% 72%;pointer-events:none;overflow:visible}
+#home .santa-hat svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 3px 4px rgba(0,0,0,.45))}
 #gamesbtn.games-unavailable{position:relative;cursor:pointer;opacity:.58;filter:saturate(.45)}
 #gamesbtn.games-unavailable .sb-menu-icon,#gamesbtn.games-unavailable .sb-label{filter:blur(1.25px)}
 #gamesbtn.games-unavailable:after{content:'Broken';margin-left:auto;margin-right:12px;padding:2px 6px;border:1px solid rgba(210,170,120,.25);border-radius:4px;background:rgba(115,73,49,.2);color:#d7b99b;font-size:10px;font-weight:600;letter-spacing:.02em;filter:none}
+body.sidebar-collapsed #gamesbtn.games-unavailable:after{display:none}
+body.sidebar-collapsed #gamesbtn.games-unavailable .sb-menu-icon{flex:none;margin:0}
 #gamesbtn.games-unavailable:hover{opacity:.78;background:rgba(255,248,235,.045)}
-@media(max-width:480px){#home .santa-hat{width:51px;height:40px;left:-8px;top:-29px}#gamesbtn.games-unavailable:after{margin-right:6px}}
+@media(max-width:480px){#gamesbtn.games-unavailable:after{margin-right:6px}}
 /* Christmas colours carried through the browser sidebar. */
 #sidebar{background:linear-gradient(180deg,#10251d 0%,#0b1914 58%,#101b17 100%);border-right-color:rgba(190,151,91,.24);box-shadow:5px 0 24px rgba(0,0,0,.22)}
 .sb-top-bar{border-bottom-color:rgba(214,185,135,.18)}
@@ -3757,7 +3801,23 @@ html,body{background:#080d0b}
 .sb-folder-header{background:rgba(34,105,69,.2);border-color:rgba(103,173,124,.3);color:#c6e4ce}
 .sb-folder-header:hover{background:rgba(45,125,79,.3);border-color:rgba(130,195,143,.5);color:#fff}
 .sb-tab-close:hover{background:rgba(255,248,235,.1)}
-@media(max-width:480px){#home .santa-hat{width:51px;height:40px;left:-8px;top:-29px}}
+#ai-coming-soon-btn .sb-menu-icon{color:#e2be7b;text-shadow:0 0 10px rgba(226,190,123,.28)}
+#ai-coming-soon-btn:hover .sb-menu-icon{color:#fff3d6}
+/* Christmas lights wrapped snugly around the home search bar & AI prompt box. */
+.search-lights-wrap{position:relative;width:100%;margin:.55rem 0 .25rem;overflow:visible}
+.search-lights-wrap #home-form{position:relative;z-index:2;width:100%;box-shadow:0 8px 26px rgba(0,0,0,.32)}
+.search-lights-layer,.ai-lights-layer{position:absolute;inset:0;pointer-events:none;overflow:visible}
+.search-lights-back,.ai-lights-back{z-index:1}
+.search-lights-front,.ai-lights-front{z-index:3}
+.search-lights-layer svg,.ai-lights-layer svg{display:block;width:100%;height:100%;overflow:visible}
+.ai-lights-wrap{position:relative;width:min(850px,100%);margin:10px auto 6px;overflow:visible}
+.ai-lights-wrap #tsw-ai-form{position:relative;z-index:2;width:100%!important;margin:0!important}
+.cl-bulb{transform-box:fill-box;transform-origin:center 0;animation:clTwinkle var(--cl-dur,3.8s) ease-in-out var(--cl-delay,0s) infinite}
+.cl-halo{animation:clHalo var(--cl-dur,3.8s) ease-in-out var(--cl-delay,0s) infinite}
+@keyframes clTwinkle{0%,100%{opacity:.98;filter:brightness(1.06)}50%{opacity:.72;filter:brightness(.78)}}
+@keyframes clHalo{0%,100%{opacity:.72}50%{opacity:.28}}
+html.reduced-motion .cl-bulb,html.reduced-motion .cl-halo{animation:none!important}
+@media(prefers-reduced-motion:reduce){.cl-bulb,.cl-halo{animation:none!important}}
 </style>
 </head>
 <body>
@@ -4038,9 +4098,10 @@ html,body{background:#080d0b}
 
           <div class="chat-reply-composer" id="dm-reply-composer"><strong>Replying</strong><span id="dm-reply-text"></span><button type="button" id="dm-reply-cancel" aria-label="Cancel reply">×</button></div>
           <div class="chat-input-bar">
+            <div id="dm-chat-error" class="chat-inline-err" role="alert" style="display:none;"></div>
             <form class="chat-input-form" id="chat-message-form" autocomplete="off">
               <div class="chat-input-wrapper">
-                <input id="chat-message-input" type="text" placeholder="Message friend (type @ to ping)..." maxlength="1000" required>
+                <input id="chat-message-input" type="text" placeholder="Message friend (type @ to ping)..." maxlength="1000">
                 <button type="button" class="chat-emoji-trigger" id="dm-emoji-btn" title="Insert emoji">😊</button>
               </div>
               <button type="submit" id="chat-message-send-btn">Send</button>
@@ -4080,9 +4141,10 @@ html,body{background:#080d0b}
               <button type="button" class="owner-quick-cmd-btn" data-cmd="/commands" style="border:1px solid rgba(148,163,184,.3);background:rgba(148,163,184,.1);color:#cbd5e1;border-radius:4px;padding:2px 8px;font-size:.72rem;cursor:pointer;">/commands</button>
             </div>
           </div>
+          <div id="public-chat-error" class="chat-inline-err" role="alert" style="display:none;"></div>
           <form class="chat-input-form" id="public-message-form" autocomplete="off">
             <div class="chat-input-wrapper">
-              <input id="public-message-input" type="text" placeholder="Message #chat-1 (type @ to ping, or /commands)..." maxlength="1000" required>
+              <input id="public-message-input" type="text" placeholder="Message #chat-1 (type @ to ping, or /commands)..." maxlength="1000">
               <button type="button" class="chat-emoji-trigger" id="public-emoji-btn" title="Insert emoji">😊</button>
             </div>
             <button type="submit" id="public-message-send-btn">Send</button>
@@ -5250,17 +5312,142 @@ html,body{background:#080d0b}
 
 <main id="home">
   <div class="hero">
-    <h1 class="mark"><span class="logo-initial">T<span class="santa-hat" aria-hidden="true"><svg viewBox="0 0 84 64" xmlns="http://www.w3.org/2000/svg"><path d="M8 47C13 29 30 11 57 7c-3 12 2 24 18 33-18 8-44 12-63 8-5-1-7-3-4-6Z" fill="#b72d36"/><path d="M17 41C29 24 44 12 57 7c-2 11 4 23 18 33-17 7-37 10-53 7-6-1-8-3-5-6Z" fill="#c63a40" opacity=".38"/><path d="M7 45c19 5 45 1 69-8 5 2 7 5 5 9-2 5-10 8-20 10-18 4-39 4-51-1-6-3-7-7-3-10Z" fill="#e9e4da"/><path d="M13 48c18 4 42 0 59-7" fill="none" stroke="#f8f4eb" stroke-width="1.5" stroke-linecap="round"/><path d="M70 36c-3-5-1-11 4-14 5-2 9 1 9 7 0 6-5 10-10 10-1 0-2-1-3-3Z" fill="#e9e4da"/></svg></span></span>SW<b>v2</b></h1>
+    <h1 class="mark"><span class="logo-initial">T<span class="santa-hat" aria-hidden="true"><svg viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="tswHatBody" cx="38%" cy="32%" r="70%"><stop offset="0" stop-color="#f24955"/><stop offset=".38" stop-color="#cc1e2e"/><stop offset=".75" stop-color="#960f1e"/><stop offset="1" stop-color="#5d0610"/></radialGradient><linearGradient id="tswHatTail" x1=".1" y1="0" x2=".95" y2="1"><stop offset="0" stop-color="#b81727"/><stop offset=".55" stop-color="#890c19"/><stop offset="1" stop-color="#57050d"/></linearGradient><linearGradient id="tswHatSheen" x1=".1" y1=".1" x2=".8" y2=".85"><stop offset="0" stop-color="#ff9ca1" stop-opacity=".46"/><stop offset=".45" stop-color="#ef4753" stop-opacity=".16"/><stop offset="1" stop-color="#8b0e1b" stop-opacity="0"/></linearGradient><radialGradient id="tswFurGrad" cx="46%" cy="26%" r="76%"><stop offset="0" stop-color="#ffffff"/><stop offset=".52" stop-color="#f8f4ec"/><stop offset=".84" stop-color="#dfd8cc"/><stop offset="1" stop-color="#bbb3a5"/></radialGradient><radialGradient id="tswPomGrad" cx="38%" cy="30%" r="70%"><stop offset="0" stop-color="#ffffff"/><stop offset=".52" stop-color="#f7f2e8"/><stop offset=".85" stop-color="#dad2c6"/><stop offset="1" stop-color="#b4aca0"/></radialGradient><filter id="tswSoftBlur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.5"/></filter></defs><!-- Velvet drooping tail behind front fold --><path d="M54 11c24-2 45 13 49 41l-11 4c-4-16-16-26-36-28Z" fill="url(#tswHatTail)"/><!-- Soft highlight on upper arch of drooping tail --><path d="M61 13c18 2 33 13 38 34-4-14-16-24-35-28Z" fill="#e03240" opacity=".42"/><!-- Deep shadow under the fold where tail tucks behind crown --><path d="M58 21c12 3 23 11 30 23-5-8-14-14-27-16Z" fill="#3a0308" opacity=".62" filter="url(#tswSoftBlur)"/><!-- Main plush velvet crown --><path d="M14 66C18 35 36 12 58 10c12 0 18 7 15 17-3 10-7 19 6 33-20 9-46 11-65 6Z" fill="url(#tswHatBody)"/><!-- Velvet sheen along left/top dome --><path d="M20 60C23 37 38 18 56 14c7-1 12 2 12 8-1 7-6 15-4 24 1 6 5 11 9 14-16 6-36 7-53 0Z" fill="url(#tswHatSheen)"/><!-- Natural fabric gather creases above cuff --><path d="M26 65c6-10 10-19 10-28-1 10 0 19 3 28Z" fill="#54050d" opacity=".32"/><path d="M50 66c2-8 6-15 13-20-4 7-6 13-5 19Z" fill="#54050d" opacity=".3"/><!-- Contact shadow cast by crown onto fur cuff --><path d="M13 64c20 6 46 4 66-5 2 3-1 6-6 8-20 8-44 9-61 3-3-1-2-5 1-6Z" fill="#220507" opacity=".36" filter="url(#tswSoftBlur)"/><!-- Plush scalloped fur cuff hugging the T --><path d="M10 69c-4-4-3-10 3-12 4-4 10-4 15-1 5-3 12-3 17 0 6-3 13-3 18-1 5-3 11-3 16 0 5-2 10 1 10 6 1 5-3 10-9 11-5 3-12 4-18 2-6 3-14 4-21 2-6 3-14 3-20 0-5 2-11 0-12-5 0-1 0-2 1-2Z" fill="url(#tswFurGrad)"/><!-- Soft illuminated fur wisps along top cuff edge --><path d="M14 63c5-3 12-3 17-1M37 61c6-3 13-3 19-1M60 60c6-3 12-3 17-1" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" opacity=".85"/><!-- Soft ambient shadow along bottom of fur cuff --><path d="M12 73c18 6 49 5 69-5 3-1 5-3 6-6-2 4-7 7-13 9-19 7-44 8-60 2-3-1-4-3-4-5 0 2 1 4 2 5Z" fill="#a8a094" opacity=".58"/><!-- Fluffy scalloped pom-pom at tip --><path d="M90 54c-1-5 3-9 8-9 3-4 9-3 11 1 5 1 7 6 5 10 2 5-2 10-7 10-3 4-9 3-12-1-4-1-7-6-5-11Z" fill="url(#tswPomGrad)"/><path d="M93 50c3-3 8-4 12-1M109 53c2 3 1 7-1 10" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" opacity=".8"/><path d="M91 59c3 5 10 7 16 2-3 4-11 5-16-2Z" fill="#a59d90" opacity=".5"/></svg></span></span>SW<b>v2</b></h1>
     <p class="clock" id="clock"></p>
     <div class="weather-overlay" id="home-weather" role="status" style="display:none;"></div>
-    <form class="field" id="home-form" autocomplete="off">
-      
-      <input id="home-input" type="text" inputmode="url" autocapitalize="off" spellcheck="false"
-             placeholder="Search or enter a web address" aria-label="Search or enter a web address">
-      <button class="go" type="submit" aria-label="Open">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-      </button>
-    </form>
+    <div class="search-lights-wrap">
+      <div class="search-lights-layer search-lights-back" id="home-lights-back" aria-hidden="true"></div>
+      <form class="field" id="home-form" autocomplete="off">
+        <input id="home-input" type="text" inputmode="url" autocapitalize="off" spellcheck="false"
+               placeholder="Search or enter a web address" aria-label="Search or enter a web address">
+        <button class="go" type="submit" aria-label="Open">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </form>
+      <div class="search-lights-layer search-lights-front" id="home-lights-front" aria-hidden="true"></div>
+    </div>
+    <script>
+    (function(){
+      var form=document.getElementById('home-form');
+      var backEl=document.getElementById('home-lights-back');
+      var frontEl=document.getElementById('home-lights-front');
+      if(!form||!backEl||!frontEl)return;
+      var NS='http://www.w3.org/2000/svg';
+      var palette=[
+        {id:'r',glass:'#e83b47',mid:'#b91d2b',core:'#ffb3b8',glow:'rgba(242,66,78,.56)'},
+        {id:'g',glass:'#2dc866',mid:'#178440',core:'#b5facd',glow:'rgba(48,208,106,.48)'},
+        {id:'y',glass:'#f2bb3f',mid:'#bc7e16',core:'#fff0b5',glow:'rgba(246,194,68,.54)'},
+        {id:'w',glass:'#ffe0a3',mid:'#d9a24e',core:'#fff9e8',glow:'rgba(255,226,164,.52)'}
+      ];
+      var lastW=0,lastH=0;
+      function buildDefs(prefix){
+        var s='<defs>';
+        for(var i=0;i<palette.length;i++){
+          var c=palette[i];
+          s+='<radialGradient id="clGlow_'+prefix+c.id+'" cx="50%" cy="50%" r="50%">'
+            +'<stop offset="0%" stop-color="'+c.core+'" stop-opacity=".75"/>'
+            +'<stop offset="38%" stop-color="'+c.glass+'" stop-opacity=".38"/>'
+            +'<stop offset="100%" stop-color="'+c.glass+'" stop-opacity="0"/>'
+            +'</radialGradient>'
+            +'<linearGradient id="clGlass_'+prefix+c.id+'" x1="0%" y1="0%" x2="100%" y2="100%">'
+            +'<stop offset="0%" stop-color="'+c.core+'"/>'
+            +'<stop offset="45%" stop-color="'+c.glass+'"/>'
+            +'<stop offset="100%" stop-color="'+c.mid+'"/>'
+            +'</linearGradient>';
+        }
+        return s+'</defs>';
+      }
+      function bulbSvg(prefix,x,y,deg,idx){
+        var c=palette[idx%palette.length];
+        var dur=(3.2+((idx*7)%5)*0.42).toFixed(2)+'s';
+        var delay=(-((idx*0.67)%3.8)).toFixed(2)+'s';
+        return '<g transform="translate('+x.toFixed(1)+','+y.toFixed(1)+') rotate('+deg.toFixed(1)+')">'
+          +'<circle class="cl-halo" cx="0" cy="6.2" r="14.5" fill="url(#clGlow_'+prefix+c.id+')" style="--cl-dur:'+dur+';--cl-delay:'+delay+'"/>'
+          +'<rect x="-2.4" y="-3.1" width="4.8" height="3.3" rx="0.9" fill="#17271f" stroke="#2c4538" stroke-width=".6"/>'
+          +'<rect x="-2.7" y="-0.6" width="5.4" height="1.1" rx="0.4" fill="#b79458"/>'
+          +'<g class="cl-bulb" style="--cl-dur:'+dur+';--cl-delay:'+delay+'">'
+          +'<path d="M-3.1,0.3 C-4.1,3.5 -2.9,7.9 0,9.5 C2.9,7.9 4.1,3.5 3.1,0.3 Z" fill="url(#clGlass_'+prefix+c.id+')"/>'
+          +'<ellipse cx="0" cy="4.4" rx="1.15" ry="2.25" fill="'+c.core+'" opacity=".86"/>'
+          +'<path d="M-1.4,1.9 C-1.7,3.3 -1.3,5.0 -0.5,6.1" fill="none" stroke="#ffffff" stroke-opacity=".62" stroke-width=".75" stroke-linecap="round"/>'
+          +'</g></g>';
+      }
+      function render(){
+        var w=Math.round(form.offsetWidth);
+        var h=Math.round(form.offsetHeight);
+        if(!w||!h||(w===lastW&&h===lastH))return;
+        lastW=w;lastH=h;
+        var r=h/2;
+        var startX=Math.max(r*0.72,18);
+        var endX=w-startX;
+        var span=Math.max(40,endX-startX);
+        var topCount=Math.max(4,Math.round(span/68));
+        var step=span/topCount;
+        var frontCord='',backCord='',frontBulbs='',backBulbs='';
+        // Left & right rounded cap wire wraps (front + back)
+        backCord+='M '+startX.toFixed(1)+',-5.5 C 5,-7 -6.5,7 -6.5,'+(h*0.5).toFixed(1)+' C -6.5,'+(h-7).toFixed(1)+' 5,'+(h+7).toFixed(1)+' '+startX.toFixed(1)+','+(h+5.5).toFixed(1)+' ';
+        backCord+='M '+endX.toFixed(1)+',-5.5 C '+(w-5).toFixed(1)+',-7 '+(w+6.5).toFixed(1)+',7 '+(w+6.5).toFixed(1)+','+(h*0.5).toFixed(1)+' C '+(w+6.5).toFixed(1)+','+(h-7).toFixed(1)+' '+(w-5).toFixed(1)+','+(h+7).toFixed(1)+' '+endX.toFixed(1)+','+(h+5.5).toFixed(1)+' ';
+        frontCord+='M '+(startX+2).toFixed(1)+',1.2 C 8,1.5 -3.5,10.5 -4.2,'+(h*0.48).toFixed(1)+' C -4.6,'+(h*0.78).toFixed(1)+' 5.5,'+(h-1.2).toFixed(1)+' '+(startX+6).toFixed(1)+','+(h-1.5).toFixed(1)+' ';
+        frontCord+='M '+(endX-2).toFixed(1)+',1.2 C '+(w-8).toFixed(1)+',1.5 '+(w+3.5).toFixed(1)+',10.5 '+(w+4.2).toFixed(1)+','+(h*0.48).toFixed(1)+' C '+(w+4.6).toFixed(1)+','+(h*0.78).toFixed(1)+' '+(w-5.5).toFixed(1)+','+(h-1.2).toFixed(1)+' '+(endX-6).toFixed(1)+','+(h-1.5).toFixed(1)+' ';
+        // Top & bottom alternating over/under wire loops
+        for(var i=0;i<topCount;i++){
+          var x0=startX+i*step;
+          var x1=startX+(i+1)*step;
+          var xm=(x0+x1)/2;
+          var flip=i%2===0;
+          if(flip){
+            frontCord+='M '+x0.toFixed(1)+',-2.8 C '+(x0+step*0.28).toFixed(1)+',2.6 '+(x1-step*0.28).toFixed(1)+',2.6 '+x1.toFixed(1)+',-3.4 ';
+            backCord+='M '+x0.toFixed(1)+',-3.0 C '+(x0+step*0.28).toFixed(1)+',-7.8 '+(x1-step*0.28).toFixed(1)+',-7.8 '+x1.toFixed(1)+',-3.2 ';
+            frontCord+='M '+x0.toFixed(1)+','+(h+3.2).toFixed(1)+' C '+(x0+step*0.28).toFixed(1)+','+(h+7.5).toFixed(1)+' '+(x1-step*0.28).toFixed(1)+','+(h+7.5).toFixed(1)+' '+x1.toFixed(1)+','+(h+2.4).toFixed(1)+' ';
+            backCord+='M '+x0.toFixed(1)+','+(h+2.4).toFixed(1)+' C '+(x0+step*0.28).toFixed(1)+','+(h-2.5).toFixed(1)+' '+(x1-step*0.28).toFixed(1)+','+(h-2.5).toFixed(1)+' '+x1.toFixed(1)+','+(h+3.0).toFixed(1)+' ';
+          }else{
+            frontCord+='M '+x0.toFixed(1)+',-3.4 C '+(x0+step*0.28).toFixed(1)+',-7.2 '+(x1-step*0.28).toFixed(1)+',-7.2 '+x1.toFixed(1)+',-2.8 ';
+            backCord+='M '+x0.toFixed(1)+',-3.0 C '+(x0+step*0.28).toFixed(1)+',2.4 '+(x1-step*0.28).toFixed(1)+',2.4 '+x1.toFixed(1)+',-3.0 ';
+            frontCord+='M '+x0.toFixed(1)+','+(h+2.4).toFixed(1)+' C '+(x0+step*0.28).toFixed(1)+','+(h-2.2).toFixed(1)+' '+(x1-step*0.28).toFixed(1)+','+(h-2.2).toFixed(1)+' '+x1.toFixed(1)+','+(h+3.2).toFixed(1)+' ';
+            backCord+='M '+x0.toFixed(1)+','+(h+3.0).toFixed(1)+' C '+(x0+step*0.28).toFixed(1)+','+(h+7.8).toFixed(1)+' '+(x1-step*0.28).toFixed(1)+','+(h+7.8).toFixed(1)+' '+x1.toFixed(1)+','+(h+2.4).toFixed(1)+' ';
+          }
+          // Bulbs along top rim
+          var topY=flip?1.6:-5.2;
+          var topTilt=flip?(i%4===0?164:-162):(i%4===1?-154:156);
+          var bxT=xm-(flip?6:-5);
+          if(i%2===0){
+            frontBulbs+=bulbSvg('f_',bxT,topY,topTilt,i);
+          }else{
+            backBulbs+=bulbSvg('b_',bxT,topY,topTilt,i);
+          }
+          // Bulbs along bottom rim (offset slightly)
+          var botY=flip?(h+5.8):(h-1.6);
+          var botTilt=flip?(i%4===0?-18:16):(i%4===1?22:-20);
+          var bxB=xm+(flip?7:-6);
+          if(i%2===1){
+            frontBulbs+=bulbSvg('f_',bxB,botY,botTilt,i+2);
+          }else{
+            frontBulbs+=bulbSvg('f_',bxB,h+5.4,botTilt,i+1);
+          }
+        }
+        // Extra corner/end-cap bulbs wrapping the rounded pill sides
+        frontBulbs+=bulbSvg('f_',-4.2,h*0.44,96,3);
+        frontBulbs+=bulbSvg('f_',w+4.2,h*0.54,-92,0);
+        frontBulbs+=bulbSvg('f_',startX*0.55,-2.5,142,1);
+        frontBulbs+=bulbSvg('f_',w-startX*0.55,h+2.5,-38,2);
+
+        backEl.innerHTML='<svg viewBox="0 0 '+w+' '+h+'" xmlns="'+NS+'">'+buildDefs('b_')
+          +'<path d="'+backCord+'" fill="none" stroke="#122119" stroke-width="2.2" stroke-linecap="round" opacity=".92"/>'
+          +backBulbs+'</svg>';
+        frontEl.innerHTML='<svg viewBox="0 0 '+w+' '+h+'" xmlns="'+NS+'">'+buildDefs('f_')
+          +'<path d="'+frontCord+'" fill="none" stroke="#0b1510" stroke-width="3.2" stroke-linecap="round" opacity=".32"/>'
+          +'<path d="'+frontCord+'" fill="none" stroke="#182b20" stroke-width="2.1" stroke-linecap="round"/>'
+          +'<path d="'+frontCord+'" fill="none" stroke="#2c4837" stroke-width=".7" stroke-linecap="round" stroke-dasharray="3 5" opacity=".75"/>'
+          +frontBulbs+'</svg>';
+      }
+      render();
+      if(typeof ResizeObserver==='function'){
+        new ResizeObserver(render).observe(form);
+      }else{
+        window.addEventListener('resize',render,{passive:true});
+      }
+      if(document.fonts&&document.fonts.ready)document.fonts.ready.then(render);
+    })();
+    </script>
 
     <nav class="links" id="links" aria-label="Shortcuts">
       <!-- Loaded dynamically from active Cloud SQL profile -->
@@ -5296,25 +5483,29 @@ html,body{background:#080d0b}
   </div>
 </section>
 
-<section id="ai-coming-soon-panel" hidden aria-label="TSW AI" style="position:fixed;inset:0;z-index:80;background:var(--bg,#080d16);color:var(--text,#e7edf6);overflow:auto">
+<section id="ai-coming-soon-panel" hidden aria-label="TSW AI" style="position:fixed;inset:0;z-index:80;background:var(--void,#080d0b);color:var(--ink,#e8eee8);overflow:auto">
   <div style="max-width:900px;min-height:100%;margin:auto;display:flex;flex-direction:column;padding:clamp(16px,4vw,34px);box-sizing:border-box">
-    <header style="display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--border,rgba(148,163,184,.18));padding-bottom:16px">
-      <div><div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted,#91a0b5)">TSW v2</div><h1 style="font-size:25px;font-weight:650;margin:5px 0 0">AI</h1></div>
-      <button type="button" id="ai-coming-soon-back" style="padding:9px 13px;border:1px solid var(--border,rgba(148,163,184,.22));border-radius:9px;background:transparent;color:inherit;cursor:pointer">Back</button>
+    <header style="display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--edge,#293b32);padding-bottom:16px">
+      <div><div style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--steel,#9aa99f)">TSW v2</div><h1 style="font-size:25px;font-weight:650;margin:5px 0 0">AI</h1></div>
+      <button type="button" id="ai-coming-soon-back" style="padding:9px 13px;border:1px solid var(--edge,#35483c);border-radius:9px;background:transparent;color:inherit;cursor:pointer">Back</button>
     </header>
-    <div id="tsw-ai-welcome" style="margin:30px 0 18px"><h2 id="tsw-ai-greeting" style="font-size:clamp(24px,4vw,34px);font-weight:600;letter-spacing:-.03em;margin:0 0 8px">What’s on your mind?</h2><p style="margin:0;color:var(--muted,#91a0b5);font-size:14px">Ask a question, get help with homework, or work through an idea.</p></div>
+    <div id="tsw-ai-welcome" style="margin:30px 0 18px"><h2 id="tsw-ai-greeting" style="font-size:clamp(24px,4vw,34px);font-weight:600;letter-spacing:-.03em;margin:0 0 8px">What’s on your mind?</h2><p style="margin:0;color:var(--steel,#9aa99f);font-size:14px">Ask a question, get help with homework, or work through an idea.</p></div>
     <div id="tsw-ai-models" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-      <button type="button" class="tsw-ai-model active" data-model="gemini" style="border:1px solid #65758b;border-radius:9px;padding:8px 12px;background:rgba(120,140,165,.12);color:inherit;cursor:pointer">Gemini</button>
-      <button type="button" class="tsw-ai-model" data-model="chatgpt" disabled title="Not connected" style="border:1px solid var(--border,rgba(148,163,184,.18));border-radius:9px;padding:8px 12px;background:transparent;color:var(--muted,#91a0b5);cursor:not-allowed;opacity:.65">ChatGPT · unavailable</button>
-      <button type="button" class="tsw-ai-model" data-model="deepseek" disabled title="Not connected" style="border:1px solid var(--border,rgba(148,163,184,.18));border-radius:9px;padding:8px 12px;background:transparent;color:var(--muted,#91a0b5);cursor:not-allowed;opacity:.65">DeepSeek · unavailable</button>
+      <button type="button" class="tsw-ai-model active" data-model="gemini" style="border:1px solid #a7444b;border-radius:9px;padding:8px 12px;background:rgba(167,68,75,.22);color:inherit;cursor:pointer">Gemini</button>
+      <button type="button" class="tsw-ai-model" data-model="chatgpt" disabled title="Not connected" style="border:1px solid rgba(103,173,124,.22);border-radius:9px;padding:8px 12px;background:transparent;color:var(--steel,#9aa99f);cursor:not-allowed;opacity:.65">ChatGPT · unavailable</button>
+      <button type="button" class="tsw-ai-model" data-model="deepseek" disabled title="Not connected" style="border:1px solid rgba(103,173,124,.22);border-radius:9px;padding:8px 12px;background:transparent;color:var(--steel,#9aa99f);cursor:not-allowed;opacity:.65">DeepSeek · unavailable</button>
     </div>
     <div id="tsw-ai-messages" role="log" aria-live="polite" style="flex:1;min-height:180px;display:flex;flex-direction:column;gap:14px;padding:8px 0 20px"></div>
-    <div id="tsw-ai-status" role="status" style="font-size:13px;color:var(--muted,#91a0b5);min-height:20px;margin-bottom:8px"></div>
-    <form id="tsw-ai-form" style="border:1px solid var(--border,rgba(148,163,184,.25));border-radius:15px;padding:10px;background:rgba(120,140,165,.05)">
-      <textarea id="tsw-ai-prompt" maxlength="5000" rows="3" placeholder="Message TSW AI…" aria-label="Message TSW AI" style="width:100%;resize:vertical;box-sizing:border-box;border:0;outline:0;background:transparent;color:inherit;font:inherit;padding:8px"></textarea>
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 4px 0"><span style="font-size:11px;color:var(--muted,#91a0b5)">Free usage can be limited. Don’t share private information.</span><button id="tsw-ai-send" type="submit" style="border:0;border-radius:9px;padding:9px 15px;background:var(--accent,#477be8);color:white;font-weight:600;cursor:pointer">Send ↑</button></div>
-    </form>
-    <p style="font-size:11px;line-height:1.5;color:var(--muted,#91a0b5);margin:12px 0 0">AI can make mistakes. Don’t use it for emergencies or as a replacement for professional advice.</p>
+    <div id="tsw-ai-status" role="status" style="font-size:13px;color:var(--steel,#9aa99f);min-height:20px;margin-bottom:8px"></div>
+    <div class="ai-lights-wrap">
+      <div class="ai-lights-layer ai-lights-back" id="ai-lights-back" aria-hidden="true"></div>
+      <form id="tsw-ai-form" style="border:1px solid rgba(190,151,91,.28);border-radius:15px;padding:10px;background:rgba(16,26,22,.78)">
+        <textarea id="tsw-ai-prompt" maxlength="5000" rows="3" placeholder="Message TSW AI…" aria-label="Message TSW AI" style="width:100%;resize:vertical;box-sizing:border-box;border:0;outline:0;background:transparent;color:inherit;font:inherit;padding:8px"></textarea>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 4px 0"><span style="font-size:11px;color:var(--steel,#9aa99f)">Free usage can be limited. Don’t share private information.</span><button id="tsw-ai-send" type="submit" style="border:0;border-radius:9px;padding:9px 15px;background:#a7444b;color:#fff8eb;font-weight:600;cursor:pointer">Send ↑</button></div>
+      </form>
+      <div class="ai-lights-layer ai-lights-front" id="ai-lights-front" aria-hidden="true"></div>
+    </div>
+    <p style="font-size:11px;line-height:1.5;color:var(--steel,#9aa99f);margin:16px 0 0">AI can make mistakes. Don’t use it for emergencies or as a replacement for professional advice.</p>
   </div>
 </section>
 <script>
@@ -5323,40 +5514,186 @@ html,body{background:#080d0b}
   var button = document.getElementById('ai-coming-soon-btn');
   var panel = document.getElementById('ai-coming-soon-panel');
   var back = document.getElementById('ai-coming-soon-back');
-  if (!button || !panel) return;
-  button.addEventListener('click', function () {
-    panel.hidden = false;
-    panel.style.display = 'block';
-    var prompt = document.getElementById('tsw-ai-prompt');
-    if (prompt) prompt.focus();
-  }, true);
-  if (back) back.addEventListener('click', function () {
-    panel.hidden = true;
-    panel.style.display = 'none';
-  }, true);
+  var form = document.getElementById('tsw-ai-form');
+  var backEl = document.getElementById('ai-lights-back');
+  var frontEl = document.getElementById('ai-lights-front');
+  var NS = 'http://www.w3.org/2000/svg';
+  var palette = [
+    { id: 'r', glass: '#e83b47', mid: '#b91d2b', core: '#ffb3b8' },
+    { id: 'g', glass: '#2dc866', mid: '#178440', core: '#b5facd' },
+    { id: 'y', glass: '#f2bb3f', mid: '#bc7e16', core: '#fff0b5' },
+    { id: 'w', glass: '#ffe0a3', mid: '#d9a24e', core: '#fff9e8' }
+  ];
+  var lastW = 0, lastH = 0;
+  function buildDefs(prefix) {
+    var s = '<defs>';
+    for (var i = 0; i < palette.length; i++) {
+      var c = palette[i];
+      s += '<radialGradient id="clGlow_' + prefix + c.id + '" cx="50%" cy="50%" r="50%">' +
+        '<stop offset="0%" stop-color="' + c.core + '" stop-opacity=".75"/>' +
+        '<stop offset="38%" stop-color="' + c.glass + '" stop-opacity=".38"/>' +
+        '<stop offset="100%" stop-color="' + c.glass + '" stop-opacity="0"/></radialGradient>' +
+        '<linearGradient id="clGlass_' + prefix + c.id + '" x1="0%" y1="0%" x2="100%" y2="100%">' +
+        '<stop offset="0%" stop-color="' + c.core + '"/>' +
+        '<stop offset="45%" stop-color="' + c.glass + '"/>' +
+        '<stop offset="100%" stop-color="' + c.mid + '"/></linearGradient>';
+    }
+    return s + '</defs>';
+  }
+  function bulbSvg(prefix, x, y, deg, idx) {
+    var c = palette[idx % palette.length];
+    var dur = (3.2 + ((idx * 7) % 5) * 0.42).toFixed(2) + 's';
+    var delay = (-((idx * 0.67) % 3.8)).toFixed(2) + 's';
+    return '<g transform="translate(' + x.toFixed(1) + ',' + y.toFixed(1) + ') rotate(' + deg.toFixed(1) + ')">' +
+      '<circle class="cl-halo" cx="0" cy="6.2" r="14.5" fill="url(#clGlow_' + prefix + c.id + ')" style="--cl-dur:' + dur + ';--cl-delay:' + delay + '"/>' +
+      '<rect x="-2.4" y="-3.1" width="4.8" height="3.3" rx="0.9" fill="#17271f" stroke="#2c4538" stroke-width=".6"/>' +
+      '<rect x="-2.7" y="-0.6" width="5.4" height="1.1" rx="0.4" fill="#b79458"/>' +
+      '<g class="cl-bulb" style="--cl-dur:' + dur + ';--cl-delay:' + delay + '">' +
+      '<path d="M-3.1,0.3 C-4.1,3.5 -2.9,7.9 0,9.5 C2.9,7.9 4.1,3.5 3.1,0.3 Z" fill="url(#clGlass_' + prefix + c.id + ')"/>' +
+      '<ellipse cx="0" cy="4.4" rx="1.15" ry="2.25" fill="' + c.core + '" opacity=".86"/>' +
+      '<path d="M-1.4,1.9 C-1.7,3.3 -1.3,5.0 -0.5,6.1" fill="none" stroke="#ffffff" stroke-opacity=".62" stroke-width=".75" stroke-linecap="round"/>' +
+      '</g></g>';
+  }
+  function renderAiLights(force) {
+    if (!form || !backEl || !frontEl) return;
+    var w = Math.round(form.offsetWidth);
+    var h = Math.round(form.offsetHeight);
+    if (!w || !h || (!force && w === lastW && h === lastH)) return;
+    lastW = w; lastH = h;
+    var padX = 20;
+    var startX = padX;
+    var endX = Math.max(startX + 40, w - padX);
+    var span = endX - startX;
+    var topCount = Math.max(5, Math.round(span / 74));
+    var step = span / topCount;
+    var frontCord = '', backCord = '', frontBulbs = '', backBulbs = '';
+    var padY = 18;
+    var sideSpan = Math.max(24, h - padY * 2);
+    var sideCount = Math.max(1, Math.round(sideSpan / 62));
+    var sideStep = sideSpan / sideCount;
+
+    // Corner wraps linking top/bottom cords into left/right vertical wraps
+    backCord += 'M ' + startX.toFixed(1) + ',-4.5 C 4,-6 -6,4 -5,' + padY.toFixed(1) + ' ';
+    backCord += 'M ' + endX.toFixed(1) + ',-4.5 C ' + (w - 4).toFixed(1) + ',-6 ' + (w + 6).toFixed(1) + ',4 ' + (w + 5).toFixed(1) + ',' + padY.toFixed(1) + ' ';
+    backCord += 'M -5,' + (h - padY).toFixed(1) + ' C -6,' + (h - 4).toFixed(1) + ' 4,' + (h + 6).toFixed(1) + ' ' + startX.toFixed(1) + ',' + (h + 4.5).toFixed(1) + ' ';
+    backCord += 'M ' + (w + 5).toFixed(1) + ',' + (h - padY).toFixed(1) + ' C ' + (w + 6).toFixed(1) + ',' + (h - 4).toFixed(1) + ' ' + (w - 4).toFixed(1) + ',' + (h + 6).toFixed(1) + ' ' + endX.toFixed(1) + ',' + (h + 4.5).toFixed(1) + ' ';
+
+    frontCord += 'M ' + (startX + 1).toFixed(1) + ',1.4 C 6,1.8 -3,7 -3.4,' + padY.toFixed(1) + ' ';
+    frontCord += 'M ' + (endX - 1).toFixed(1) + ',1.4 C ' + (w - 6).toFixed(1) + ',1.8 ' + (w + 3).toFixed(1) + ',7 ' + (w + 3.4).toFixed(1) + ',' + padY.toFixed(1) + ' ';
+    frontCord += 'M -3.4,' + (h - padY).toFixed(1) + ' C -3,' + (h - 7).toFixed(1) + ' 6,' + (h - 1.8).toFixed(1) + ' ' + (startX + 1).toFixed(1) + ',' + (h - 1.4).toFixed(1) + ' ';
+    frontCord += 'M ' + (w + 3.4).toFixed(1) + ',' + (h - padY).toFixed(1) + ' C ' + (w + 3).toFixed(1) + ',' + (h - 7).toFixed(1) + ' ' + (w - 6).toFixed(1) + ',' + (h - 1.8).toFixed(1) + ' ' + (endX - 1).toFixed(1) + ',' + (h - 1.4).toFixed(1) + ' ';
+
+    for (var i = 0; i < topCount; i++) {
+      var x0 = startX + i * step;
+      var x1 = startX + (i + 1) * step;
+      var xm = (x0 + x1) / 2;
+      var flip = i % 2 === 0;
+      if (flip) {
+        frontCord += 'M ' + x0.toFixed(1) + ',-2.8 C ' + (x0 + step * 0.28).toFixed(1) + ',2.6 ' + (x1 - step * 0.28).toFixed(1) + ',2.6 ' + x1.toFixed(1) + ',-3.4 ';
+        backCord += 'M ' + x0.toFixed(1) + ',-3.0 C ' + (x0 + step * 0.28).toFixed(1) + ',-7.8 ' + (x1 - step * 0.28).toFixed(1) + ',-7.8 ' + x1.toFixed(1) + ',-3.2 ';
+        frontCord += 'M ' + x0.toFixed(1) + ',' + (h + 3.2).toFixed(1) + ' C ' + (x0 + step * 0.28).toFixed(1) + ',' + (h + 7.5).toFixed(1) + ' ' + (x1 - step * 0.28).toFixed(1) + ',' + (h + 7.5).toFixed(1) + ' ' + x1.toFixed(1) + ',' + (h + 2.4).toFixed(1) + ' ';
+        backCord += 'M ' + x0.toFixed(1) + ',' + (h + 2.4).toFixed(1) + ' C ' + (x0 + step * 0.28).toFixed(1) + ',' + (h - 2.5).toFixed(1) + ' ' + (x1 - step * 0.28).toFixed(1) + ',' + (h - 2.5).toFixed(1) + ' ' + x1.toFixed(1) + ',' + (h + 3.0).toFixed(1) + ' ';
+      } else {
+        frontCord += 'M ' + x0.toFixed(1) + ',-3.4 C ' + (x0 + step * 0.28).toFixed(1) + ',-7.2 ' + (x1 - step * 0.28).toFixed(1) + ',-7.2 ' + x1.toFixed(1) + ',-2.8 ';
+        backCord += 'M ' + x0.toFixed(1) + ',-3.0 C ' + (x0 + step * 0.28).toFixed(1) + ',2.4 ' + (x1 - step * 0.28).toFixed(1) + ',2.4 ' + x1.toFixed(1) + ',-3.0 ';
+        frontCord += 'M ' + x0.toFixed(1) + ',' + (h + 2.4).toFixed(1) + ' C ' + (x0 + step * 0.28).toFixed(1) + ',' + (h - 2.2).toFixed(1) + ' ' + (x1 - step * 0.28).toFixed(1) + ',' + (h - 2.2).toFixed(1) + ' ' + x1.toFixed(1) + ',' + (h + 3.2).toFixed(1) + ' ';
+        backCord += 'M ' + x0.toFixed(1) + ',' + (h + 3.0).toFixed(1) + ' C ' + (x0 + step * 0.28).toFixed(1) + ',' + (h + 7.8).toFixed(1) + ' ' + (x1 - step * 0.28).toFixed(1) + ',' + (h + 7.8).toFixed(1) + ' ' + x1.toFixed(1) + ',' + (h + 2.4).toFixed(1) + ' ';
+      }
+      var topY = flip ? 1.5 : -5.2;
+      var topTilt = flip ? (i % 4 === 0 ? 164 : -162) : (i % 4 === 1 ? -154 : 156);
+      var bxT = xm - (flip ? 6 : -5);
+      if (i % 2 === 0) frontBulbs += bulbSvg('ai_f_', bxT, topY, topTilt, i);
+      else backBulbs += bulbSvg('ai_b_', bxT, topY, topTilt, i);
+
+      var botY = flip ? (h + 5.8) : (h - 1.6);
+      var botTilt = flip ? (i % 4 === 0 ? -18 : 16) : (i % 4 === 1 ? 22 : -20);
+      var bxB = xm + (flip ? 7 : -6);
+      if (i % 2 === 1) frontBulbs += bulbSvg('ai_f_', bxB, botY, botTilt, i + 2);
+      else frontBulbs += bulbSvg('ai_f_', bxB, h + 5.4, botTilt, i + 1);
+    }
+
+    for (var s = 0; s < sideCount; s++) {
+      var y0 = padY + s * sideStep;
+      var y1 = padY + (s + 1) * sideStep;
+      var ym = (y0 + y1) / 2;
+      var sFlip = s % 2 === 0;
+      if (sFlip) {
+        frontCord += 'M -3.4,' + y0.toFixed(1) + ' C 2.2,' + (y0 + sideStep * 0.28).toFixed(1) + ' 2.2,' + (y1 - sideStep * 0.28).toFixed(1) + ' -3.4,' + y1.toFixed(1) + ' ';
+        backCord += 'M -5.0,' + y0.toFixed(1) + ' C -7.4,' + (y0 + sideStep * 0.28).toFixed(1) + ' -7.4,' + (y1 - sideStep * 0.28).toFixed(1) + ' -5.0,' + y1.toFixed(1) + ' ';
+        frontCord += 'M ' + (w + 3.4).toFixed(1) + ',' + y0.toFixed(1) + ' C ' + (w - 2.2).toFixed(1) + ',' + (y0 + sideStep * 0.28).toFixed(1) + ' ' + (w - 2.2).toFixed(1) + ',' + (y1 - sideStep * 0.28).toFixed(1) + ' ' + (w + 3.4).toFixed(1) + ',' + y1.toFixed(1) + ' ';
+        backCord += 'M ' + (w + 5.0).toFixed(1) + ',' + y0.toFixed(1) + ' C ' + (w + 7.4).toFixed(1) + ',' + (y0 + sideStep * 0.28).toFixed(1) + ' ' + (w + 7.4).toFixed(1) + ',' + (y1 - sideStep * 0.28).toFixed(1) + ' ' + (w + 5.0).toFixed(1) + ',' + y1.toFixed(1) + ' ';
+      } else {
+        frontCord += 'M -3.4,' + y0.toFixed(1) + ' C -7.0,' + (y0 + sideStep * 0.28).toFixed(1) + ' -7.0,' + (y1 - sideStep * 0.28).toFixed(1) + ' -3.4,' + y1.toFixed(1) + ' ';
+        backCord += 'M -5.0,' + y0.toFixed(1) + ' C 1.8,' + (y0 + sideStep * 0.28).toFixed(1) + ' 1.8,' + (y1 - sideStep * 0.28).toFixed(1) + ' -5.0,' + y1.toFixed(1) + ' ';
+        frontCord += 'M ' + (w + 3.4).toFixed(1) + ',' + y0.toFixed(1) + ' C ' + (w + 7.0).toFixed(1) + ',' + (y0 + sideStep * 0.28).toFixed(1) + ' ' + (w + 7.0).toFixed(1) + ',' + (y1 - sideStep * 0.28).toFixed(1) + ' ' + (w + 3.4).toFixed(1) + ',' + y1.toFixed(1) + ' ';
+        backCord += 'M ' + (w + 5.0).toFixed(1) + ',' + y0.toFixed(1) + ' C ' + (w - 1.8).toFixed(1) + ',' + (y0 + sideStep * 0.28).toFixed(1) + ' ' + (w - 1.8).toFixed(1) + ',' + (y1 - sideStep * 0.28).toFixed(1) + ' ' + (w + 5.0).toFixed(1) + ',' + y1.toFixed(1) + ' ';
+      }
+      frontBulbs += bulbSvg('ai_f_', -4.2, ym, sFlip ? 96 : 82, s + 1);
+      frontBulbs += bulbSvg('ai_f_', w + 4.2, ym, sFlip ? -94 : -82, s + 3);
+    }
+
+    frontBulbs += bulbSvg('ai_f_', 7, -1.8, 138, 1);
+    frontBulbs += bulbSvg('ai_f_', w - 7, -1.8, -138, 2);
+    frontBulbs += bulbSvg('ai_f_', 7, h + 1.8, 42, 3);
+    frontBulbs += bulbSvg('ai_f_', w - 7, h + 1.8, -42, 0);
+
+    backEl.innerHTML = '<svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="' + NS + '">' + buildDefs('ai_b_') +
+      '<path d="' + backCord + '" fill="none" stroke="#122119" stroke-width="2.2" stroke-linecap="round" opacity=".92"/>' +
+      backBulbs + '</svg>';
+    frontEl.innerHTML = '<svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="' + NS + '">' + buildDefs('ai_f_') +
+      '<path d="' + frontCord + '" fill="none" stroke="#0b1510" stroke-width="3.2" stroke-linecap="round" opacity=".32"/>' +
+      '<path d="' + frontCord + '" fill="none" stroke="#182b20" stroke-width="2.1" stroke-linecap="round"/>' +
+      '<path d="' + frontCord + '" fill="none" stroke="#2c4837" stroke-width=".7" stroke-linecap="round" stroke-dasharray="3 5" opacity=".75"/>' +
+      frontBulbs + '</svg>';
+  }
+  if (typeof ResizeObserver === 'function' && form) {
+    new ResizeObserver(function () { renderAiLights(false); }).observe(form);
+  } else {
+    window.addEventListener('resize', function () { renderAiLights(false); }, { passive: true });
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { renderAiLights(false); });
+  if (button && panel) {
+    button.addEventListener('click', function () {
+      panel.hidden = false;
+      panel.style.display = 'block';
+      requestAnimationFrame(function () { renderAiLights(true); });
+      setTimeout(function () { renderAiLights(true); }, 60);
+      var prompt = document.getElementById('tsw-ai-prompt');
+      if (prompt) prompt.focus();
+    }, true);
+  }
+  if (back && panel) {
+    back.addEventListener('click', function () {
+      panel.hidden = true;
+      panel.style.display = 'none';
+    }, true);
+  }
 })();
 </script>
 <style>
 #tsw-ai-messages .tsw-ai-message{max-width:88%;padding:12px 15px;border-radius:13px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}
-#tsw-ai-messages .tsw-ai-user{align-self:flex-end;background:rgba(91,132,213,.18);border:1px solid rgba(91,132,213,.22)}
-#tsw-ai-messages .tsw-ai-assistant{align-self:flex-start;background:rgba(130,145,165,.08);border:1px solid var(--border,rgba(148,163,184,.14))}
-#tsw-ai-models .tsw-ai-model.active{border-color:var(--accent,#477be8)!important;background:rgba(71,123,232,.13)!important}
+#tsw-ai-messages .tsw-ai-user{align-self:flex-end;background:rgba(167,68,75,.24);border:1px solid rgba(212,119,120,.34);color:#fff6ed}
+#tsw-ai-messages .tsw-ai-assistant{align-self:flex-start;background:rgba(17,28,23,.86);border:1px solid rgba(103,173,124,.24);color:#e8eee8}
+#tsw-ai-messages .tsw-ai-assistant button{background:rgba(255,248,235,.06)!important;border-color:rgba(190,151,91,.28)!important;color:#e8eee8!important;transition:background .15s,border-color .15s}
+#tsw-ai-messages .tsw-ai-assistant button:hover{background:rgba(167,68,75,.22)!important;border-color:rgba(212,119,120,.55)!important;color:#fff8eb!important}
+#tsw-ai-models .tsw-ai-model.active{border-color:#d47778!important;background:rgba(167,68,75,.26)!important}
 @media(max-width:600px){#tsw-ai-messages .tsw-ai-message{max-width:96%}}
 
-/* TSW AI refresh: centered welcome, blue starfield glow, compact model picker. */
+/* TSW AI Christmas theme: deep evergreen starfield, cranberry accents, and warm brass highlights. */
 #ai-coming-soon-panel{
   --ai-x:50%;--ai-y:35%;
+  scrollbar-color:#35483c #080d0b;
   background:
-    radial-gradient(650px circle at var(--ai-x) var(--ai-y),rgba(66,132,255,.22),transparent 58%),
-    radial-gradient(900px circle at 12% 90%,rgba(28,73,155,.2),transparent 60%),
-    linear-gradient(145deg,#050914 0%,#080e20 48%,#030610 100%) !important;
+    radial-gradient(640px circle at var(--ai-x) var(--ai-y),rgba(167,68,75,.18),transparent 58%),
+    radial-gradient(920px circle at 12% 90%,rgba(34,105,69,.24),transparent 60%),
+    linear-gradient(145deg,#070c0a 0%,#0b1612 48%,#060a08 100%) !important;
   background-size:100% 100%,180% 180%,220% 220%!important;
   animation:tswAiAmbient 24s ease-in-out infinite alternate;
   isolation:isolate;
 }
 #ai-coming-soon-panel:before{
-  content:"";position:fixed;inset:-8%;z-index:-1;pointer-events:none;opacity:.52;
-  background-image:radial-gradient(1.5px 1.5px at 12% 18%,#b7d5ff 98%,transparent),radial-gradient(1px 1px at 82% 24%,#7caeff 98%,transparent),radial-gradient(1.5px 1.5px at 68% 78%,#9ec5ff 98%,transparent),radial-gradient(1px 1px at 28% 68%,#7caeff 98%,transparent),radial-gradient(1.5px 1.5px at 92% 88%,#9ec5ff 98%,transparent);
+  content:"";position:fixed;inset:-8%;z-index:-1;pointer-events:none;opacity:.54;
+  background-image:radial-gradient(1.5px 1.5px at 12% 18%,#f7eedc 98%,transparent),radial-gradient(1px 1px at 82% 24%,#b8dec4 98%,transparent),radial-gradient(1.5px 1.5px at 68% 78%,#e5c488 98%,transparent),radial-gradient(1px 1px at 28% 68%,#e8a4a6 98%,transparent),radial-gradient(1.5px 1.5px at 92% 88%,#f7eedc 98%,transparent);
   background-size:240px 220px,310px 290px,270px 260px,360px 330px,290px 310px;
   animation:tswAiStars 38s linear infinite alternate;
 }
@@ -5364,29 +5701,34 @@ html,body{background:#080d0b}
 @keyframes tswAiStars{from{transform:translate3d(-1.5%,1%,0) scale(1)}to{transform:translate3d(1.5%,-1%,0) scale(1.04)}}
 #ai-coming-soon-panel>div{width:100%;max-width:100%!important;min-height:100dvh!important;padding:clamp(18px,4vw,42px)!important}
 #ai-coming-soon-panel>div>header{border:0!important;padding:0 0 12px!important}
-#ai-coming-soon-panel>div>header h1{font-size:17px!important;letter-spacing:.04em!important;color:#bcd5ff}
-#ai-coming-soon-back{position:fixed!important;top:22px!important;left:clamp(18px,3vw,38px)!important;z-index:8!important;border-color:rgba(133,174,255,.22)!important;background:rgba(12,24,48,.72)!important;backdrop-filter:blur(14px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+#ai-coming-soon-panel>div>header h1{font-size:17px!important;letter-spacing:.04em!important;color:#efe6d4}
+#ai-coming-soon-back{position:fixed!important;top:22px!important;left:clamp(18px,3vw,38px)!important;z-index:8!important;border-color:rgba(190,151,91,.28)!important;background:rgba(16,26,22,.82)!important;color:#e8eee8!important;backdrop-filter:blur(14px);box-shadow:0 8px 24px rgba(0,0,0,.25);transition:border-color .15s,background .15s}
+#ai-coming-soon-back:hover{border-color:rgba(182,75,80,.62)!important;background:rgba(167,68,75,.2)!important;color:#fff8eb!important}
 #tsw-ai-welcome{
   position:absolute;left:50%;top:46%;width:min(760px,calc(100% - 36px));transform:translate(-50%,-50%);
   margin:0!important;text-align:center;z-index:2;transition:opacity .5s ease,transform .65s cubic-bezier(.2,.8,.2,1),visibility .5s;
 }
 #tsw-ai-greeting{font-size:clamp(32px,5.5vw,58px)!important;font-weight:560!important;letter-spacing:-.055em!important;
-  background:linear-gradient(100deg,#f4f8ff 10%,#a9cbff 56%,#75a7ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-#tsw-ai-welcome p{font-size:15px!important;color:#91a9d1!important}
+  background:linear-gradient(100deg,#fff8eb 10%,#e4c288 54%,#d47778 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#tsw-ai-welcome p{font-size:15px!important;color:#9eb0a3!important}
 #tsw-ai-models{
   position:fixed;top:22px;right:clamp(18px,3vw,38px);left:auto;z-index:5;margin:0!important;gap:7px!important;justify-content:flex-end;
-  max-width:calc(100vw - 230px);padding:7px;border:1px solid rgba(125,164,235,.18);border-radius:14px;
-  background:rgba(5,12,27,.76);backdrop-filter:blur(18px);box-shadow:0 12px 40px rgba(0,0,0,.18)
+  max-width:calc(100vw - 230px);padding:7px;border:1px solid rgba(190,151,91,.24);border-radius:14px;
+  background:rgba(11,22,17,.8);backdrop-filter:blur(18px);box-shadow:0 12px 40px rgba(0,0,0,.22)
 }
-#tsw-ai-models .tsw-ai-model{font-size:12px!important;padding:7px 10px!important;border-radius:9px!important;border-color:rgba(125,164,235,.16)!important}
-#tsw-ai-models .tsw-ai-model.active{background:rgba(63,126,255,.22)!important;border-color:rgba(111,164,255,.65)!important;color:#e4efff!important}
-#tsw-ai-models .tsw-ai-model:disabled{opacity:.42!important}
+#tsw-ai-models .tsw-ai-model{font-size:12px!important;padding:7px 10px!important;border-radius:9px!important;border-color:rgba(103,173,124,.22)!important;color:#b8c8bc}
+#tsw-ai-models .tsw-ai-model.active{background:rgba(167,68,75,.28)!important;border-color:rgba(212,119,120,.65)!important;color:#fff5e9!important}
+#tsw-ai-models .tsw-ai-model:disabled{opacity:.45!important}
 #tsw-ai-messages{width:min(850px,100%);margin:0 auto;padding-top:70px!important}
-#tsw-ai-form{width:min(850px,100%);margin:0 auto;background:rgba(9,20,42,.66)!important;border-color:rgba(110,157,245,.28)!important;border-radius:20px!important;backdrop-filter:blur(20px);box-shadow:0 16px 70px rgba(0,0,0,.25)}
-#tsw-ai-prompt{min-height:60px!important;resize:none!important}
-#tsw-ai-send{background:linear-gradient(135deg,#659bff,#3474e8)!important;box-shadow:0 5px 18px rgba(48,108,235,.24)}
-#tsw-ai-status{width:min(850px,100%);margin-left:auto;margin-right:auto}
-#ai-coming-soon-panel>div>p:last-child{width:min(850px,100%);margin-left:auto!important;margin-right:auto!important;color:#647da8!important}
+.ai-lights-wrap{width:min(850px,100%);margin:10px auto 6px!important}
+#tsw-ai-form{width:100%!important;margin:0!important;background:rgba(13,24,19,.82)!important;border-color:rgba(190,151,91,.28)!important;border-radius:20px!important;backdrop-filter:blur(20px);box-shadow:0 16px 70px rgba(0,0,0,.28);transition:border-color .18s,box-shadow .18s}
+#tsw-ai-form:focus-within{border-color:rgba(182,75,80,.62)!important;box-shadow:0 0 0 3px rgba(167,68,75,.14),0 16px 70px rgba(0,0,0,.32)}
+#tsw-ai-prompt{min-height:60px!important;resize:none!important;color:#e8eee8}
+#tsw-ai-prompt::placeholder{color:#879a8e}
+#tsw-ai-send{background:linear-gradient(135deg,#c2575d,#9b353e)!important;color:#fff8eb!important;box-shadow:0 5px 18px rgba(167,68,75,.28);transition:filter .15s,background .15s}
+#tsw-ai-send:hover{background:linear-gradient(135deg,#cf676d,#ab3e47)!important}
+#tsw-ai-status{width:min(850px,100%);margin-left:auto;margin-right:auto;color:#9eb0a3!important}
+#ai-coming-soon-panel>div>p:last-child{width:min(850px,100%);margin-left:auto!important;margin-right:auto!important;margin-top:16px!important;color:#85988b!important}
 #ai-coming-soon-panel.has-messages #tsw-ai-welcome{opacity:0;visibility:hidden;transform:translate(-50%,calc(-50% - 70px));pointer-events:none}
 #ai-coming-soon-panel.has-messages #tsw-ai-messages{padding-top:22px!important}
 #tsw-ai-messages .tsw-ai-message{animation:tswAiBubbleIn .35s ease both;border-radius:16px!important}
@@ -5400,7 +5742,7 @@ html,body{background:#080d0b}
  #tsw-ai-models .tsw-ai-model{white-space:nowrap}
  #tsw-ai-welcome{top:43%}
  #tsw-ai-welcome p{max-width:300px;margin:0 auto!important}
- #tsw-ai-form{margin-bottom:4px}
+ .ai-lights-wrap{margin-bottom:8px!important}
  #tsw-ai-prompt{min-height:48px!important}
 }
 @media(prefers-reduced-motion:reduce){#ai-coming-soon-panel,#ai-coming-soon-panel:before,#tsw-ai-welcome,#tsw-ai-messages .tsw-ai-message{transition:none;animation:none}}
@@ -5472,14 +5814,14 @@ store.remove = store.del;
   function opt() {
     var o = window.TSWSky || {}, bg = BGS.indexOf(o.bg) >= 0 ? o.bg : 'stars';
     if (bg === 'video' && !window.TSWVideoOk) bg = 'stars';   /* stars until the video is really playing */
-    return { stars: o.stars !== false, shoot: !!o.shoot, saucer: !!o.saucer, bg: bg, season: o.season || 'off', solid: o.solid || '#0a0f1c', accent: o.accent || '#5aa2ff' };
+    return { stars: o.stars !== false, shoot: !!o.shoot, saucer: !!o.saucer, bg: bg, season: o.season || 'snow', solid: o.solid || '#0a0f1c', accent: o.accent || '#5aa2ff' };
   }
   function seasonOf(o) {
     if (o.season === 'off') return '';
     if (o.season === 'snow' || o.season === 'bats') return o.season;
     var d = new Date(), m = d.getMonth(), day = d.getDate();
-    if (m === 11 || m === 0 || m === 1) return 'snow';
-    if ((m === 9 && day >= 20) || (m === 10 && day <= 1)) return 'bats';
+    if (m === 10 || m === 11 || m === 0 || m === 1) return 'snow';
+    if (m === 9 && day >= 20) return 'bats';
     return '';
   }
   function size() {
@@ -7033,8 +7375,10 @@ $('game-exit').addEventListener('click', exitCork7);
     el.addEventListener('click', function (ev) {
       if (ev.target === el || ev.target.closest('[data-close]')) {
         el.hidden = true;
-        if (id === 'chat-modal' && window.TSWChat && window.TSWChat.stopPolling) {
-          window.TSWChat.stopPolling();
+        if (id === 'chat-modal') {
+          var ep = $('tsw-emoji-picker'); if (ep) ep.style.display = 'none';
+          var mb = $('mention-dropdown-box'); if (mb) mb.style.display = 'none';
+          if (window.TSWChat && window.TSWChat.stopPolling) window.TSWChat.stopPolling();
         }
       }
     });
@@ -7769,7 +8113,7 @@ document.addEventListener('keydown', function (ev) {
   var aiStatus = $('tsw-ai-status');
   var aiGreeting = $('tsw-ai-greeting');
   var aiBusy = false;
-  // Pointer-following TSW blue glow and welcome-to-chat transition.
+  // Pointer-following holiday glow and welcome-to-chat transition.
   if (aiComingSoonPanel) {
     aiComingSoonPanel.addEventListener('pointermove', function(ev) {
       var rect = aiComingSoonPanel.getBoundingClientRect();
@@ -7806,11 +8150,11 @@ document.addEventListener('keydown', function (ev) {
       toast = document.createElement('div');
       toast.id = 'tsw-ai-toast';
       toast.setAttribute('role', 'status');
-      toast.style.cssText = 'position:fixed;right:20px;bottom:20px;z-index:100000;max-width:min(360px,calc(100vw - 32px));padding:12px 16px;border:1px solid rgba(120,160,220,.35);border-radius:12px;background:#101827;color:#e8eef9;box-shadow:0 12px 40px #0009;font:500 14px/1.4 system-ui;opacity:0;transform:translateY(8px);transition:opacity .18s,transform .18s;pointer-events:none;';
+      toast.style.cssText = 'position:fixed;right:20px;bottom:20px;z-index:100000;max-width:min(360px,calc(100vw - 32px));padding:12px 16px;border:1px solid rgba(190,151,91,.35);border-radius:12px;background:#101a16;color:#e8eee8;box-shadow:0 12px 40px #0009;font:500 14px/1.4 system-ui;opacity:0;transform:translateY(8px);transition:opacity .18s,transform .18s;pointer-events:none;';
       document.body.appendChild(toast);
     }
     toast.textContent = message;
-    toast.style.borderColor = kind === 'error' ? 'rgba(248,113,113,.6)' : 'rgba(120,160,220,.35)';
+    toast.style.borderColor = kind === 'error' ? 'rgba(212,119,120,.65)' : 'rgba(190,151,91,.35)';
     toast.style.opacity = '1'; toast.style.transform = 'translateY(0)';
     clearTimeout(toast._hideTimer);
     toast._hideTimer = setTimeout(function(){ toast.style.opacity='0'; toast.style.transform='translateY(8px)'; }, 2600);
@@ -7818,13 +8162,13 @@ document.addEventListener('keydown', function (ev) {
   function tswAiConfirm(title, message) {
     return new Promise(function(resolve) {
       var overlay = document.createElement('div');
-      overlay.style.cssText = 'position:fixed;inset:0;z-index:100001;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.68);backdrop-filter:blur(5px);';
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:100001;display:grid;place-items:center;padding:20px;background:rgba(4,9,7,.72);backdrop-filter:blur(5px);';
       var panel = document.createElement('div');
-      panel.style.cssText = 'width:min(440px,100%);padding:22px;border:1px solid rgba(148,163,184,.25);border-radius:16px;background:#0d1422;color:#e5edf9;box-shadow:0 24px 80px #000a;font:14px/1.55 system-ui;';
-      var heading = document.createElement('h3'); heading.textContent=title; heading.style.cssText='font-size:18px;margin:0 0 10px;';
-      var body = document.createElement('p'); body.textContent=message; body.style.cssText='white-space:pre-line;color:#b8c4d8;margin:0 0 20px;';
+      panel.style.cssText = 'width:min(440px,100%);padding:22px;border:1px solid rgba(190,151,91,.28);border-radius:16px;background:#101a16;color:#e8eee8;box-shadow:0 24px 80px #000a;font:14px/1.55 system-ui;';
+      var heading = document.createElement('h3'); heading.textContent=title; heading.style.cssText='font-size:18px;margin:0 0 10px;color:#fff8eb;';
+      var body = document.createElement('p'); body.textContent=message; body.style.cssText='white-space:pre-line;color:#b8c8bc;margin:0 0 20px;';
       var actions = document.createElement('div'); actions.style.cssText='display:flex;justify-content:flex-end;gap:8px;';
-      function button(label, primary) { var b=document.createElement('button'); b.type='button'; b.textContent=label; b.style.cssText='border:1px solid '+(primary?'#5799f7':'#344155')+';border-radius:9px;padding:9px 14px;background:'+(primary?'#5799f7':'#151f30')+';color:'+(primary?'#061326':'#e5edf9')+';font:600 13px system-ui;cursor:pointer;'; b.addEventListener('click',function(){overlay.remove();resolve(primary);}); return b; }
+      function button(label, primary) { var b=document.createElement('button'); b.type='button'; b.textContent=label; b.style.cssText='border:1px solid '+(primary?'#c2575d':'#35483c')+';border-radius:9px;padding:9px 14px;background:'+(primary?'#a7444b':'#16241d')+';color:'+(primary?'#fff8eb':'#e8eee8')+';font:600 13px system-ui;cursor:pointer;'; b.addEventListener('click',function(){overlay.remove();resolve(primary);}); return b; }
       actions.append(button('Cancel',false),button('Continue',true)); panel.append(heading,body,actions); overlay.appendChild(panel); overlay.addEventListener('click',function(e){if(e.target===overlay){overlay.remove();resolve(false);}}); document.body.appendChild(overlay);
     });
   }
@@ -7852,7 +8196,7 @@ document.addEventListener('keydown', function (ev) {
       actions.style.cssText='display:flex;justify-content:flex-end;margin-top:8px;';
       var copy = document.createElement('button');
       copy.type='button'; copy.textContent='Copy response';
-      copy.style.cssText='border:1px solid rgba(148,163,184,.3);border-radius:7px;padding:5px 9px;background:rgba(148,163,184,.09);color:inherit;font:500 12px system-ui;cursor:pointer;';
+      copy.style.cssText='border:1px solid rgba(190,151,91,.28);border-radius:7px;padding:5px 9px;background:rgba(255,248,235,.06);color:#e8eee8;font:500 12px system-ui;cursor:pointer;';
       copy.addEventListener('click',function(){copyTswAiText(text,copy);});
       actions.appendChild(copy); bubble.appendChild(actions);
     }
@@ -8867,6 +9211,8 @@ document.addEventListener('keydown', function (ev) {
   var publicGuestPrompt = $('public-guest-prompt');
   var publicSignInBtn = $('public-sign-in-btn');
   var publicLockedBar = $('public-locked-bar');
+  var publicChatErrorEl = $('public-chat-error');
+  var dmChatErrorEl = $('dm-chat-error');
 
   var currentMode = 'public';
   var activePublicChannel = 'chat-1';
@@ -8876,12 +9222,36 @@ document.addEventListener('keydown', function (ev) {
   var pollTimer = null;
   var lastDmCount = 0;
   var lastPublicCount = 0;
+  var renderedPublicChannel = null;
+  var lastPublicRenderSig = '';
+  var inFlightPublicSends = 0;
   var typingTimeout = null;
   var typingSendTimeout = null;
   var lastPresenceSentAt = 0;
   var replyingToMessage = null;
   var currentDmMessages = [];
   var currentPublicMessages = [];
+
+  function showPublicChatError(msg) {
+    if (!publicChatErrorEl) return;
+    publicChatErrorEl.textContent = String(msg || 'Could not send message.');
+    publicChatErrorEl.style.display = 'block';
+  }
+  function clearPublicChatError() {
+    if (!publicChatErrorEl) return;
+    publicChatErrorEl.textContent = '';
+    publicChatErrorEl.style.display = 'none';
+  }
+  function showDmChatError(msg) {
+    if (!dmChatErrorEl) return;
+    dmChatErrorEl.textContent = String(msg || 'Could not send message.');
+    dmChatErrorEl.style.display = 'block';
+  }
+  function clearDmChatError() {
+    if (!dmChatErrorEl) return;
+    dmChatErrorEl.textContent = '';
+    dmChatErrorEl.style.display = 'none';
+  }
 
   var PUBLIC_CHANNELS_CONFIG = {
     'chat-1': {
@@ -9038,6 +9408,9 @@ document.addEventListener('keydown', function (ev) {
   /* ---------------- Public Channels Logic ---------------- */
   function selectPublicChannel(channel) {
     clearReplyTarget();
+    clearPublicChatError();
+    if (typeof hideMentionDropdown === 'function') hideMentionDropdown();
+    if (typeof emojiPicker !== 'undefined' && emojiPicker) emojiPicker.style.display = 'none';
     activePublicChannel = channel;
     var cfg = PUBLIC_CHANNELS_CONFIG[channel] || PUBLIC_CHANNELS_CONFIG['chat-1'];
 
@@ -9426,17 +9799,39 @@ document.addEventListener('keydown', function (ev) {
     if (scrollBottom) publicFeedBox.scrollTop = publicFeedBox.scrollHeight;
   }
 
+  function buildPublicMessagesSignature(channel, messages) {
+    if (!Array.isArray(messages)) return channel + '|0';
+    return channel + '|' + messages.length + '|' + messages.map(function (m) {
+      return [m.id, m.isEdited ? 1 : 0, String(m.username || ''), String(m.content || '')].join(':');
+    }).join('\x1e');
+  }
+
   function loadPublicMessages(channel, shouldScroll) {
     var targetCh = channel || activePublicChannel || 'chat-1';
     return api('/api/public-messages/' + targetCh + '?t=' + Date.now(), 'GET').then(function (res) {
+      if (targetCh !== activePublicChannel) return;
       if (res && res.success && Array.isArray(res.messages)) {
+        if (inFlightPublicSends > 0 && !shouldScroll) return;
         currentPublicMessages = res.messages;
-        var countChanged = res.messages.length !== lastPublicCount;
+        var countChanged = res.messages.length !== lastPublicCount || renderedPublicChannel !== targetCh;
         lastPublicCount = res.messages.length;
-        renderPublicMessages(res.messages, shouldScroll === true || countChanged);
+        var nextSig = buildPublicMessagesSignature(targetCh, res.messages);
+        var hasTempRow = !!(publicFeedBox && publicFeedBox.querySelector('[id^="temp_"]'));
+        if (!shouldScroll && !hasTempRow && renderedPublicChannel === targetCh && nextSig === lastPublicRenderSig) {
+          return;
+        }
+        var isNearBottom = !publicFeedBox || (publicFeedBox.scrollHeight - publicFeedBox.scrollTop - publicFeedBox.clientHeight < 80);
+        renderedPublicChannel = targetCh;
+        lastPublicRenderSig = nextSig;
+        renderPublicMessages(res.messages, shouldScroll === true || (countChanged && isNearBottom));
+      } else if (shouldScroll && res && res.error) {
+        showPublicChatError(res.error);
       }
     }).catch(function (err) {
       console.warn('Public messages fetch error:', err);
+      if (shouldScroll && targetCh === activePublicChannel) {
+        showPublicChatError((err && err.message) || 'Could not load messages for #' + targetCh + '.');
+      }
     });
   }
 
@@ -9536,12 +9931,13 @@ document.addEventListener('keydown', function (ev) {
     if (lower === '/discord') {
       api('/api/chat/command', 'POST', { command: '/discord', channel: channel }).then(function (res) {
         if (res && res.success) {
+          lastPublicRenderSig = '';
           loadPublicMessages(channel, true);
         } else if (res && res.error) {
-          alert(res.error);
+          showPublicChatError(res.error);
         }
       }).catch(function (err) {
-        alert(err.message || 'Failed to execute /discord command');
+        showPublicChatError((err && err.message) || 'Failed to execute /discord command');
       });
       return;
     }
@@ -9555,13 +9951,14 @@ document.addEventListener('keydown', function (ev) {
         } else if (res.action === 'open_role_modal') {
           openGiveRoleModal(channel);
         } else {
+          lastPublicRenderSig = '';
           loadPublicMessages(channel, true);
         }
       } else if (res && res.error) {
-        alert(res.error);
+        showPublicChatError(res.error);
       }
     }).catch(function (err) {
-      alert(err.message || 'Command failed');
+      showPublicChatError((err && err.message) || 'Command failed');
     });
   }
 
@@ -9725,6 +10122,10 @@ document.addEventListener('keydown', function (ev) {
   if (publicMessageForm) {
     publicMessageForm.addEventListener('submit', function (ev) {
       ev.preventDefault();
+      clearPublicChatError();
+      if (typeof hideMentionDropdown === 'function') hideMentionDropdown();
+      if (typeof emojiPicker !== 'undefined' && emojiPicker) emojiPicker.style.display = 'none';
+
       var text = (publicMessageInput.value || '').trim();
       if (!text) return;
 
@@ -9742,7 +10143,7 @@ document.addEventListener('keydown', function (ev) {
       if (text.startsWith('/')) {
         publicMessageInput.value = '';
         if (!isOwner) {
-          alert('Access Denied: Only the account with the Owner role (Alex Dalbey) can execute system commands.');
+          showPublicChatError('Access Denied: Only the Owner (Alex Dalbey) can execute system commands.');
           return;
         }
         executeOwnerCommand(text, currentChannel);
@@ -9754,8 +10155,8 @@ document.addEventListener('keydown', function (ev) {
 
       publicMessageInput.value = '';
 
-      // Optimistic message append so it appears in chat-1 immediately without lag
-      var tempId = 'temp_' + Date.now();
+      // Optimistic message append so it appears immediately without lag
+      var tempId = 'temp_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
       if (publicFeedBox) {
         var optRow = document.createElement('div');
         optRow.className = 'public-msg-row';
@@ -9771,7 +10172,7 @@ document.addEventListener('keydown', function (ev) {
             '<div class="public-msg-header">' +
               '<span class="public-msg-author" data-open-profile="' + (user ? user.id : '') + '" data-uname="' + escapeHtml(authorName) + '" style="cursor:pointer;" title="View profile">@' + escapeHtml(authorName) + '</span>' +
               optBadge +
-              '<span class="public-msg-time">Just now</span>' +
+              '<span class="public-msg-time">Sending...</span>' +
             '</div>' +
             '<div class="public-msg-text">' + optContent + '</div>' +
           '</div>';
@@ -9781,17 +10182,32 @@ document.addEventListener('keydown', function (ev) {
 
       var replyId = replyingToMessage && replyingToMessage.type === 'public' ? replyingToMessage.id : null;
       clearReplyTarget('public');
+      inFlightPublicSends++;
       api('/api/public-messages/' + currentChannel, 'POST', { content: text, guestName: guestName, replyToId: replyId }).then(function (res) {
+        inFlightPublicSends = Math.max(0, inFlightPublicSends - 1);
         if (res && res.success) {
-          loadPublicMessages(currentChannel, true);
-        } else if (res && res.error) {
+          lastPublicRenderSig = '';
+          if (currentChannel === activePublicChannel) {
+            loadPublicMessages(currentChannel, true);
+          }
+          try { publicMessageInput.focus(); } catch (e) {}
+        } else {
           var tEl = $(tempId); if (tEl) tEl.remove();
-          alert(res.error);
+          if (currentChannel === activePublicChannel && !publicMessageInput.value) {
+            publicMessageInput.value = text;
+          }
+          showPublicChatError((res && res.error) || 'Failed to send message. Please try again.');
+          try { publicMessageInput.focus(); } catch (e) {}
         }
       }).catch(function (err) {
+        inFlightPublicSends = Math.max(0, inFlightPublicSends - 1);
         var tEl = $(tempId); if (tEl) tEl.remove();
         console.error('Failed to post public message:', err);
-        alert(err.message || 'Failed to post message. Please try again.');
+        if (currentChannel === activePublicChannel && !publicMessageInput.value) {
+          publicMessageInput.value = text;
+        }
+        showPublicChatError((err && err.message) || 'Failed to post message. Please try again.');
+        try { publicMessageInput.focus(); } catch (e) {}
       });
     });
   }
@@ -10147,6 +10563,8 @@ document.addEventListener('keydown', function (ev) {
 
   function selectFriend(friend) {
     clearReplyTarget();
+    clearDmChatError();
+    if (typeof hideMentionDropdown === 'function') hideMentionDropdown();
     selectedFriend = friend;
     var initialUnread = friend.unreadCount || (friend.unread ? 1 : 0);
     friend.unreadDividerCount = initialUnread;
@@ -10498,6 +10916,9 @@ document.addEventListener('keydown', function (ev) {
   if (messageForm) {
     messageForm.addEventListener('submit', function (ev) {
       ev.preventDefault();
+      clearDmChatError();
+      if (typeof hideMentionDropdown === 'function') hideMentionDropdown();
+      if (typeof emojiPicker !== 'undefined' && emojiPicker) emojiPicker.style.display = 'none';
       if (!selectedFriend) return;
       var text = (messageInput.value || '').trim();
       if (!text) return;
@@ -10508,23 +10929,36 @@ document.addEventListener('keydown', function (ev) {
       var replyId = replyingToMessage && replyingToMessage.type === 'dm' ? replyingToMessage.id : null;
       clearReplyTarget('dm');
       api('/api/messages/' + currentFriendId, 'POST', { content: text, replyToId: replyId }).then(function (res) {
-        if (res.success) {
-          selectedFriend.lastMessage = text;
-          selectedFriend.lastMessageTime = new Date().toISOString();
+        if (res && res.success) {
+          if (selectedFriend && selectedFriend.friendId === currentFriendId) {
+            selectedFriend.lastMessage = text;
+            selectedFriend.lastMessageTime = new Date().toISOString();
+          }
           sortFriends();
           renderFriendsList();
           loadMessages(currentFriendId, true);
-        } else if (res.error) {
-          alert(res.error);
+          try { messageInput.focus(); } catch (e) {}
+        } else {
+          if (selectedFriend && selectedFriend.friendId === currentFriendId && !messageInput.value) {
+            messageInput.value = text;
+          }
+          showDmChatError((res && res.error) || 'Failed to send direct message.');
+          try { messageInput.focus(); } catch (e) {}
         }
       }).catch(function (err) {
         console.error('Failed to send message:', err);
+        if (selectedFriend && selectedFriend.friendId === currentFriendId && !messageInput.value) {
+          messageInput.value = text;
+        }
+        showDmChatError((err && err.message) || 'Failed to send direct message.');
+        try { messageInput.focus(); } catch (e) {}
       });
     });
   }
 
   if (messageInput) {
     messageInput.addEventListener('input', function () {
+      clearDmChatError();
       if (!selectedFriend || !getCurrentUser()) return;
       sendTypingStatus('dm', getDmTypingContext(selectedFriend.friendId), true);
       clearTimeout(typingSendTimeout);
@@ -10535,6 +10969,7 @@ document.addEventListener('keydown', function (ev) {
   }
   if (publicMessageInput) {
     publicMessageInput.addEventListener('input', function () {
+      clearPublicChatError();
       if (!getCurrentUser()) return;
       sendTypingStatus('public', activePublicChannel, true);
       clearTimeout(typingSendTimeout);
@@ -10667,6 +11102,7 @@ document.addEventListener('keydown', function (ev) {
 
   function toggleEmojiPicker(triggerBtn, targetInput) {
     if (!emojiPicker) return;
+    if (typeof hideMentionDropdown === 'function') hideMentionDropdown();
     if (emojiPicker.style.display === 'flex' && activeEmojiInput === targetInput) {
       emojiPicker.style.display = 'none';
       return;
@@ -10773,7 +11209,7 @@ document.addEventListener('keydown', function (ev) {
     });
 
     inputEl.addEventListener('keydown', function (e) {
-      if (!mentionDropdown || mentionDropdown.style.display !== 'block' || activeMentionInput !== inputEl) return;
+      if (!mentionDropdown || mentionDropdown.style.display !== 'flex' || activeMentionInput !== inputEl) return;
       var items = mentionDropdown.querySelectorAll('.mention-item');
       if (items.length === 0) return;
 
@@ -10791,6 +11227,8 @@ document.addEventListener('keydown', function (ev) {
           items[selectedMentionIndex].click();
         }
       } else if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
         hideMentionDropdown();
       }
     });
@@ -10859,6 +11297,13 @@ document.addEventListener('keydown', function (ev) {
     activeMentionInput = null;
     selectedMentionIndex = -1;
   }
+
+  document.addEventListener('click', function (e) {
+    if (mentionDropdown && mentionDropdown.style.display === 'flex' &&
+        !mentionDropdown.contains(e.target) && e.target !== activeMentionInput) {
+      hideMentionDropdown();
+    }
+  });
 
   setupMentionAutocomplete(publicMessageInput);
   setupMentionAutocomplete(messageInput);

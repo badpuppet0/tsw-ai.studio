@@ -143,7 +143,8 @@ export async function signUpUser(username: string, password: string, email?: str
       searchEngine: 'https://www.google.com/search?q=',
       stars: true,
       shoot: false,
-      bg: 'stars'
+      bg: 'stars',
+      season: 'snow'
     }),
     isDefault: true,
   }).returning();
@@ -257,7 +258,8 @@ export async function getOrCreateUser(uid: string, email: string) {
           searchEngine: 'https://www.google.com/search?q=',
           stars: true,
           shoot: true,
-          bg: 'stars'
+          bg: 'stars',
+          season: 'snow'
         }),
         isDefault: true,
       });
@@ -693,26 +695,33 @@ export async function editDirectMessage(userId: number, messageId: number, conte
 
 export async function getOrCreateGuestUser(clientId: string, preferredName: string = 'Guest') {
   await ensureChatTables();
-  const guestUid = `guest_${clientId.slice(0, 32)}`;
+  const safeClientId = String(clientId || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 32) || ('anon_' + Date.now().toString(36));
+  const guestUid = `guest_${safeClientId}`;
   const existing = await db.select().from(users).where(eq(users.uid, guestUid)).limit(1);
   if (existing.length > 0) {
     return existing[0];
   }
-  const cleanName = preferredName.replace(/[^a-zA-Z0-9_ -]/g, '').trim().slice(0, 24) || 'Guest';
+  const cleanName = (preferredName || 'Guest').replace(/[^a-zA-Z0-9_ -]/g, '').trim().slice(0, 24) || 'Guest';
   const ins = await db.insert(users).values({
     uid: guestUid,
     username: cleanName,
     email: `${guestUid}@guest.tswv2.local`,
     role: 'TSW User',
-  }).returning();
-  const u = ins[0];
-  await createProfile(u.id, {
-    name: cleanName,
-    avatar: 'astronaut',
-    themeColor: '#5aa2ff',
-    isDefault: true,
-  });
-  return u;
+  }).onConflictDoNothing({ target: users.uid }).returning();
+  if (ins.length > 0) {
+    const u = ins[0];
+    await createProfile(u.id, {
+      name: cleanName,
+      avatar: 'astronaut',
+      themeColor: '#5aa2ff',
+      preferences: JSON.stringify({ bg: 'stars', stars: true, shoot: false, season: 'snow' }),
+      isDefault: true,
+    }).catch(() => {});
+    return u;
+  }
+  const retry = await db.select().from(users).where(eq(users.uid, guestUid)).limit(1);
+  if (retry.length > 0) return retry[0];
+  throw new Error('Could not initialize guest chat session.');
 }
 
 export async function getPublicMessages(channel: string) {

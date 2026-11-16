@@ -344,7 +344,8 @@ fastify.get("/api/profiles", async (req, reply) => {
 					searchEngine: "https://www.google.com/search?q=",
 					stars: true,
 					shoot: true,
-					bg: "stars"
+					bg: "stars",
+					season: "snow"
 				}),
 				isDefault: true
 			});
@@ -982,7 +983,7 @@ fastify.post("/api/chat/command", async (req, reply) => {
 
 		if (lower === "/discord") {
 			// TSW Official posts: "join our discord now!"
-			const botMsg = await sendOfficialBotMessage(channel, "join our discord now! https://discord.gg/tsw");
+			const botMsg = await sendOfficialBotMessage(channel, "join our discord now! https://discord.gg/Wmq7D9gh6e");
 			return {
 				success: true,
 				command: "/discord",
