@@ -4443,13 +4443,17 @@ html,body{background:#080d0b}
   <div class="panel" role="dialog" aria-modal="true" aria-labelledby="privacy-policy-title">
     <div class="phead"><h2 id="privacy-policy-title">Privacy policy</h2><button data-close aria-label="Close">&times;</button></div>
     <div class="pbody">
+      <p><strong>About TSW.</strong> TSW (Totally School Work) is provided for general browsing, learning, and productivity. The site is not intended to be used for harmful, illegal, abusive, or disruptive purposes.</p>
+      <p><strong>Acceptable use.</strong> You are responsible for how you use the proxy and any other tools or features on TSW. Do not use them to break the law, harm others, access content without permission, disrupt services, or violate school, workplace, or network rules. You must have permission to access the sites and services you use.</p>
+      <p><strong>Proxy and AI disclaimer.</strong> TSW does not control every website, service, proxy destination, or AI tool that may be accessed through the site. We are not responsible for actions users choose to take through the proxy or with AI tools, or for third-party content, responses, decisions, or outcomes. AI-generated information can be inaccurate or incomplete, so check important information independently.</p>
+      <p><strong>User responsibility.</strong> You are responsible for your own activity, choices, and compliance with applicable laws and the rules of the networks and services you use. Access to TSW may be limited or removed if the site is misused.</p>
       <p><strong>Information TSW stores.</strong> When you create or use an account, TSW stores account identifiers and profile information. Chat features store messages and related activity so conversations and moderation features can work. Preferences may be saved on this device and synced to your account.</p>
       <p><strong>Public chat.</strong> Messages sent in public channels are visible to people who can access those channels and may be reviewed by authorized staff. Do not post passwords, personal contact details, or other sensitive information.</p>
       <p><strong>Direct messages.</strong> Direct messages are stored by TSW and are not end-to-end encrypted. They should not be treated as private from the service operator or authorized moderation staff.</p>
       <p><strong>Service providers.</strong> TSW relies on its hosting, database, authentication, and proxy services to operate. Those providers may process technical information needed to deliver the service.</p>
       <p><strong>Your choices.</strong> You can change available profile and preference settings, and download a settings-only backup from this page. That backup does not include account records or chat history.</p>
       <p><strong>Questions.</strong> Contact the TSW site owner through the contact method provided on the site if you have a privacy question or data request.</p>
-      <p class="hint">This is a plain-language summary of current site behavior, not legal advice. Review it before publishing as a formal policy.</p>
+      <p class="hint">This policy is a plain-language description of the site and its intended use. It is not legal advice and does not replace applicable law.</p>
     </div>
   </div>
 </div>
@@ -11678,25 +11682,25 @@ document.addEventListener('keydown', function (ev) {
       if(on)b.setAttribute('aria-current','location');else b.removeAttribute('aria-current');
     });
   }
+  function updateActive(){
+    if(!sections.length)return;
+    var box=content.getBoundingClientRect();
+    var current=sections[0];
+    sections.forEach(function(section){
+      if(section.getBoundingClientRect().top<=box.top+Math.min(170,box.height*.28))current=section;
+    });
+    if(content.scrollTop+content.clientHeight>=content.scrollHeight-8)current=sections[sections.length-1];
+    activate(current.id);
+  }
   buttons.forEach(function(b){
     b.addEventListener('click',function(){
       var target=document.getElementById(b.getAttribute('data-settings-target'));
       if(target){var top=target.getBoundingClientRect().top-content.getBoundingClientRect().top+content.scrollTop-24;content.scrollTo({top:Math.max(0,top),behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});activate(target.id);}
     });
   });
-  if('IntersectionObserver' in window){
-    var observer=new IntersectionObserver(function(entries){
-      var visible=entries.filter(function(e){return e.isIntersecting;}).sort(function(a,b){return a.boundingClientRect.top-b.boundingClientRect.top;});
-      if(visible[0])activate(visible[0].target.id);
-    },{root:content,rootMargin:'-8% 0px -72% 0px',threshold:0});
-    sections.forEach(function(section){observer.observe(section);});
-  }else{
-    content.addEventListener('scroll',function(){
-      var current=sections[0];
-      sections.forEach(function(section){if(section.getBoundingClientRect().top<content.getBoundingClientRect().top+150)current=section;});
-      if(current)activate(current.id);
-    },{passive:true});
-  }
+  content.addEventListener('scroll',updateActive,{passive:true});
+  window.addEventListener('resize',updateActive,{passive:true});
+  updateActive();
 })();
 </script>
 </body>
