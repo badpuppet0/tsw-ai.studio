@@ -3509,14 +3509,14 @@ html[data-theme="light"] .discord-note a:hover {
 .settings-group:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
 html.reduced-motion *, html.reduced-motion *::before, html.reduced-motion *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .001ms !important; }
 html.reduced-motion .load.on { animation: none !important; width: 92%; transform: none; }
-.update-notice{position:fixed;z-index:100000;right:18px;bottom:18px;width:min(320px,calc(100vw - 36px));padding:16px 16px 14px;background:#111827;border:1px solid rgba(148,163,184,.24);border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.4);color:#e5e7eb;box-sizing:border-box}
+.update-notice{position:fixed;z-index:100000;left:50%;top:50%;transform:translate(-50%,-50%);width:min(380px,calc(100vw - 32px));padding:22px;background:#111827;border:1px solid rgba(148,163,184,.24);border-radius:14px;box-shadow:0 18px 60px rgba(0,0,0,.58);color:#e5e7eb;box-sizing:border-box;text-align:left}
 .update-notice-title{font-size:.94rem;font-weight:650;color:#fff;margin:0 28px 5px 0}
 .update-notice-copy{font-size:.8rem;line-height:1.4;color:#aeb9c9;margin-bottom:12px}
 .update-notice-refresh{border:0;border-radius:7px;padding:8px 12px;background:#d1fae5;color:#064e3b;font-family:inherit;font-size:.8rem;font-weight:600;cursor:pointer}
 .update-notice-refresh:hover{background:#a7f3d0}
 .update-notice-close{position:absolute;right:10px;top:8px;width:26px;height:26px;border:0;border-radius:6px;background:transparent;color:#94a3b8;font-size:1.2rem;cursor:pointer}
 .update-notice-close:hover{background:rgba(255,255,255,.08);color:#fff}
-@media(max-width:520px){.update-notice{right:12px;bottom:12px;width:calc(100vw - 24px)}}
+@media(max-width:520px){.update-notice{width:calc(100vw - 32px);padding:20px}}
 
 /* TSW visual baseline: simple surfaces, clear borders, restrained motion */
 :root {
@@ -3696,6 +3696,32 @@ button { transition: background-color .15s ease, border-color .15s ease, color .
 .user-alert-dismiss-action:hover{background:#a7f3d0}
 .user-alert-dismiss-action:disabled,.user-alert-close-btn:disabled{opacity:.55;cursor:wait}
 @media(max-width:520px){.user-alert-popup-panel{padding:16px}}
+</style>
+<style id="tsw-holiday-theme">
+/* Christmas treatment: evergreen surfaces, cranberry details and warm brass highlights. */
+:root{--void:#080d0b;--panel:#101a16;--edge:#293b32;--steel:#9aa99f;--ink:#e8eee8;--blue:#b64b50;--blue-dim:#79363d;--blue-hi:#d47778}
+html,body{background:#080d0b}
+#sky{opacity:.72}
+.mark b{color:#c46a62}
+.tag{color:#a1afa5}
+.field{background:#101a16;border-color:#35483c}
+.field:hover,.field:focus-within{border-color:#a14b50;box-shadow:0 0 0 3px rgba(161,75,80,.12)}
+.go,.primary{background:#a7444b;color:#fff5e9}
+.go:hover,.primary:hover{background:#bd5a5e}
+.cog,.status{background:rgba(16,26,22,.92);border-color:#314338}
+.shortcut-card{background:#111c17;border-color:#2b3d32}
+.shortcut-card:hover{background:#19271f;border-color:#a14b50;box-shadow:0 5px 16px rgba(0,0,0,.28)}
+.shortcut-card .sc-label{color:#b3c0b6}
+.panel,.settings-fullscreen-panel{background:#101a16;border-color:#34463a}
+.phead,.tabs{border-color:#2b3d32}
+.tabs button.on{border-bottom-color:#b64b50}
+.plain{border-color:#35483c}
+.plain:hover{border-color:#a14b50}
+.update-notice{background:#111d17;border-color:#52664f}
+.update-notice-title{color:#f2eee3}
+.update-notice-refresh{background:#a7444b;color:#fff7ed}
+.update-notice-refresh:hover{background:#bd5a5e}
+#privacy-policy .pbody,.pbody ul{color:#c4cec5}
 </style>
 </head>
 <body>
@@ -4261,11 +4287,11 @@ button { transition: background-color .15s ease, border-color .15s ease, color .
   </div>
 </div>
 
-<div class="update-notice" id="update-notice" hidden role="status" aria-live="polite">
-  <button type="button" class="update-notice-close" id="update-notice-close" aria-label="Dismiss update notice">&times;</button>
-  <div class="update-notice-title">New update available</div>
+<div class="update-notice" id="update-notice" hidden role="dialog" aria-modal="true" aria-labelledby="update-notice-heading">
+  <div class="update-notice-title" id="update-notice-heading">New Update</div>
   <div class="update-notice-copy" id="update-notice-version">A newer version of TSW is ready.</div>
   <button type="button" class="update-notice-refresh" id="update-notice-refresh">Refresh now</button>
+  <button type="button" class="update-notice-close" id="update-notice-close" aria-label="Dismiss update notice">&times;</button>
 </div>
 
 <!-- On-Site User Alert Popup (Owner Direct Broadcast) -->
@@ -4355,7 +4381,7 @@ button { transition: background-color .15s ease, border-color .15s ease, color .
       <label class="check"><input type="checkbox" id="set-stars"> Stars</label>
       <label class="check"><input type="checkbox" id="set-shoot"> Shooting stars and rockets</label>
       <label for="set-disguise">Tab disguise</label>
-      <select id="set-disguise"><option value="none">Custom / TSW</option><option value="schoology">Schoology</option><option value="classroom">Google Classroom</option><option value="docs">Google Docs</option></select>
+      <select id="set-disguise"><option value="none">Custom / TSW</option><option value="schoology">Schoology</option><option value="classroom">Google Classroom</option><option value="docs">Google Docs</option><option value="canvas">Canvas</option><option value="khan">Khan Academy</option><option value="clever">Clever</option><option value="powerschool">PowerSchool</option><option value="quizlet">Quizlet</option><option value="edpuzzle">Edpuzzle</option><option value="ixl">IXL</option><option value="nearpod">Nearpod</option><option value="moodle">Moodle</option><option value="teams">Microsoft Teams</option><option value="seesaw">Seesaw</option><option value="amplify">Amplify</option><option value="savvas">Savvas</option><option value="mhe">McGraw Hill</option></select>
       <p class="hint">Changes the browser tab name and icon to match the selected school site.</p>
       <label for="set-title">Custom tab title</label>
       <input id="set-title" type="text" maxlength="40" placeholder="TSW v2" autocomplete="off">
@@ -4452,16 +4478,13 @@ button { transition: background-color .15s ease, border-color .15s ease, color .
       <button data-tab="credits">Credits</button>
     </div>
     <div class="pbody" id="tab-updates">
-      <h3>TSW v2 1.6.01<span>Multi-Roles, Notifications, @Mentions &amp; Member Profiles</span></h3>
+      <h3>TSW v2 1.6.11<span>Stability &amp; Security Update</span></h3>
       <p class="date">November 2026</p>
       <ul>
-        <li><b>Multiple Concurrent Roles</b>: Users can now hold multiple roles at once without conflicting features. Roles like Owner, Tester, Discord Member, VIP, Admin, and Beta User activate together seamlessly (e.g. combining the Tester folder with Owner privileges).</li>
-        <li><b>Owner Role Manager</b>: The <code>/give role</code> management interface now supports multi-role checkboxes so the Owner can grant and update combinations of roles per member.</li>
-        <li><b>Live Attention Glow &amp; Notification Counter</b>: When receiving a direct message, the chat launcher button glows with a pulsing neon attention animation and displays an unread count badge, accompanied by unread indicators on the DMs tab.</li>
-        <li><b>Top-Sorted Unread DMs</b>: Direct message conversations with new incoming messages automatically float to the top of the friends list with bold message previews.</li>
-        <li><b>Interactive @ Mentions &amp; Highlighted Pings</b>: Typing <code>@</code> in public chat or DMs opens an interactive autocomplete popup of registered members with avatars and roles; mentions directed at your account highlight with a glowing ping tag.</li>
-        <li><b>Quick Emoji Picker</b>: Added dedicated <code>😊</code> emoji buttons on the right side of both public chat and DM input bars with instant cursor insertion.</li>
-        <li><b>Clickable Member Profiles &amp; Custom Bios</b>: Clicking any username or avatar across chat, messages, @mentions, or the Cloud Admin panel opens their profile card showing join date, all assigned roles, and a customizable personal bio saved directly to Cloud SQL.</li>
+        <li>Lots of security and backend improvements.</li>
+        <li>Made the site more stable to support significant growth in users.</li>
+        <li>Redone UIs and updated systems across the site.</li>
+        <li>Added Movies to the homepage shortcuts and navigation.</li>
       </ul>
 
       <h3 class="older">TSW v2 1.6<span>The Social &amp; Multitasking Update</span></h3>
@@ -6545,6 +6568,20 @@ var STATUS_NOTICE = '';
     schoology: "https://www.google.com/s2/favicons?domain=schoology.com&sz=64",
     classroom: "https://www.google.com/s2/favicons?domain=classroom.google.com&sz=64",
     docs: "https://www.google.com/s2/favicons?domain=docs.google.com&sz=64",
+    canvas: "https://www.google.com/s2/favicons?domain=instructure.com&sz=64",
+    khan: "https://www.google.com/s2/favicons?domain=khanacademy.org&sz=64",
+    clever: "https://www.google.com/s2/favicons?domain=clever.com&sz=64",
+    powerschool: "https://www.google.com/s2/favicons?domain=powerschool.com&sz=64",
+    quizlet: "https://www.google.com/s2/favicons?domain=quizlet.com&sz=64",
+    edpuzzle: "https://www.google.com/s2/favicons?domain=edpuzzle.com&sz=64",
+    ixl: "https://www.google.com/s2/favicons?domain=ixl.com&sz=64",
+    nearpod: "https://www.google.com/s2/favicons?domain=nearpod.com&sz=64",
+    moodle: "https://www.google.com/s2/favicons?domain=moodle.org&sz=64",
+    teams: "https://www.google.com/s2/favicons?domain=teams.microsoft.com&sz=64",
+    seesaw: "https://www.google.com/s2/favicons?domain=seesaw.me&sz=64",
+    amplify: "https://www.google.com/s2/favicons?domain=amplify.com&sz=64",
+    savvas: "https://www.google.com/s2/favicons?domain=savvas.com&sz=64",
+    mhe: "https://www.google.com/s2/favicons?domain=mheducation.com&sz=64",
     "default": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2305070f'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%235aa2ff'/%3E%3C/svg%3E",
     doc: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M8 3h11l6 6v20H8z' fill='%23dfe5f0'/%3E%3Cpath d='M19 3v6h6z' fill='%23aab4c9'/%3E%3C/svg%3E",
     globe: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%235aa2ff' stroke-width='2.5'/%3E%3Cpath d='M4 16h24M16 4c-6 7-6 17 0 24M16 4c6 7 6 17 0 24' fill='none' stroke='%235aa2ff' stroke-width='2'/%3E%3C/svg%3E",
@@ -6556,7 +6593,7 @@ var STATUS_NOTICE = '';
   Object.keys(D).forEach(function (k) { cfg[k] = store.get('tsw.' + k, D[k]); });
   if (!ENGINES[cfg.engine]) cfg.engine = 'ddg';
   if (!ICONS[cfg.icon]) cfg.icon = 'default';
-  if (['none','schoology','classroom','docs'].indexOf(cfg.disguise) < 0) cfg.disguise = 'none';
+  if (['none','schoology','classroom','docs','canvas','khan','clever','powerschool','quizlet','edpuzzle','ixl','nearpod','moodle','teams','seesaw','amplify','savvas','mhe'].indexOf(cfg.disguise) < 0) cfg.disguise = 'none';
   if (BGS.indexOf(cfg.bg) < 0) cfg.bg = 'stars';
   if (['auto', 'snow', 'bats', 'off'].indexOf(cfg.season) < 0) cfg.season = 'off';
   if (!ACCENTS[cfg.accent]) cfg.accent = 'blue';
@@ -6651,7 +6688,7 @@ var STATUS_NOTICE = '';
                       vsrc: cfg.vsrc, vbright: cfg.vbright, accent: c };
     window.TSWSearch = function () { return ENGINES[cfg.engine]; };
     window.TSWClock = cfg.clock; if (window.TSWClockRefresh) window.TSWClockRefresh();
-    var tabPresets = { schoology: { title: 'Schoology', icon: ICONS.schoology }, classroom: { title: 'Google Classroom', icon: ICONS.classroom }, docs: { title: 'Google Docs', icon: ICONS.docs } };
+    var tabPresets = { schoology: { title: 'Schoology', icon: ICONS.schoology }, classroom: { title: 'Google Classroom', icon: ICONS.classroom }, docs: { title: 'Google Docs', icon: ICONS.docs }, canvas: { title: 'Canvas', icon: ICONS.canvas }, khan: { title: 'Khan Academy', icon: ICONS.khan }, clever: { title: 'Clever', icon: ICONS.clever }, powerschool: { title: 'PowerSchool', icon: ICONS.powerschool }, quizlet: { title: 'Quizlet', icon: ICONS.quizlet }, edpuzzle: { title: 'Edpuzzle', icon: ICONS.edpuzzle }, ixl: { title: 'IXL', icon: ICONS.ixl }, nearpod: { title: 'Nearpod', icon: ICONS.nearpod }, moodle: { title: 'Moodle', icon: ICONS.moodle }, teams: { title: 'Microsoft Teams', icon: ICONS.teams }, seesaw: { title: 'Seesaw', icon: ICONS.seesaw }, amplify: { title: 'Amplify', icon: ICONS.amplify }, savvas: { title: 'Savvas', icon: ICONS.savvas }, mhe: { title: 'McGraw Hill', icon: ICONS.mhe } };
     var tabPreset = tabPresets[cfg.disguise];
     document.title = tabPreset ? tabPreset.title : (cfg.title || 'TSW v2');
     $('fav').href = tabPreset ? tabPreset.icon : ICONS[cfg.icon];
@@ -7334,7 +7371,7 @@ document.addEventListener('keydown', function (ev) {
     'gta v port': '<img src="https://www.google.com/s2/favicons?domain=rockstargames.com&sz=64" alt="GTA 5">',
     'cork7': '<img src="https://cork7.com/favicon.ico" alt="Cork7" onerror="this.onerror=null;this.src=\'https://www.google.com/s2/favicons?domain=cork7.com&sz=64\'">',
     'unlocked cork7': '<img src="https://cork7.com/favicon.ico" alt="Unlocked Cork7" onerror="this.onerror=null;this.src=\'https://www.google.com/s2/favicons?domain=cork7.com&sz=64\'">',
-    'movies': '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Movies"><rect x="3" y="4" width="18" height="16" rx="2" fill="#e8edf5"/><path d="M3 9h18M8 4l3 5m2-5 3 5" stroke="#182331" stroke-width="1.7"/><path d="M10 12.2v4.6l4-2.3-4-2.3Z" fill="#182331"/></svg>'
+    'movies': '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Movies"><rect x="2.5" y="5" width="19" height="14" rx="2.2" fill="#e8edf5"/><path d="M2.5 9h19M7 5l2.3 4m3.2-4 2.3 4m3.2-4 2.3 4" stroke="#26384c" stroke-width="1.35"/><path d="M10 11.7v5l4.5-2.5-4.5-2.5Z" fill="#26384c"/></svg>'
   };
 
   function renderShortcuts(list) {
@@ -8711,12 +8748,12 @@ document.addEventListener('keydown', function (ev) {
   var logSeen = store.get('tsw_log_seen', '');
   var dot = $('log-whats-new-dot');
   if (dot) {
-    dot.style.display = (logSeen === '1.6.01') ? 'none' : 'block';
+    dot.style.display = (logSeen === '1.6.11') ? 'none' : 'block';
   }
   var logBtn = $('logbtn');
   if (logBtn) {
     logBtn.addEventListener('click', function () {
-      store.set('tsw_log_seen', '1.6.01');
+      store.set('tsw_log_seen', '1.6.11');
       if (dot) dot.style.display = 'none';
     });
   }
@@ -11535,10 +11572,13 @@ document.addEventListener('keydown', function (ev) {
   if (!notice || !refreshButton) return;
 
   var VERSION_KEY = 'tsw.last_seen_server_version';
-  var FIRST_VERSION = '1.6.01';
+  var FIRST_VERSION = '1.6.10';
 
+  function readSeenVersion() {
+    try { return localStorage.getItem(VERSION_KEY) || FIRST_VERSION; } catch (e) { return FIRST_VERSION; }
+  }
   function rememberVersion(version) {
-    try { localStorage.setItem(VERSION_KEY, version); } catch (e) {}
+    try { localStorage.setItem(VERSION_KEY, String(version)); } catch (e) {}
   }
 
   fetch('/api/system/version?t=' + Date.now(), { cache: 'no-store' })
@@ -11548,23 +11588,25 @@ document.addEventListener('keydown', function (ev) {
     })
     .then(function (data) {
       if (!data || !data.success || !data.version) return;
-      var seen = localStorage.getItem(VERSION_KEY) || FIRST_VERSION;
-      if (String(data.version) !== String(seen)) {
-        if (versionText) versionText.textContent = 'Version ' + data.version + ' is ready. Refresh to get the latest changes.';
+      var currentVersion = String(data.version);
+      if (currentVersion !== String(readSeenVersion())) {
+        if (versionText) versionText.textContent = 'TSW v2 ' + currentVersion + ' is ready. Refresh to load the latest version.';
         notice.hidden = false;
-        refreshButton.addEventListener('click', function () {
-          rememberVersion(data.version);
-          window.location.reload();
-        });
-        if (closeButton) closeButton.addEventListener('click', function () {
-          rememberVersion(data.version);
+        refreshButton.onclick = function () {
+          rememberVersion(currentVersion);
+          var url = new URL(window.location.href);
+          url.searchParams.set('tsw-refresh', Date.now().toString());
+          window.location.replace(url.toString());
+        };
+        if (closeButton) closeButton.onclick = function () {
+          rememberVersion(currentVersion);
           notice.hidden = true;
-        });
-      } else if (!localStorage.getItem(VERSION_KEY)) {
-        rememberVersion(data.version);
+        };
+      } else {
+        notice.hidden = true;
       }
     })
-    .catch(function () {});
+    .catch(function () { notice.hidden = true; });
 })();
 </script>
 
