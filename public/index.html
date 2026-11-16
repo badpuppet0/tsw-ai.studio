@@ -3731,11 +3731,29 @@ html,body{background:#080d0b}
 </style>
 
 <style id="tsw-christmas-finish">
-/* Hat brim is aligned to the T's actual first-letter position and overlaps its top edge. */
+/* Anchor the hat to the first letter itself so it sits on the T, not the logo container. */
 #home .mark{position:relative;display:inline-block}
-#home .santa-hat{position:absolute;width:58px;height:50px;left:15px;top:-22px;z-index:4;transform:rotate(-5deg);transform-origin:bottom left;pointer-events:none;overflow:visible}
-#home .santa-hat svg{display:block;width:100%;height:100%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
-@media(max-width:480px){#home .santa-hat{left:10px;top:-16px;width:46px;height:40px;transform:rotate(-5deg)}}
+#home .logo-initial{position:relative;display:inline-block;line-height:1}
+#home .santa-hat{position:absolute;display:block;width:62px;height:48px;left:-8px;top:-42px;z-index:5;transform:rotate(-7deg);transform-origin:bottom left;pointer-events:none;overflow:visible}
+#home .santa-hat svg{display:block;width:100%;height:100%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.28))}
+@media(max-width:480px){#home .santa-hat{width:54px;height:42px;left:-7px;top:-37px}}
+/* Christmas colours carried through the browser sidebar. */
+#sidebar{background:linear-gradient(180deg,#10251d 0%,#0b1914 58%,#101b17 100%);border-right-color:rgba(190,151,91,.24);box-shadow:5px 0 24px rgba(0,0,0,.22)}
+.sb-top-bar{border-bottom-color:rgba(214,185,135,.18)}
+.sb-icon-btn{color:#b8c8bc}
+.sb-icon-btn:hover:not(:disabled){color:#fff8eb;background:rgba(185,54,65,.22)}
+.sb-newtab-btn{background:rgba(255,248,235,.045);border-color:rgba(211,183,133,.18);color:#f0eee5}
+.sb-newtab-btn:hover{background:rgba(185,54,65,.16);border-color:rgba(205,91,91,.48)}
+.sb-newtab-btn svg{color:#d8b77e}
+.sb-tab{background:rgba(255,248,235,.035);color:#b8c8bc}
+.sb-tab:hover{background:rgba(185,54,65,.16);color:#fff8eb}
+.sb-tab.active{background:#a93642;color:#fff8eb;box-shadow:inset 0 0 0 1px rgba(255,220,196,.13)}
+.sb-tab.active .sb-tab-icon,.sb-tab.active .sb-tab-close{color:#fff8eb}
+.sb-tab.active .sb-tab-close:hover{background:rgba(255,255,255,.14)}
+.sb-folder-header{background:rgba(34,105,69,.2);border-color:rgba(103,173,124,.3);color:#c6e4ce}
+.sb-folder-header:hover{background:rgba(45,125,79,.3);border-color:rgba(130,195,143,.5);color:#fff}
+.sb-tab-close:hover{background:rgba(255,248,235,.1)}
+@media(max-width:480px){#home .santa-hat{width:54px;height:42px;left:-7px;top:-37px}}
 </style>
 </head>
 <body>
@@ -5224,7 +5242,7 @@ html,body{background:#080d0b}
 
 <main id="home">
   <div class="hero">
-    <h1 class="mark"><span class="santa-hat" aria-hidden="true"><svg viewBox="0 0 76 64" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="hatRed" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0444c"/><stop offset="1" stop-color="#a91525"/></linearGradient><linearGradient id="hatFur" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf6"/><stop offset="1" stop-color="#dcd8cf"/></linearGradient></defs><path d="M7 42C13 24 27 8 49 5c-3 12 2 24 17 31-16 9-39 13-58 7Z" fill="url(#hatRed)" stroke="#941b27" stroke-width="1.7" stroke-linejoin="round"/><path d="M17 34C25 21 37 11 49 5c-2 12 4 23 17 31-14 7-30 10-44 9-7-1-9-5-5-11Z" fill="#ef3945" opacity=".58"/><path d="M7 41c15 5 38 1 59-7 6 2 8 7 4 12-16 10-43 14-61 6-6-3-7-8-2-11Z" fill="url(#hatFur)" stroke="#d5d0c6" stroke-width="1.8"/><path d="M13 46c14 4 35 1 51-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".8"/><path d="M64 34c-3-7 1-15 8-15 7 0 10 8 5 14-4 5-9 5-13 1Z" fill="url(#hatFur)" stroke="#d5d0c6" stroke-width="1.8"/><path d="M68 23c4-3 8 0 8 4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".9"/></svg></span>TSW<b>v2</b></h1>
+    <h1 class="mark"><span class="logo-initial">T<span class="santa-hat" aria-hidden="true"><svg viewBox="0 0 84 64" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="santaCap" x1="0" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#f34b50"/><stop offset=".55" stop-color="#d51f32"/><stop offset="1" stop-color="#941627"/></linearGradient><linearGradient id="santaFur" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffefa"/><stop offset="1" stop-color="#d9d5cd"/></linearGradient></defs><path d="M8 43C13 27 29 10 56 5c-4 13 2 25 18 34-18 9-43 12-63 8-5-1-6-2-3-4Z" fill="url(#santaCap)" stroke="#8f1726" stroke-width="1.8" stroke-linejoin="round"/><path d="M18 37C28 21 42 11 56 5c-3 12 4 24 18 34-14 6-30 9-45 8-9-1-14-4-11-10Z" fill="#ff7775" opacity=".24"/><path d="M10 42c16 5 42 2 64-7 5 2 7 6 5 10-2 5-9 7-17 9-18 5-39 5-51-1-7-3-7-8-1-11Z" fill="url(#santaFur)" stroke="#c9c5bd" stroke-width="1.7"/><path d="M17 46c15 4 38 2 54-4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".9"/><path d="M69 35c-4-6-2-14 4-17 6-3 12 1 11 8 0 7-6 12-12 11-1 0-2-1-3-2Z" fill="url(#santaFur)" stroke="#c9c5bd" stroke-width="1.6"/><path d="M74 21c4-2 8 1 8 5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".9"/></svg></span></span>SW<b>v2</b></h1>
     <p class="clock" id="clock"></p>
     <div class="weather-overlay" id="home-weather" role="status" style="display:none;"></div>
     <form class="field" id="home-form" autocomplete="off">
