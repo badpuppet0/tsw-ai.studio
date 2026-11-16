@@ -3711,13 +3711,38 @@ html,body{background:#080d0b}
 #privacy-policy .pbody,.pbody ul{color:#c4cec5}
 </style>
 <style id="tsw-christmas-details">
-/* Small, restrained Christmas bulbs around the search field. */
+/* Small multicolour bulbs with a steady warm glow. */
 #home-form.field{position:relative;overflow:visible;isolation:isolate;border-color:#53634e;box-shadow:0 0 0 1px rgba(193,166,105,.13)}
-#home-form.field::before{content:"";display:block!important;position:absolute;z-index:2;pointer-events:none;inset:-7px -5px;border-radius:17px;border:1px solid rgba(170,157,119,.52);background:radial-gradient(circle,#f0d58a 0 2px,transparent 3px) 5px -4px/34px 12px repeat-x,radial-gradient(circle,#b84e4e 0 2px,transparent 3px) 22px calc(100% + 4px)/34px 12px repeat-x;filter:drop-shadow(0 0 2px rgba(239,205,126,.45))}
-#home-form.field::after{content:"";position:absolute;z-index:2;pointer-events:none;left:9px;right:9px;top:-5px;height:3px;border-radius:50%;background:repeating-linear-gradient(90deg,#9b3f42 0 4px,transparent 4px 34px,#c8a96b 34px 38px,transparent 38px 68px);opacity:.75}
+#home-form.field::before{content:"";display:block!important;position:absolute;z-index:2;pointer-events:none;inset:-9px -5px;border-radius:17px;border:1px solid rgba(170,157,119,.48);background:
+radial-gradient(ellipse 3px 4px at 5px 5px,#fff0b8 0 48%,#e8a93b 65%,transparent 100%) 0 0/36px 12px repeat-x,
+radial-gradient(ellipse 3px 4px at 5px 5px,#ffd5d5 0 48%,#d84b55 65%,transparent 100%) 18px calc(100% - 1px)/36px 12px repeat-x,
+radial-gradient(ellipse 3px 4px at 5px 5px,#d9ffe1 0 48%,#36a96b 65%,transparent 100%) 36px 0/36px 12px repeat-x,
+radial-gradient(ellipse 3px 4px at 5px 5px,#d7e8ff 0 48%,#4c8dd5 65%,transparent 100%) 54px calc(100% - 1px)/36px 12px repeat-x;
+filter:drop-shadow(0 0 3px rgba(255,222,143,.45))}
+#home-form.field::after{content:"";position:absolute;z-index:2;pointer-events:none;left:8px;right:8px;top:-6px;height:4px;border-radius:50%;background:repeating-linear-gradient(90deg,#9b3f42 0 4px,transparent 4px 36px,#c8a96b 36px 40px,transparent 40px 72px);opacity:.9}
+#home-form.field:hover,#home-form.field:focus-within{box-shadow:0 0 0 1px rgba(193,166,105,.13);border-color:#53634e}
+#home-form.field::before,#home-form.field:hover::before,#home-form.field:focus-within::before{opacity:1;filter:drop-shadow(0 0 3px rgba(255,222,143,.45))}
 #home-form .go{background:#9d4148}
 #home-form .go:hover{background:#b45155}
 #home-form input{position:relative;z-index:1}
+</style>
+
+<style id="tsw-settings-navigation">
+#settings .settings-layout{display:grid;grid-template-columns:190px minmax(0,860px);justify-content:center;align-items:start;gap:2rem;height:calc(100% - 4.5rem);min-height:0}
+#settings .settings-nav{position:sticky;top:1.25rem;display:flex;flex-direction:column;gap:.3rem;padding:1.25rem 0 1.25rem 1.25rem;max-height:100%;overflow:auto}
+#settings .settings-nav button{width:100%;min-height:2.55rem;padding:.55rem .8rem;text-align:left;border:1px solid transparent;border-left:3px solid transparent;border-radius:6px;background:transparent;color:var(--steel);font-size:.86rem;font-weight:550;cursor:pointer;box-shadow:none}
+#settings .settings-nav button:hover{background:rgba(255,255,255,.045);color:var(--ink);box-shadow:none}
+#settings .settings-nav button.active{color:#f0d6d3;background:rgba(182,75,80,.12);border-left-color:#c66a68}
+#settings .settings-content{width:100%;margin:0;scroll-behavior:smooth;scroll-padding-top:1.5rem}
+#settings .settings-group{scroll-margin-top:1.4rem;margin-top:2.5rem;padding:0 0 .8rem;border-bottom:1px solid #34463a;font-size:1.04rem;letter-spacing:0;text-transform:none;color:#e8eee8}
+#settings .settings-group:first-child{margin-top:0}
+@media(max-width:760px){
+ #settings .settings-layout{display:flex;flex-direction:column;gap:0;height:calc(100% - 3.8rem)}
+ #settings .settings-nav{position:sticky;top:0;z-index:3;flex-direction:row;width:100%;padding:.55rem .75rem;gap:.35rem;background:#101a16;border-bottom:1px solid #293b32;overflow-x:auto;max-height:none}
+ #settings .settings-nav button{width:auto;min-width:max-content;min-height:2.25rem;padding:.45rem .7rem;border:1px solid #35483c;border-radius:6px;text-align:center}
+ #settings .settings-nav button.active{border-color:#a14b50;background:rgba(182,75,80,.16)}
+ #settings .settings-content{padding:1.1rem 1rem 2rem}
+}
 </style>
 </head>
 <body>
@@ -4312,13 +4337,13 @@ html,body{background:#080d0b}
 <div class="overlay" id="settings" hidden>
   <div class="panel settings-fullscreen-panel" role="dialog" aria-modal="true" aria-labelledby="set-h">
     <div class="phead"><h2 id="set-h">Settings</h2><button data-close aria-label="Close">&times;</button></div>
-    <div class="pbody f">
-      <h3 class="settings-group">Shortcuts &amp; browsing</h3>
+    <div class="settings-layout"><nav class="settings-nav" aria-label="Settings sections"><button type="button" class="active" data-settings-target="settings-browsing">Browsing</button><button type="button" data-settings-target="settings-wallpaper">Wallpaper</button><button type="button" data-settings-target="settings-appearance">Appearance</button><button type="button" data-settings-target="settings-panic">Panic button</button><button type="button" data-settings-target="settings-motion">Motion &amp; sound</button><button type="button" data-settings-target="settings-interface">Interface</button><button type="button" data-settings-target="settings-data">Data &amp; privacy</button></nav><div class="pbody f settings-content">
+      <h3 class="settings-group" id="settings-browsing">Shortcuts &amp; browsing</h3>
       <label for="set-engine">Search engine</label>
       <select id="set-engine"><option value="ddg">DuckDuckGo</option><option value="google">Google</option><option value="bing">Bing</option><option value="brave">Brave</option><option value="startpage">Startpage</option><option disabled>Tor (coming soon)</option></select>
       <p class="hint">Google may ask you to prove you are not a robot.</p>
 
-      <h3 class="settings-group">Wallpaper</h3>
+      <h3 class="settings-group" id="settings-wallpaper">Wallpaper</h3>
       <label for="set-bg">Background</label>
       <select id="set-bg"><option value="mesh">TSW Liquid Mesh (interactive)</option><option value="stars">Stars</option><option value="solid">Custom</option><option value="video">Video</option><option value="ice">Ice waves</option><option value="aurora">Aurora Flow</option></select>
       <p class="hint">Ice waves react to your mouse or finger. On the stars background, click a star to make it shine.</p>
@@ -4336,7 +4361,7 @@ html,body{background:#080d0b}
       <p class="vidnote" id="vid-note" role="status"></p>
       <p class="hint">Your own video stays on this device and is only used by you. Short loops work best.</p>
 
-      <h3 class="settings-group">Appearance</h3>
+      <h3 class="settings-group" id="settings-appearance">Appearance</h3>
       <label for="set-panel">Panel menu type</label>
       <select id="set-panel"><option value="standard">Standard (default)</option><option value="glass">Glass style</option></select>
       <p class="hint">Changes the look of popup menus, including Settings.</p>
@@ -4344,7 +4369,7 @@ html,body{background:#080d0b}
       <label for="set-theme">Theme mode</label>
       <select id="set-theme"><option value="dark">Dark (default)</option><option value="light">Light mode</option></select>
 
-      <h3 class="settings-group">Panic button</h3>
+      <h3 class="settings-group" id="settings-panic">Panic button</h3>
       <label>Panic key</label>
       <div class="settings-data-actions"><button type="button" class="plain" id="set-panic-record">Record a key</button><button type="button" class="plain" id="set-panic-clear">Clear</button></div>
       <p class="hint" id="set-panic-key-status" role="status" aria-live="polite">Current key: none</p>
@@ -4352,7 +4377,7 @@ html,body{background:#080d0b}
       <input id="set-panic-url" type="text" placeholder="https://example.com" autocomplete="url" spellcheck="false">
       <p class="hint">Choose Record a key, press any key once, and it will be saved. Pressing it while using TSW opens your selected site in this tab.</p>
 
-      <h3 class="settings-group">Motion &amp; sound</h3>
+      <h3 class="settings-group" id="settings-motion">Motion &amp; sound</h3>
       <label class="check"><input type="checkbox" id="set-reduced-motion"> Reduce motion and animations</label>
       <p class="hint">Turns down moving backgrounds and interface animations.</p>
       <label class="check"><input type="checkbox" id="set-rain"> Ambient rain sound (off by default)</label>
@@ -4361,7 +4386,7 @@ html,body{background:#080d0b}
         <input type="range" id="set-rain-vol" min="5" max="100" value="40">
       </div>
 
-      <h3 class="settings-group">Interface options</h3>
+      <h3 class="settings-group" id="settings-interface">Interface options</h3>
       <label for="set-accent">Accent color</label>
       <select id="set-accent"><option value="blue">Blue</option><option value="green">Green</option><option value="pink">Pink</option><option value="orange">Orange</option><option value="violet">Violet</option></select>
       <label for="set-clock">Clock</label>
@@ -4384,7 +4409,7 @@ html,body{background:#080d0b}
       <p class="hint">If the button is not shown, look for an install option in your browser's menu. On iPhone or iPad, tap Share, then Add to Home Screen.</p>
       <p class="hint" style="margin-top:1.2rem">Settings and shortcuts sync to your signed-in account automatically.</p>
 
-      <h3 class="settings-group">Data &amp; privacy</h3>
+      <h3 class="settings-group" id="settings-data">Data &amp; privacy</h3>
       <p class="hint">Download a backup of your TSW preferences, or restore one from a backup file. This backup includes settings only — not chat messages, account details, or server data.</p>
       <div class="settings-data-actions">
         <button type="button" class="plain" id="settings-export-btn">Download settings backup</button>
@@ -4399,7 +4424,7 @@ html,body{background:#080d0b}
         <button type="button" class="plain" id="set-reset">Reset to defaults</button>
         <button type="button" class="plain" id="tour-replay-btn">Replay tour</button>
       </div>
-    </div>
+      </div></div>
   </div>
 </div>
 
@@ -11624,5 +11649,44 @@ document.addEventListener('keydown', function (ev) {
 })();
 </script>
 
+
+<script id="tsw-settings-section-navigation">
+(function(){
+  var root=document.getElementById('settings');
+  if(!root||root.dataset.sectionNavReady)return;
+  root.dataset.sectionNavReady='1';
+  var content=root.querySelector('.settings-content');
+  var nav=root.querySelector('.settings-nav');
+  if(!content||!nav)return;
+  var buttons=Array.prototype.slice.call(nav.querySelectorAll('[data-settings-target]'));
+  var sections=buttons.map(function(b){return document.getElementById(b.getAttribute('data-settings-target'));}).filter(Boolean);
+  function activate(id){
+    buttons.forEach(function(b){
+      var on=b.getAttribute('data-settings-target')===id;
+      b.classList.toggle('active',on);
+      if(on)b.setAttribute('aria-current','location');else b.removeAttribute('aria-current');
+    });
+  }
+  buttons.forEach(function(b){
+    b.addEventListener('click',function(){
+      var target=document.getElementById(b.getAttribute('data-settings-target'));
+      if(target){target.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});activate(target.id);}
+    });
+  });
+  if('IntersectionObserver' in window){
+    var observer=new IntersectionObserver(function(entries){
+      var visible=entries.filter(function(e){return e.isIntersecting;}).sort(function(a,b){return a.boundingClientRect.top-b.boundingClientRect.top;});
+      if(visible[0])activate(visible[0].target.id);
+    },{root:content,rootMargin:'-8% 0px -72% 0px',threshold:0});
+    sections.forEach(function(section){observer.observe(section);});
+  }else{
+    content.addEventListener('scroll',function(){
+      var current=sections[0];
+      sections.forEach(function(section){if(section.getBoundingClientRect().top<content.getBoundingClientRect().top+150)current=section;});
+      if(current)activate(current.id);
+    },{passive:true});
+  }
+})();
+</script>
 </body>
 </html>
