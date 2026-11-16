@@ -3731,11 +3731,11 @@ html,body{background:#080d0b}
 </style>
 
 <style id="tsw-christmas-finish">
-/* Santa hat perched naturally on the upper-left edge of the T. */
+/* Santa hat rests on the top-left of the T, with the brim overlapping the letter. */
 #home .mark{position:relative;display:inline-block}
-#home .santa-hat{position:absolute;width:58px;height:50px;left:8px;top:-43px;z-index:4;transform:rotate(-8deg);transform-origin:bottom left;pointer-events:none;overflow:visible}
-#home .santa-hat svg{display:block;width:100%;height:100%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.32))}
-@media(max-width:480px){#home .santa-hat{left:7px;top:-38px;width:52px;height:45px}}
+#home .santa-hat{position:absolute;width:58px;height:50px;left:4px;top:-34px;z-index:4;transform:rotate(-9deg);transform-origin:bottom left;pointer-events:none;overflow:visible}
+#home .santa-hat svg{display:block;width:100%;height:100%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
+@media(max-width:480px){#home .santa-hat{left:3px;top:-30px;width:52px;height:45px}}
 </style>
 </head>
 <body>
@@ -5224,7 +5224,7 @@ html,body{background:#080d0b}
 
 <main id="home">
   <div class="hero">
-    <h1 class="mark"><span class="santa-hat" aria-hidden="true"><svg viewBox="0 0 72 62" xmlns="http://www.w3.org/2000/svg"><path d="M8 43C12 25 26 9 48 4c-3 14 1 26 14 34-15 8-35 12-54 5Z" fill="#c92832" stroke="#8f1722" stroke-width="2" stroke-linejoin="round"/><path d="M18 32c8-11 18-19 30-25-3 13 2 24 14 31-13 5-27 7-41 5-5-2-6-7-3-11Z" fill="#e53942"/><path d="M7 42c12 3 35 1 55-6 5 2 7 7 4 11-15 9-41 14-59 6-5-2-5-8 0-11Z" fill="#fff8eb" stroke="#d8d0c4" stroke-width="2"/><path d="M60 35c-1-7 3-13 9-13 7 0 8 9 2 14-3 3-7 3-11-1Z" fill="#fff8eb" stroke="#d8d0c4" stroke-width="2"/></svg></span>TSW<b>v2</b></h1>
+    <h1 class="mark"><span class="santa-hat" aria-hidden="true"><svg viewBox="0 0 76 64" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="hatRed" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0444c"/><stop offset="1" stop-color="#a91525"/></linearGradient><linearGradient id="hatFur" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf6"/><stop offset="1" stop-color="#dcd8cf"/></linearGradient></defs><path d="M7 42C13 24 27 8 49 5c-3 12 2 24 17 31-16 9-39 13-58 7Z" fill="url(#hatRed)" stroke="#941b27" stroke-width="1.7" stroke-linejoin="round"/><path d="M17 34C25 21 37 11 49 5c-2 12 4 23 17 31-14 7-30 10-44 9-7-1-9-5-5-11Z" fill="#ef3945" opacity=".58"/><path d="M7 41c15 5 38 1 59-7 6 2 8 7 4 12-16 10-43 14-61 6-6-3-7-8-2-11Z" fill="url(#hatFur)" stroke="#d5d0c6" stroke-width="1.8"/><path d="M13 46c14 4 35 1 51-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".8"/><path d="M64 34c-3-7 1-15 8-15 7 0 10 8 5 14-4 5-9 5-13 1Z" fill="url(#hatFur)" stroke="#d5d0c6" stroke-width="1.8"/><path d="M68 23c4-3 8 0 8 4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".9"/></svg></span>TSW<b>v2</b></h1>
     <p class="clock" id="clock"></p>
     <div class="weather-overlay" id="home-weather" role="status" style="display:none;"></div>
     <form class="field" id="home-form" autocomplete="off">
