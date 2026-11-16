@@ -3625,6 +3625,9 @@ button { transition: background-color .15s ease, border-color .15s ease, color .
 #game-tab .game-embed-more { width:min(100%,900px); font-size:12px; color:var(--steel); }
 #game-tab .game-embed-more a { color:var(--steel); text-decoration:none; }
 #game-tab .game-embed-more a:hover { color:var(--blue-hi); text-decoration:underline; }
+#game-tab .game-open-fallback { width:min(100%,900px); display:flex; justify-content:flex-end; }
+#game-tab .game-open-fallback a { display:inline-flex; align-items:center; gap:.4rem; padding:.55rem .9rem; border:1px solid var(--edge); border-radius:9px; color:var(--ink); text-decoration:none; font-size:.85rem; background:var(--panel); }
+#game-tab .game-open-fallback a:hover { border-color:var(--blue-dim); color:var(--blue-hi); }
 @media(max-width:640px) {
   #game-tab .game-workspace-head { min-height:3.8rem; padding:.75rem 1rem; }
   #game-tab #game-view { padding:1rem .75rem; }
@@ -5462,6 +5465,7 @@ html, body {
       <iframe id="nite-game-frame" src="https://nite.games/embed/minecraft" title="Minecraft" style="position:absolute;inset:0;width:100%;height:100%;border:none;border-radius:8px;" allow="fullscreen; autoplay; gamepad; pointer-lock"></iframe>
     </div>
     <p class="game-embed-more" style="font-size:12px;margin-top:8px;"><a href="https://nite.games/game/minecraft" target="_blank" rel="noopener noreferrer">Play more free games on Nite.Games</a></p>
+    <div class="game-open-fallback"><a href="https://nite.games/game/minecraft" target="_blank" rel="noopener noreferrer">Open Minecraft in a new tab ↗</a></div>
   </div>
 </section>
 
@@ -8792,14 +8796,10 @@ document.addEventListener('keydown', function (ev) {
   if (testTabMovies) {
     testTabMovies.addEventListener('click', function (e) {
       e.preventDefault();
-      if (typeof createNewTab === 'function') {
-        createNewTab('https://cno.to/');
-      } else if (typeof window.TSWCreateNewTab === 'function') {
+      if (typeof window.TSWCreateNewTab === 'function') {
         window.TSWCreateNewTab('https://cno.to/');
-      } else if (typeof openEmbeddedGame === 'function') {
-        openEmbeddedGame('Movies', 'https://cno.to/', 'cno.to');
-      } else if (typeof openUrl === 'function') {
-        openUrl('https://cno.to/');
+      } else {
+        window.open('https://cno.to/', '_blank', 'noopener,noreferrer');
       }
     });
   }
