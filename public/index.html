@@ -7505,7 +7505,7 @@ document.addEventListener('keydown', function (ev) {
       card.innerHTML =
         '<div class="sc-icon">' + iconHtml + '</div>' +
         '<div class="sc-label">' + escapeHtml(item.name) + '</div>' +
-        ((item.name || '').trim().toLowerCase() === 'roblox' ? '<span class="sc-new-pill">New</span>' : '') +
+        ((item.name || '').trim().toLowerCase() === 'roblox' || (item.name || '').trim().toLowerCase() === 'movies' ? '<span class="sc-new-pill">New</span>' : '') +
         '<button type="button" class="sc-del" data-remove="' + i + '" title="Remove ' + escapeHtml(item.name) + '" aria-label="Remove ' + escapeHtml(item.name) + '">&times;</button>';
 
       links.appendChild(card);
