@@ -4592,7 +4592,7 @@ html.reduced-motion .cl-bulb,html.reduced-motion .cl-shift,html.reduced-motion .
       <p><strong>Information TSW stores.</strong> When you create or use an account, TSW stores account identifiers and profile information. Chat features store messages and related activity so conversations and moderation features can work. Preferences may be saved on this device and synced to your account.</p>
       <p><strong>Public chat.</strong> Messages sent in public channels are visible to people who can access those channels and may be reviewed by authorized staff. Do not post passwords, personal contact details, or other sensitive information.</p>
       <p><strong>Direct messages.</strong> Direct messages are stored by TSW and are not end-to-end encrypted. They should not be treated as private from the service operator or authorized moderation staff.</p>
-      <p><strong>Service providers.</strong> TSW relies on its hosting, database, authentication, and proxy services to operate. Those providers may process technical information needed to deliver the service.</p>
+      <p><strong>Service providers and AI.</strong> TSW relies on hosting, database, authentication, proxy, and AI providers to operate. If you choose Gemini or Unfiltered AI, the prompt you submit is sent to Google or Venice AI respectively so that provider can generate a response. Do not include passwords or sensitive personal information in AI prompts. Those providers may process prompt content and technical information under their own terms and privacy policies.</p>
       <p><strong>Your choices.</strong> You can change available profile and preference settings, and download a settings-only backup from this page. That backup does not include account records or chat history.</p>
       <p><strong>Questions.</strong> Contact the TSW site owner through the contact method provided on the site if you have a privacy question or data request.</p>
       <p class="hint">This policy is a plain-language description of the site and its intended use. It is not legal advice and does not replace applicable law.</p>
@@ -4651,7 +4651,14 @@ html.reduced-motion .cl-bulb,html.reduced-motion .cl-shift,html.reduced-motion .
       <button data-tab="credits">Credits</button>
     </div>
     <div class="pbody" id="tab-updates">
-      <h3>TSW v2 1.6.11<span>Stability &amp; Security Update</span></h3>
+      <h3>TSW v2 1.6.12<span>AI Provider Update</span></h3>
+      <p class="date">November 2026</p>
+      <ul>
+        <li>Added Unfiltered AI as an additional chat model, powered by Venice AI.</li>
+        <li>AI provider prompts are disclosed separately before first use, and provider keys stay on the server.</li>
+      </ul>
+
+      <h3 class="older">TSW v2 1.6.11<span>Stability &amp; Security Update</span></h3>
       <p class="date">November 2026</p>
       <ul>
         <li>Lots of security and backend improvements.</li>
@@ -4659,7 +4666,7 @@ html.reduced-motion .cl-bulb,html.reduced-motion .cl-shift,html.reduced-motion .
         <li>Redone UIs and updated systems across the site.</li>
         <li>Added Movies to the homepage shortcuts and navigation.</li>
         <li>Added more tab disguises with matching names and icons for popular educational websites.</li>
-        <li>Added a Christmas theme with falling snow and lights around the search bar.</li>
+        <li>Added a Christmas theme with falling snow.</li>
       </ul>
 
       <h3 class="older">TSW v2 1.6<span>The Social &amp; Multitasking Update</span></h3>
@@ -8381,12 +8388,12 @@ document.addEventListener('keydown', function (ev) {
     var prompt = (aiPrompt.value || '').trim();
     if (!prompt) return;
     try {
-      if (localStorage.getItem('tsw-ai-first-message-notice-v1') !== 'accepted') {
+      if (localStorage.getItem('tsw-ai-first-message-notice-v1-' + aiSelectedModel) !== 'accepted') {
         var notice = aiSelectedModel === 'venice'
           ? 'Unfiltered AI sends your prompt to Venice AI using its venice-uncensored model. Responses may be less filtered and can include inaccurate or inappropriate material. Do not share passwords or sensitive information, and use it responsibly.'
           : 'By using TSW AI, your prompt is sent to Google Gemini to generate a response. Do not share passwords or sensitive information. AI responses can be wrong, so check important answers.';
         if (!await tswAiConfirm('Before your first message', notice)) return;
-        localStorage.setItem('tsw-ai-first-message-notice-v1', 'accepted');
+        localStorage.setItem('tsw-ai-first-message-notice-v1-' + aiSelectedModel, 'accepted');
       }
     } catch (noticeError) {
       if (!await tswAiConfirm('Before using TSW AI', aiSelectedModel === 'venice' ? 'Your prompt is sent to Venice AI. Responses may be less filtered and can include inaccurate or inappropriate material. Do not share sensitive information. Continue?' : 'Your prompt is sent to Google Gemini. Do not share sensitive information, and check important answers. Continue?')) return;
