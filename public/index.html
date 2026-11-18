@@ -8390,7 +8390,7 @@ document.addEventListener('keydown', function (ev) {
     try {
       if (localStorage.getItem('tsw-ai-first-message-notice-v1-' + aiSelectedModel) !== 'accepted') {
         var notice = aiSelectedModel === 'venice'
-          ? 'Unfiltered AI sends your prompt to Venice AI using its venice-uncensored model. Responses may be less filtered and can include inaccurate or inappropriate material. Do not share passwords or sensitive information, and use it responsibly.'
+          ? 'Unfiltered AI sends your prompt to Venice AI using the GLM 5.2 model. Responses may be inaccurate or inappropriate. Do not share passwords or sensitive information, and use it responsibly.'
           : 'By using TSW AI, your prompt is sent to Google Gemini to generate a response. Do not share passwords or sensitive information. AI responses can be wrong, so check important answers.';
         if (!await tswAiConfirm('Before your first message', notice)) return;
         localStorage.setItem('tsw-ai-first-message-notice-v1-' + aiSelectedModel, 'accepted');
