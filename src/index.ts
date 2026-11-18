@@ -1,4 +1,5 @@
 // @ts-nocheck
+import "dotenv/config";
 import { createServer } from "node:http";
 import { fileURLToPath } from "url";
 import { hostname } from "node:os";
@@ -487,14 +488,14 @@ fastify.post("/api/ai/chat", async (req, reply) => {
 
     const selectedModel = body.model === "venice" ? "venice" : "gemini";
     const geminiApiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-    const veniceApiKey = process.env.VENICE_INFERENCE_KEY;
+    const veniceApiKey = process.env.VENICE_API_KEY || process.env.VENICE_INFERENCE_KEY;
     if (selectedModel === "gemini" && !geminiApiKey) {
       reply.code(503);
       return { success: false, error: "Gemini isn't configured on the server yet. Ensure GEMINI_API_KEY is available in the environment settings." };
     }
     if (selectedModel === "venice" && !veniceApiKey) {
       reply.code(503);
-      return { success: false, error: "Unfiltered AI isn't configured yet. Add VENICE_INFERENCE_KEY to the server environment settings." };
+      return { success: false, error: "Unfiltered AI isn't configured yet. Add VENICE_API_KEY to the server environment settings." };
     }
 
     // Rate limiting: by userId if signed in, or by clientId/ip if guest
@@ -521,7 +522,7 @@ fastify.post("/api/ai/chat", async (req, reply) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "venice-uncensored",
+          model: "zai-org-glm-5-2",
           messages: [{ role: "user", content: prompt }],
           temperature: 0.7,
         }),
@@ -533,7 +534,7 @@ fastify.post("/api/ai/chat", async (req, reply) => {
         throw new Error(veniceData?.error?.message || `Venice AI returned HTTP ${veniceResponse.status}`);
       }
       replyText = veniceData?.choices?.[0]?.message?.content || "";
-      usedModel = "venice-uncensored";
+      usedModel = "zai-org-glm-5-2";
     } else {
       try {
         const response = await aiClient.models.generateContent({
