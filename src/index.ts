@@ -485,10 +485,16 @@ fastify.post("/api/ai/chat", async (req, reply) => {
       return { success: false, error: "That message is too long. Keep it under 5,000 characters." };
     }
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-    if (!apiKey) {
+    const selectedModel = body.model === "venice" ? "venice" : "gemini";
+    const geminiApiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    const veniceApiKey = process.env.VENICE_INFERENCE_KEY;
+    if (selectedModel === "gemini" && !geminiApiKey) {
       reply.code(503);
       return { success: false, error: "Gemini isn't configured on the server yet. Ensure GEMINI_API_KEY is available in the environment settings." };
+    }
+    if (selectedModel === "venice" && !veniceApiKey) {
+      reply.code(503);
+      return { success: false, error: "Unfiltered AI isn't configured yet. Add VENICE_INFERENCE_KEY to the server environment settings." };
     }
 
     // Rate limiting: by userId if signed in, or by clientId/ip if guest
@@ -507,38 +513,61 @@ fastify.post("/api/ai/chat", async (req, reply) => {
     let replyText = "";
     let usedModel = "gemini-3.1-flash-lite";
 
-    try {
-      const response = await aiClient.models.generateContent({
-        model: "gemini-3.1-flash-lite",
-        contents: prompt,
-        config: {
-          systemInstruction,
+    if (selectedModel === "venice") {
+      const veniceResponse = await fetch("https://api.venice.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${veniceApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "venice-uncensored",
+          messages: [{ role: "user", content: prompt }],
           temperature: 0.7,
-        }
+        }),
+        signal: AbortSignal.timeout(60000),
       });
-      replyText = response.text || "";
-    } catch (primaryErr) {
-      req.log.warn({ err: primaryErr.message }, "Primary model gemini-3.1-flash-lite failed, trying gemini-3.8-flash fallback");
+      const veniceData = await veniceResponse.json().catch(() => ({}));
+      if (!veniceResponse.ok) {
+        req.log.warn({ status: veniceResponse.status }, "Venice inference request failed");
+        throw new Error(veniceData?.error?.message || `Venice AI returned HTTP ${veniceResponse.status}`);
+      }
+      replyText = veniceData?.choices?.[0]?.message?.content || "";
+      usedModel = "venice-uncensored";
+    } else {
       try {
-        const fallbackRes = await aiClient.models.generateContent({
-          model: "gemini-3.8-flash",
+        const response = await aiClient.models.generateContent({
+          model: "gemini-3.1-flash-lite",
           contents: prompt,
           config: {
             systemInstruction,
             temperature: 0.7,
           }
         });
-        replyText = fallbackRes.text || "";
-        usedModel = "gemini-3.8-flash";
-      } catch (fallbackErr) {
-        req.log.error({ primary: primaryErr.message, fallback: fallbackErr.message }, "All Gemini models failed");
-        throw new Error(primaryErr.message || fallbackErr.message || "Gemini service temporarily unavailable");
+        replyText = response.text || "";
+      } catch (primaryErr) {
+        req.log.warn({ err: primaryErr.message }, "Primary model gemini-3.1-flash-lite failed, trying gemini-3.8-flash fallback");
+        try {
+          const fallbackRes = await aiClient.models.generateContent({
+            model: "gemini-3.8-flash",
+            contents: prompt,
+            config: {
+              systemInstruction,
+              temperature: 0.7,
+            }
+          });
+          replyText = fallbackRes.text || "";
+          usedModel = "gemini-3.8-flash";
+        } catch (fallbackErr) {
+          req.log.error({ primary: primaryErr.message, fallback: fallbackErr.message }, "All Gemini models failed");
+          throw new Error(primaryErr.message || fallbackErr.message || "Gemini service temporarily unavailable");
+        }
       }
     }
 
     if (!replyText || !replyText.trim()) {
       reply.code(502);
-      return { success: false, error: "Gemini returned an empty answer. Please try rephrasing your message." };
+      return { success: false, error: selectedModel === "venice" ? "Unfiltered AI returned an empty answer. Please try again." : "Gemini returned an empty answer. Please try rephrasing your message." };
     }
 
     usage.requests += 1;
