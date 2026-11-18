@@ -5694,6 +5694,7 @@ html.reduced-motion .cl-bulb,html.reduced-motion .cl-shift,html.reduced-motion .
       <button type="button" class="tsw-ai-model active" data-model="gemini" style="border:1px solid #a7444b;border-radius:9px;padding:8px 12px;background:rgba(167,68,75,.22);color:inherit;cursor:pointer">Gemini</button>
       <button type="button" class="tsw-ai-model" data-model="chatgpt" disabled title="Not connected" style="border:1px solid rgba(103,173,124,.22);border-radius:9px;padding:8px 12px;background:transparent;color:var(--steel,#9aa99f);cursor:not-allowed;opacity:.65">ChatGPT · unavailable</button>
       <button type="button" class="tsw-ai-model" data-model="deepseek" disabled title="Not connected" style="border:1px solid rgba(103,173,124,.22);border-radius:9px;padding:8px 12px;background:transparent;color:var(--steel,#9aa99f);cursor:not-allowed;opacity:.65">DeepSeek · unavailable</button>
+      <button type="button" class="tsw-ai-model" data-model="venice" style="border:1px solid rgba(190,151,91,.3);border-radius:9px;padding:8px 12px;background:transparent;color:var(--steel,#9aa99f);cursor:pointer">Unfiltered AI</button>
     </div>
     <div id="tsw-ai-messages" role="log" aria-live="polite" style="flex:1;min-height:180px;display:flex;flex-direction:column;gap:14px;padding:8px 0 20px"></div>
     <div id="tsw-ai-status" role="status" style="font-size:13px;color:var(--steel,#9aa99f);min-height:20px;margin-bottom:8px"></div>
@@ -8281,6 +8282,7 @@ document.addEventListener('keydown', function (ev) {
   var aiMessages = $('tsw-ai-messages');
   var aiStatus = $('tsw-ai-status');
   var aiGreeting = $('tsw-ai-greeting');
+  var aiSelectedModel = 'gemini';
   var aiBusy = false;
   // Pointer-following holiday glow and welcome-to-chat transition.
   if (aiComingSoonPanel) {
@@ -8310,7 +8312,8 @@ document.addEventListener('keydown', function (ev) {
     btn.addEventListener('click', function(){
       if (btn.disabled) return;
       document.querySelectorAll('#tsw-ai-models [data-model]').forEach(function(b){b.classList.toggle('active', b===btn);});
-      if (aiStatus) aiStatus.textContent = 'Gemini is the only connected provider right now.';
+      aiSelectedModel = btn.getAttribute('data-model') || 'gemini';
+      if (aiStatus) aiStatus.textContent = aiSelectedModel === 'venice' ? 'Unfiltered AI · Venice · Selected' : 'Gemini · Selected';
     });
   });
   function tswAiToast(message, kind) {
@@ -8379,12 +8382,14 @@ document.addEventListener('keydown', function (ev) {
     if (!prompt) return;
     try {
       if (localStorage.getItem('tsw-ai-first-message-notice-v1') !== 'accepted') {
-        var notice = 'By using TSW AI, your prompt is sent to Google Gemini to generate a response. Do not share passwords or sensitive information. AI responses can be wrong, so check important answers.';
+        var notice = aiSelectedModel === 'venice'
+          ? 'Unfiltered AI sends your prompt to Venice AI using its venice-uncensored model. Responses may be less filtered and can include inaccurate or inappropriate material. Do not share passwords or sensitive information, and use it responsibly.'
+          : 'By using TSW AI, your prompt is sent to Google Gemini to generate a response. Do not share passwords or sensitive information. AI responses can be wrong, so check important answers.';
         if (!await tswAiConfirm('Before your first message', notice)) return;
         localStorage.setItem('tsw-ai-first-message-notice-v1', 'accepted');
       }
     } catch (noticeError) {
-      if (!await tswAiConfirm('Before using TSW AI', 'Your prompt is sent to Google Gemini. Do not share sensitive information, and check important answers. Continue?')) return;
+      if (!await tswAiConfirm('Before using TSW AI', aiSelectedModel === 'venice' ? 'Your prompt is sent to Venice AI. Responses may be less filtered and can include inaccurate or inappropriate material. Do not share sensitive information. Continue?' : 'Your prompt is sent to Google Gemini. Do not share sensitive information, and check important answers. Continue?')) return;
     }
     if (prompt.length > 1200 && !await tswAiConfirm('Long request', 'This request may use more of the shared free AI quota. Send it anyway?')) return;
     var user = window.TSWProfiles && window.TSWProfiles.getUser ? window.TSWProfiles.getUser() : null;
@@ -8402,12 +8407,12 @@ document.addEventListener('keydown', function (ev) {
       var response = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify({ model: 'gemini', prompt: prompt })
+        body: JSON.stringify({ model: aiSelectedModel, prompt: prompt })
       });
       var result = await response.json();
       if (!response.ok || !result.success) throw new Error(result.error || 'AI request failed. Please try again later.');
       addTswAiMessage(result.reply, 'assistant');
-      if (aiStatus) aiStatus.textContent = 'Gemini 3.1 Flash Lite · Active';
+      if (aiStatus) aiStatus.textContent = aiSelectedModel === 'venice' ? 'Unfiltered AI · Venice · Active' : (result.model || 'Gemini') + ' · Active';
     } catch (error) {
       var errMsg = error.message || 'AI is temporarily unavailable. Please try again.';
       if (aiStatus) aiStatus.textContent = errMsg;
