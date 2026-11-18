@@ -72,7 +72,7 @@ import { sql } from "drizzle-orm";
 
 const publicPath = fileURLToPath(new URL("../public/", import.meta.url));
 const SERVER_BOOT_TIME = Date.now();
-const APP_VERSION = "1.6.11";
+const APP_VERSION = "1.6.12";
 
 // Wisp Configuration: Refer to the documentation at https://www.npmjs.com/package/@mercuryworkshop/wisp-js
 
