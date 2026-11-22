@@ -5961,18 +5961,108 @@ html,body{background:#060b09!important}
 </style>
 
 
-<section id="tsw-music-screen" hidden aria-label="Music player">
-  <header class="music-head">
-    <div class="music-brand"><span class="music-brand-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span>TSW Music</span></div>
-    <div class="music-head-actions"><button type="button" id="tsw-music-close" aria-label="Close Music" title="Close">&times;</button></div>
-  </header>
-  <div class="music-stage">
-    <div class="music-card">
-      <div class="music-art" aria-hidden="true"><svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M45 84V25l48-9v59"/><circle cx="31" cy="87" r="14"/><circle cx="79" cy="78" r="14"/><path d="M45 39l48-9"/></svg></div>
-      <div class="music-info"><h1>Chill beats, anytime.</h1><p>Free 24/7 lofi radio to keep playing while you use TSW.</p><span class="music-source">● Live on YouTube · Lofi Girl</span><div class="music-hint">Press play in the player to start listening. Switch tabs to keep Music open while you browse.</div></div>
+<style id="tsw-music-home-style">
+#tsw-music-screen{position:absolute!important;inset:0!important;z-index:1!important;display:flex;flex-direction:row!important;overflow:hidden!important;background:#07110c!important;color:#f5faf6!important;font-family:inherit}
+#tsw-music-screen[hidden]{display:none!important}
+#tsw-music-screen .mh-side{width:256px;flex:0 0 256px;background:#08120d;border-right:1px solid rgba(220,245,228,.08);padding:22px 13px;display:flex;flex-direction:column;min-height:0}
+#tsw-music-screen .mh-brand{font-size:21px;font-weight:750;padding:0 12px 24px;letter-spacing:-.5px}
+#tsw-music-screen .mh-nav{display:grid;gap:5px}
+#tsw-music-screen .mh-nav button,#tsw-music-screen .mh-side-action{display:flex;align-items:center;gap:13px;width:100%;min-height:40px;padding:0 12px;border:0;border-radius:22px;background:transparent;color:#b8c9be;text-align:left;font:inherit;font-size:14px;cursor:pointer}
+#tsw-music-screen .mh-nav button.active,#tsw-music-screen .mh-nav button:hover,#tsw-music-screen .mh-side-action:hover{background:#17291f;color:#fff}
+#tsw-music-screen .mh-nav svg,#tsw-music-screen .mh-side-action svg{width:18px;height:18px;flex:none}
+#tsw-music-screen .mh-playlists{margin-top:30px;padding:0 12px;color:#a6b8aa;font-size:11px;font-weight:700;letter-spacing:.08em}
+#tsw-music-screen .mh-create{margin:14px 8px 0;padding:9px 12px;border:0;border-radius:20px;background:#baf6d8;color:#082016;font-weight:650;cursor:pointer}
+#tsw-music-screen .mh-side-foot{margin-top:auto;padding:12px 8px 0}
+#tsw-music-screen .mh-profile{width:100%;display:flex;align-items:center;gap:10px;padding:9px;border:1px solid rgba(220,245,228,.1);border-radius:12px;background:#0d1b13;color:#e8f4eb;text-align:left;cursor:pointer}
+#tsw-music-screen .mh-avatar{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:#244735;color:#c6f8dc;font-weight:700}
+#tsw-music-screen .mh-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column}
+#tsw-music-screen .mh-top{height:64px;flex:none;display:flex;align-items:center;gap:10px;padding:0 24px;border-bottom:1px solid rgba(220,245,228,.07)}
+#tsw-music-screen .mh-top-title{font-size:16px;font-weight:750;margin-right:4px}
+#tsw-music-screen .mh-pill{border:1px solid rgba(220,245,228,.12);border-radius:22px;padding:9px 14px;background:#102117;color:#d9f3e3;font:inherit;font-size:12px;cursor:pointer}
+#tsw-music-screen .mh-top-spacer{flex:1}
+#tsw-music-screen .mh-close{width:34px;height:34px;border:0;border-radius:9px;background:transparent;color:#a9bbae;font-size:23px;cursor:pointer}
+#tsw-music-screen .mh-close:hover{background:#17291f;color:white}
+#tsw-music-screen .mh-scroll{flex:1;min-height:0;overflow:auto;padding:25px 24px 118px}
+#tsw-music-screen .mh-section{margin-bottom:36px}
+#tsw-music-screen .mh-section-title{display:flex;align-items:center;gap:9px;margin:0 0 16px;font-size:14px;font-weight:750}
+#tsw-music-screen .mh-section-title svg{width:16px;height:16px;color:#a8c7b4}
+#tsw-music-screen .mh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,175px));gap:14px}
+#tsw-music-screen .mh-card{min-width:0;padding:0;border:0;background:transparent;color:#f3faf5;text-align:left;cursor:pointer}
+#tsw-music-screen .mh-art{width:100%;aspect-ratio:1;border-radius:17px;background:#102218;border:1px solid rgba(220,245,228,.08);display:grid;place-items:center;overflow:hidden}
+#tsw-music-screen .mh-art svg{width:45px;height:45px;color:#baf6d8}
+#tsw-music-screen .mh-art.live{background:radial-gradient(circle at 50% 38%,#315a43,#102218 72%)}
+#tsw-music-screen .mh-card-title{display:block;margin:10px 2px 3px;font-size:14px;font-weight:650}
+#tsw-music-screen .mh-card-sub{display:block;margin:0 2px;color:#9cb2a3;font-size:12px;line-height:1.45}
+#tsw-music-screen .mh-card:hover .mh-art{border-color:rgba(186,246,216,.35);background-color:#193323}
+#tsw-music-screen .mh-search{width:min(540px,100%);padding:12px 15px;border:1px solid rgba(220,245,228,.14);border-radius:24px;background:#0e1b13;color:#f4fff6;font:inherit;outline:none}
+#tsw-music-screen .mh-search:focus{border-color:#9adbb9}
+#tsw-music-screen .mh-empty{padding:35px 20px;border:1px dashed rgba(220,245,228,.15);border-radius:14px;color:#a8b9ac;text-align:center;max-width:560px}
+#tsw-music-screen .mh-player{position:absolute;left:0;right:0;bottom:0;min-height:76px;display:flex;align-items:center;gap:14px;padding:10px 20px;background:#08130d;border-top:1px solid rgba(220,245,228,.12);z-index:3}
+#tsw-music-screen .mh-now-art{width:48px;height:48px;border-radius:8px;background:#183324;display:grid;place-items:center;flex:none}
+#tsw-music-screen .mh-now-art svg{width:22px;height:22px;color:#baf6d8}
+#tsw-music-screen .mh-now{min-width:130px;max-width:220px}
+#tsw-music-screen .mh-now strong,#tsw-music-screen .mh-now span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#tsw-music-screen .mh-now strong{font-size:13px}
+#tsw-music-screen .mh-now span{margin-top:3px;color:#9cb2a3;font-size:12px}
+#tsw-music-screen .mh-controls{display:flex;align-items:center;gap:9px;margin:auto}
+#tsw-music-screen .mh-controls button{width:36px;height:36px;border:0;border-radius:50%;background:transparent;color:#d8eadf;font-size:17px;cursor:pointer}
+#tsw-music-screen .mh-controls button.play{width:42px;height:42px;background:#effaf2;color:#07110c;font-size:18px}
+#tsw-music-screen .mh-controls button:hover{color:#baf6d8}
+#tsw-music-screen .mh-controls button.play:hover{color:#07110c;background:#baf6d8}
+#tsw-music-screen .mh-player-hint{color:#91a899;font-size:11px;white-space:nowrap}
+#tsw-music-screen .mh-frame-wrap{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+#tsw-music-screen .mh-gate{position:absolute;inset:0;z-index:5;background:rgba(3,9,5,.82);display:grid;place-items:center;padding:20px}
+#tsw-music-screen .mh-gate[hidden]{display:none}
+#tsw-music-screen .mh-gate-card{width:min(420px,100%);padding:28px;border:1px solid rgba(220,245,228,.14);border-radius:18px;background:#0d1b13;text-align:center;box-shadow:0 24px 80px #0008}
+#tsw-music-screen .mh-gate-card h2{margin:0 0 8px;font-size:21px}
+#tsw-music-screen .mh-gate-card p{margin:0 0 20px;color:#a9bbae;font-size:13px;line-height:1.55}
+#tsw-music-screen .mh-gate-card button{padding:10px 17px;border:0;border-radius:22px;background:#baf6d8;color:#082016;font-weight:700;cursor:pointer}
+#tsw-music-screen .mh-gate-card .mh-gate-cancel{margin-left:8px;background:#1b2b20;color:#e6f3e9}
+#tsw-music-screen .mh-auth-note{margin-top:12px;color:#8fa596;font-size:11px}
+#tsw-music-screen .mh-view{display:none}
+#tsw-music-screen .mh-view.active{display:block}
+@media(max-width:760px){#tsw-music-screen .mh-side{width:190px;flex-basis:190px;padding:16px 9px}#tsw-music-screen .mh-scroll{padding:18px 14px 112px}#tsw-music-screen .mh-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}}
+@media(max-width:560px){#tsw-music-screen .mh-side{width:58px;flex-basis:58px;padding:13px 6px}#tsw-music-screen .mh-brand{font-size:0;padding:0 0 20px;text-align:center}#tsw-music-screen .mh-brand:after{content:'♫';font-size:20px}#tsw-music-screen .mh-nav button{justify-content:center;padding:0;font-size:0}#tsw-music-screen .mh-nav button svg{width:20px;height:20px}#tsw-music-screen .mh-playlists,#tsw-music-screen .mh-create,#tsw-music-screen .mh-profile span:not(.mh-avatar){display:none}#tsw-music-screen .mh-profile{justify-content:center;padding:6px}#tsw-music-screen .mh-top{padding:0 12px}#tsw-music-screen .mh-scroll{padding:15px 12px 108px}#tsw-music-screen .mh-player{padding:8px}#tsw-music-screen .mh-player-hint{display:none}#tsw-music-screen .mh-now{min-width:0;max-width:105px}#tsw-music-screen .mh-controls{gap:1px}}
+</style>
+<section id="tsw-music-screen" class="tsw-app-screen" hidden aria-label="TSW Music">
+  <aside class="mh-side">
+    <div class="mh-brand">Music</div>
+    <nav class="mh-nav" aria-label="Music navigation">
+      <button type="button" class="active" data-mh-view="browse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3c1 4-3 5-3 9a4 4 0 0 0 8 0c0-2-1-3-2-5 0 3-2 3-3 1-1-2 0-4 0-5Z"/></svg>Browse</button>
+      <button type="button" data-mh-view="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>Search</button>
+      <button type="button" data-mh-view="library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16M4 12h16M4 19h16"/><path d="M8 3v4M16 10v4M8 17v4"/></svg>Your Library</button>
+    </nav>
+    <div class="mh-playlists">PLAYLISTS</div>
+    <button type="button" class="mh-create" data-mh-action="playlist">＋ New Playlist</button>
+    <div class="mh-side-foot"><button type="button" class="mh-profile" id="mh-profile-btn"><span class="mh-avatar" id="mh-avatar">?</span><span id="mh-profile-name">Create profile</span></button></div>
+  </aside>
+  <main class="mh-main">
+    <header class="mh-top"><strong class="mh-top-title" id="mh-page-title">Browse</strong><button type="button" class="mh-pill" data-mh-action="playlist">✦ AI playlist</button><span class="mh-top-spacer"></span><button type="button" class="mh-close" id="tsw-music-close" aria-label="Close Music">×</button></header>
+    <div class="mh-scroll">
+      <section class="mh-view active" data-mh-panel="browse">
+        <div class="mh-section"><h2 class="mh-section-title">✧ Made for you</h2><div class="mh-grid">
+          <button type="button" class="mh-card" data-mh-play="lofi"><span class="mh-art live"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span class="mh-card-title">Lofi Girl Radio</span><span class="mh-card-sub">A free 24/7 lofi stream</span></button>
+        </div></div>
+        <div class="mh-section"><h2 class="mh-section-title">Recently played</h2><div class="mh-grid">
+          <button type="button" class="mh-card" data-mh-play="lofi"><span class="mh-art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span class="mh-card-title">Lofi Girl</span><span class="mh-card-sub">Live radio</span></button>
+        </div></div>
+      </section>
+      <section class="mh-view" data-mh-panel="search">
+        <div class="mh-section"><input class="mh-search" id="mh-search-input" placeholder="Search music and stations" autocomplete="off"><div id="mh-search-results" style="margin-top:22px"></div></div>
+      </section>
+      <section class="mh-view" data-mh-panel="library">
+        <div class="mh-section"><h2 class="mh-section-title">Your Library</h2><div id="mh-library-content" class="mh-empty">Sign in to save songs and create playlists.</div></div>
+      </section>
     </div>
-  </div>
-  <iframe class="music-player-frame" id="tsw-music-embed" title="Lofi Girl free live music" src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&controls=1&rel=0&enablejsapi=1" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    <div class="mh-player">
+      <div class="mh-now-art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+      <div class="mh-now"><strong id="mh-now-title">Lofi Girl Radio</strong><span id="mh-now-sub">24/7 live stream</span></div>
+      <div class="mh-controls"><button type="button" id="mh-like" data-mh-action="like" title="Like / save">♡</button><button type="button" class="play" id="mh-play" title="Play or pause">▶</button><button type="button" id="mh-add" data-mh-action="playlist" title="Add to playlist">＋</button></div>
+      <span class="mh-player-hint" id="mh-player-hint">Free live radio</span>
+    </div>
+  </main>
+  <div class="mh-frame-wrap"><iframe id="tsw-music-embed" title="Lofi Girl live radio" src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&controls=1&rel=0&enablejsapi=1" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+  <div class="mh-gate" id="mh-gate" hidden><div class="mh-gate-card"><h2>Make Music yours</h2><p>Create a free TSW profile or sign in to like songs, save music, and make playlists. Your music library is tied to your profile.</p><button type="button" id="mh-gate-signin">Create profile / Sign in</button><button type="button" class="mh-gate-cancel" id="mh-gate-cancel">Not now</button><div class="mh-auth-note">Uses your existing TSW account.</div></div></div>
 </section>
 
 <section id="game-tab" hidden aria-label="Games">
@@ -12595,23 +12685,46 @@ document.addEventListener('keydown', function (ev) {
 </script>
 <script id="tsw-music-player">
 (function(){
-  var screen=document.getElementById('tsw-music-screen');
-  var frame=document.getElementById('tsw-music-embed');
+  var screen=document.getElementById('tsw-music-screen'),frame=document.getElementById('tsw-music-embed');
   if(!screen||!frame)return;
-  function openMusic(){
-    if(window.TSWCreateAppTab){
-      window.TSWCreateAppTab('Music','tsw-music-screen','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>','music');
-    }
-  }
-  function closeMusic(){
-    if(window.TSWCloseActiveAppTab) window.TSWCloseActiveAppTab('music');
-    else screen.hidden=true;
-  }
+  var tokenKey='tsw.auth_token',user=null,playing=false,current='lofi',gateAction=null;
+  function token(){try{return localStorage.getItem(tokenKey)||''}catch(e){return ''}}
+  function getUser(){return fetch('/api/auth/me',{headers:token()?{'Authorization':'Bearer '+token()}: {},cache:'no-store'}).then(function(r){return r.json()}).then(function(d){user=d&&d.authenticated?d.user:null;return user}).catch(function(){user=null;return null})}
+  function key(){return 'tsw.music.library.'+(user&&user.id?user.id:'guest')}
+  function data(){try{return JSON.parse(localStorage.getItem(key())||'{"likes":[],"playlists":[]}')}catch(e){return {likes:[],playlists:[]}}}
+  function save(d){try{localStorage.setItem(key(),JSON.stringify(d))}catch(e){}}
+  function signedIn(){return !!(user&&user.id)}
+  function syncProfile(){var name=document.getElementById('mh-profile-name'),av=document.getElementById('mh-avatar');if(name)name.textContent=signedIn()?user.username:'Create profile';if(av)av.textContent=signedIn()?(user.username||'?').charAt(0).toUpperCase():'?';}
+  function showGate(action){gateAction=action||null;document.getElementById('mh-gate').hidden=false}
+  function hideGate(){document.getElementById('mh-gate').hidden=true;gateAction=null}
+  function runGated(action){if(!signedIn()){showGate(action);return}if(action==='like'){var d=data(),i=d.likes.indexOf(current);if(i<0)d.likes.push(current);else d.likes.splice(i,1);save(d);renderLibrary();renderLike()}else if(action==='playlist'){createPlaylist()}else if(action==='add'){addToPlaylist()}}
+  function renderLike(){var b=document.getElementById('mh-like'),liked=signedIn()&&data().likes.indexOf(current)>=0;b.textContent=liked?'♥':'♡';b.style.color=liked?'#baf6d8':''}
+  function renderLibrary(){var box=document.getElementById('mh-library-content');if(!box)return;if(!signedIn()){box.textContent='Sign in to save songs and create playlists.';return}var d=data(),html='';if(d.likes.length){html+='<h3 style="font-size:14px;margin:0 0 12px">Liked music</h3><button class="mh-card" type="button" data-mh-play="lofi"><span class="mh-art live">♫</span><span class="mh-card-title">Lofi Girl Radio</span><span class="mh-card-sub">Liked station</span></button>'}if(d.playlists.length){html+='<h3 style="font-size:14px;margin:22px 0 12px">Playlists</h3>'+d.playlists.map(function(p,i){return '<div style="padding:12px 0;border-bottom:1px solid #203328;color:#eaf5ed">'+escapeHtml(p.name)+' <span style="color:#91a899;font-size:12px">· '+p.items.length+' saved</span></div>'}).join('')}box.innerHTML=html||'Your library is empty. Like a station or create a playlist to get started.'}
+  function escapeHtml(v){return String(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function createPlaylist(){var name=prompt('Name your playlist');if(!name||!name.trim())return;var d=data();d.playlists.push({name:name.trim().slice(0,50),items:[]});save(d);renderLibrary();switchView('library')}
+  function addToPlaylist(){var d=data();if(!d.playlists.length){createPlaylist();return}var names=d.playlists.map(function(p,i){return (i+1)+'. '+p.name}).join('\n');var choice=Number(prompt('Add to which playlist?\n'+names));if(!choice||!d.playlists[choice-1])return;if(d.playlists[choice-1].items.indexOf(current)<0)d.playlists[choice-1].items.push(current);save(d);renderLibrary()}
+  function switchView(name){document.querySelectorAll('#tsw-music-screen [data-mh-view]').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-mh-view')===name)});document.querySelectorAll('#tsw-music-screen [data-mh-panel]').forEach(function(p){p.classList.toggle('active',p.getAttribute('data-mh-panel')===name)});document.getElementById('mh-page-title').textContent=name==='library'?'Your Library':name.charAt(0).toUpperCase()+name.slice(1);if(name==='library')renderLibrary()}
+  function play(){playing=true;frame.contentWindow.postMessage(JSON.stringify({event:'command',func:'playVideo',args:[]}), '*');document.getElementById('mh-play').textContent='Ⅱ'}
+  function pause(){playing=false;frame.contentWindow.postMessage(JSON.stringify({event:'command',func:'pauseVideo',args:[]}), '*');document.getElementById('mh-play').textContent='▶'}
+  function openMusic(){if(window.TSWCreateAppTab)window.TSWCreateAppTab('Music','tsw-music-screen','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>','music');getUser().then(syncProfile)}
+  function closeMusic(){if(window.TSWCloseActiveAppTab)window.TSWCloseActiveAppTab('music');else screen.hidden=true}
   document.addEventListener('click',function(e){
-    var button=e.target.closest('#sb-music-btn');
-    if(button){e.preventDefault();openMusic();}
-    if(e.target.closest('#tsw-music-close')) closeMusic();
+    var b=e.target.closest('#sb-music-btn');if(b){e.preventDefault();openMusic();return}
+    if(e.target.closest('#tsw-music-close')){closeMusic();return}
+    var nav=e.target.closest('#tsw-music-screen [data-mh-view]');if(nav){switchView(nav.getAttribute('data-mh-view'));return}
+    if(e.target.closest('#tsw-music-screen [data-mh-play]')){current='lofi';document.getElementById('mh-now-title').textContent='Lofi Girl Radio';document.getElementById('mh-now-sub').textContent='24/7 live stream';play();renderLike();return}
+    var action=e.target.closest('#tsw-music-screen [data-mh-action]');if(action){runGated(action.getAttribute('data-mh-action'));return}
+    if(e.target.closest('#mh-profile-btn')){if(signedIn()){var p=document.getElementById('profbtn');if(p)p.click()}else showGate('profile');return}
+    if(e.target.closest('#mh-gate-cancel')){hideGate();return}
+    if(e.target.closest('#mh-gate-signin')){hideGate();var p=document.getElementById('profbtn');if(p)p.click();return}
+    if(e.target.closest('#mh-play')){if(playing)pause();else play();return}
+    if(e.target.closest('#mh-gate'))return;
   });
+  document.getElementById('mh-search-input').addEventListener('input',function(){var q=this.value.trim().toLowerCase(),box=document.getElementById('mh-search-results');box.innerHTML=(!q||'lofi girl radio lofi live stream'.includes(q))?'<button class="mh-card" type="button" data-mh-play="lofi"><span class="mh-art live">♫</span><span class="mh-card-title">Lofi Girl Radio</span><span class="mh-card-sub">Free 24/7 live stream</span></button>':'<div class="mh-empty">No matching music found.</div>'});
+  document.addEventListener('visibilitychange',function(){if(document.hidden)return;if(!screen.hidden)getUser().then(function(){syncProfile();renderLike();renderLibrary()})});
+  document.addEventListener('click',function(e){if(e.target.closest('#profbtn'))setTimeout(function(){getUser().then(function(){syncProfile();if(signedIn()){hideGate();if(gateAction){var a=gateAction;gateAction=null;runGated(a)}}})},700)});
+  document.getElementById('mh-search-results').innerHTML='<button class="mh-card" type="button" data-mh-play="lofi"><span class="mh-art live">♫</span><span class="mh-card-title">Lofi Girl Radio</span><span class="mh-card-sub">Free 24/7 live stream</span></button>';
+  getUser().then(function(){syncProfile();renderLibrary();renderLike()});
   screen.hidden=true;
 })();
 </script>
