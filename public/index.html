@@ -3982,6 +3982,12 @@ html.reduced-motion .cl-bulb,html.reduced-motion .cl-shift,html.reduced-motion .
 
   <!-- Bottom Navigation Menu Items -->
   <nav class="sb-menu" aria-label="Side Navigation Menu">
+    <!-- Music -->
+    <button class="sb-menu-item" id="sb-music-btn" title="Music" type="button">
+      <span class="sb-menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>
+      <span class="sb-label">Music</span>
+    </button>
+
     <!-- AI -->
     <button class="sb-menu-item" id="ai-coming-soon-btn" title="AI" type="button">
       <span class="sb-menu-icon">✦</span>
@@ -5873,10 +5879,7 @@ html.reduced-motion .cl-bulb,html.reduced-motion .cl-shift,html.reduced-motion .
 <section id="tsw-music-screen" hidden aria-label="Music player">
   <header class="music-head">
     <div class="music-brand"><span class="music-brand-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span>TSW Music</span></div>
-    <div class="music-head-actions">
-      
-      
-    </div>
+    <div class="music-head-actions"><button type="button" id="tsw-music-close" aria-label="Close Music" title="Close">&times;</button></div>
   </header>
   <div class="music-stage">
     <div class="music-card">
@@ -8980,19 +8983,6 @@ document.addEventListener('keydown', function (ev) {
       tabsListEl.appendChild(item);
     });
 
-    // Keep Music in the same tab list as Home and proxy tabs until it is opened.
-    if (!tabs.some(function(t){ return t.isApp && t.appKey === 'music'; })) {
-      var musicLauncher = document.createElement('div');
-      musicLauncher.className = 'sb-tab';
-      musicLauncher.id = 'sb-music-btn';
-      musicLauncher.setAttribute('role', 'button');
-      musicLauncher.setAttribute('tabindex', '0');
-      musicLauncher.setAttribute('title', 'Open Music tab');
-      musicLauncher.innerHTML = '<div class="sb-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div><span class="sb-tab-label">Music</span>';
-      var homeTabItem = tabsListEl.querySelector('[data-tab-id="tab_home"]');
-      if (homeTabItem && homeTabItem.nextSibling) tabsListEl.insertBefore(musicLauncher, homeTabItem.nextSibling);
-      else tabsListEl.appendChild(musicLauncher);
-    }
   }
 
   function switchTab(id) {
@@ -12515,13 +12505,17 @@ document.addEventListener('keydown', function (ev) {
   if(!screen||!frame)return;
   var openBtn=document.createElement('button');
   function openMusic(){
-    if(window.TSWCreateAppTab) window.TSWCreateAppTab('Music','tsw-music-screen','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>','music');
     screen.hidden=false;
     screen.classList.remove('mini');
   }
+  function closeMusic(){
+    screen.hidden=true;
+    try { frame.contentWindow.postMessage(JSON.stringify({event:'command',func:'pauseVideo',args:[]}), '*'); } catch(e) {}
+  }
   document.addEventListener('click',function(e){
-    var tab=e.target.closest('#sb-music-btn');
-    if(tab){e.preventDefault();openMusic();}
+    var button=e.target.closest('#sb-music-btn');
+    if(button){e.preventDefault();openMusic();}
+    if(e.target.closest('#tsw-music-close')) closeMusic();
   });
   screen.hidden=true;
 })();
