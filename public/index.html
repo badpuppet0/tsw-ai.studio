@@ -12722,7 +12722,8 @@ document.addEventListener('keydown', function (ev) {
     var b=e.target.closest('#sb-music-btn');if(b){e.preventDefault();openMusic();return}
     if(e.target.closest('#tsw-music-close')){closeMusic();return}
     var back=e.target.closest('#mh-back-playlists');if(back){switchView('browse');return}
-    var playlist=e.target.closest('#tsw-music-screen [data-mh-playlist]');if(playlist){document.getElementById('mh-playlist-title').textContent=playlist.getAttribute('data-mh-playlist');switchView('playlist');return}\n    var nav=e.target.closest('#tsw-music-screen [data-mh-view]');if(nav){switchView(nav.getAttribute('data-mh-view'));return}
+    var playlist=e.target.closest('#tsw-music-screen [data-mh-playlist]');if(playlist){document.getElementById('mh-playlist-title').textContent=playlist.getAttribute('data-mh-playlist');switchView('playlist');return}
+    var nav=e.target.closest('#tsw-music-screen [data-mh-view]');if(nav){switchView(nav.getAttribute('data-mh-view'));return}
     
     var action=e.target.closest('#tsw-music-screen [data-mh-action]');if(action){runGated(action.getAttribute('data-mh-action'));return}
     if(e.target.closest('#mh-profile-btn')){if(signedIn()){var p=document.getElementById('profbtn');if(p)p.click()}else showGate('profile');return}
