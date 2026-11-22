@@ -5866,7 +5866,7 @@ html.reduced-motion .cl-bulb,html.reduced-motion .cl-shift,html.reduced-motion .
 .web-tab-view.tsw-app-view>#settings.tsw-app-screen>.panel{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;border:0!important;border-radius:0!important;box-shadow:none!important}
 .web-tab-view.tsw-app-view>#tsw-music-screen.tsw-app-screen{background:#070a12!important}
 .web-tab-view.tsw-app-view>#ai-coming-soon-panel.tsw-app-screen{background:var(--void,#080d0b)!important}
-.web-tab-view.tsw-app-view>#game-tab.tsw-app-screen{padding:0!important;background:var(--void,#080d0b)!important;backdrop-filter:none!important}
+.web-tab-view.tsw-app-view>#game-tab.tsw-app-screen{padding:0!important;background:var(--void,#080d0b)!important;backdrop-filter:none!important;align-items:stretch!important;justify-content:stretch!important}
 .web-tab-view.tsw-app-view>#game-tab.tsw-app-screen .game-bar,
 .web-tab-view.tsw-app-view>#game-tab.tsw-app-screen #game-view{width:100%!important;max-width:none!important}
 .web-tab-view.tsw-app-view>#game-tab.tsw-app-screen #game-view{height:auto!important;flex:1!important;min-height:0!important;border-radius:0!important}
@@ -7567,7 +7567,7 @@ function openEmbeddedGame(title, url, domain) {
     var el = $(id); if (el) el.hidden = true;
   });
   tswCurrentGame = { title: title || 'Minecraft', url: url || 'https://nite.games/embed/minecraft', domain: domain || 'Nite.Games' };
-  if (typeof window.TSWMarkActiveTabAsGame === 'function') window.TSWMarkActiveTabAsGame(tswCurrentGame.title, tswCurrentGame.url);
+  if (window.TSWCreateAppTab) window.TSWCreateAppTab('Games','game-tab','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 10v5M4.5 12.5h5"/><circle cx="16" cy="11.5" r=".7"/><circle cx="18.5" cy="13.5" r=".7"/></svg>','games');
   var frame = $('nite-game-frame');
   if (frame) {
     frame.title = tswCurrentGame.title;
@@ -7581,8 +7581,8 @@ function openCork7() {
 }
 
 function exitCork7() {
+  if (typeof window.TSWCloseActiveAppTab === 'function') window.TSWCloseActiveAppTab('games');
   $('game-tab').hidden = true;
-  if (typeof window.TSWExitGameTab === 'function') window.TSWExitGameTab();
   var frame = $('nite-game-frame');
   if (frame) frame.src = 'about:blank';
   if (document.fullscreenElement && document.exitFullscreen) {
@@ -9093,6 +9093,12 @@ document.addEventListener('keydown', function (ev) {
 
   function closeTab(id) {
     if (tabs.length === 1) {
+      if (tabs[0].isApp && tabs[0].appElement) {
+        tabs[0].appElement.hidden = true;
+        tabs[0].appElement.classList.remove('tsw-app-screen');
+        tabs[0].appElement.style.display = '';
+        if (tabs[0].appParent) tabs[0].appParent.insertBefore(tabs[0].appElement, tabs[0].appNext && tabs[0].appNext.parentNode === tabs[0].appParent ? tabs[0].appNext : null);
+      }
       tabs[0].isHome = true;
       tabs[0].isGame = false;
       tabs[0].title = 'Home';
@@ -9175,6 +9181,14 @@ document.addEventListener('keydown', function (ev) {
     try { new URL(url); } catch (_) { homeMsg.textContent = 'That doesn\u2019t look like a valid address.'; return; }
 
     var curTab = getActiveTab();
+    if (curTab.isApp && curTab.appElement) {
+      curTab.appElement.hidden = true;
+      curTab.appElement.classList.remove('tsw-app-screen');
+      curTab.appElement.style.display = '';
+      if (curTab.appParent) curTab.appParent.insertBefore(curTab.appElement, curTab.appNext && curTab.appNext.parentNode === curTab.appParent ? curTab.appNext : null);
+      if (curTab.viewEl && curTab.viewEl.parentNode) curTab.viewEl.parentNode.removeChild(curTab.viewEl);
+      curTab.viewEl = null; curTab.isApp = false; curTab.appKey = null; curTab.iconSvg = null; curTab.appElement = null;
+    }
     curTab.url = url;
     curTab.title = getCleanTitle(url);
     curTab.isHome = false;
