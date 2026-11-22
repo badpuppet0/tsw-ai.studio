@@ -4654,15 +4654,15 @@ html,body{background:#060b09!important}
       <p class="hint" style="margin-top:1.2rem">Settings and shortcuts sync to your signed-in account automatically.</p>
 
       <h3 class="settings-group" id="settings-data">Data &amp; privacy</h3>
-      <p class="hint">Download a backup of your TSW preferences, or restore one from a backup file. This backup includes settings only — not chat messages, account details, or server data.</p>
+      <p class="hint">Download a backup of your settings, profiles, and Music playlists, or restore them from a backup file. Passwords, login tokens, and chat messages are never included.</p>
       <div class="settings-data-actions">
-        <button type="button" class="plain" id="settings-export-btn">Download settings backup</button>
-        <button type="button" class="plain" id="settings-import-btn">Import settings backup</button>
+        <button type="button" class="plain" id="settings-export-btn">Download TSW backup</button>
+        <button type="button" class="plain" id="settings-import-btn">Import TSW backup</button>
         <input type="file" id="settings-import-file" accept="application/json,.json" hidden>
         <button type="button" class="plain" id="settings-privacy-btn">Privacy policy</button>
       </div>
       <p class="settings-data-status" id="settings-data-status" role="status" aria-live="polite"></p>
-      <p class="settings-data-note">Your settings backup stays on the device you download it to. Importing replaces the current TSW preferences on this device and syncs supported preferences to your account when signed in.</p>
+      <p class="settings-data-note">Your backup stays on the device you download it to. Profile restoration requires signing in to the same TSW account.</p>
 
       <div class="row">
         <button type="button" class="plain" id="set-reset">Reset to defaults</button>
@@ -7835,76 +7835,54 @@ var STATUS_NOTICE = '';
   var settingsTabClose = $('settings-tab-close');
   if (settingsTabClose) settingsTabClose.addEventListener('click', function(){ if(window.TSWCloseActiveAppTab) window.TSWCloseActiveAppTab('settings'); else ov.hidden=true; });
 
-  // Export/import a validated preferences-only backup. No messages or account records are included.
+  // Export/import a complete local TSW backup. Authentication credentials and server messages are never included.
   var exportBtn = $('settings-export-btn');
   var importBtn = $('settings-import-btn');
   var importFile = $('settings-import-file');
   var dataStatus = $('settings-data-status');
   var privacyBtn = $('settings-privacy-btn');
   if (privacyBtn) privacyBtn.addEventListener('click', function () { $('privacy-policy').hidden = false; });
+  function musicBackupData() {
+    var out = {};
+    try { for (var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('tsw.music.library.')===0){try{out[k.slice('tsw.music.library.'.length)]=JSON.parse(localStorage.getItem(k)||'{}')}catch(e){}}} } catch(e) {}
+    return out;
+  }
+  function downloadBackup(backup) {
+    var blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download='tsw-full-backup.json';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1200);
+  }
   if (exportBtn) exportBtn.addEventListener('click', function () {
-    try {
-      var backup = { type: 'tsw-settings-backup', version: 1, exportedAt: new Date().toISOString(), settings: cfg };
-      var blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = url; a.download = 'tsw-settings-backup.json';
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-      if (dataStatus) dataStatus.textContent = 'Settings backup downloaded.';
-    } catch (err) {
-      if (dataStatus) dataStatus.textContent = 'Could not create the backup on this device.';
-    }
+    if(dataStatus)dataStatus.textContent='Preparing your backup…';
+    var profileApi=window.TSWProfiles;
+    var profilePromise=profileApi&&profileApi.getUser&&profileApi.getUser()&&profileApi.api?profileApi.api('/api/profiles').then(function(r){return r&&r.profiles||[]}).catch(function(){return []}):Promise.resolve([]);
+    profilePromise.then(function(profiles){
+      var active=profileApi&&profileApi.getActive?profileApi.getActive():null;
+      var backup={type:'tsw-full-backup',version:2,exportedAt:new Date().toISOString(),settings:cfg,profiles:profiles.map(function(p){return {name:p.name,avatar:p.avatar,themeColor:p.themeColor,bio:p.bio,shortcuts:p.shortcuts,preferences:p.preferences,isDefault:!!p.isDefault}}),activeProfileName:active&&active.name||'',musicLibraries:musicBackupData()};
+      downloadBackup(backup);if(dataStatus)dataStatus.textContent='Your TSW backup was downloaded, including profiles and Music playlists.';
+    }).catch(function(){if(dataStatus)dataStatus.textContent='Could not prepare the backup. Try again.'});
   });
   if (importBtn && importFile) importBtn.addEventListener('click', function () { importFile.click(); });
   if (importFile) importFile.addEventListener('change', function () {
-    var file = importFile.files && importFile.files[0];
-    importFile.value = '';
-    if (!file) return;
-    if (file.size > 100000) { if (dataStatus) dataStatus.textContent = 'That backup file is too large.'; return; }
-    var reader = new FileReader();
-    reader.onload = function () {
-      try {
-        var backup = JSON.parse(String(reader.result || ''));
-        if (!backup || backup.type !== 'tsw-settings-backup' || backup.version !== 1 || !backup.settings || typeof backup.settings !== 'object') {
-          throw new Error('This is not a supported TSW settings backup.');
-        }
-        var incoming = backup.settings;
-        var allowed = {
-          engine:['ddg','google','bing','brave','startpage'],
-          bg:['mesh','stars','solid','video','ice','aurora'],
-          season:['auto','snow','bats','off'],
-          accent:['blue','green','pink','orange','violet'],
-          panel:['standard','glass'], clock:['12','24','off'], theme:['dark','light'],
-          icon:['default','doc','globe','blank'], disguise:['none','schoology','classroom','docs']
-        };
-        Object.keys(D).forEach(function (key) {
-          if (!Object.prototype.hasOwnProperty.call(incoming, key)) return;
-          var value = incoming[key];
-          if (allowed[key] && allowed[key].indexOf(value) < 0) return;
-          if (typeof D[key] === 'boolean' && typeof value !== 'boolean') return;
-          if (typeof D[key] === 'number' && (typeof value !== 'number' || !isFinite(value))) return;
-          if (typeof D[key] === 'string' && typeof value !== 'string') return;
-          if (key === 'title') value = value.slice(0, 40);
-          if (key === 'solid' && !/^#[0-9a-fA-F]{6}$/.test(value)) return;
-          if (key === 'panicUrl' && value) {
-            try { var parsed = new URL(value); if (!/^https?:$/.test(parsed.protocol)) return; value = parsed.href; }
-            catch (e) { return; }
-          }
-          if (key === 'panicKey' && value && !/^(F[1-9]|F1[0-2]|Escape|[A-Za-z0-9])$/.test(value)) return;
-          if (key === 'rainVol') value = Math.max(5, Math.min(100, Math.round(value)));
-          if (key === 'vbright') value = Math.max(20, Math.min(100, Math.round(value)));
-          cfg[key] = value;
-          store.set('tsw.' + key, value);
-        });
-        fill(); apply(); syncCloudSettings(); window.TSWVideo.reset();
-        if (dataStatus) dataStatus.textContent = 'Settings backup imported.';
-      } catch (err) {
-        if (dataStatus) dataStatus.textContent = err.message || 'Could not import that backup.';
+    var file=importFile.files&&importFile.files[0];importFile.value='';if(!file)return;
+    if(file.size>20000000){if(dataStatus)dataStatus.textContent='That backup is too large (20 MB maximum).';return}
+    var reader=new FileReader();
+    reader.onload=function(){try{
+      var backup=JSON.parse(String(reader.result||''));
+      if(!backup||!['tsw-settings-backup','tsw-full-backup'].includes(backup.type)||![1,2].includes(backup.version)||!backup.settings||typeof backup.settings!=='object')throw new Error('This is not a supported TSW backup.');
+      var incoming=backup.settings,allowed={engine:['ddg','google','bing','brave','startpage'],bg:['mesh','stars','solid','video','ice','aurora'],season:['auto','snow','bats','off'],accent:['blue','green','pink','orange','violet'],panel:['standard','glass'],clock:['12','24','off'],theme:['dark','light'],icon:['default','doc','globe','blank'],disguise:['none','schoology','classroom','docs']};
+      Object.keys(D).forEach(function(key){if(!Object.prototype.hasOwnProperty.call(incoming,key))return;var value=incoming[key];if(allowed[key]&&allowed[key].indexOf(value)<0)return;if(typeof D[key]==='boolean'&&typeof value!=='boolean')return;if(typeof D[key]==='number'&&(typeof value!=='number'||!isFinite(value)))return;if(typeof D[key]==='string'&&typeof value!=='string')return;if(key==='title')value=value.slice(0,40);if(key==='solid'&&!/^#[0-9a-fA-F]{6}$/.test(value))return;if(key==='panicUrl'&&value){try{var parsed=new URL(value);if(!/^https?:$/.test(parsed.protocol))return;value=parsed.href}catch(e){return}}if(key==='panicKey'&&value&&!/^(F[1-9]|F1[0-2]|Escape|[A-Za-z0-9])$/.test(value))return;if(key==='rainVol')value=Math.max(5,Math.min(100,Math.round(value)));if(key==='vbright')value=Math.max(20,Math.min(100,Math.round(value)));cfg[key]=value;store.set('tsw.'+key,value)});
+      fill();apply();syncCloudSettings();window.TSWVideo.reset();
+      var jobs=[];
+      if(Array.isArray(backup.profiles)&&backup.profiles.length&&window.TSWProfiles&&window.TSWProfiles.api&&window.TSWProfiles.getUser&&window.TSWProfiles.getUser()){
+        jobs.push(window.TSWProfiles.api('/api/profiles').then(function(res){var existing=res.profiles||[];return backup.profiles.reduce(function(chain,p){return chain.then(function(){if(!p||!p.name)return;var match=existing.find(function(x){return x.name===p.name})||(!existing.length?null:null),body={name:String(p.name).slice(0,40),avatar:p.avatar||'astronaut',themeColor:p.themeColor||'#5aa2ff',bio:String(p.bio||'').slice(0,500),shortcuts:p.shortcuts,preferences:p.preferences,isDefault:!!p.isDefault};if(match)return window.TSWProfiles.api('/api/profiles/'+match.id,'PUT',body);return window.TSWProfiles.api('/api/profiles','POST',body).then(function(r){if(r.profile)existing.push(r.profile)})})},Promise.resolve())}).then(function(){return window.TSWProfiles.load()})});
       }
-    };
-    reader.onerror = function () { if (dataStatus) dataStatus.textContent = 'Could not read that file.'; };
-    reader.readAsText(file);
+      if(backup.musicLibraries&&typeof backup.musicLibraries==='object'){
+        var account=window.TSWProfiles&&window.TSWProfiles.getUser?window.TSWProfiles.getUser():null,target=account&&account.id?String(account.id):'guest',incomingMusic=backup.musicLibraries[target]||backup.musicLibraries.guest||Object.keys(backup.musicLibraries).map(function(k){return backup.musicLibraries[k]}).find(Boolean);
+        if(incomingMusic&&Array.isArray(incomingMusic.playlists)&&Array.isArray(incomingMusic.likes)){try{localStorage.setItem('tsw.music.library.'+target,JSON.stringify({likes:incomingMusic.likes,playlists:incomingMusic.playlists}))}catch(e){}}
+      }
+      Promise.all(jobs).then(function(){if(dataStatus)dataStatus.textContent='TSW backup imported. Settings, available profiles, and Music playlists have been restored.';if(window.TSWProfiles&&window.TSWProfiles.load)window.TSWProfiles.load()}).catch(function(){if(dataStatus)dataStatus.textContent='Settings and Music were imported, but some profile data could not be restored. Sign in and try again.'});
+    }catch(err){if(dataStatus)dataStatus.textContent=err.message||'Could not import that backup.'}};
+    reader.onerror=function(){if(dataStatus)dataStatus.textContent='Could not read that file.'};reader.readAsText(file);
   });
 
   /* install as an app (only offered by browsers that support it) */
