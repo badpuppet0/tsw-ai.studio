@@ -6038,6 +6038,22 @@ html,body{background:#060b09!important}
 #tsw-music-screen .mh-playlist-edit{padding:9px 16px;border:1px solid rgba(255,255,255,.25);border-radius:22px;background:transparent;color:#fff;font:inherit;font-size:12px;font-weight:650;cursor:pointer}
 #tsw-music-screen .mh-playlist-edit:hover{background:rgba(255,255,255,.1)}
 #tsw-music-screen .mh-playlist-cover:hover{filter:brightness(1.1)}
+#tsw-music-screen .mh-playlist-hero{background:linear-gradient(180deg,#304a3b 0%,#20372b 58%,#14251c 100%);margin:0 -18px 20px;padding:34px 28px 28px;border-radius:0;min-height:260px}
+#tsw-music-screen [data-mh-panel="playlist"] .mh-section{margin:-18px -18px 36px}
+#tsw-music-screen [data-mh-panel="playlist"] .mh-empty{margin:0 18px;max-width:none;border:0;border-radius:0;background:transparent;text-align:left;padding:18px 8px;color:#a8b9ac}
+#tsw-music-screen .mh-edit-overlay{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.68);display:grid;place-items:center;padding:18px}
+#tsw-music-screen .mh-edit-overlay[hidden]{display:none}
+#tsw-music-screen .mh-edit-dialog{width:min(420px,100%);padding:22px;border-radius:14px;background:#17251d;border:1px solid rgba(220,245,228,.16);color:#f3faf5;box-shadow:0 18px 55px #0008}
+#tsw-music-screen .mh-edit-dialog h3{margin:0 0 18px;font-size:19px}
+#tsw-music-screen .mh-edit-dialog label{display:block;margin:12px 0 7px;color:#c4d4c9;font-size:12px;font-weight:650}
+#tsw-music-screen .mh-edit-dialog input[type="text"]{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid #3b5545;border-radius:8px;background:#0c1710;color:#fff;font:inherit}
+#tsw-music-screen .mh-edit-dialog input[type="file"]{width:100%;font-size:12px;color:#c4d4c9}
+#tsw-music-screen .mh-edit-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:22px}
+#tsw-music-screen .mh-edit-actions button{padding:9px 15px;border-radius:22px;border:1px solid #49604f;background:transparent;color:#fff;cursor:pointer}
+#tsw-music-screen #mh-edit-save{background:#1ed760;border-color:#1ed760;color:#092012;font-weight:700}
+#tsw-music-screen .mh-playlist-hero{color:#fff}
+@media(max-width:560px){#tsw-music-screen .mh-playlist-hero{margin:0 -12px 18px;padding:20px 14px;border-radius:0}}
+
 @media(max-width:560px){#tsw-music-screen .mh-playlist-hero{align-items:flex-start;flex-direction:column;padding:16px;gap:16px}#tsw-music-screen .mh-playlist-cover{width:150px;height:150px}#tsw-music-screen .mh-playlist-info h2{font-size:34px}}
 @media(max-width:760px){#tsw-music-screen .mh-side{width:190px;flex-basis:190px;padding:16px 9px}#tsw-music-screen .mh-scroll{padding:18px 14px 112px}#tsw-music-screen .mh-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}}
 @media(max-width:560px){#tsw-music-screen .mh-side{width:58px;flex-basis:58px;padding:13px 6px}#tsw-music-screen .mh-brand{font-size:0;padding:0 0 20px;text-align:center}#tsw-music-screen .mh-brand:after{content:'♫';font-size:20px}#tsw-music-screen .mh-nav button{justify-content:center;padding:0;font-size:0}#tsw-music-screen .mh-nav button svg{width:20px;height:20px}#tsw-music-screen .mh-playlists,#tsw-music-screen .mh-create,#tsw-music-screen .mh-profile span:not(.mh-avatar){display:none}#tsw-music-screen .mh-profile{justify-content:center;padding:6px}#tsw-music-screen .mh-top{padding:0 12px}#tsw-music-screen .mh-scroll{padding:15px 12px 108px}#tsw-music-screen .mh-player{padding:8px}#tsw-music-screen .mh-player-hint{display:none}#tsw-music-screen .mh-now{min-width:0;max-width:105px}#tsw-music-screen .mh-controls{gap:1px}}
@@ -6086,6 +6102,16 @@ html,body{background:#060b09!important}
             </div>
           </div>
           <input type="file" id="mh-playlist-cover-file" accept="image/*" hidden>
+          <div class="mh-edit-overlay" id="mh-playlist-edit-modal" hidden>
+            <div class="mh-edit-dialog" role="dialog" aria-modal="true" aria-labelledby="mh-edit-title">
+              <h3 id="mh-edit-title">Edit playlist details</h3>
+              <label for="mh-edit-name">Playlist name</label>
+              <input id="mh-edit-name" type="text" maxlength="60" autocomplete="off">
+              <label class="mh-edit-cover-label" for="mh-edit-cover">Cover image</label>
+              <input id="mh-edit-cover" type="file" accept="image/*">
+              <div class="mh-edit-actions"><button type="button" id="mh-edit-cancel">Cancel</button><button type="button" id="mh-edit-save">Save</button></div>
+            </div>
+          </div>
           <p class="mh-playlist-status" id="mh-playlist-status" aria-live="polite"></p>
           <div class="mh-empty">No songs in this playlist yet.</div>
         </div>
@@ -6094,7 +6120,7 @@ html,body{background:#060b09!important}
         <div class="mh-section"><input class="mh-search" id="mh-search-input" placeholder="Search music and stations" autocomplete="off"><div id="mh-search-results" style="margin-top:22px"></div></div>
       </section>
       <section class="mh-view" data-mh-panel="library">
-        <div class="mh-section"><h2 class="mh-section-title">Your Library</h2><div id="mh-library-content" class="mh-empty">Sign in to save songs and create playlists.</div></div>
+        <div class="mh-section"><h2 class="mh-section-title">Your Library</h2><div id="mh-library-content" class="mh-empty">Your saved music and playlists will appear here.</div><div class="mh-section" style="margin-top:24px"><h3 class="mh-section-title">Your Playlists</h3><div class="mh-grid" id="mh-library-playlists"></div></div></div>
       </section>
     </div>
     <div class="mh-player">
@@ -12743,7 +12769,7 @@ document.addEventListener('keydown', function (ev) {
   function runGated(action){if(!hasMusicIdentity()){getUser().then(function(){syncProfile();if(hasMusicIdentity()){performGated(action)}else{showGate(action)}});return}performGated(action)}
   function performGated(action){if(action==='like'){var d=data(),i=d.likes.indexOf(current);if(i<0)d.likes.push(current);else d.likes.splice(i,1);save(d);renderLibrary();renderLike()}else if(action==='playlist'){createPlaylist()}else if(action==='add'){addToPlaylist()}else if(action==='playlist-add'){switchView('search');var box=document.getElementById('mh-search-results');if(box)box.innerHTML='<div class="mh-empty">There are no songs available to add yet.</div>'}}
   function renderLike(){}
-  function renderLibrary(){var box=document.getElementById('mh-library-content');if(box)box.textContent=signedIn()?'Your library is empty. Music will be available here soon.':'Sign in to save music and create playlists.';renderPlaylists()}
+  function renderLibrary(){var box=document.getElementById('mh-library-content'),grid=document.getElementById('mh-library-playlists');if(box)box.textContent=signedIn()?'Your saved music and playlists appear here.':'Sign in to save music and create playlists.';renderPlaylists();if(grid){var d=data();grid.innerHTML=d.playlists.map(function(p,i){var art=p.cover?'<img src="'+escapeHtml(p.cover)+'" alt="">':'<span class="mh-art-mark">♫</span>';return '<button type="button" class="mh-card" data-mh-playlist-index="'+i+'"><span class="mh-art">'+art+'</span><span class="mh-card-title">'+escapeHtml(p.name||('Playlist '+(i+1)))+'</span><span class="mh-card-sub">Empty playlist</span></button>'}).join('');grid.parentElement.hidden=d.playlists.length===0}}
   function escapeHtml(v){return String(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
   function renderPlaylists(){var d=data(),grid=document.getElementById('mh-playlist-grid'),empty=document.getElementById('mh-no-playlists');if(!grid)return;grid.innerHTML=d.playlists.map(function(p,i){var art=p.cover?'<img src="'+escapeHtml(p.cover)+'" alt="">':'<span class="mh-art-mark">♫</span>';return '<button type="button" class="mh-card" data-mh-playlist-index="'+i+'"><span class="mh-art">'+art+'</span><span class="mh-card-title">'+escapeHtml(p.name||('Playlist '+(i+1)))+'</span><span class="mh-card-sub">Empty playlist</span></button>'}).join('');if(empty)empty.hidden=d.playlists.length>0}
   function openPlaylist(index){var d=data(),p=d.playlists[index];if(!p)return;currentPlaylistIndex=index;document.getElementById('mh-playlist-title').textContent=p.name||('Playlist '+(index+1));document.getElementById('mh-playlist-owner').textContent='Your playlist · '+(p.items||[]).length+' songs';var cover=document.getElementById('mh-playlist-cover');cover.innerHTML=p.cover?'<img src="'+escapeHtml(p.cover)+'" alt="Playlist cover">':'<span>♫</span>';switchView('playlist')}
@@ -12761,8 +12787,9 @@ document.addEventListener('keydown', function (ev) {
     var playlist=e.target.closest('#tsw-music-screen [data-mh-playlist-index]');if(playlist){openPlaylist(Number(playlist.getAttribute('data-mh-playlist-index')));return}
     var nav=e.target.closest('#tsw-music-screen [data-mh-view]');if(nav){switchView(nav.getAttribute('data-mh-view'));return}
     
-    if(e.target.closest('#mh-playlist-cover')){document.getElementById('mh-playlist-cover-file').click();return}
-    if(e.target.closest('#mh-playlist-edit')){var d=data(),p=d.playlists[currentPlaylistIndex];if(!p)return;var next=prompt('Playlist name',p.name||'Playlist');if(next&&next.trim()){p.name=next.trim().slice(0,60);save(d);openPlaylist(currentPlaylistIndex);renderPlaylists()}return}
+    if(e.target.closest('#mh-playlist-cover')||e.target.closest('#mh-playlist-edit')){var ed=document.getElementById('mh-playlist-edit-modal'),edName=document.getElementById('mh-edit-name'),edFile=document.getElementById('mh-edit-cover'),pd=data().playlists[currentPlaylistIndex];if(!pd)return;edName.value=pd.name||'';edFile.value='';ed.hidden=false;edName.focus();return}
+    if(e.target.closest('#mh-edit-cancel')){document.getElementById('mh-playlist-edit-modal').hidden=true;return}
+    if(e.target.closest('#mh-edit-save')){var edName=document.getElementById('mh-edit-name'),edFile=document.getElementById('mh-edit-cover'),pdData=data(),pd=pdData.playlists[currentPlaylistIndex];if(!pd)return;var newName=edName.value.trim();if(!newName){edName.focus();return}pd.name=newName.slice(0,60);var chosen=edFile.files&&edFile.files[0];function finishEdit(){save(pdData);document.getElementById('mh-playlist-edit-modal').hidden=true;openPlaylist(currentPlaylistIndex);renderPlaylists();renderLibrary()}if(chosen){if(!chosen.type.match(/^image\\//)){return}if(chosen.size>3*1024*1024){alert('Choose an image smaller than 3 MB.');return}var fr=new FileReader();fr.onload=function(){pd.cover=fr.result;finishEdit()};fr.readAsDataURL(chosen)}else finishEdit();return}
     if(e.target.closest('#mh-playlist-share')){var title=document.getElementById('mh-playlist-title').textContent||'Playlist',shareUrl=location.href.split('#')[0]+'#music-playlist='+encodeURIComponent(title),status=document.getElementById('mh-playlist-status');if(navigator.share){navigator.share({title:title+' - TSW Music',url:shareUrl}).then(function(){if(status)status.textContent=''}).catch(function(){})}else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(shareUrl).then(function(){if(status)status.textContent='Playlist link copied'}).catch(function(){if(status)status.textContent='Unable to copy link on this browser'})}else if(status){status.textContent='Sharing is not supported in this browser'}return}
     if(e.target.closest('#mh-playlist-add')){runGated('playlist-add');return}
     var action=e.target.closest('#tsw-music-screen [data-mh-action]');if(action){runGated(action.getAttribute('data-mh-action'));return}
@@ -12772,7 +12799,7 @@ document.addEventListener('keydown', function (ev) {
     if(e.target.closest('#mh-play')){if(playing)pause();else play();return}
     if(e.target.closest('#mh-gate'))return;
   });
-  document.getElementById('mh-playlist-cover-file').addEventListener('change',function(e){var file=e.target.files&&e.target.files[0];if(!file)return;if(!file.type.match(/^image\\//)){e.target.value='';return}if(file.size>3*1024*1024){var st=document.getElementById('mh-playlist-status');if(st)st.textContent='Choose an image smaller than 3 MB.';e.target.value='';return}var reader=new FileReader();reader.onload=function(){var d=data(),p=d.playlists[currentPlaylistIndex];if(!p)return;p.cover=reader.result;save(d);openPlaylist(currentPlaylistIndex);renderPlaylists();var st=document.getElementById('mh-playlist-status');if(st)st.textContent='Cover updated'};reader.readAsDataURL(file);e.target.value=''});
+
   document.getElementById('mh-search-input').addEventListener('input',function(){var box=document.getElementById('mh-search-results');box.innerHTML='<div class="mh-empty">Music search will be available when playlists are added.</div>'});
   document.addEventListener('visibilitychange',function(){if(document.hidden)return;if(!screen.hidden)getUser().then(function(){syncProfile();renderLike();renderLibrary()})});
   document.addEventListener('click',function(e){if(e.target.closest('#profbtn'))setTimeout(function(){getUser().then(function(){syncProfile();if(signedIn()&&gateAction){var a=gateAction;hideGate();if(a!=='profile')runGated(a)}else if(signedIn()){hideGate()}})},700)});
