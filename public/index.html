@@ -6040,7 +6040,18 @@ html,body{background:#060b09!important}
     <header class="mh-top"><strong class="mh-top-title" id="mh-page-title">Browse</strong><span class="mh-top-spacer"></span><button type="button" class="mh-close" id="tsw-music-close" aria-label="Close Music">×</button></header>
     <div class="mh-scroll">
       <section class="mh-view active" data-mh-panel="browse">
-        <div class="mh-section"><h2 class="mh-section-title">Music</h2><div class="mh-empty">Music is being set up. Playlists will appear here soon.</div></div>
+        <div class="mh-section">
+          <h2 class="mh-section-title">Music</h2>
+          <div style="max-width:760px;margin:0 auto">
+            <div style="margin:0 0 12px">
+              <div style="font-size:16px;font-weight:650;color:#eaf5ed">rap test</div>
+              <div style="font-size:12px;color:#91a899">TIDAL playlist</div>
+            </div>
+            <div style="position:relative;padding-bottom:100%;height:0;overflow:hidden;max-width:100%;border-radius:12px;background:#0b1510">
+              <iframe title="rap test - TIDAL playlist" src="https://embed.tidal.com/playlists/edf3b7d2-cb42-41d7-93c0-afa2a395521b?layout=gridify" allow="encrypted-media" allowfullscreen frameborder="0" style="position:absolute;top:0;left:0;width:100%;height:1px;min-height:100%;border:0"></iframe>
+            </div>
+          </div>
+        </div>
       </section>
       <section class="mh-view" data-mh-panel="search">
         <div class="mh-section"><input class="mh-search" id="mh-search-input" placeholder="Search music and stations" autocomplete="off"><div id="mh-search-results" style="margin-top:22px"></div></div>
@@ -6055,7 +6066,6 @@ html,body{background:#060b09!important}
       <span class="mh-player-hint" id="mh-player-hint">Coming soon</span>
     </div>
   </main>
-  <div class="mh-frame-wrap" aria-hidden="true"><iframe id="tsw-music-embed" title="Music player" src="about:blank"></iframe></div>
   <div class="mh-gate" id="mh-gate" hidden><div class="mh-gate-card"><h2>Make Music yours</h2><p>Create a free TSW profile or sign in to like songs, save music, and make playlists. Your music library is tied to your profile.</p><button type="button" id="mh-gate-signin">Create profile / Sign in</button><button type="button" class="mh-gate-cancel" id="mh-gate-cancel">Not now</button><div class="mh-auth-note">Uses your existing TSW account.</div></div></div>
 </section>
 
