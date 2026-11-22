@@ -3308,6 +3308,30 @@ body.sidebar-collapsed .sb-menu .status svg {
   display: none;
 }
 
+/* Sidebar spacing and typography refresh */
+#sidebar{padding:.8rem .65rem!important}
+#sidebar .sb-top-bar{margin-bottom:.9rem!important;padding-bottom:.65rem!important}
+#sidebar .sb-tabs{gap:.42rem!important}
+#sidebar .sb-tab{min-height:40px!important;padding:.58rem .78rem!important;gap:.65rem!important;border-radius:10px!important;font-size:.9rem!important;letter-spacing:.005em}
+#sidebar .sb-tab-icon{width:1.35rem!important;height:1.35rem!important}
+#sidebar .sb-tab-icon svg{width:1.2rem!important;height:1.2rem!important}
+#sidebar .sb-folder-section{margin:.55rem 0 .7rem!important}
+#sidebar .sb-folder-header{min-height:40px!important;padding:.58rem .78rem!important;gap:.7rem!important;font-size:.88rem!important;background:rgba(255,255,255,.035)!important;border-color:rgba(255,255,255,.09)!important;color:#d5e3da!important}
+#sidebar .sb-folder-icon{color:#a9c5b2!important}
+#sidebar .sb-folder-badge{background:rgba(255,255,255,.07)!important;border-color:rgba(255,255,255,.1)!important;color:#aebeb3!important}
+#sidebar .sb-folder-content{gap:.42rem!important;margin-top:.5rem!important;padding-left:.8rem!important}
+#sidebar .sb-subtab{min-height:36px!important;padding:.5rem .7rem!important;gap:.6rem!important;font-size:.84rem!important;border-radius:9px!important}
+#sidebar .sb-menu{gap:.34rem!important;padding-top:.7rem!important}
+#sidebar .sb-menu-item{min-height:40px!important;padding:.58rem .78rem!important;gap:.68rem!important;border-radius:10px!important;font-size:.9rem!important}
+#sidebar .sb-menu-icon{width:1.35rem!important;height:1.35rem!important}
+#sidebar .sb-menu-icon svg{width:1.15rem!important;height:1.15rem!important}
+#sidebar .sb-tab:hover,#sidebar .sb-menu-item:hover{background:rgba(255,255,255,.065)!important}
+#sidebar .sb-tab.active{background:#c9f5dc!important;color:#123c29!important}
+#sidebar .sb-menu-item.active{background:rgba(201,245,220,.11)!important;color:#c9f5dc!important}
+body.sidebar-collapsed #sidebar{padding:.65rem .4rem!important}
+body.sidebar-collapsed #sidebar .sb-tab{width:2.55rem!important;height:2.55rem!important;min-height:2.55rem!important;padding:0!important}
+body.sidebar-collapsed #sidebar .sb-menu-item{width:2.55rem!important;height:2.55rem!important;min-height:2.55rem!important;padding:0!important}
+@media(max-width:640px){#sidebar .sb-tab,#sidebar .sb-menu-item{min-height:42px!important}}
 /* What's New Pulsing Dot on Update Log (positioned over top corner, never pushes layout) */
 .sb-menu-item {
   position: relative;
@@ -4742,6 +4766,18 @@ html,body{background:#060b09!important}
       <button data-tab="credits">Credits</button>
     </div>
     <div class="pbody" id="tab-updates">
+      <h3 class="older">TSW v2 1.6.13<span>Music &amp; Navigation Refresh</span></h3>
+      <p class="date">November 2026</p>
+      <ul>
+        <li><b>Music player refresh</b>: Added a compact player that stays available while browsing other TSW pages, with a full player inside Music.</li>
+        <li><b>New playback controls</b>: Shuffle, previous, play/pause, next, and repeat controls with updated styling.</li>
+        <li><b>Genre stations</b>: Browse music by genre from the Music homepage.</li>
+        <li><b>Playlist improvements</b>: Public and private playlists, shared playlist saving, and clearer add-to-playlist actions.</li>
+        <li><b>Search improvements</b>: Better loading feedback, retry options, and protection against outdated search results.</li>
+        <li><b>Backup improvements</b>: TSW data exports now include profile and Music data where available.</li>
+        <li><b>Navigation polish</b>: More consistent spacing and clearer sidebar controls.</li>
+      </ul>
+
       <h3 class="older">TSW v2 1.6.11<span>Stability &amp; Security Update</span></h3>
       <p class="date">November 2026</p>
       <ul>
@@ -10869,12 +10905,12 @@ document.addEventListener('keydown', function (ev) {
   var logSeen = store.get('tsw_log_seen', '');
   var dot = $('log-whats-new-dot');
   if (dot) {
-    dot.style.display = (logSeen === '1.6.11') ? 'none' : 'block';
+    dot.style.display = (logSeen === '1.6.13') ? 'none' : 'block';
   }
   var logBtn = $('logbtn');
   if (logBtn) {
     logBtn.addEventListener('click', function () {
-      store.set('tsw_log_seen', '1.6.11');
+      store.set('tsw_log_seen', '1.6.13');
       if (dot) dot.style.display = 'none';
     });
   }
