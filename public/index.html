@@ -12714,16 +12714,18 @@ document.addEventListener('keydown', function (ev) {
   var screen=document.getElementById('tsw-music-screen'),frame=document.getElementById('tsw-music-embed');
   if(!screen)return;
   var tokenKey='tsw.auth_token',user=null,playing=false,current='',gateAction=null;
-  function token(){try{return localStorage.getItem(tokenKey)||''}catch(e){return ''}}
-  function getUser(){return fetch('/api/auth/me',{headers:token()?{'Authorization':'Bearer '+token()}: {},cache:'no-store'}).then(function(r){return r.json()}).then(function(d){user=d&&d.authenticated?d.user:null;return user}).catch(function(){user=null;return null})}
+  function token(){try{if(window.TSWProfiles&&window.TSWProfiles.getToken)return window.TSWProfiles.getToken()||'';var raw=localStorage.getItem(tokenKey)||'';try{return JSON.parse(raw)||''}catch(e){return raw}}catch(e){return ''}}
+  function getUser(){if(window.TSWProfiles&&window.TSWProfiles.checkAuth){return window.TSWProfiles.checkAuth().then(function(){user=window.TSWProfiles.getUser?window.TSWProfiles.getUser():null;return user}).catch(function(){user=null;return null})}return fetch('/api/auth/me',{headers:token()?{'Authorization':'Bearer '+token()}: {},cache:'no-store'}).then(function(r){return r.json()}).then(function(d){user=d&&d.authenticated?d.user:null;return user}).catch(function(){user=null;return null})}
   function key(){return 'tsw.music.library.'+(user&&user.id?user.id:'guest')}
   function data(){try{return JSON.parse(localStorage.getItem(key())||'{"likes":[],"playlists":[]}')}catch(e){return {likes:[],playlists:[]}}}
   function save(d){try{localStorage.setItem(key(),JSON.stringify(d))}catch(e){}}
-  function signedIn(){return !!(user&&user.id)}
-  function syncProfile(){var name=document.getElementById('mh-profile-name'),av=document.getElementById('mh-avatar');if(name)name.textContent=signedIn()?user.username:'Create profile';if(av)av.textContent=signedIn()?(user.username||'?').charAt(0).toUpperCase():'?';}
+  function signedIn(){var account=window.TSWProfiles&&window.TSWProfiles.getUser?window.TSWProfiles.getUser():user;return !!(account&&account.id)}
+  function hasProfile(){return !!(window.TSWProfiles&&window.TSWProfiles.getActive&&window.TSWProfiles.getActive())}
+  function hasMusicIdentity(){return signedIn()||hasProfile()}
+  function syncProfile(){var name=document.getElementById('mh-profile-name'),av=document.getElementById('mh-avatar'),account=window.TSWProfiles&&window.TSWProfiles.getUser?window.TSWProfiles.getUser():user,profile=window.TSWProfiles&&window.TSWProfiles.getActive?window.TSWProfiles.getActive():null,display=account&&account.username?account.username:(profile&&(profile.name||profile.displayName))||'Create profile';if(name)name.textContent=display;if(av)av.textContent=display.charAt(0).toUpperCase()||'?';}
   function showGate(action){gateAction=action||null;document.getElementById('mh-gate').hidden=false}
   function hideGate(){document.getElementById('mh-gate').hidden=true;gateAction=null}
-  function runGated(action){if(!signedIn()){getUser().then(function(){syncProfile();if(signedIn()){performGated(action)}else{showGate(action)}});return}performGated(action)}
+  function runGated(action){if(!hasMusicIdentity()){getUser().then(function(){syncProfile();if(hasMusicIdentity()){performGated(action)}else{showGate(action)}});return}performGated(action)}
   function performGated(action){if(action==='like'){var d=data(),i=d.likes.indexOf(current);if(i<0)d.likes.push(current);else d.likes.splice(i,1);save(d);renderLibrary();renderLike()}else if(action==='playlist'){createPlaylist()}else if(action==='add'){addToPlaylist()}else if(action==='playlist-add'){switchView('search');var box=document.getElementById('mh-search-results');if(box)box.innerHTML='<div class="mh-empty">There are no songs available to add yet.</div>'}}
   function renderLike(){}
   function renderLibrary(){var box=document.getElementById('mh-library-content');if(box)box.textContent=signedIn()?'Your library is empty. Music will be available here soon.':'Sign in to save music and create playlists.'}
@@ -12745,9 +12747,9 @@ document.addEventListener('keydown', function (ev) {
     if(e.target.closest('#mh-playlist-share')){var title=document.getElementById('mh-playlist-title').textContent||'Playlist',shareUrl=location.href.split('#')[0]+'#music-playlist='+encodeURIComponent(title),status=document.getElementById('mh-playlist-status');if(navigator.share){navigator.share({title:title+' - TSW Music',url:shareUrl}).then(function(){if(status)status.textContent=''}).catch(function(){})}else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(shareUrl).then(function(){if(status)status.textContent='Playlist link copied'}).catch(function(){if(status)status.textContent='Unable to copy link on this browser'})}else if(status){status.textContent='Sharing is not supported in this browser'}return}
     if(e.target.closest('#mh-playlist-add')){runGated('playlist-add');return}
     var action=e.target.closest('#tsw-music-screen [data-mh-action]');if(action){runGated(action.getAttribute('data-mh-action'));return}
-    if(e.target.closest('#mh-profile-btn')){if(signedIn()){var p=document.getElementById('profbtn');if(p)p.click()}else{getUser().then(function(){syncProfile();if(signedIn()){var p=document.getElementById('profbtn');if(p)p.click()}else showGate('profile')})}return}
+    if(e.target.closest('#mh-profile-btn')){getUser().then(function(){syncProfile();if(hasMusicIdentity()){var p=document.getElementById('profbtn');if(p)p.click()}else showGate('profile')});return}
     if(e.target.closest('#mh-gate-cancel')){hideGate();return}
-    if(e.target.closest('#mh-gate-signin')){hideGate();var p=document.getElementById('profbtn');if(p)p.click();return}
+    if(e.target.closest('#mh-gate-signin')){hideGate();getUser().then(function(){syncProfile();var p=document.getElementById('profbtn');if(p)p.click()});return}
     if(e.target.closest('#mh-play')){if(playing)pause();else play();return}
     if(e.target.closest('#mh-gate'))return;
   });
