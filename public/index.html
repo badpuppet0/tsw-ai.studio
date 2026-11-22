@@ -3949,12 +3949,6 @@ html.reduced-motion .cl-bulb,html.reduced-motion .cl-shift,html.reduced-motion .
     </div>
   </div>
 
-  <div class="sb-tabs-section" id="sb-app-launchers" aria-label="Built-in pages">
-    <div class="sb-tab" id="sb-music-btn" role="button" tabindex="0" title="Open Music tab">
-      <div class="sb-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
-      <span class="sb-tab-label">Music</span>
-    </div>
-  </div>
 
   <!-- Testing Area Folder (Tester & Owner Role Only) -->
   <div class="sb-folder-section" id="sb-testing-folder" style="display:none !important;">
@@ -8981,6 +8975,18 @@ document.addEventListener('keydown', function (ev) {
 
       tabsListEl.appendChild(item);
     });
+
+    // Keep Music in the same tab list as Home and proxy tabs until it is opened.
+    if (!tabs.some(function(t){ return t.isApp && t.appKey === 'music'; })) {
+      var musicLauncher = document.createElement('div');
+      musicLauncher.className = 'sb-tab';
+      musicLauncher.id = 'sb-music-btn';
+      musicLauncher.setAttribute('role', 'button');
+      musicLauncher.setAttribute('tabindex', '0');
+      musicLauncher.setAttribute('title', 'Open Music tab');
+      musicLauncher.innerHTML = '<div class="sb-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div><span class="sb-tab-label">Music</span>';
+      tabsListEl.appendChild(musicLauncher);
+    }
   }
 
   function switchTab(id) {
