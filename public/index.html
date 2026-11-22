@@ -12975,6 +12975,20 @@ document.addEventListener('keydown', function (ev) {
     if(e.target.closest('#mh-playlist-add')){switchView('search');var si=document.getElementById('mh-search-input');if(si)si.focus();return}
     var action=e.target.closest('#tsw-music-screen [data-mh-action]');if(action){runGated(action.getAttribute('data-mh-action'));return}
     if(e.target.closest('#mh-profile-btn')){return}
+    if(e.target.closest('#mh-gate-cancel')){hideGate();return}
+    if(e.target.closest('#mh-gate-signin')){hideGate();getUser().then(function(){syncProfile();var p=document.getElementById('profbtn');if(p)p.click()});return}
+    var playBtn=e.target.closest('#tsw-music-screen [data-mh-play-track]');if(playBtn){var id=playBtn.getAttribute('data-mh-play-track'),list=playBtn.closest('.mh-track-list');currentQueue=list?Array.from(list.querySelectorAll('[data-mh-play-track]')).map(function(b){return trackCache[b.getAttribute('data-mh-play-track')] }).filter(Boolean):[];queueIndex=currentQueue.findIndex(function(t){return String(t.id)===String(id)});if(trackCache[id])playTrack(trackCache[id]);return}
+    var addBtn=e.target.closest('#tsw-music-screen [data-mh-add-track]');if(addBtn){var addId=addBtn.getAttribute('data-mh-add-track');if(trackCache[addId])runGated('add-track:'+addId);return}
+    var pick=e.target.closest('#mh-add-playlist-options [data-mh-pick-playlist]');if(pick&&trackToAdd){var targetIndex=Number(pick.getAttribute('data-mh-pick-playlist'));currentTrack=trackToAdd;current=String(trackToAdd.id);document.getElementById('mh-add-playlist-modal').hidden=true;addCurrentToPlaylist(targetIndex);trackToAdd=null;return}
+    if(e.target.closest('#mh-add-cancel')){document.getElementById('mh-add-playlist-modal').hidden=true;trackToAdd=null;return}
+    var savedBtn=e.target.closest('#tsw-music-screen [data-mh-play-saved]');if(savedBtn){var savedId=savedBtn.getAttribute('data-mh-play-saved'),d0=data(),pl=d0.playlists[currentPlaylistIndex],items=(pl&&pl.items)||[];currentQueue=items.map(function(x){return typeof x==='object'?{id:String(x.id),title:x.title||'Saved track',user:{name:x.artist||'Audius'},artwork:{'480x480':x.artwork||''}}:trackCache[String(x)]||{id:String(x),title:'Saved track',user:{name:'Audius'}}});queueIndex=currentQueue.findIndex(function(t){return String(t.id)===String(savedId)});var saved=currentQueue[queueIndex];if(saved){if(!saved.title||saved.title==='Saved track'){fetchAudius('/tracks/'+encodeURIComponent(savedId)+'?app_name=tsw_music').then(function(rows){var t=Array.isArray(rows)?rows[0]:rows;if(t){currentQueue[queueIndex]=t;playTrack(t)}}).catch(function(){playTrack(saved)})}else playTrack(saved)}return}
+    var removeBtn=e.target.closest('#tsw-music-screen [data-mh-remove-track]');if(removeBtn){var rd=data(),rp=rd.playlists[currentPlaylistIndex];if(rp){rp.items=(rp.items||[]).filter(function(x){return String(typeof x==='object'?x.id:x)!==removeBtn.getAttribute('data-mh-remove-track')});save(rd);openPlaylist(currentPlaylistIndex);renderLibrary()}return}
+    if(e.target.closest('#mh-player-prev')){if(audio.currentTime>3){audio.currentTime=0;return}if(currentQueue.length){if(queueIndex>0)queueIndex--;else if(repeatMode===1)queueIndex=currentQueue.length-1;else return;playTrack(currentQueue[queueIndex])}return}
+    if(e.target.closest('#mh-player-next')){if(currentQueue.length){if(shuffleOn&&currentQueue.length>1){var nextIndex=queueIndex;while(nextIndex===queueIndex)nextIndex=Math.floor(Math.random()*currentQueue.length);queueIndex=nextIndex;playTrack(currentQueue[queueIndex])}else if(queueIndex<currentQueue.length-1){queueIndex++;playTrack(currentQueue[queueIndex])}else if(repeatMode===1){queueIndex=0;playTrack(currentQueue[queueIndex])}}return}
+    if(e.target.closest('#mh-player-shuffle')){shuffleOn=!shuffleOn;updatePlayButtons();return}
+    if(e.target.closest('#mh-player-repeat')){repeatMode=(repeatMode+1)%3;updatePlayButtons();return}
+    if(e.target.closest('#mh-player-toggle')){if(playing)pause();else play();return}
+    if(e.target.closest('#mh-play')){if(playing)pause();else play();return}
     if(e.target.closest('#mh-gate'))return;
   });
 
