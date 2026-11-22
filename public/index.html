@@ -3947,11 +3947,6 @@ html.reduced-motion .cl-bulb,html.reduced-motion .cl-shift,html.reduced-motion .
       <span class="sb-tab-label">Home</span>
       <button class="sb-tab-close" id="sb-tab-home-close" title="Reset Search" aria-label="Reset Search">&times;</button>
     </div>
-    <div class="sb-tab" id="sb-music-btn" role="button" tabindex="0" title="Music">
-      <div class="sb-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
-      <span class="sb-tab-label">Music</span>
-      <button class="sb-tab-close" id="sb-music-tab-close" type="button" title="Close Music" aria-label="Close Music">&times;</button>
-    </div>
   </div>
 
   <!-- Testing Area Folder (Tester & Owner Role Only) -->
@@ -4494,7 +4489,7 @@ html.reduced-motion .cl-bulb,html.reduced-motion .cl-shift,html.reduced-motion .
 
 <div class="overlay" id="settings" hidden>
   <div class="panel settings-fullscreen-panel" role="dialog" aria-modal="true" aria-labelledby="set-h">
-    <div class="phead"><h2 id="set-h">Settings</h2><button data-close aria-label="Close">&times;</button></div>
+    <div class="phead"><h2 id="set-h">Settings</h2><button id="settings-tab-close" type="button" aria-label="Close tab">&times;</button></div>
     <div class="settings-layout"><nav class="settings-nav" aria-label="Settings sections"><button type="button" class="active" data-settings-target="settings-browsing">Browsing</button><button type="button" data-settings-target="settings-wallpaper">Wallpaper</button><button type="button" data-settings-target="settings-appearance">Appearance</button><button type="button" data-settings-target="settings-panic">Panic button</button><button type="button" data-settings-target="settings-motion">Motion &amp; sound</button><button type="button" data-settings-target="settings-interface">Interface</button><button type="button" data-settings-target="settings-data">Data &amp; privacy</button></nav><div class="pbody f settings-content">
       <h3 class="settings-group" id="settings-browsing">Shortcuts &amp; browsing</h3>
       <label for="set-engine">Search engine</label>
@@ -5856,13 +5851,29 @@ html.reduced-motion .cl-bulb,html.reduced-motion .cl-shift,html.reduced-motion .
 @media(max-width:640px){#tsw-music-screen .music-stage{padding:1rem}#tsw-music-screen .music-card{grid-template-columns:1fr;gap:1rem;max-width:420px}#tsw-music-screen .music-art{max-height:38vh}#tsw-music-screen .music-info{text-align:center}#tsw-music-screen.mini{right:.65rem;bottom:.65rem;width:min(300px,calc(100vw - 1.3rem));height:174px}}
 @media(prefers-reduced-motion:reduce){#tsw-music-screen *{transition:none!important}}
 </style>
+<style id="tsw-app-tabs">
+/* Built-in pages live inside the same workspace as proxy tabs. */
+.web-tab-view.tsw-app-view{overflow:auto;background:var(--void,#080d0b)}
+.web-tab-view.tsw-app-view>.tsw-app-screen{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;z-index:1!important;display:flex!important;overflow:auto!important}
+.web-tab-view.tsw-app-view>#settings.tsw-app-screen{background:var(--void,#080d0b)!important;backdrop-filter:none!important}
+.web-tab-view.tsw-app-view>#settings.tsw-app-screen>.panel{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+.web-tab-view.tsw-app-view>#tsw-music-screen.tsw-app-screen{background:#070a12!important}
+.web-tab-view.tsw-app-view>#ai-coming-soon-panel.tsw-app-screen{background:var(--void,#080d0b)!important}
+.web-tab-view.tsw-app-view>#game-tab.tsw-app-screen{padding:0!important;background:var(--void,#080d0b)!important;backdrop-filter:none!important}
+.web-tab-view.tsw-app-view>#game-tab.tsw-app-screen .game-bar,
+.web-tab-view.tsw-app-view>#game-tab.tsw-app-screen #game-view{width:100%!important;max-width:none!important}
+.web-tab-view.tsw-app-view>#game-tab.tsw-app-screen #game-view{height:auto!important;flex:1!important;min-height:0!important;border-radius:0!important}
+.web-tab-view.tsw-app-view>#game-tab.tsw-app-screen .game-bar{border-radius:0!important}
+.web-tab-view.tsw-app-view>.tsw-app-screen[hidden]{display:none!important}
+#tsw-music-screen .music-head-actions{display:none!important}
+</style>
 
 
 <section id="tsw-music-screen" hidden aria-label="Music player">
   <header class="music-head">
     <div class="music-brand"><span class="music-brand-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span>TSW Music</span></div>
     <div class="music-head-actions">
-      <button id="tsw-music-minimize" type="button" title="Minimize player" aria-label="Minimize player">—</button>
+      
       
     </div>
   </header>
@@ -7442,7 +7453,15 @@ var STATUS_NOTICE = '';
     Object.keys(D).forEach(function (k) { store.del('tsw.' + k); cfg[k] = D[k]; });
     fill(); apply(); window.TSWVideo.reset();
   });
-  $('cog').addEventListener('click', function () { fill(); ov.hidden = false; $('set-engine').focus(); });
+  $('cog').addEventListener('click', function () {
+    fill();
+    if (window.TSWCreateAppTab) window.TSWCreateAppTab('Settings','settings','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.7 1.7-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1 1.55V22h-2.4v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.88.34l-.06.06-1.7-1.7.06-.06a1.7 1.7 0 0 0 .34-1.88 1.7 1.7 0 0 0-1.55-1H5v-2.4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.88l-.06-.06 1.7-1.7.06.06a1.7 1.7 0 0 0 1.88.34 1.7 1.7 0 0 0 1-1.55V5h2.4v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.7 1.7-.06.06a1.7 1.7 0 0 0-.34 1.88 1.7 1.7 0 0 0 1.55 1H21v2.4h-.09a1.7 1.7 0 0 0-1.51 1.72z"/></svg>','settings');
+    ov.hidden = false;
+    $('set-engine').focus();
+  });
+
+  var settingsTabClose = $('settings-tab-close');
+  if (settingsTabClose) settingsTabClose.addEventListener('click', function(){ if(window.TSWCloseActiveAppTab) window.TSWCloseActiveAppTab('settings'); else ov.hidden=true; });
 
   // Export/import a validated preferences-only backup. No messages or account records are included.
   var exportBtn = $('settings-export-btn');
@@ -8342,6 +8361,7 @@ document.addEventListener('keydown', function (ev) {
     }, {passive:true});
   }
   function closeAiComingSoon() {
+    if (window.TSWCloseActiveAppTab) window.TSWCloseActiveAppTab('ai');
     if (aiComingSoonPanel) { aiComingSoonPanel.hidden = true; aiComingSoonPanel.style.display = 'none'; }
   }
   function openTswAi() {
@@ -8351,6 +8371,7 @@ document.addEventListener('keydown', function (ev) {
         ? ('What’s on your mind, ' + (user.displayName || user.username || 'there') + '?')
         : 'What’s on your mind?';
     }
+    if (window.TSWCreateAppTab) window.TSWCreateAppTab('AI','ai-coming-soon-panel','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2z"/><path d="m19 16 .8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16z"/></svg>','ai');
     aiComingSoonPanel.hidden = false;
     aiComingSoonPanel.style.display = 'block';
     setTimeout(function(){ if (aiPrompt) aiPrompt.focus(); }, 50);
@@ -8936,7 +8957,9 @@ document.addEventListener('keydown', function (ev) {
       item.setAttribute('title', t.title);
 
       var iconSvg;
-      if (t.isGame) {
+      if (t.iconSvg) {
+        iconSvg = t.iconSvg;
+      } else if (t.isGame) {
         iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 10v5M4.5 12.5h5"/><circle cx="16" cy="11.5" r=".7"/><circle cx="18.5" cy="13.5" r=".7"/></svg>';
       } else if (t.isHome) {
         iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>';
@@ -8999,12 +9022,46 @@ document.addEventListener('keydown', function (ev) {
         if (v.id === 'view-' + id) animateOnSwitch(v);
       });
       animateOnSwitch(browse);
-      current = tab.url;
-      addr.value = tab.url;
+      current = tab.url || '';
+      addr.value = tab.isApp ? '' : tab.url;
+      addr.placeholder = tab.isApp ? tab.title : 'Search or enter address';
       setNav();
+      if (tab.isApp) {
+        bBack.disabled = true; bFwd.disabled = true; bRel.disabled = true;
+        document.getElementById('btn-newtab').disabled = false;
+      }
       hideDiag();
     }
   }
+
+  function createAppTab(title, elementId, iconSvg, key) {
+    var existing = tabs.find(function(t){ return t.isApp && t.appKey === key; });
+    if (existing) { switchTab(existing.id); return existing.id; }
+    var element = document.getElementById(elementId);
+    if (!element) return null;
+    var id = 'app_' + key;
+    var viewEl = document.createElement('div');
+    viewEl.className = 'web-tab-view tsw-app-view';
+    viewEl.id = 'view-' + id;
+    viewEl.style.cssText = 'position:relative;width:100%;height:100%;display:block;overflow:hidden;';
+    var parent = element.parentNode;
+    var next = element.nextSibling;
+    element.classList.add('tsw-app-screen');
+    element.hidden = false;
+    element.style.display = 'flex';
+    viewEl.appendChild(element);
+    view.appendChild(viewEl);
+    var appTab = {id:id,title:title,url:'',isHome:false,isGame:false,isApp:true,appKey:key,iconSvg:iconSvg,viewEl:viewEl,appElement:element,appParent:parent,appNext:next};
+    tabs.push(appTab);
+    renderTabsList();
+    switchTab(id);
+    return id;
+  }
+  window.TSWCreateAppTab = createAppTab;
+  window.TSWCloseActiveAppTab = function(key) {
+    var tab = getActiveTab();
+    if (tab && tab.isApp && (!key || tab.appKey === key)) closeTab(tab.id);
+  };
 
   function createNewTab(initialUrl) {
     var id = 'tab_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
@@ -9045,6 +9102,16 @@ document.addEventListener('keydown', function (ev) {
     var idx = tabs.findIndex(function (t) { return t.id === id; });
     if (idx < 0) return;
     var tab = tabs[idx];
+    if (tab.isApp && tab.appElement) {
+      if (tab.appKey === 'music') {
+        var musicFrame = document.getElementById('tsw-music-embed');
+        try { if (musicFrame) musicFrame.contentWindow.postMessage(JSON.stringify({event:'command',func:'pauseVideo',args:[]}), '*'); } catch(e) {}
+      }
+      tab.appElement.hidden = true;
+      tab.appElement.classList.remove('tsw-app-screen');
+      tab.appElement.style.display = '';
+      if (tab.appParent) tab.appParent.insertBefore(tab.appElement, tab.appNext && tab.appNext.parentNode === tab.appParent ? tab.appNext : null);
+    }
     if (tab.viewEl && tab.viewEl.parentNode) {
       tab.viewEl.parentNode.removeChild(tab.viewEl);
       tab.viewEl = null;
@@ -12406,42 +12473,19 @@ document.addEventListener('keydown', function (ev) {
 <script id="tsw-music-player">
 (function(){
   var screen=document.getElementById('tsw-music-screen');
-  var openBtn=document.getElementById('sb-music-btn');
-  var miniBtn=document.getElementById('tsw-music-minimize');
-  var closeBtn=document.getElementById('sb-music-tab-close');
   var frame=document.getElementById('tsw-music-embed');
-  if(!screen||!openBtn||!frame)return;
-  function pauseMusic(){
-    try{frame.contentWindow.postMessage(JSON.stringify({event:'command',func:'pauseVideo',args:[]}),'*');}catch(e){}
-  }
+  if(!screen||!frame)return;
+  var openBtn=document.createElement('button');
   function openMusic(){
+    if(window.TSWCreateAppTab) window.TSWCreateAppTab('Music','tsw-music-screen','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>','music');
     screen.hidden=false;
-    openBtn.classList.add('active');
-    screen.classList.remove('mini');
-    miniBtn.textContent='—';
-    miniBtn.title='Minimize player';
-    miniBtn.setAttribute('aria-label','Minimize player');
-  }
-  function minimizeMusic(){
-    screen.classList.add('mini');
-    miniBtn.textContent='□';
-    miniBtn.title='Expand player';
-    miniBtn.setAttribute('aria-label','Expand player');
-  }
-  function closeMusic(){
-    pauseMusic();
-    screen.hidden=true;
     screen.classList.remove('mini');
   }
-  openBtn.addEventListener('click',openMusic);
-  openBtn.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();openMusic();}});
-  if(closeBtn)closeBtn.addEventListener('click',function(e){e.stopPropagation();closeMusic();openBtn.classList.remove('active');});
-  miniBtn.addEventListener('click',function(){
-    if(screen.classList.contains('mini'))openMusic();else minimizeMusic();
+  document.addEventListener('click',function(e){
+    var tab=e.target.closest('#sb-music-btn');
+    if(tab){e.preventDefault();openMusic();}
   });
-  screen.addEventListener('dblclick',function(e){
-    if(screen.classList.contains('mini')&&!e.target.closest('button'))openMusic();
-  });
+  screen.hidden=true;
 })();
 </script>
 </body>
