@@ -5997,7 +5997,7 @@ html,body{background:#060b09!important}
 #tsw-music-screen .mh-search{width:min(540px,100%);padding:12px 15px;border:1px solid rgba(220,245,228,.14);border-radius:24px;background:#0e1b13;color:#f4fff6;font:inherit;outline:none}
 #tsw-music-screen .mh-search:focus{border-color:#9adbb9}
 #tsw-music-screen .mh-empty{padding:35px 20px;border:1px dashed rgba(220,245,228,.15);border-radius:14px;color:#a8b9ac;text-align:center;max-width:560px}
-#tsw-music-screen .mh-player{position:absolute;left:0;right:0;bottom:0;min-height:60px;display:flex;align-items:center;gap:11px;padding:6px 16px;background:#08130d;border-top:1px solid rgba(220,245,228,.12);z-index:3}
+#tsw-music-screen .mh-player{position:absolute;left:0;right:0;bottom:0;height:48px;min-height:48px;display:flex;align-items:center;gap:9px;padding:4px 12px;background:#08130d;border-top:1px solid rgba(220,245,228,.12);z-index:3}
 #tsw-music-screen .mh-now-art{width:38px;height:38px;border-radius:7px;background:#183324;display:grid;place-items:center;flex:none}
 #tsw-music-screen .mh-now-art svg{width:22px;height:22px;color:#baf6d8}
 #tsw-music-screen .mh-now{min-width:130px;max-width:220px}
@@ -6040,12 +6040,10 @@ html,body{background:#060b09!important}
     <header class="mh-top"><strong class="mh-top-title" id="mh-page-title">Browse</strong><span class="mh-top-spacer"></span><button type="button" class="mh-close" id="tsw-music-close" aria-label="Close Music">×</button></header>
     <div class="mh-scroll">
       <section class="mh-view active" data-mh-panel="browse">
-        <div class="mh-section"><h2 class="mh-section-title">✧ Made for you</h2><div class="mh-grid">
-          <button type="button" class="mh-card" data-mh-play="lofi"><span class="mh-art live"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span class="mh-card-title">Lofi Girl Radio</span><span class="mh-card-sub">A free 24/7 lofi stream</span></button>
+        <div class="mh-section"><h2 class="mh-section-title">Playlists</h2><div class="mh-grid">
+          <button type="button" class="mh-card" data-mh-play="rap-test"><span class="mh-art live">♫</span><span class="mh-card-title">rap test</span><span class="mh-card-sub">Playlist · TIDAL</span></button>
         </div></div>
-        <div class="mh-section"><h2 class="mh-section-title">Recently played</h2><div class="mh-grid">
-          <button type="button" class="mh-card" data-mh-play="lofi"><span class="mh-art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span class="mh-card-title">Lofi Girl</span><span class="mh-card-sub">Live radio</span></button>
-        </div></div>
+        <div class="mh-section" id="mh-featured-playlist"><h2 class="mh-section-title">rap test</h2><div style="width:min(500px,100%);max-width:100%"><iframe src="https://embed.tidal.com/playlists/406948b1-a8d4-493d-9672-90df47580540" width="500" height="275" allow="encrypted-media; fullscreen; clipboard-write https://embed.tidal.com; web-share" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox" style="display:block;width:100%;max-width:500px;height:275px;border:0;border-radius:12px;color-scheme:light dark" title="rap test · TIDAL playlist"></iframe></div></div>
       </section>
       <section class="mh-view" data-mh-panel="search">
         <div class="mh-section"><input class="mh-search" id="mh-search-input" placeholder="Search music and stations" autocomplete="off"><div id="mh-search-results" style="margin-top:22px"></div></div>
@@ -6055,13 +6053,12 @@ html,body{background:#060b09!important}
       </section>
     </div>
     <div class="mh-player">
-      <div class="mh-now-art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
-      <div class="mh-now"><strong id="mh-now-title">Lofi Girl Radio</strong><span id="mh-now-sub">24/7 live stream</span></div>
-      <div class="mh-controls"><button type="button" id="mh-like" data-mh-action="like" title="Like / save">♡</button><button type="button" class="play" id="mh-play" title="Play or pause">▶</button><button type="button" id="mh-add" data-mh-action="playlist" title="Add to playlist">＋</button></div>
-      <span class="mh-player-hint" id="mh-player-hint">Free live radio</span>
+      <div class="mh-now-art">♫</div>
+      <div class="mh-now"><strong id="mh-now-title">rap test</strong><span id="mh-now-sub">Playlist · TIDAL</span></div>
+      <div class="mh-controls"><button type="button" id="mh-like" data-mh-action="like" title="Like / save">♡</button><button type="button" id="mh-add" data-mh-action="playlist" title="Add to playlist">＋</button></div>
+      <span class="mh-player-hint" id="mh-player-hint">TIDAL</span>
     </div>
   </main>
-  <div class="mh-frame-wrap"><iframe id="tsw-music-embed" title="Lofi Girl live radio" src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&controls=1&rel=0&enablejsapi=1" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
   <div class="mh-gate" id="mh-gate" hidden><div class="mh-gate-card"><h2>Make Music yours</h2><p>Create a free TSW profile or sign in to like songs, save music, and make playlists. Your music library is tied to your profile.</p><button type="button" id="mh-gate-signin">Create profile / Sign in</button><button type="button" class="mh-gate-cancel" id="mh-gate-cancel">Not now</button><div class="mh-auth-note">Uses your existing TSW account.</div></div></div>
 </section>
 
@@ -12685,9 +12682,9 @@ document.addEventListener('keydown', function (ev) {
 </script>
 <script id="tsw-music-player">
 (function(){
-  var screen=document.getElementById('tsw-music-screen'),frame=document.getElementById('tsw-music-embed');
-  if(!screen||!frame)return;
-  var tokenKey='tsw.auth_token',user=null,playing=false,current='lofi',gateAction=null;
+  var screen=document.getElementById('tsw-music-screen');
+  if(!screen)return;
+  var tokenKey='tsw.auth_token',user=null,current='rap-test',gateAction=null;
   function token(){try{return localStorage.getItem(tokenKey)||''}catch(e){return ''}}
   function getUser(){return fetch('/api/auth/me',{headers:token()?{'Authorization':'Bearer '+token()}: {},cache:'no-store'}).then(function(r){return r.json()}).then(function(d){user=d&&d.authenticated?d.user:null;return user}).catch(function(){user=null;return null})}
   function key(){return 'tsw.music.library.'+(user&&user.id?user.id:'guest')}
@@ -12699,31 +12696,29 @@ document.addEventListener('keydown', function (ev) {
   function hideGate(){document.getElementById('mh-gate').hidden=true;gateAction=null}
   function runGated(action){if(!signedIn()){showGate(action);return}if(action==='like'){var d=data(),i=d.likes.indexOf(current);if(i<0)d.likes.push(current);else d.likes.splice(i,1);save(d);renderLibrary();renderLike()}else if(action==='playlist'){createPlaylist()}else if(action==='add'){addToPlaylist()}}
   function renderLike(){var b=document.getElementById('mh-like'),liked=signedIn()&&data().likes.indexOf(current)>=0;b.textContent=liked?'♥':'♡';b.style.color=liked?'#baf6d8':''}
-  function renderLibrary(){var box=document.getElementById('mh-library-content');if(!box)return;if(!signedIn()){box.textContent='Sign in to save songs and create playlists.';return}var d=data(),html='';if(d.likes.length){html+='<h3 style="font-size:14px;margin:0 0 12px">Liked music</h3><button class="mh-card" type="button" data-mh-play="lofi"><span class="mh-art live">♫</span><span class="mh-card-title">Lofi Girl Radio</span><span class="mh-card-sub">Liked station</span></button>'}if(d.playlists.length){html+='<h3 style="font-size:14px;margin:22px 0 12px">Playlists</h3>'+d.playlists.map(function(p,i){return '<div style="padding:12px 0;border-bottom:1px solid #203328;color:#eaf5ed">'+escapeHtml(p.name)+' <span style="color:#91a899;font-size:12px">· '+p.items.length+' saved</span></div>'}).join('')}box.innerHTML=html||'Your library is empty. Like a station or create a playlist to get started.'}
+  function renderLibrary(){var box=document.getElementById('mh-library-content');if(!box)return;if(!signedIn()){box.textContent='Sign in to save songs and create playlists.';return}var d=data(),html='';if(d.likes.length){html+='<h3 style="font-size:14px;margin:0 0 12px">Liked playlists</h3><button class="mh-card" type="button" data-mh-play="rap-test"><span class="mh-art live">♫</span><span class="mh-card-title">rap test</span><span class="mh-card-sub">TIDAL playlist</span></button>'}if(d.playlists.length){html+='<h3 style="font-size:14px;margin:22px 0 12px">Playlists</h3>'+d.playlists.map(function(p,i){return '<div style="padding:12px 0;border-bottom:1px solid #203328;color:#eaf5ed">'+escapeHtml(p.name)+' <span style="color:#91a899;font-size:12px">· '+p.items.length+' saved</span></div>'}).join('')}box.innerHTML=html||'Your library is empty. Like a station or create a playlist to get started.'}
   function escapeHtml(v){return String(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
   function createPlaylist(){var name=prompt('Name your playlist');if(!name||!name.trim())return;var d=data();d.playlists.push({name:name.trim().slice(0,50),items:[]});save(d);renderLibrary();switchView('library')}
   function addToPlaylist(){var d=data();if(!d.playlists.length){createPlaylist();return}var names=d.playlists.map(function(p,i){return (i+1)+'. '+p.name}).join('\n');var choice=Number(prompt('Add to which playlist?\n'+names));if(!choice||!d.playlists[choice-1])return;if(d.playlists[choice-1].items.indexOf(current)<0)d.playlists[choice-1].items.push(current);save(d);renderLibrary()}
   function switchView(name){document.querySelectorAll('#tsw-music-screen [data-mh-view]').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-mh-view')===name)});document.querySelectorAll('#tsw-music-screen [data-mh-panel]').forEach(function(p){p.classList.toggle('active',p.getAttribute('data-mh-panel')===name)});document.getElementById('mh-page-title').textContent=name==='library'?'Your Library':name.charAt(0).toUpperCase()+name.slice(1);if(name==='library')renderLibrary()}
-  function play(){playing=true;frame.contentWindow.postMessage(JSON.stringify({event:'command',func:'playVideo',args:[]}), '*');document.getElementById('mh-play').textContent='Ⅱ'}
-  function pause(){playing=false;frame.contentWindow.postMessage(JSON.stringify({event:'command',func:'pauseVideo',args:[]}), '*');document.getElementById('mh-play').textContent='▶'}
+
   function openMusic(){if(window.TSWCreateAppTab)window.TSWCreateAppTab('Music','tsw-music-screen','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>','music');getUser().then(syncProfile)}
   function closeMusic(){if(window.TSWCloseActiveAppTab)window.TSWCloseActiveAppTab('music');else screen.hidden=true}
   document.addEventListener('click',function(e){
     var b=e.target.closest('#sb-music-btn');if(b){e.preventDefault();openMusic();return}
     if(e.target.closest('#tsw-music-close')){closeMusic();return}
     var nav=e.target.closest('#tsw-music-screen [data-mh-view]');if(nav){switchView(nav.getAttribute('data-mh-view'));return}
-    if(e.target.closest('#tsw-music-screen [data-mh-play]')){current='lofi';document.getElementById('mh-now-title').textContent='Lofi Girl Radio';document.getElementById('mh-now-sub').textContent='24/7 live stream';play();renderLike();return}
+    if(e.target.closest('#tsw-music-screen [data-mh-play]')){current='rap-test';document.getElementById('mh-now-title').textContent='rap test';document.getElementById('mh-now-sub').textContent='Playlist · TIDAL';var featured=document.getElementById('mh-featured-playlist');if(featured)featured.scrollIntoView({behavior:'smooth',block:'start'});renderLike();return}
     var action=e.target.closest('#tsw-music-screen [data-mh-action]');if(action){runGated(action.getAttribute('data-mh-action'));return}
     if(e.target.closest('#mh-profile-btn')){if(signedIn()){var p=document.getElementById('profbtn');if(p)p.click()}else showGate('profile');return}
     if(e.target.closest('#mh-gate-cancel')){hideGate();return}
     if(e.target.closest('#mh-gate-signin')){hideGate();var p=document.getElementById('profbtn');if(p)p.click();return}
-    if(e.target.closest('#mh-play')){if(playing)pause();else play();return}
     if(e.target.closest('#mh-gate'))return;
   });
-  document.getElementById('mh-search-input').addEventListener('input',function(){var q=this.value.trim().toLowerCase(),box=document.getElementById('mh-search-results');box.innerHTML=(!q||'lofi girl radio lofi live stream'.includes(q))?'<button class="mh-card" type="button" data-mh-play="lofi"><span class="mh-art live">♫</span><span class="mh-card-title">Lofi Girl Radio</span><span class="mh-card-sub">Free 24/7 live stream</span></button>':'<div class="mh-empty">No matching music found.</div>'});
+  document.getElementById('mh-search-input').addEventListener('input',function(){var q=this.value.trim().toLowerCase(),box=document.getElementById('mh-search-results');box.innerHTML=(!q||'rap test tidal playlist'.includes(q))?'<button class="mh-card" type="button" data-mh-play="rap-test"><span class="mh-art live">♫</span><span class="mh-card-title">rap test</span><span class="mh-card-sub">TIDAL playlist</span></button>':'<div class="mh-empty">No matching music found.</div>'});
   document.addEventListener('visibilitychange',function(){if(document.hidden)return;if(!screen.hidden)getUser().then(function(){syncProfile();renderLike();renderLibrary()})});
   document.addEventListener('click',function(e){if(e.target.closest('#profbtn'))setTimeout(function(){getUser().then(function(){syncProfile();if(signedIn()&&gateAction){var a=gateAction;hideGate();if(a!=='profile')runGated(a)}else if(signedIn()){hideGate()}})},700)});
-  document.getElementById('mh-search-results').innerHTML='<button class="mh-card" type="button" data-mh-play="lofi"><span class="mh-art live">♫</span><span class="mh-card-title">Lofi Girl Radio</span><span class="mh-card-sub">Free 24/7 live stream</span></button>';
+  document.getElementById('mh-search-results').innerHTML='<button class="mh-card" type="button" data-mh-play="rap-test"><span class="mh-art live">♫</span><span class="mh-card-title">rap test</span><span class="mh-card-sub">TIDAL playlist</span></button>';
   getUser().then(function(){syncProfile();renderLibrary();renderLike()});
   screen.hidden=true;
 })();
