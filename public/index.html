@@ -12690,7 +12690,7 @@ document.addEventListener('keydown', function (ev) {
 <script id="tsw-music-player">
 (function(){
   var screen=document.getElementById('tsw-music-screen'),frame=document.getElementById('tsw-music-embed');
-  if(!screen||!frame)return;
+  if(!screen)return;
   var tokenKey='tsw.auth_token',user=null,playing=false,current='',gateAction=null;
   function token(){try{return localStorage.getItem(tokenKey)||''}catch(e){return ''}}
   function getUser(){return fetch('/api/auth/me',{headers:token()?{'Authorization':'Bearer '+token()}: {},cache:'no-store'}).then(function(r){return r.json()}).then(function(d){user=d&&d.authenticated?d.user:null;return user}).catch(function(){user=null;return null})}
