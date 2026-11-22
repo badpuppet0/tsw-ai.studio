@@ -12722,7 +12722,7 @@ document.addEventListener('keydown', function (ev) {
   });
   document.getElementById('mh-search-input').addEventListener('input',function(){var q=this.value.trim().toLowerCase(),box=document.getElementById('mh-search-results');box.innerHTML=(!q||'lofi girl radio lofi live stream'.includes(q))?'<button class="mh-card" type="button" data-mh-play="lofi"><span class="mh-art live">♫</span><span class="mh-card-title">Lofi Girl Radio</span><span class="mh-card-sub">Free 24/7 live stream</span></button>':'<div class="mh-empty">No matching music found.</div>'});
   document.addEventListener('visibilitychange',function(){if(document.hidden)return;if(!screen.hidden)getUser().then(function(){syncProfile();renderLike();renderLibrary()})});
-  document.addEventListener('click',function(e){if(e.target.closest('#profbtn'))setTimeout(function(){getUser().then(function(){syncProfile();if(signedIn()){hideGate();if(gateAction){var a=gateAction;gateAction=null;runGated(a)}}})},700)});
+  document.addEventListener('click',function(e){if(e.target.closest('#profbtn'))setTimeout(function(){getUser().then(function(){syncProfile();if(signedIn()&&gateAction){var a=gateAction;hideGate();if(a!=='profile')runGated(a)}else if(signedIn()){hideGate()}})},700)});
   document.getElementById('mh-search-results').innerHTML='<button class="mh-card" type="button" data-mh-play="lofi"><span class="mh-art live">♫</span><span class="mh-card-title">Lofi Girl Radio</span><span class="mh-card-sub">Free 24/7 live stream</span></button>';
   getUser().then(function(){syncProfile();renderLibrary();renderLike()});
   screen.hidden=true;
