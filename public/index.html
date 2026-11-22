@@ -9094,11 +9094,16 @@ document.addEventListener('keydown', function (ev) {
   function closeTab(id) {
     if (tabs.length === 1) {
       if (tabs[0].isApp && tabs[0].appElement) {
+        if (tabs[0].appKey === 'music') {
+          var onlyMusicFrame = document.getElementById('tsw-music-embed');
+          try { if (onlyMusicFrame) onlyMusicFrame.contentWindow.postMessage(JSON.stringify({event:'command',func:'pauseVideo',args:[]}), '*'); } catch(e) {}
+        }
         tabs[0].appElement.hidden = true;
         tabs[0].appElement.classList.remove('tsw-app-screen');
         tabs[0].appElement.style.display = '';
         if (tabs[0].appParent) tabs[0].appParent.insertBefore(tabs[0].appElement, tabs[0].appNext && tabs[0].appNext.parentNode === tabs[0].appParent ? tabs[0].appNext : null);
       }
+      tabs[0].isApp = false; tabs[0].appKey = null; tabs[0].iconSvg = null; tabs[0].appElement = null;
       tabs[0].isHome = true;
       tabs[0].isGame = false;
       tabs[0].title = 'Home';
