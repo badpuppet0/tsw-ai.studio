@@ -6152,6 +6152,31 @@ html,body{background:#060b09!important}
 #tsw-music-screen .mh-privacy-toggle{display:flex;align-items:center;gap:9px;margin-top:15px;font-size:13px;color:#d8e9dd}
 #tsw-music-screen .mh-privacy-toggle input{accent-color:#baf6d8}
 #tsw-music-screen .mh-playlist-private{font-size:10px;color:#baf6d8;border:1px solid #31513d;border-radius:20px;padding:3px 8px;margin-left:7px}
+/* Persistent compact player: stays available while moving around TSW */
+#mh-global-player{position:fixed!important;left:50%!important;right:auto!important;bottom:16px!important;transform:translateX(-50%)!important;width:min(660px,calc(100vw - 28px))!important;min-height:76px!important;box-sizing:border-box!important;display:none;grid-template-columns:minmax(0,1fr) minmax(180px,240px);grid-template-rows:auto;align-items:center;gap:16px!important;padding:10px 14px!important;border:1px solid #31513d!important;border-radius:15px!important;background:#0c1911!important;box-shadow:0 8px 30px rgba(0,0,0,.32)!important;z-index:100000!important}
+#mh-global-player.is-visible{display:grid!important}
+#mh-global-player .mh-player-track{width:100%;min-width:0;justify-content:flex-start!important;gap:11px!important;text-align:left!important}
+#mh-global-player .mh-now-art{display:grid!important;place-items:center;flex:0 0 48px;width:48px;height:48px;overflow:hidden;border-radius:9px;background:#203b2c;color:#baf6d8}
+#mh-global-player .mh-now-art img{width:100%;height:100%;object-fit:cover}
+#mh-global-player .mh-now{min-width:0;max-width:none!important;text-align:left!important;display:flex;flex-direction:column;gap:4px}
+#mh-global-player .mh-now strong{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px!important}
+#mh-global-player .mh-now span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px!important;color:#a9bbae}
+#mh-global-player .mh-player-center{width:100%!important;min-width:0;gap:7px!important}
+#mh-global-player .mh-controls{display:flex;align-items:center;justify-content:center;gap:8px!important}
+#mh-global-player .mh-controls button{width:30px!important;height:30px!important;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:transparent;color:#e6f2e9;font-size:15px!important;cursor:pointer}
+#mh-global-player .mh-controls button:hover{background:#203b2c}
+#mh-global-player .mh-controls button.play{width:36px!important;height:36px!important;background:#baf6d8!important;color:#092016!important;font-size:16px!important}
+#mh-global-player .mh-controls button:disabled{opacity:.3;cursor:not-allowed}
+#mh-global-player .mh-timeline{width:100%;gap:7px!important;font-size:9px!important}
+#mh-global-player #mh-seek{min-width:20px;height:4px;accent-color:#baf6d8;cursor:pointer}
+#mh-global-player .mh-player-hint{display:none!important}
+#tsw-music-screen .mh-scroll{padding-bottom:112px!important}
+#tsw-music-screen [data-mh-panel="playlist"] #mh-back-playlists,
+#tsw-music-screen button.mh-back-button,
+#tsw-music-screen button[id*="back"]{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;min-height:36px!important;width:auto!important;margin:0 0 20px!important;padding:0 14px!important;border:1px solid #31513d!important;border-radius:9px!important;background:#172b20!important;color:#d8f4e2!important;font:600 12px/1.2 inherit!important;text-decoration:none!important;box-shadow:none!important;float:none!important;position:relative!important;inset:auto!important;cursor:pointer!important}
+#tsw-music-screen button.mh-back-button:hover,#tsw-music-screen button[id*="back"]:hover{background:#244331!important;border-color:#52745c!important}
+@media(max-width:600px){#mh-global-player{bottom:10px!important;width:calc(100vw - 20px)!important;grid-template-columns:minmax(0,1fr) minmax(150px,45%)!important;gap:8px!important;padding:8px 9px!important;min-height:68px!important;border-radius:13px!important}#mh-global-player .mh-now-art{width:40px;height:40px;flex-basis:40px}#mh-global-player .mh-controls{gap:3px!important}#mh-global-player .mh-controls button{width:26px!important;height:28px!important;font-size:13px!important}#mh-global-player .mh-controls button.play{width:32px!important;height:32px!important}#mh-global-player .mh-timeline{gap:4px!important;font-size:8px!important}#tsw-music-screen .mh-scroll{padding-bottom:96px!important}}
+@media(max-width:390px){#mh-global-player{grid-template-columns:minmax(0,1fr) 142px!important}#mh-global-player .mh-controls button{width:23px!important;font-size:12px!important}}
 /* Final music palette + playlist header layout fixes */
 #tsw-music-screen,#tsw-music-screen .mh-main,#tsw-music-screen .mh-scroll,#tsw-music-screen .mh-side,#tsw-music-screen [data-mh-panel],#tsw-music-screen [data-mh-panel="playlist"],#tsw-music-screen [data-mh-panel="playlist"] .mh-section,#tsw-music-screen [data-mh-panel="playlist"] .mh-playlist-hero,#tsw-music-screen .mh-playlist-hero,#tsw-music-screen .mh-player,.web-tab-view.tsw-app-view>#tsw-music-screen.tsw-app-screen{background:#102017!important}
 #tsw-music-screen .mh-side{border-right-color:#20372b!important}#tsw-music-screen .mh-player{border-top-color:#20372b!important}
@@ -6209,7 +6234,7 @@ html,body{background:#060b09!important}
       </section>
       <section class="mh-view" data-mh-panel="playlist">
         <div class="mh-section">
-          <button type="button" id="mh-back-playlists" style="border:0;background:none;color:#baf6d8;font:inherit;cursor:pointer">← Back to playlists</button>
+          <button type="button" id="mh-back-playlists" class="mh-back-button">← Your playlists</button>
           <div class="mh-playlist-hero">
             <button type="button" class="mh-playlist-cover" id="mh-playlist-cover" aria-label="Change playlist cover"><span>♫</span></button>
             <div class="mh-playlist-info">
@@ -6247,9 +6272,9 @@ html,body{background:#060b09!important}
         <div class="mh-section"><h2 class="mh-section-title">Your Library</h2><button type="button" class="mh-playlist-edit" id="mh-save-shared-playlist">Save a shared playlist</button><div id="mh-library-content" class="mh-empty">Your saved music and playlists will appear here.</div><div class="mh-section" style="margin-top:24px"><h3 class="mh-section-title">Your Playlists</h3><div class="mh-grid" id="mh-library-playlists"></div></div></div>
       </section>
     </div>
-    <div class="mh-player">
-      <div class="mh-player-track"><div class="mh-now"><strong id="mh-now-title">Nothing playing</strong><span id="mh-now-sub">Choose a song to start listening</span></div></div>
-      <div class="mh-player-center"><div class="mh-controls"><button type="button" id="mh-player-prev" aria-label="Previous track" title="Previous track">|◀</button><button type="button" id="mh-player-rewind" aria-label="Rewind 10 seconds" title="Rewind 10 seconds">↶10</button><button type="button" id="mh-player-toggle" class="play" aria-label="Play or pause">▶</button><button type="button" id="mh-player-forward" aria-label="Forward 10 seconds" title="Forward 10 seconds">10↷</button><button type="button" id="mh-player-next" aria-label="Next track" title="Next track">▶|</button></div><div class="mh-timeline"><span id="mh-time-current">0:00</span><input type="range" id="mh-seek" min="0" max="100" value="0" aria-label="Seek track"><span id="mh-time-total">0:00</span></div></div>
+    <div class="mh-player" id="mh-global-player" aria-label="Music player">
+      <div class="mh-player-track"><div class="mh-now-art" id="mh-now-art"><span>♫</span></div><div class="mh-now"><strong id="mh-now-title">Nothing playing</strong><span id="mh-now-sub">Choose a song to start listening</span></div></div>
+      <div class="mh-player-center"><div class="mh-controls"><button type="button" id="mh-player-prev" aria-label="Previous track" title="Previous track">⏮</button><button type="button" id="mh-player-rewind" aria-label="Rewind 10 seconds" title="Rewind 10 seconds">−10</button><button type="button" id="mh-player-toggle" class="play" aria-label="Play or pause">▶</button><button type="button" id="mh-player-forward" aria-label="Forward 10 seconds" title="Forward 10 seconds">+10</button><button type="button" id="mh-player-next" aria-label="Next track" title="Next track">⏭</button></div><div class="mh-timeline"><span id="mh-time-current">0:00</span><input type="range" id="mh-seek" min="0" max="100" value="0" aria-label="Seek track"><span id="mh-time-total">0:00</span></div></div>
       <span class="mh-player-hint" id="mh-player-hint">Audius</span>
       <audio id="mh-audio" preload="none"></audio>
     </div>
@@ -12872,6 +12897,7 @@ document.addEventListener('keydown', function (ev) {
 (function(){
   var screen=document.getElementById('tsw-music-screen'),frame=document.getElementById('tsw-music-embed');
   if(!screen)return;
+  var persistentPlayer=document.getElementById('mh-global-player');if(persistentPlayer&&persistentPlayer.parentNode!==document.body)document.body.appendChild(persistentPlayer);
   var tokenKey='tsw.auth_token',user=null,playing=false,current='',currentTrack=null,trackToAdd=null,gateAction=null,currentPlaylistIndex=-1,currentQueue=[],queueIndex=-1,audio=document.getElementById('mh-audio'),apiBase='https://api.audius.co/v1',searchTimer=null,trackCache={};
   function token(){try{if(window.TSWProfiles&&window.TSWProfiles.getToken)return window.TSWProfiles.getToken()||'';var raw=localStorage.getItem(tokenKey)||'';try{return JSON.parse(raw)||''}catch(e){return raw}}catch(e){return ''}}
   function getUser(){if(window.TSWProfiles&&window.TSWProfiles.checkAuth){return window.TSWProfiles.checkAuth().then(function(){user=window.TSWProfiles.getUser?window.TSWProfiles.getUser():null;return user}).catch(function(){user=null;return null})}return fetch('/api/auth/me',{headers:token()?{'Authorization':'Bearer '+token()}: {},cache:'no-store'}).then(function(r){return r.json()}).then(function(d){user=d&&d.authenticated?d.user:null;return user}).catch(function(){user=null;return null})}
@@ -12900,7 +12926,7 @@ document.addEventListener('keydown', function (ev) {
   function showTracks(box,tracks,emptyText){if(!box)return;(tracks||[]).forEach(function(t){trackCache[String(t.id)]=t});box.innerHTML=tracks&&tracks.length?'<div class="mh-track-list">'+tracks.map(trackRow).join('')+'</div>':'<div class="mh-empty">'+escapeHtml(emptyText||'No tracks found.')+'</div>'}
   function loadTrending(){var box=document.getElementById('mh-trending-results');fetchAudius('/tracks/trending?limit=12&app_name=tsw_music').then(function(tracks){showTracks(box,tracks,'No tracks are available right now.')}).catch(function(){if(box)box.innerHTML='<div class="mh-empty">Popular tracks could not load. Try Search.</div>'})}
   function searchTracks(q){var box=document.getElementById('mh-search-results');if(!q.trim()){box.innerHTML='<div class="mh-empty">Search for an artist or song.</div>';return}box.innerHTML='<div class="mh-empty">Searching…</div>';fetchAudius('/tracks/search?query='+encodeURIComponent(q.trim())+'&limit=25&app_name=tsw_music').then(function(tracks){showTracks(box,tracks,'No tracks found. Try another search.')}).catch(function(){box.innerHTML='<div class="mh-empty">Search is temporarily unavailable. Try again in a moment.</div>'})}
-  function playTrack(t){if(!t||!t.id)return;currentTrack=t;current=String(t.id);var title=document.getElementById('mh-now-title'),sub=document.getElementById('mh-now-sub'),art=document.getElementById('mh-now-art'),hint=document.getElementById('mh-player-hint');title.textContent=t.title||'Unknown track';sub.textContent=t.user&&t.user.name||'Audius';if(art)art.innerHTML=trackArt(t)?'<img src="'+escapeHtml(trackArt(t))+'" alt="">':'<span>♫</span>';hint.textContent='Loading…';audio.src=apiBase+'/tracks/'+encodeURIComponent(t.id)+'/stream?app_name=tsw_music';audio.play().then(function(){playing=true;hint.textContent='Audius';updatePlayButtons()}).catch(function(){playing=false;hint.textContent='Tap play to retry';updatePlayButtons()})}
+  function playTrack(t){if(!t||!t.id)return;currentTrack=t;current=String(t.id);var title=document.getElementById('mh-now-title'),sub=document.getElementById('mh-now-sub'),art=document.getElementById('mh-now-art'),hint=document.getElementById('mh-player-hint'),player=document.getElementById('mh-global-player');title.textContent=t.title||'Unknown track';sub.textContent=t.user&&t.user.name||'Audius';if(art)art.innerHTML=trackArt(t)?'<img src="'+escapeHtml(trackArt(t))+'" alt="">':'<span>♫</span>';if(player)player.classList.add('is-visible');hint.textContent='Loading…';audio.src=apiBase+'/tracks/'+encodeURIComponent(t.id)+'/stream?app_name=tsw_music';audio.play().then(function(){playing=true;hint.textContent='Audius';updatePlayButtons()}).catch(function(){playing=false;hint.textContent='Tap play to retry';updatePlayButtons()})}
   function updatePlayButtons(){var b=document.getElementById('mh-player-toggle');if(b){b.textContent=playing?'Ⅱ':'▶';b.setAttribute('aria-label',playing?'Pause':'Play')}var prev=document.getElementById('mh-player-prev'),next=document.getElementById('mh-player-next');if(prev)prev.disabled=queueIndex<=0;if(next)next.disabled=queueIndex<0||queueIndex>=currentQueue.length-1}
   function play(){if(currentTrack){audio.play().then(function(){playing=true;updatePlayButtons()}).catch(function(){var h=document.getElementById('mh-player-hint');if(h)h.textContent='Unable to play this track'})}}
   function pause(){audio.pause();playing=false;updatePlayButtons()}
