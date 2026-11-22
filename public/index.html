@@ -3894,9 +3894,11 @@ html.reduced-motion .cl-bulb,html.reduced-motion .cl-shift,html.reduced-motion .
 #settings .settings-content input:focus-visible,#settings .settings-content select:focus-visible,#settings .settings-content textarea:focus-visible,#settings .settings-content button:focus-visible{outline:2px solid rgba(212,119,120,.65);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){.page-loading-spinner,.page-loading-track:after{animation:none!important}.page-loading-overlay,#settings .settings-nav button{transition:none!important}}
 
-/* Keep the interface clean and flat instead of layering on decorative effects. */
-#home{background:transparent!important}
-#sky{opacity:1!important}
+/* Keep the interface clean and flat while keeping the winter scene visible behind the home page. */
+html,body{background:#060b09!important}
+#sky{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:none!important;z-index:0!important}
+#home{position:relative;z-index:1;background:transparent!important}
+#home[hidden]{display:none!important}
 .mark,.clock{ text-shadow:none!important; }
 #home .field{background:#101713!important;background-image:none!important;box-shadow:none!important;border-color:#35443a!important}
 .shortcut-card{background:#101713!important;box-shadow:none!important;border-color:#26372d!important}
@@ -7214,6 +7216,12 @@ var STATUS_NOTICE = '';
             vsrc: 'site', vbright: 60, accent: 'holiday', clock: '12', panel: 'standard', theme: 'dark', rain: false, rainVol: 40, reducedMotion: false, panicKey: '', panicUrl: '' };
   var cfg = {};
   Object.keys(D).forEach(function (k) { cfg[k] = store.get('tsw.' + k, D[k]); });
+  /* One-time holiday background reset: older saved preferences could keep the winter canvas disabled. */
+  if (!store.get('tsw.christmas26_background_default', false)) {
+    cfg.bg = 'stars'; cfg.season = 'snow'; cfg.stars = true;
+    store.set('tsw.bg', 'stars'); store.set('tsw.season', 'snow'); store.set('tsw.stars', true);
+    store.set('tsw.christmas26_background_default', true);
+  }
   if (!store.get('tsw.holiday26_accent', false)) {
     if (cfg.accent === 'blue') { cfg.accent = 'holiday'; store.set('tsw.accent', 'holiday'); }
     store.set('tsw.holiday26_accent', true);
