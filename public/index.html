@@ -6014,7 +6014,20 @@ html,body{background:#060b09!important}
 #tsw-music-screen .mh-search{width:min(540px,100%);padding:12px 15px;border:1px solid rgba(220,245,228,.14);border-radius:24px;background:#0e1b13;color:#f4fff6;font:inherit;outline:none}
 #tsw-music-screen .mh-search:focus{border-color:#9adbb9}
 #tsw-music-screen .mh-empty{padding:35px 20px;border:1px dashed rgba(220,245,228,.15);border-radius:14px;color:#a8b9ac;text-align:center;max-width:560px}
-#tsw-music-screen .mh-player{position:absolute;left:0;right:0;bottom:0;min-height:60px;display:flex;align-items:center;gap:11px;padding:6px 16px;background:#08130d;border-top:1px solid rgba(220,245,228,.12);z-index:3}
+#tsw-music-screen .mh-player{position:absolute;left:0;right:0;bottom:0;min-height:82px;box-sizing:border-box;display:flex;align-items:center;gap:22px;padding:12px 20px;background:#102017;border-top:1px solid rgba(220,245,228,.13);z-index:3}
+#tsw-music-screen .mh-player-track{display:flex;align-items:center;gap:11px;min-width:0;flex:1}
+#tsw-music-screen .mh-player-center{width:min(420px,42%);display:flex;flex-direction:column;align-items:center;gap:5px}
+#tsw-music-screen .mh-player .mh-controls{margin:0}
+#tsw-music-screen .mh-timeline{display:flex;align-items:center;gap:8px;width:100%;color:#91a899;font-size:10px;font-variant-numeric:tabular-nums}
+#tsw-music-screen #mh-seek{flex:1;min-width:30px;height:4px;accent-color:#baf6d8;cursor:pointer}
+#tsw-music-screen .mh-player-hint{min-width:44px;text-align:right}
+#tsw-music-screen .mh-player .mh-now-art{width:48px;height:48px;overflow:hidden}
+#tsw-music-screen .mh-player .mh-now{min-width:0;max-width:230px}
+#tsw-music-screen .mh-player .mh-now strong{font-size:13px}
+#tsw-music-screen .mh-player .mh-now span{font-size:11px}
+#tsw-music-screen .mh-player .mh-controls button.play{width:36px;height:36px;background:#baf6d8;color:#092016}
+#tsw-music-screen .mh-player .mh-controls button.play:hover{background:#d5ffe8}
+@media(max-width:620px){#tsw-music-screen .mh-player{gap:9px;padding:9px 10px;min-height:76px}#tsw-music-screen .mh-player-center{width:36%}#tsw-music-screen .mh-player-hint{display:none}#tsw-music-screen .mh-player .mh-now-art{width:38px;height:38px}#tsw-music-screen .mh-player .mh-now{max-width:120px}}
 #tsw-music-screen .mh-now-art{width:38px;height:38px;border-radius:7px;background:#183324;display:grid;place-items:center;flex:none}
 #tsw-music-screen .mh-now-art svg{width:22px;height:22px;color:#baf6d8}
 #tsw-music-screen .mh-now{min-width:130px;max-width:220px}
@@ -6083,6 +6096,18 @@ html,body{background:#060b09!important}
 #tsw-music-screen .mh-edit-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:22px}
 #tsw-music-screen .mh-edit-actions button{padding:9px 15px;border-radius:22px;border:1px solid #49604f;background:transparent;color:#fff;cursor:pointer}
 #tsw-music-screen #mh-edit-save{background:#1ed760;border-color:#1ed760;color:#092012;font-weight:700}
+#tsw-music-screen .mh-add-subtitle{margin:-8px 0 16px;color:#a9bbae;font-size:12px}
+#tsw-music-screen .mh-add-options{display:flex;flex-direction:column;gap:5px;max-height:320px;overflow:auto}
+#tsw-music-screen .mh-add-option{display:flex;align-items:center;gap:11px;width:100%;padding:8px;border:0;border-radius:9px;background:#20372b;color:#f3faf5;text-align:left;cursor:pointer;font:inherit}
+#tsw-music-screen .mh-add-option:hover{background:#2b4937}
+#tsw-music-screen .mh-add-option img{width:38px;height:38px;object-fit:cover;border-radius:5px;background:#14251c}
+#tsw-music-screen .mh-add-option span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+#tsw-music-screen .mh-add-option small{display:block;color:#afc3b5;font-size:10px;margin-top:3px}
+#tsw-music-screen [data-mh-panel="playlist"]{background:#14251c!important}
+#tsw-music-screen [data-mh-panel="playlist"] .mh-scroll,#tsw-music-screen [data-mh-panel="playlist"] .mh-section,#tsw-music-screen [data-mh-panel="playlist"] #mh-playlist-tracks,#tsw-music-screen [data-mh-panel="playlist"] #mh-playlist-empty{background:#14251c!important}
+#tsw-music-screen [data-mh-panel="playlist"] #mh-playlist-empty{max-width:none;margin:0;padding:24px 8px;border:0;text-align:left;color:#b8c9be}
+#tsw-music-screen .mh-track-row{border-bottom:1px solid rgba(220,245,228,.045);border-radius:7px}
+
 #tsw-music-screen .mh-playlist-hero{color:#fff}
 @media(max-width:560px){#tsw-music-screen .mh-playlist-hero{margin:0 -12px 18px;padding:20px 14px;border-radius:0}}
 
@@ -6157,12 +6182,12 @@ html,body{background:#060b09!important}
       </section>
     </div>
     <div class="mh-player">
-      <div class="mh-now-art" id="mh-now-art"><span aria-hidden="true">♫</span></div>
-      <div class="mh-now"><strong id="mh-now-title">Nothing playing</strong><span id="mh-now-sub">Search for a track to start listening</span></div>
-      <div class="mh-controls"><button type="button" id="mh-player-toggle" class="play" aria-label="Play or pause">▶</button></div>
+      <div class="mh-player-track"><div class="mh-now-art" id="mh-now-art"><span aria-hidden="true">♫</span></div><div class="mh-now"><strong id="mh-now-title">Nothing playing</strong><span id="mh-now-sub">Choose a song to start listening</span></div></div>
+      <div class="mh-player-center"><div class="mh-controls"><button type="button" id="mh-player-toggle" class="play" aria-label="Play or pause">▶</button></div><div class="mh-timeline"><span id="mh-time-current">0:00</span><input type="range" id="mh-seek" min="0" max="100" value="0" aria-label="Seek track"><span id="mh-time-total">0:00</span></div></div>
       <span class="mh-player-hint" id="mh-player-hint">Audius</span>
       <audio id="mh-audio" preload="none"></audio>
     </div>
+    <div class="mh-edit-overlay" id="mh-add-playlist-modal" hidden><div class="mh-edit-dialog mh-add-dialog" role="dialog" aria-modal="true" aria-labelledby="mh-add-title"><h3 id="mh-add-title">Add to playlist</h3><p class="mh-add-subtitle" id="mh-add-subtitle">Choose where this song should go.</p><div id="mh-add-playlist-options" class="mh-add-options"></div><div class="mh-edit-actions"><button type="button" id="mh-add-cancel">Cancel</button></div></div></div>
   </main>
   <div class="mh-gate" id="mh-gate" hidden><div class="mh-gate-card"><h2>Make Music yours</h2><p>Create a free TSW profile or sign in to like songs, save music, and make playlists. Your music library is tied to your profile.</p><button type="button" id="mh-gate-signin">Create profile / Sign in</button><button type="button" class="mh-gate-cancel" id="mh-gate-cancel">Not now</button><div class="mh-auth-note">Uses your existing TSW account.</div></div></div>
 </section>
@@ -12789,7 +12814,7 @@ document.addEventListener('keydown', function (ev) {
 (function(){
   var screen=document.getElementById('tsw-music-screen'),frame=document.getElementById('tsw-music-embed');
   if(!screen)return;
-  var tokenKey='tsw.auth_token',user=null,playing=false,current='',currentTrack=null,gateAction=null,currentPlaylistIndex=-1,audio=document.getElementById('mh-audio'),apiBase='https://api.audius.co/v1',searchTimer=null,trackCache={};
+  var tokenKey='tsw.auth_token',user=null,playing=false,current='',currentTrack=null,trackToAdd=null,gateAction=null,currentPlaylistIndex=-1,audio=document.getElementById('mh-audio'),apiBase='https://api.audius.co/v1',searchTimer=null,trackCache={};
   function token(){try{if(window.TSWProfiles&&window.TSWProfiles.getToken)return window.TSWProfiles.getToken()||'';var raw=localStorage.getItem(tokenKey)||'';try{return JSON.parse(raw)||''}catch(e){return raw}}catch(e){return ''}}
   function getUser(){if(window.TSWProfiles&&window.TSWProfiles.checkAuth){return window.TSWProfiles.checkAuth().then(function(){user=window.TSWProfiles.getUser?window.TSWProfiles.getUser():null;return user}).catch(function(){user=null;return null})}return fetch('/api/auth/me',{headers:token()?{'Authorization':'Bearer '+token()}: {},cache:'no-store'}).then(function(r){return r.json()}).then(function(d){user=d&&d.authenticated?d.user:null;return user}).catch(function(){user=null;return null})}
   function key(){return 'tsw.music.library.'+(user&&user.id?user.id:'guest')}
@@ -12802,7 +12827,7 @@ document.addEventListener('keydown', function (ev) {
   function showGate(action){gateAction=action||null;document.getElementById('mh-gate').hidden=false}
   function hideGate(){document.getElementById('mh-gate').hidden=true;gateAction=null}
   function runGated(action){if(!hasMusicIdentity()){getUser().then(function(){syncProfile();if(hasMusicIdentity()){performGated(action)}else{showGate(action)}});return}performGated(action)}
-  function performGated(action){if(action==='like'){var d=data(),i=d.likes.indexOf(current);if(i<0)d.likes.push(current);else d.likes.splice(i,1);save(d);renderLibrary();renderLike()}else if(action==='playlist'){createPlaylist()}else if(action==='add'){addToPlaylist()}else if(action==='playlist-add'){switchView('search');document.getElementById('mh-search-input').focus()}else if(action.indexOf('add-track:')===0){var id=action.split(':')[1],d=data();var names=d.playlists.map(function(p,i){return (i+1)+'. '+p.name}).join('\\n');var choice=Number(prompt('Add to which playlist?\\n'+names));if(choice&&d.playlists[choice-1]&&trackCache[id]){currentTrack=trackCache[id];current=id;addCurrentToPlaylist(choice-1)}}}
+  function performGated(action){if(action==='like'){var d=data(),i=d.likes.indexOf(current);if(i<0)d.likes.push(current);else d.likes.splice(i,1);save(d);renderLibrary();renderLike()}else if(action==='playlist'){createPlaylist()}else if(action==='add'){addToPlaylist()}else if(action==='playlist-add'){switchView('search');document.getElementById('mh-search-input').focus()}else if(action.indexOf('add-track:')===0){var id=action.split(':')[1];if(trackCache[id])openAddPlaylist(trackCache[id])}}
   function renderLike(){}
   function renderLibrary(){var box=document.getElementById('mh-library-content'),grid=document.getElementById('mh-library-playlists');if(box)box.textContent=signedIn()?'Your saved music and playlists appear here.':'Your playlists are saved on this device.';renderPlaylists();if(grid){var d=data();grid.innerHTML=d.playlists.map(function(p,i){var art=p.cover?'<img src="'+escapeHtml(p.cover)+'" alt="">':'<span class="mh-art-mark">♫</span>';return '<button type="button" class="mh-card" data-mh-playlist-index="'+i+'"><span class="mh-art">'+art+'</span><span class="mh-card-title">'+escapeHtml(p.name||('Playlist '+(i+1)))+'</span><span class="mh-card-sub">'+((p.items||[]).length)+' songs</span></button>'}).join('');grid.parentElement.hidden=d.playlists.length===0}}
   function escapeHtml(v){return String(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -12822,6 +12847,7 @@ document.addEventListener('keydown', function (ev) {
   function play(){if(currentTrack){audio.play().then(function(){playing=true;updatePlayButtons()}).catch(function(){var h=document.getElementById('mh-player-hint');if(h)h.textContent='Unable to play this track'})}}
   function pause(){audio.pause();playing=false;updatePlayButtons()}
   function addCurrentToPlaylist(index){var d=data(),p=d.playlists[index];if(!p||!currentTrack)return;if(!Array.isArray(p.items))p.items=[];if(!p.items.some(function(x){return String(typeof x==='object'?x.id:x)===String(currentTrack.id)}))p.items.push({id:String(currentTrack.id),title:currentTrack.title||'Untitled track',artist:currentTrack.user&&currentTrack.user.name||'Unknown artist',artwork:trackArt(currentTrack)});save(d);renderLibrary();openPlaylist(index)}
+  function openAddPlaylist(t){trackToAdd=t;var d=data(),box=document.getElementById('mh-add-playlist-options'),modal=document.getElementById('mh-add-playlist-modal');document.getElementById('mh-add-subtitle').textContent='Add “'+(t.title||'this song')+'” to:';box.innerHTML=d.playlists.map(function(p,i){var art=p.cover||trackArt(t);return '<button type="button" class="mh-add-option" data-mh-pick-playlist="'+i+'"><img src="'+escapeHtml(art)+'" alt=""><span>'+escapeHtml(p.name||('Playlist '+(i+1)))+'<small>'+((p.items||[]).length)+' songs</small></span></button>'}).join('');if(!d.playlists.length)box.innerHTML='<div class="mh-empty">You have no playlists yet. Create one first.</div>';modal.hidden=false}
   function choosePlaylistForTrack(t){currentTrack=t;current=String(t.id);var d=data();if(!d.playlists.length){var made={name:'Playlist 1',items:[],cover:''};d.playlists.push(made);save(d)}var names=d.playlists.map(function(p,i){return (i+1)+'. '+p.name}).join('\\n');var choice=Number(prompt('Add to which playlist?\\n'+names));if(choice&&d.playlists[choice-1])addCurrentToPlaylist(choice-1)}
   function openMusic(){if(window.TSWCreateAppTab)window.TSWCreateAppTab('Music','tsw-music-screen','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>','music');getUser().then(syncProfile)}
   function closeMusic(){if(window.TSWCloseActiveAppTab)window.TSWCloseActiveAppTab('music');else screen.hidden=true}
@@ -12843,6 +12869,8 @@ document.addEventListener('keydown', function (ev) {
     if(e.target.closest('#mh-gate-signin')){hideGate();getUser().then(function(){syncProfile();var p=document.getElementById('profbtn');if(p)p.click()});return}
     var playBtn=e.target.closest('#tsw-music-screen [data-mh-play-track]');if(playBtn){var id=playBtn.getAttribute('data-mh-play-track');if(trackCache[id])playTrack(trackCache[id]);return}
     var addBtn=e.target.closest('#tsw-music-screen [data-mh-add-track]');if(addBtn){var addId=addBtn.getAttribute('data-mh-add-track');if(trackCache[addId])runGated('add-track:'+addId);return}
+    var pick=e.target.closest('#tsw-music-screen [data-mh-pick-playlist]');if(pick&&trackToAdd){var targetIndex=Number(pick.getAttribute('data-mh-pick-playlist'));currentTrack=trackToAdd;current=String(trackToAdd.id);document.getElementById('mh-add-playlist-modal').hidden=true;addCurrentToPlaylist(targetIndex);trackToAdd=null;return}
+    if(e.target.closest('#mh-add-cancel')){document.getElementById('mh-add-playlist-modal').hidden=true;trackToAdd=null;return}
     var savedBtn=e.target.closest('#tsw-music-screen [data-mh-play-saved]');if(savedBtn){var savedId=savedBtn.getAttribute('data-mh-play-saved');var d0=data(),pl=d0.playlists[currentPlaylistIndex],saved=(pl&&pl.items||[]).find(function(x){return String(typeof x==='object'?x.id:x)===savedId});if(saved){if(typeof saved==='object'){playTrack({id:saved.id,title:saved.title,user:{name:saved.artist},artwork:{'480x480':saved.artwork}})}else fetchAudius('/tracks/'+encodeURIComponent(savedId)+'?app_name=tsw_music').then(function(rows){var t=Array.isArray(rows)?rows[0]:rows;if(t)playTrack(t)}).catch(function(){})}return}
     var removeBtn=e.target.closest('#tsw-music-screen [data-mh-remove-track]');if(removeBtn){var rd=data(),rp=rd.playlists[currentPlaylistIndex];if(rp){rp.items=(rp.items||[]).filter(function(x){return String(typeof x==='object'?x.id:x)!==removeBtn.getAttribute('data-mh-remove-track')});save(rd);openPlaylist(currentPlaylistIndex);renderLibrary()}return}
     if(e.target.closest('#mh-player-toggle')){if(playing)pause();else play();return}
@@ -12854,6 +12882,11 @@ document.addEventListener('keydown', function (ev) {
   document.addEventListener('visibilitychange',function(){if(document.hidden)return;if(!screen.hidden)getUser().then(function(){syncProfile();renderLike();renderLibrary()})});
   document.addEventListener('click',function(e){if(e.target.closest('#profbtn'))setTimeout(function(){getUser().then(function(){syncProfile();if(signedIn()&&gateAction){var a=gateAction;hideGate();if(a!=='profile')runGated(a)}else if(signedIn()){hideGate()}})},700)});
   document.getElementById('mh-search-results').innerHTML='<div class="mh-empty">Search for an artist or song.</div>';
+  function formatTime(v){if(!isFinite(v))return '0:00';var m=Math.floor(v/60),sec=Math.floor(v%60);return m+':'+(sec<10?'0':'')+sec}
+  var seek=document.getElementById('mh-seek');
+  audio.addEventListener('timeupdate',function(){if(!seek.matches(':active'))seek.value=audio.duration?Math.round(audio.currentTime/audio.duration*100):0;document.getElementById('mh-time-current').textContent=formatTime(audio.currentTime)});
+  audio.addEventListener('loadedmetadata',function(){document.getElementById('mh-time-total').textContent=formatTime(audio.duration)});
+  seek.addEventListener('input',function(){if(audio.duration)audio.currentTime=audio.duration*(Number(this.value)/100)});
   audio.addEventListener('ended',function(){playing=false;updatePlayButtons()});
   audio.addEventListener('pause',function(){playing=false;updatePlayButtons()});
   audio.addEventListener('play',function(){playing=true;updatePlayButtons()});
