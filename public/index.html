@@ -5872,7 +5872,9 @@ html.reduced-motion .cl-bulb,html.reduced-motion .cl-shift,html.reduced-motion .
 .web-tab-view.tsw-app-view>#game-tab.tsw-app-screen #game-view{height:auto!important;flex:1!important;min-height:0!important;border-radius:0!important}
 .web-tab-view.tsw-app-view>#game-tab.tsw-app-screen .game-bar{border-radius:0!important}
 .web-tab-view.tsw-app-view>.tsw-app-screen[hidden]{display:none!important}
-#tsw-music-screen .music-head-actions{display:none!important}
+/* Keep the Music close control visible. The player is mounted at document level. */
+#tsw-music-screen{z-index:9999!important}
+#tsw-music-screen .music-head-actions{display:flex!important}
 </style>
 
 
@@ -5884,7 +5886,7 @@ html.reduced-motion .cl-bulb,html.reduced-motion .cl-shift,html.reduced-motion .
   <div class="music-stage">
     <div class="music-card">
       <div class="music-art" aria-hidden="true"><svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M45 84V25l48-9v59"/><circle cx="31" cy="87" r="14"/><circle cx="79" cy="78" r="14"/><path d="M45 39l48-9"/></svg></div>
-      <div class="music-info"><h1>Chill beats, anytime.</h1><p>Free 24/7 lofi radio to keep playing while you use TSW.</p><span class="music-source">● Live on YouTube · Lofi Girl</span><div class="music-hint">Press play in the player to start listening. Minimize it and your music will keep playing while you browse TSW.</div></div>
+      <div class="music-info"><h1>Chill beats, anytime.</h1><p>Free 24/7 lofi radio to keep playing while you use TSW.</p><span class="music-source">● Live on YouTube · Lofi Girl</span><div class="music-hint">Press play in the player to start listening. Close Music to return to TSW.</div></div>
     </div>
   </div>
   <iframe class="music-player-frame" id="tsw-music-embed" title="Lofi Girl free live music" src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&controls=1&rel=0&enablejsapi=1" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
@@ -12503,6 +12505,8 @@ document.addEventListener('keydown', function (ev) {
   var screen=document.getElementById('tsw-music-screen');
   var frame=document.getElementById('tsw-music-embed');
   if(!screen||!frame)return;
+  /* Keep the player outside the sidebar layout so it opens as a full-screen overlay. */
+  if(screen.parentElement!==document.body) document.body.appendChild(screen);
   var openBtn=document.createElement('button');
   function openMusic(){
     screen.hidden=false;
