@@ -5972,6 +5972,18 @@ html,body{background:#060b09!important}
 #tsw-music-screen .mh-nav svg,#tsw-music-screen .mh-side-action svg{width:18px;height:18px;flex:none}
 #tsw-music-screen .mh-playlists{margin-top:30px;padding:0 12px;color:#a6b8aa;font-size:11px;font-weight:700;letter-spacing:.08em}
 #tsw-music-screen .mh-create{margin:14px 8px 0;padding:9px 12px;border:0;border-radius:20px;background:#baf6d8;color:#082016;font-weight:650;cursor:pointer}
+#tsw-music-screen .mh-side-playlist-list{display:flex;flex-direction:column;gap:2px;margin:10px 8px 0;min-height:0;max-height:calc(100% - 270px);overflow-y:auto}
+#tsw-music-screen .mh-side-playlist-link{width:100%;padding:8px 10px;border:0;border-radius:7px;background:transparent;color:#b8c9be;text-align:left;font:inherit;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+#tsw-music-screen .mh-side-playlist-link:hover{background:#17291f;color:#fff}
+#tsw-music-screen .mh-side-playlist-link.active{background:#20372b;color:#fff}
+#tsw-music-screen [data-mh-panel="playlist"]{background:#14251c;min-height:100%;margin:-25px -24px -118px;padding:0 24px 118px}
+#tsw-music-screen [data-mh-panel="playlist"] .mh-section{background:#14251c}
+#tsw-music-screen .mh-playlist-hero{background:#14251c!important}
+#tsw-music-screen [data-mh-panel="playlist"] .mh-empty{background:#14251c!important;color:#b8c9be}
+#tsw-music-screen [data-mh-panel="playlist"] #mh-back-playlists{background:#14251c!important}
+@media(max-width:760px){#tsw-music-screen [data-mh-panel="playlist"]{margin:-18px -14px -112px;padding:0 14px 112px}}
+@media(max-width:560px){#tsw-music-screen .mh-side-playlist-list{display:none}#tsw-music-screen [data-mh-panel="playlist"]{margin:-15px -12px -108px;padding:0 12px 108px}}
+
 #tsw-music-screen .mh-side-foot{margin-top:auto;padding:12px 8px 0}
 #tsw-music-screen .mh-profile{width:100%;display:flex;align-items:center;gap:10px;padding:9px;border:1px solid rgba(220,245,228,.1);border-radius:12px;background:#0d1b13;color:#e8f4eb;text-align:left;cursor:pointer}
 #tsw-music-screen .mh-avatar{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:#244735;color:#c6f8dc;font-weight:700}
@@ -6073,6 +6085,7 @@ html,body{background:#060b09!important}
     </nav>
     <div class="mh-playlists">PLAYLISTS</div>
     <button type="button" class="mh-create" data-mh-action="playlist">＋ New Playlist</button>
+    <div class="mh-side-playlist-list" id="mh-side-playlist-list" aria-label="Your playlists"></div>
     <div class="mh-side-foot"><button type="button" class="mh-profile" id="mh-profile-btn"><span class="mh-avatar" id="mh-avatar">?</span><span id="mh-profile-name">Create profile</span></button></div>
   </aside>
   <main class="mh-main">
@@ -12771,7 +12784,7 @@ document.addEventListener('keydown', function (ev) {
   function renderLike(){}
   function renderLibrary(){var box=document.getElementById('mh-library-content'),grid=document.getElementById('mh-library-playlists');if(box)box.textContent=signedIn()?'Your saved music and playlists appear here.':'Sign in to save music and create playlists.';renderPlaylists();if(grid){var d=data();grid.innerHTML=d.playlists.map(function(p,i){var art=p.cover?'<img src="'+escapeHtml(p.cover)+'" alt="">':'<span class="mh-art-mark">♫</span>';return '<button type="button" class="mh-card" data-mh-playlist-index="'+i+'"><span class="mh-art">'+art+'</span><span class="mh-card-title">'+escapeHtml(p.name||('Playlist '+(i+1)))+'</span><span class="mh-card-sub">Empty playlist</span></button>'}).join('');grid.parentElement.hidden=d.playlists.length===0}}
   function escapeHtml(v){return String(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
-  function renderPlaylists(){var d=data(),grid=document.getElementById('mh-playlist-grid'),empty=document.getElementById('mh-no-playlists');if(!grid)return;grid.innerHTML=d.playlists.map(function(p,i){var art=p.cover?'<img src="'+escapeHtml(p.cover)+'" alt="">':'<span class="mh-art-mark">♫</span>';return '<button type="button" class="mh-card" data-mh-playlist-index="'+i+'"><span class="mh-art">'+art+'</span><span class="mh-card-title">'+escapeHtml(p.name||('Playlist '+(i+1)))+'</span><span class="mh-card-sub">Empty playlist</span></button>'}).join('');if(empty)empty.hidden=d.playlists.length>0}
+  function renderPlaylists(){var d=data(),grid=document.getElementById('mh-playlist-grid'),empty=document.getElementById('mh-no-playlists'),side=document.getElementById('mh-side-playlist-list');var cards=d.playlists.map(function(p,i){var art=p.cover?'<img src="'+escapeHtml(p.cover)+'" alt="">':'<span class="mh-art-mark">♫</span>';return '<button type="button" class="mh-card" data-mh-playlist-index="'+i+'"><span class="mh-art">'+art+'</span><span class="mh-card-title">'+escapeHtml(p.name||('Playlist '+(i+1)))+'</span><span class="mh-card-sub">Empty playlist</span></button>'}).join('');if(grid)grid.innerHTML=cards;if(empty)empty.hidden=d.playlists.length>0;if(side)side.innerHTML=d.playlists.map(function(p,i){return '<button type="button" class="mh-side-playlist-link" data-mh-playlist-index="'+i+'" title="'+escapeHtml(p.name||('Playlist '+(i+1)))+'">'+escapeHtml(p.name||('Playlist '+(i+1)))+'</button>'}).join('')}
   function openPlaylist(index){var d=data(),p=d.playlists[index];if(!p)return;currentPlaylistIndex=index;document.getElementById('mh-playlist-title').textContent=p.name||('Playlist '+(index+1));document.getElementById('mh-playlist-owner').textContent='Your playlist · '+(p.items||[]).length+' songs';var cover=document.getElementById('mh-playlist-cover');cover.innerHTML=p.cover?'<img src="'+escapeHtml(p.cover)+'" alt="Playlist cover">':'<span>♫</span>';switchView('playlist')}
   function createPlaylist(){var d=data(),name='Playlist '+(d.playlists.length+1);d.playlists.push({name:name,items:[],cover:''});save(d);renderPlaylists();renderLibrary();openPlaylist(d.playlists.length-1)}
   function addToPlaylist(){var d=data();if(!d.playlists.length){createPlaylist();return}var names=d.playlists.map(function(p,i){return (i+1)+'. '+p.name}).join('\n');var choice=Number(prompt('Add to which playlist?\n'+names));if(!choice||!d.playlists[choice-1])return;if(d.playlists[choice-1].items.indexOf(current)<0)d.playlists[choice-1].items.push(current);save(d);renderLibrary()}
