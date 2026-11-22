@@ -6027,6 +6027,18 @@ html,body{background:#060b09!important}
 #tsw-music-screen .mh-playlist-action:hover{background:#1b3425}
 #tsw-music-screen .mh-playlist-action svg{width:19px;height:19px}
 #tsw-music-screen .mh-playlist-status{min-height:18px;margin:8px 0;color:#91a899;font-size:12px}
+#tsw-music-screen .mh-playlist-hero{display:flex;align-items:flex-end;gap:26px;margin:24px 0 20px;padding:24px 22px;background:linear-gradient(180deg,#354b40 0%,#17251d 100%);border-radius:14px;min-height:245px}
+#tsw-music-screen .mh-playlist-cover{width:190px;height:190px;flex:none;border:0;border-radius:5px;background:linear-gradient(145deg,#345a45,#14251b);color:#c9f5dc;display:grid;place-items:center;overflow:hidden;cursor:pointer}
+#tsw-music-screen .mh-playlist-cover span{font-size:56px}.mh-playlist-cover img{width:100%;height:100%;object-fit:cover}
+#tsw-music-screen .mh-playlist-info{min-width:0;color:#fff}
+#tsw-music-screen .mh-playlist-type{font-size:12px;font-weight:650}
+#tsw-music-screen .mh-playlist-info h2{font-size:clamp(32px,5vw,66px);line-height:1.05;letter-spacing:-.045em;margin:12px 0;overflow-wrap:anywhere}
+#tsw-music-screen .mh-playlist-info p{margin:0 0 16px;color:#c1d0c6;font-size:13px}
+#tsw-music-screen .mh-playlist-tools{display:flex;align-items:center;gap:10px}
+#tsw-music-screen .mh-playlist-edit{padding:9px 16px;border:1px solid rgba(255,255,255,.25);border-radius:22px;background:transparent;color:#fff;font:inherit;font-size:12px;font-weight:650;cursor:pointer}
+#tsw-music-screen .mh-playlist-edit:hover{background:rgba(255,255,255,.1)}
+#tsw-music-screen .mh-playlist-cover:hover{filter:brightness(1.1)}
+@media(max-width:560px){#tsw-music-screen .mh-playlist-hero{align-items:flex-start;flex-direction:column;padding:16px;gap:16px}#tsw-music-screen .mh-playlist-cover{width:150px;height:150px}#tsw-music-screen .mh-playlist-info h2{font-size:34px}}
 @media(max-width:760px){#tsw-music-screen .mh-side{width:190px;flex-basis:190px;padding:16px 9px}#tsw-music-screen .mh-scroll{padding:18px 14px 112px}#tsw-music-screen .mh-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}}
 @media(max-width:560px){#tsw-music-screen .mh-side{width:58px;flex-basis:58px;padding:13px 6px}#tsw-music-screen .mh-brand{font-size:0;padding:0 0 20px;text-align:center}#tsw-music-screen .mh-brand:after{content:'♫';font-size:20px}#tsw-music-screen .mh-nav button{justify-content:center;padding:0;font-size:0}#tsw-music-screen .mh-nav button svg{width:20px;height:20px}#tsw-music-screen .mh-playlists,#tsw-music-screen .mh-create,#tsw-music-screen .mh-profile span:not(.mh-avatar){display:none}#tsw-music-screen .mh-profile{justify-content:center;padding:6px}#tsw-music-screen .mh-top{padding:0 12px}#tsw-music-screen .mh-scroll{padding:15px 12px 108px}#tsw-music-screen .mh-player{padding:8px}#tsw-music-screen .mh-player-hint{display:none}#tsw-music-screen .mh-now{min-width:0;max-width:105px}#tsw-music-screen .mh-controls{gap:1px}}
 
@@ -6053,24 +6065,27 @@ html,body{background:#060b09!important}
       <section class="mh-view active" data-mh-panel="browse">
         <div class="mh-section">
           <h2 class="mh-section-title">✧ Playlists</h2>
-          <div class="mh-grid">
-            <button type="button" class="mh-card" data-mh-playlist="Chill Mix"><span class="mh-art live"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span class="mh-card-title">Chill Mix</span><span class="mh-card-sub">Empty playlist</span></button>
-            <button type="button" class="mh-card" data-mh-playlist="Study Session"><span class="mh-art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 1 4 17.5z"/><path d="M4 6h13M8 9h8M8 13h6"/></svg></span><span class="mh-card-title">Study Session</span><span class="mh-card-sub">Empty playlist</span></button>
-            <button type="button" class="mh-card" data-mh-playlist="Late Night"><span class="mh-art live"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20.5 15.5A8.5 8.5 0 0 1 8.5 3.5 8.5 8.5 0 1 0 20.5 15.5Z"/></svg></span><span class="mh-card-title">Late Night</span><span class="mh-card-sub">Empty playlist</span></button>
-            <button type="button" class="mh-card" data-mh-playlist="Focus"><span class="mh-art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/></svg></span><span class="mh-card-title">Focus</span><span class="mh-card-sub">Empty playlist</span></button>
-            <button type="button" class="mh-card" data-mh-playlist="Favorites"><span class="mh-art live"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m12 20-1.4-1.3C5.5 14 2 10.8 2 6.9A4.9 4.9 0 0 1 6.9 2c2 0 3.9.9 5.1 2.4A6.6 6.6 0 0 1 17.1 2 4.9 4.9 0 0 1 22 6.9c0 3.9-3.5 7.1-8.6 11.8z"/></svg></span><span class="mh-card-title">Favorites</span><span class="mh-card-sub">Empty playlist</span></button>
-            <button type="button" class="mh-card" data-mh-playlist="Playlist 6"><span class="mh-art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v18M3 12h18"/></svg></span><span class="mh-card-title">Playlist 6</span><span class="mh-card-sub">Empty playlist</span></button>
-          </div>
+          <div class="mh-grid" id="mh-playlist-grid"></div>
+          <div class="mh-empty" id="mh-no-playlists">No playlists yet. Select New Playlist to make one.</div>
         </div>
       </section>
       <section class="mh-view" data-mh-panel="playlist">
         <div class="mh-section">
           <button type="button" id="mh-back-playlists" style="border:0;background:none;color:#baf6d8;font:inherit;cursor:pointer">← Back to playlists</button>
-          <div class="mh-playlist-head">
-            <h2 class="mh-section-title" id="mh-playlist-title">Playlist</h2>
-            <button type="button" class="mh-playlist-action" id="mh-playlist-share" aria-label="Share playlist" title="Share playlist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.7 6.8-4.4M8.6 13.3l6.8 4.4"/></svg></button>
-            <button type="button" class="mh-playlist-action" id="mh-playlist-add" aria-label="Add songs" title="Add songs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="mh-playlist-hero">
+            <button type="button" class="mh-playlist-cover" id="mh-playlist-cover" aria-label="Change playlist cover"><span>♫</span></button>
+            <div class="mh-playlist-info">
+              <span class="mh-playlist-type">Public Playlist</span>
+              <h2 id="mh-playlist-title">Playlist 1</h2>
+              <p id="mh-playlist-owner">Your playlist · 0 songs</p>
+              <div class="mh-playlist-tools">
+                <button type="button" class="mh-playlist-edit" id="mh-playlist-edit">Edit details</button>
+                <button type="button" class="mh-playlist-action" id="mh-playlist-share" aria-label="Share playlist" title="Share playlist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.7 6.8-4.4M8.6 13.3l6.8 4.4"/></svg></button>
+                <button type="button" class="mh-playlist-action" id="mh-playlist-add" aria-label="Add songs" title="Add songs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+              </div>
+            </div>
           </div>
+          <input type="file" id="mh-playlist-cover-file" accept="image/*" hidden>
           <p class="mh-playlist-status" id="mh-playlist-status" aria-live="polite"></p>
           <div class="mh-empty">No songs in this playlist yet.</div>
         </div>
@@ -12713,7 +12728,7 @@ document.addEventListener('keydown', function (ev) {
 (function(){
   var screen=document.getElementById('tsw-music-screen'),frame=document.getElementById('tsw-music-embed');
   if(!screen)return;
-  var tokenKey='tsw.auth_token',user=null,playing=false,current='',gateAction=null;
+  var tokenKey='tsw.auth_token',user=null,playing=false,current='',gateAction=null,currentPlaylistIndex=-1;
   function token(){try{if(window.TSWProfiles&&window.TSWProfiles.getToken)return window.TSWProfiles.getToken()||'';var raw=localStorage.getItem(tokenKey)||'';try{return JSON.parse(raw)||''}catch(e){return raw}}catch(e){return ''}}
   function getUser(){if(window.TSWProfiles&&window.TSWProfiles.checkAuth){return window.TSWProfiles.checkAuth().then(function(){user=window.TSWProfiles.getUser?window.TSWProfiles.getUser():null;return user}).catch(function(){user=null;return null})}return fetch('/api/auth/me',{headers:token()?{'Authorization':'Bearer '+token()}: {},cache:'no-store'}).then(function(r){return r.json()}).then(function(d){user=d&&d.authenticated?d.user:null;return user}).catch(function(){user=null;return null})}
   function key(){return 'tsw.music.library.'+(user&&user.id?user.id:'guest')}
@@ -12728,9 +12743,11 @@ document.addEventListener('keydown', function (ev) {
   function runGated(action){if(!hasMusicIdentity()){getUser().then(function(){syncProfile();if(hasMusicIdentity()){performGated(action)}else{showGate(action)}});return}performGated(action)}
   function performGated(action){if(action==='like'){var d=data(),i=d.likes.indexOf(current);if(i<0)d.likes.push(current);else d.likes.splice(i,1);save(d);renderLibrary();renderLike()}else if(action==='playlist'){createPlaylist()}else if(action==='add'){addToPlaylist()}else if(action==='playlist-add'){switchView('search');var box=document.getElementById('mh-search-results');if(box)box.innerHTML='<div class="mh-empty">There are no songs available to add yet.</div>'}}
   function renderLike(){}
-  function renderLibrary(){var box=document.getElementById('mh-library-content');if(box)box.textContent=signedIn()?'Your library is empty. Music will be available here soon.':'Sign in to save music and create playlists.'}
+  function renderLibrary(){var box=document.getElementById('mh-library-content');if(box)box.textContent=signedIn()?'Your library is empty. Music will be available here soon.':'Sign in to save music and create playlists.';renderPlaylists()}
   function escapeHtml(v){return String(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
-  function createPlaylist(){var name=prompt('Name your playlist');if(!name||!name.trim())return;var d=data();d.playlists.push({name:name.trim().slice(0,50),items:[]});save(d);renderLibrary();switchView('library')}
+  function renderPlaylists(){var d=data(),grid=document.getElementById('mh-playlist-grid'),empty=document.getElementById('mh-no-playlists');if(!grid)return;grid.innerHTML=d.playlists.map(function(p,i){var art=p.cover?'<img src="'+escapeHtml(p.cover)+'" alt="">':'<span class="mh-art-mark">♫</span>';return '<button type="button" class="mh-card" data-mh-playlist-index="'+i+'"><span class="mh-art">'+art+'</span><span class="mh-card-title">'+escapeHtml(p.name||('Playlist '+(i+1)))+'</span><span class="mh-card-sub">Empty playlist</span></button>'}).join('');if(empty)empty.hidden=d.playlists.length>0}
+  function openPlaylist(index){var d=data(),p=d.playlists[index];if(!p)return;currentPlaylistIndex=index;document.getElementById('mh-playlist-title').textContent=p.name||('Playlist '+(index+1));document.getElementById('mh-playlist-owner').textContent='Your playlist · '+(p.items||[]).length+' songs';var cover=document.getElementById('mh-playlist-cover');cover.innerHTML=p.cover?'<img src="'+escapeHtml(p.cover)+'" alt="Playlist cover">':'<span>♫</span>';switchView('playlist')}
+  function createPlaylist(){var d=data(),name='Playlist '+(d.playlists.length+1);d.playlists.push({name:name,items:[],cover:''});save(d);renderPlaylists();renderLibrary();openPlaylist(d.playlists.length-1)}
   function addToPlaylist(){var d=data();if(!d.playlists.length){createPlaylist();return}var names=d.playlists.map(function(p,i){return (i+1)+'. '+p.name}).join('\n');var choice=Number(prompt('Add to which playlist?\n'+names));if(!choice||!d.playlists[choice-1])return;if(d.playlists[choice-1].items.indexOf(current)<0)d.playlists[choice-1].items.push(current);save(d);renderLibrary()}
   function switchView(name){document.querySelectorAll('#tsw-music-screen [data-mh-view]').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-mh-view')===name)});document.querySelectorAll('#tsw-music-screen [data-mh-panel]').forEach(function(p){p.classList.toggle('active',p.getAttribute('data-mh-panel')===name)});document.getElementById('mh-page-title').textContent=name==='library'?'Your Library':name==='playlist'?(document.getElementById('mh-playlist-title').textContent||'Playlist'):name.charAt(0).toUpperCase()+name.slice(1);if(name==='library')renderLibrary()}
   function play(){playing=false}
@@ -12741,9 +12758,11 @@ document.addEventListener('keydown', function (ev) {
     var b=e.target.closest('#sb-music-btn');if(b){e.preventDefault();openMusic();return}
     if(e.target.closest('#tsw-music-close')){closeMusic();return}
     var back=e.target.closest('#mh-back-playlists');if(back){switchView('browse');return}
-    var playlist=e.target.closest('#tsw-music-screen [data-mh-playlist]');if(playlist){document.getElementById('mh-playlist-title').textContent=playlist.getAttribute('data-mh-playlist');switchView('playlist');return}
+    var playlist=e.target.closest('#tsw-music-screen [data-mh-playlist-index]');if(playlist){openPlaylist(Number(playlist.getAttribute('data-mh-playlist-index')));return}
     var nav=e.target.closest('#tsw-music-screen [data-mh-view]');if(nav){switchView(nav.getAttribute('data-mh-view'));return}
     
+    if(e.target.closest('#mh-playlist-cover')){document.getElementById('mh-playlist-cover-file').click();return}
+    if(e.target.closest('#mh-playlist-edit')){var d=data(),p=d.playlists[currentPlaylistIndex];if(!p)return;var next=prompt('Playlist name',p.name||'Playlist');if(next&&next.trim()){p.name=next.trim().slice(0,60);save(d);openPlaylist(currentPlaylistIndex);renderPlaylists()}return}
     if(e.target.closest('#mh-playlist-share')){var title=document.getElementById('mh-playlist-title').textContent||'Playlist',shareUrl=location.href.split('#')[0]+'#music-playlist='+encodeURIComponent(title),status=document.getElementById('mh-playlist-status');if(navigator.share){navigator.share({title:title+' - TSW Music',url:shareUrl}).then(function(){if(status)status.textContent=''}).catch(function(){})}else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(shareUrl).then(function(){if(status)status.textContent='Playlist link copied'}).catch(function(){if(status)status.textContent='Unable to copy link on this browser'})}else if(status){status.textContent='Sharing is not supported in this browser'}return}
     if(e.target.closest('#mh-playlist-add')){runGated('playlist-add');return}
     var action=e.target.closest('#tsw-music-screen [data-mh-action]');if(action){runGated(action.getAttribute('data-mh-action'));return}
@@ -12753,11 +12772,12 @@ document.addEventListener('keydown', function (ev) {
     if(e.target.closest('#mh-play')){if(playing)pause();else play();return}
     if(e.target.closest('#mh-gate'))return;
   });
+  document.getElementById('mh-playlist-cover-file').addEventListener('change',function(e){var file=e.target.files&&e.target.files[0];if(!file)return;if(!file.type.match(/^image\\//)){e.target.value='';return}if(file.size>3*1024*1024){var st=document.getElementById('mh-playlist-status');if(st)st.textContent='Choose an image smaller than 3 MB.';e.target.value='';return}var reader=new FileReader();reader.onload=function(){var d=data(),p=d.playlists[currentPlaylistIndex];if(!p)return;p.cover=reader.result;save(d);openPlaylist(currentPlaylistIndex);renderPlaylists();var st=document.getElementById('mh-playlist-status');if(st)st.textContent='Cover updated'};reader.readAsDataURL(file);e.target.value=''});
   document.getElementById('mh-search-input').addEventListener('input',function(){var box=document.getElementById('mh-search-results');box.innerHTML='<div class="mh-empty">Music search will be available when playlists are added.</div>'});
   document.addEventListener('visibilitychange',function(){if(document.hidden)return;if(!screen.hidden)getUser().then(function(){syncProfile();renderLike();renderLibrary()})});
   document.addEventListener('click',function(e){if(e.target.closest('#profbtn'))setTimeout(function(){getUser().then(function(){syncProfile();if(signedIn()&&gateAction){var a=gateAction;hideGate();if(a!=='profile')runGated(a)}else if(signedIn()){hideGate()}})},700)});
   document.getElementById('mh-search-results').innerHTML='<div class="mh-empty">Music search will be available when playlists are added.</div>';
-  getUser().then(function(){syncProfile();renderLibrary();renderLike()});
+  getUser().then(function(){syncProfile();renderPlaylists();renderLibrary();renderLike()});
   screen.hidden=true;
 })();
 </script>
