@@ -3947,6 +3947,11 @@ html.reduced-motion .cl-bulb,html.reduced-motion .cl-shift,html.reduced-motion .
       <span class="sb-tab-label">Home</span>
       <button class="sb-tab-close" id="sb-tab-home-close" title="Reset Search" aria-label="Reset Search">&times;</button>
     </div>
+    <div class="sb-tab" id="sb-music-btn" role="button" tabindex="0" title="Music">
+      <div class="sb-tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+      <span class="sb-tab-label">Music</span>
+      <button class="sb-tab-close" id="sb-music-tab-close" type="button" title="Close Music" aria-label="Close Music">&times;</button>
+    </div>
   </div>
 
   <!-- Testing Area Folder (Tester & Owner Role Only) -->
@@ -3981,12 +3986,6 @@ html.reduced-motion .cl-bulb,html.reduced-motion .cl-shift,html.reduced-motion .
 
   <!-- Bottom Navigation Menu Items -->
   <nav class="sb-menu" aria-label="Side Navigation Menu">
-    <!-- Music -->
-    <button class="sb-menu-item" id="sb-music-btn" title="Music" type="button">
-      <span class="sb-menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>
-      <span class="sb-label">Music</span>
-    </button>
-
     <!-- AI -->
     <button class="sb-menu-item" id="ai-coming-soon-btn" title="AI" type="button">
       <span class="sb-menu-icon">✦</span>
@@ -5864,7 +5863,7 @@ html.reduced-motion .cl-bulb,html.reduced-motion .cl-shift,html.reduced-motion .
     <div class="music-brand"><span class="music-brand-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span>TSW Music</span></div>
     <div class="music-head-actions">
       <button id="tsw-music-minimize" type="button" title="Minimize player" aria-label="Minimize player">—</button>
-      <button id="tsw-music-close" type="button" title="Close player" aria-label="Close player">×</button>
+      
     </div>
   </header>
   <div class="music-stage">
@@ -12409,7 +12408,7 @@ document.addEventListener('keydown', function (ev) {
   var screen=document.getElementById('tsw-music-screen');
   var openBtn=document.getElementById('sb-music-btn');
   var miniBtn=document.getElementById('tsw-music-minimize');
-  var closeBtn=document.getElementById('tsw-music-close');
+  var closeBtn=document.getElementById('sb-music-tab-close');
   var frame=document.getElementById('tsw-music-embed');
   if(!screen||!openBtn||!frame)return;
   function pauseMusic(){
@@ -12417,6 +12416,7 @@ document.addEventListener('keydown', function (ev) {
   }
   function openMusic(){
     screen.hidden=false;
+    openBtn.classList.add('active');
     screen.classList.remove('mini');
     miniBtn.textContent='—';
     miniBtn.title='Minimize player';
@@ -12434,10 +12434,11 @@ document.addEventListener('keydown', function (ev) {
     screen.classList.remove('mini');
   }
   openBtn.addEventListener('click',openMusic);
+  openBtn.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();openMusic();}});
+  if(closeBtn)closeBtn.addEventListener('click',function(e){e.stopPropagation();closeMusic();openBtn.classList.remove('active');});
   miniBtn.addEventListener('click',function(){
     if(screen.classList.contains('mini'))openMusic();else minimizeMusic();
   });
-  closeBtn.addEventListener('click',closeMusic);
   screen.addEventListener('dblclick',function(e){
     if(screen.classList.contains('mini')&&!e.target.closest('button'))openMusic();
   });
