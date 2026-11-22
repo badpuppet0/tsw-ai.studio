@@ -3900,47 +3900,84 @@ html,body{background:#060b09!important}
 #home{position:relative;z-index:1;background:transparent!important}
 #home[hidden]{display:none!important}
 
-/* Compact, simple sidebar navigation. */
-#sidebar{background:#080e0b!important;border-right:1px solid rgba(210,235,220,.07)!important}
-.sb-menu{gap:3px!important;padding-top:6px!important;border-top:0!important}
-.sb-menu-item,.sb-tab{
-  min-height:34px!important;
-  padding:7px 10px!important;
-  gap:9px!important;
-  border:0!important;
-  border-radius:18px!important;
-  background:transparent!important;
-  color:#edf4ef!important;
-  font-size:13px!important;
-  font-weight:400!important;
-  box-shadow:none!important;
+/* Sidebar sizing and alignment. Keep the original expanded appearance. */
+@media (min-width: 641px) {
+  body.sidebar-collapsed #sidebar {
+    align-items:stretch;
+    padding-left:8px;
+    padding-right:8px;
+  }
+  body.sidebar-collapsed .sb-top-bar,
+  body.sidebar-collapsed .sb-tabs-section,
+  body.sidebar-collapsed .sb-menu {
+    width:100%;
+    align-items:center;
+  }
+  body.sidebar-collapsed .sb-tab,
+  body.sidebar-collapsed .sb-menu-item,
+  body.sidebar-collapsed .sb-folder-header,
+  body.sidebar-collapsed .sb-newtab-btn,
+  body.sidebar-collapsed .sb-menu .status {
+    box-sizing:border-box!important;
+    width:40px!important;
+    min-width:40px!important;
+    max-width:40px!important;
+    height:40px!important;
+    min-height:40px!important;
+    padding:0!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    display:flex;
+    align-items:center!important;
+    justify-content:center!important;
+    flex:0 0 40px;
+    border-radius:11px;
+  }
+  body.sidebar-collapsed .sb-menu-icon,
+  body.sidebar-collapsed .sb-tab-icon,
+  body.sidebar-collapsed .sb-folder-icon {
+    width:20px!important;
+    min-width:20px!important;
+    height:20px!important;
+    margin:0!important;
+    display:grid!important;
+    place-items:center!important;
+    flex:none!important;
+  }
+  body.sidebar-collapsed .sb-menu-icon svg,
+  body.sidebar-collapsed .sb-tab-icon svg,
+  body.sidebar-collapsed .sb-folder-icon svg {
+    width:18px!important;
+    height:18px!important;
+    display:block;
+  }
+  body.sidebar-collapsed .sb-menu .status .sb-menu-icon {
+    width:20px!important;
+    height:20px!important;
+  }
+  body.sidebar-collapsed .sb-menu .status .dot {
+    margin:0!important;
+  }
+  body.sidebar-collapsed .sb-menu-item .sb-label,
+  body.sidebar-collapsed .sb-tab .sb-tab-label,
+  body.sidebar-collapsed .sb-tab .sb-tab-close,
+  body.sidebar-collapsed .sb-folder-header .sb-tab-label,
+  body.sidebar-collapsed .sb-folder-badge,
+  body.sidebar-collapsed .sb-folder-arrow,
+  body.sidebar-collapsed .sb-menu .status #status-text {
+    display:none!important;
+  }
+  body.sidebar-collapsed #gamesbtn.games-unavailable:after {
+    display:none!important;
+  }
+  body.sidebar-collapsed .sb-menu {
+    gap:5px!important;
+    padding-top:8px!important;
+  }
+  body.sidebar-collapsed .sb-tabs-section {
+    gap:5px!important;
+  }
 }
-.sb-menu-item:hover,.sb-tab:hover{
-  background:rgba(255,255,255,.055)!important;
-  color:#fff!important;
-}
-.sb-menu-item.active,.sb-tab.active{
-  background:#17221c!important;
-  color:#fff!important;
-  font-weight:400!important;
-  box-shadow:none!important;
-}
-.sb-menu-icon,.sb-tab-icon{width:15px!important;height:15px!important;min-width:15px!important;color:inherit!important}
-.sb-menu-icon svg,.sb-tab-icon svg{width:14px!important;height:14px!important}
-.sb-label,.sb-tab-label{font-size:13px!important;line-height:18px!important}
-.sb-tabs-section{gap:3px!important}
-.sb-tab-close{width:18px!important;height:18px!important;font-size:14px!important}
-.sb-folder-header{min-height:32px!important;padding:6px 10px!important;border-radius:16px!important}
-.mark,.clock{ text-shadow:none!important; }
-#home .field{background:#101713!important;background-image:none!important;box-shadow:none!important;border-color:#35443a!important}
-.shortcut-card{background:#101713!important;box-shadow:none!important;border-color:#26372d!important}
-.shortcut-card:hover{background:#17231b!important;box-shadow:none!important}
-.go,.primary{background:#a93642!important;box-shadow:none!important}
-.go:hover,.primary:hover{background:#922f39!important}
-#sidebar{background:#0b100d!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
-.sb-tab,.sb-menu-item,.sb-newtab-btn{box-shadow:none!important;text-shadow:none!important}
-.sb-tab.active{box-shadow:none!important}
-#home .field:focus{box-shadow:none!important}
 </style>
 </head>
 <body>
